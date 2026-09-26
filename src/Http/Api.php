@@ -106,6 +106,10 @@ final class Api {
 		if ( ( new ServicePointRepository() )->query( array( 'provider_id' => $id, 'status' => 'any', 'per_page' => 1 ) )['total'] ) {
 			return new \WP_Error( 'in_use', 'این ارائه‌دهنده نقطه خدماتی دارد؛ ابتدا نقاط را منتقل یا حذف کنید.', array( 'status' => 409 ) );
 		}
-		return ( new ProviderRepository() )->delete( $id ) ? array( 'deleted' => true ) : new \WP_Error( 'not_found', 'ارائه‌دهنده پیدا نشد.', array( 'status' => 404 ) );
+		if ( ! ( new ProviderRepository() )->delete( $id ) ) { return new \WP_Error( 'not_found', 'ارائه‌دهنده پیدا نشد.', array( 'status' => 404 ) ); }
+		$styles = get_option( 'tapin_provider_styles', array() );
+		unset( $styles[$id] );
+		update_option( 'tapin_provider_styles', $styles, false );
+		return array( 'deleted' => true );
 	}
 }
