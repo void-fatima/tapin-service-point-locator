@@ -75,6 +75,14 @@ powershell -ExecutionPolicy Bypass -File scripts/build.ps1
 
 The build copies an explicit runtime allowlist and verifies required assets and prohibited-file exclusions. See [verification record](docs/VERIFICATION.md) for completed checks and practical limits.
 
-## Data retention
+## Public locator reference
+
+The client reference at [Tapin's province map](https://tapin.ir/map/) currently opens PDF branch directories, such as [Semnan](https://tapin.ir/map/semnan.pdf), containing branch names, addresses, postal codes and phones. The public shortcode follows that province-to-branch workflow in a light RTL interface, with the requested additional provider filters and live markers. The dark dashboard design remains specific to administration.
+
+Click a province or choose it from the accessible select, narrow by provider/city, or search for a branch, address or phone. Provider changes update the available provinces and cities. Cards expose postal codes and telephone links. Active branches without coordinates remain visible as address-only cards, never as fabricated markers. Inactive branches and inactive providers are excluded publicly. The existing fields support these needs without a schema rebuild or automatic copying/geocoding of the reference PDFs.
+
+`/public/points` remains marker-only; `/public/directory` includes address-only entries. Both omit private metadata. Dashboard metrics distinguish public directory entries, public markers, stored coordinate coverage and inactive records. Its operational map continues to include inactive records for administrators and labels this explicitly.
+
+## Data retention policy
 
 Normal deactivation and uninstall preserve business data. To deliberately erase all plugin tables/options on uninstall, define `TAPIN_UNINSTALL_DROP_DATA` as `true` in `wp-config.php` first. This is irreversible. Take a database backup before upgrades or destructive operations. The plugin does not upload files to a third-party processing service and ships no credentials.
