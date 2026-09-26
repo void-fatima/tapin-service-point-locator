@@ -37,4 +37,5 @@
 @media(prefers-reduced-motion:reduce){.tapin-app *{animation:none!important;scroll-behavior:auto!important}}
 .tapin-app .leaflet-tile-pane{filter:invert(1) hue-rotate(185deg) saturate(.35) brightness(.6) contrast(1.15)}
 .hero-number{line-height:1.05;letter-spacing:-2px}.metric-rail h2{margin-bottom:15px}.coordinate-totals{margin:14px 0 20px}.issue-list a{min-height:57px;padding:11px 16px}.provider-tabs button{font-size:13px}.dashboard-bottom td,.dashboard-bottom th{font-size:13px}.provider-symbol:has(img[src*="tipax"]){width:42px;min-width:42px;border-bottom:2px solid var(--provider);border-radius:3px}.provider-symbol img[src*="tipax"]{max-width:42px}
+.dashboard-bottom>.panel{min-width:0}
 @media(max-width:700px){.issue-list a{padding:10px 4px}.provider-tabs button{font-size:12px}.dashboard-bottom td,.dashboard-bottom th{font-size:11px}.tapin-app td{min-width:65px;word-break:normal}.dashboard-bottom td:first-child{min-width:125px}}

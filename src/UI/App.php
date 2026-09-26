@@ -9,7 +9,18 @@ final class App {
 			add_menu_page( 'نقاط خدماتی تاپین', 'تاپین', 'manage_options', 'tapin-locator', array( $this, 'admin' ), 'dashicons-location-alt', 30 );
 		} );
 		add_action( 'admin_enqueue_scripts', function( $hook ) { if ( 'toplevel_page_tapin-locator' === $hook ) { $this->assets( true ); } } );
-		add_shortcode( 'tapin_service_points', function() { $this->assets( false ); return '<div class="tapin-app tapin-public" dir="rtl" lang="fa"><div class="tapin-public-root"><p role="status">در حال بارگذاری نقشه…</p></div><noscript>برای استفاده از نقشه، جاوااسکریپت مرورگر را فعال کنید.</noscript></div>'; } );
+		add_action( 'wp_enqueue_scripts', function() {
+			global $post;
+			if ( $post instanceof \WP_Post && has_shortcode( $post->post_content, 'tapin_service_points' ) ) { $this->assets( false ); }
+		} );
+		add_shortcode( 'tapin_service_points', function() {
+			$this->assets( false );
+			// Template/widget shortcodes may render after wp_head; print their styles once.
+			ob_start();
+			if ( ! wp_style_is( 'tapin-app', 'done' ) ) { wp_print_styles( array( 'tapin-leaflet', 'tapin-app' ) ); }
+			$styles = ob_get_clean();
+			return $styles . '<div class="tapin-app tapin-public" dir="rtl" lang="fa"><div class="tapin-public-root"><p role="status">در حال بارگذاری نقشه…</p></div><noscript>برای استفاده از نقشه، جاوااسکریپت مرورگر را فعال کنید.</noscript></div>';
+		} );
 	}
 	public function admin(): void {
 		if ( ! current_user_can( 'manage_options' ) ) { return; }
