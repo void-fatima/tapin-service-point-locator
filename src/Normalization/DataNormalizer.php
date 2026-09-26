@@ -158,7 +158,7 @@ final class DataNormalizer {
 		$clean = trim( $clean );
 
 		if ( ! is_numeric( $clean ) ) {
-			return null;
+			return NAN; // Preserve invalid input so validation cannot silently accept it as missing.
 		}
 
 		return (float) $clean;
@@ -179,7 +179,7 @@ final class DataNormalizer {
 			return 'inactive';
 		}
 
-		return 'active';
+		return in_array( $raw, array( 'active', '1', 'true', 'enabled', 'فعال' ), true ) ? 'active' : $raw;
 	}
 
 	/**
