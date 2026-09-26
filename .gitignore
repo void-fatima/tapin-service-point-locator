@@ -33,3 +33,4 @@ wp-config.php
 # Local WordPress / Build exports
 *.zip
 *.tar.gz
+artifacts/
