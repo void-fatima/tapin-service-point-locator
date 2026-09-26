@@ -27,31 +27,31 @@ final class ServicePointValidator {
 		// 1. Provider validation (Required).
 		$provider_id = (int) ( $record['provider_id'] ?? 0 );
 		if ( $provider_id <= 0 ) {
-			$result->add_error( 'provider_id', __( 'Provider ID is required and must be a positive integer.', 'tapin-service-point-locator' ) );
+			$result->add_error( 'provider_id', __( 'ارائه‌دهنده معتبر را انتخاب کنید.', 'tapin-service-point-locator' ) );
 		}
 
 		// 2. Name validation (Required).
 		$name = trim( (string) ( $record['name'] ?? '' ) );
 		if ( '' === $name ) {
-			$result->add_error( 'name', __( 'Service point name is required.', 'tapin-service-point-locator' ) );
+			$result->add_error( 'name', __( 'نام شعبه الزامی است.', 'tapin-service-point-locator' ) );
 		}
 
 		// 3. Province validation (Required).
 		$province = trim( (string) ( $record['province'] ?? '' ) );
 		if ( '' === $province ) {
-			$result->add_error( 'province', __( 'Province is required.', 'tapin-service-point-locator' ) );
+			$result->add_error( 'province', __( 'استان الزامی است.', 'tapin-service-point-locator' ) );
 		}
 
 		// 4. City validation (Required).
 		$city = trim( (string) ( $record['city'] ?? '' ) );
 		if ( '' === $city ) {
-			$result->add_error( 'city', __( 'City is required.', 'tapin-service-point-locator' ) );
+			$result->add_error( 'city', __( 'شهر الزامی است.', 'tapin-service-point-locator' ) );
 		}
 
 		// 5. Address validation (Required).
 		$address = trim( (string) ( $record['address'] ?? '' ) );
 		if ( '' === $address ) {
-			$result->add_error( 'address', __( 'Physical address is required.', 'tapin-service-point-locator' ) );
+			$result->add_error( 'address', __( 'نشانی الزامی است.', 'tapin-service-point-locator' ) );
 		}
 
 		// 6. Coordinates validation (Optional, but strict if partially present or invalid).
@@ -65,24 +65,24 @@ final class ServicePointValidator {
 			// Address-only record: Gracefully allowed with an informative warning.
 			$result->add_warning(
 				'coordinates',
-				__( 'Address is provided without latitude/longitude coordinates.', 'tapin-service-point-locator' )
+				__( 'نشانی بدون مختصات ذخیره می‌شود و روی نقشه نمایش داده نمی‌شود.', 'tapin-service-point-locator' )
 			);
 		} elseif ( $has_lat !== $has_lng ) {
 			// Inconsistent coordinates.
 			$result->add_error(
 				'coordinates',
-				__( 'Both latitude and longitude must be provided together.', 'tapin-service-point-locator' )
+				__( 'عرض و طول جغرافیایی را با هم وارد کنید یا هر دو را خالی بگذارید.', 'tapin-service-point-locator' )
 			);
 		} else {
 			$lat_val = (float) $lat;
 			$lng_val = (float) $lng;
 
 			if ( ! is_numeric( $lat ) || ! is_finite( $lat_val ) || $lat_val < -90.0 || $lat_val > 90.0 ) {
-				$result->add_error( 'latitude', __( 'Latitude must be between -90 and +90 degrees.', 'tapin-service-point-locator' ) );
+				$result->add_error( 'latitude', __( 'عرض جغرافیایی باید عددی بین ۹۰- و ۹۰ باشد.', 'tapin-service-point-locator' ) );
 			}
 
 			if ( ! is_numeric( $lng ) || ! is_finite( $lng_val ) || $lng_val < -180.0 || $lng_val > 180.0 ) {
-				$result->add_error( 'longitude', __( 'Longitude must be between -180 and +180 degrees.', 'tapin-service-point-locator' ) );
+				$result->add_error( 'longitude', __( 'طول جغرافیایی باید عددی بین ۱۸۰- و ۱۸۰ باشد.', 'tapin-service-point-locator' ) );
 			}
 
 			// Geographic sanity check for Iran (approx 24° to 40° N, 44° to 64° E).
@@ -91,7 +91,7 @@ final class ServicePointValidator {
 				if ( ! $is_in_iran ) {
 					$result->add_warning(
 						'coordinates_bounds',
-						__( 'Coordinates appear to be outside the geographic boundaries of Iran.', 'tapin-service-point-locator' )
+						__( 'مختصات خارج از محدوده تقریبی ایران است؛ آن را بررسی کنید.', 'tapin-service-point-locator' )
 					);
 				}
 			}
@@ -100,7 +100,7 @@ final class ServicePointValidator {
 		// 7. Status validation.
 		$status = $record['status'] ?? 'active';
 		if ( ! in_array( $status, array( 'active', 'inactive' ), true ) ) {
-			$result->add_error( 'status', __( 'Status must be either active or inactive.', 'tapin-service-point-locator' ) );
+			$result->add_error( 'status', __( 'وضعیت باید active (فعال) یا inactive (غیرفعال) باشد.', 'tapin-service-point-locator' ) );
 		}
 
 		// 8. Postal code check (Non-blocking warning).
@@ -109,14 +109,14 @@ final class ServicePointValidator {
 			if ( strlen( $clean_postal ) !== 10 ) {
 				$result->add_warning(
 					'postal_code',
-					__( 'Postal code should typically be 10 digits for Iranian addresses.', 'tapin-service-point-locator' )
+					__( 'کد پستی باید ۱۰ رقم باشد؛ مقدار واردشده را بررسی کنید.', 'tapin-service-point-locator' )
 				);
 			}
 		}
 
 		// 9. Phone check (Non-blocking warning).
 		if ( empty( $record['phone'] ) ) {
-			$result->add_warning( 'phone', __( 'Phone number is not provided.', 'tapin-service-point-locator' ) );
+			$result->add_warning( 'phone', __( 'شماره تلفن وارد نشده است.', 'tapin-service-point-locator' ) );
 		}
 
 		return $result;
