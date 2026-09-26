@@ -102,7 +102,7 @@ final class ColumnMapper {
 	 */
 	private static function clean_header_name( string $name ): string {
 		$clean = DataNormalizer::normalize_persian_text( $name ) ?? '';
-		$clean = mb_strtolower( $clean, 'UTF-8' );
+		$clean = DataNormalizer::strtolower( $clean );
 		$clean = str_replace( array( '_', '-', '.', ':', '‌' ), ' ', $clean ); // Strip separators and ZWNJ
 		$clean = preg_replace( '/\s+/u', ' ', $clean );
 

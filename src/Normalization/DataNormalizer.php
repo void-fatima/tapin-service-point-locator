@@ -28,6 +28,26 @@ final class DataNormalizer {
 	}
 
 	/**
+	 * Safe lowercase supporting UTF-8 if mbstring extension is present.
+	 */
+	public static function strtolower( string $string ): string {
+		if ( function_exists( 'mb_strtolower' ) ) {
+			return mb_strtolower( $string, 'UTF-8' );
+		}
+		return strtolower( $string );
+	}
+
+	/**
+	 * Safe string length supporting UTF-8 if mbstring extension is present.
+	 */
+	public static function strlen( string $string ): int {
+		if ( function_exists( 'mb_strlen' ) ) {
+			return mb_strlen( $string, 'UTF-8' );
+		}
+		return strlen( $string );
+	}
+
+	/**
 	 * Normalizes empty and placeholder strings to null.
 	 */
 	public static function normalize_empty( $value ): ?string {

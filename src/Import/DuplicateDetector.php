@@ -86,7 +86,7 @@ class DuplicateDetector {
 	public function register( array $record, int $id ): void {
 		$code = DataNormalizer::normalize_empty( $record['code'] ?? null );
 		if ( null !== $code ) {
-			$this->code_index[ mb_strtolower( $code, 'UTF-8' ) ] = $id;
+			$this->code_index[ DataNormalizer::strtolower( $code ) ] = $id;
 		}
 
 		$phone = DataNormalizer::normalize_phone( $record['phone'] ?? null );
@@ -130,7 +130,7 @@ class DuplicateDetector {
 
 		// 1. DEFINITE SIGNAL A: Exact branch code match within same provider.
 		if ( null !== $code ) {
-			$lower_code = mb_strtolower( $code, 'UTF-8' );
+			$lower_code = DataNormalizer::strtolower( $code );
 			if ( isset( $this->code_index[ $lower_code ] ) ) {
 				return array(
 					'type'        => 'definite',
@@ -172,7 +172,7 @@ class DuplicateDetector {
 		// 4. PROBABLE SIGNAL A: Simplified branch name match in same city.
 		if ( '' !== $name && '' !== $city && isset( $this->city_index[ $city ] ) ) {
 			$candidate_simplified = self::simplify_branch_name( $name );
-			if ( mb_strlen( $candidate_simplified, 'UTF-8' ) >= 3 ) {
+			if ( DataNormalizer::strlen( $candidate_simplified ) >= 3 ) {
 				foreach ( $this->city_index[ $city ] as $existing ) {
 					if ( $existing['simplified_name'] === $candidate_simplified ) {
 						return array(
@@ -204,7 +204,7 @@ class DuplicateDetector {
 	 */
 	private static function simplify_branch_name( string $name ): string {
 		$clean = DataNormalizer::normalize_persian_text( $name ) ?? '';
-		$clean = mb_strtolower( $clean, 'UTF-8' );
+		$clean = DataNormalizer::strtolower( $clean );
 
 		$prefixes = array(
 			'/^باجه\s+پستی\s+/u',
