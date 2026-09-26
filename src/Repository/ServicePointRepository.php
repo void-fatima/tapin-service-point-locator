@@ -402,7 +402,7 @@ class ServicePointRepository {
 			$record['provider_id'] = (int) ( $data['provider_id'] ?? 0 );
 		}
 
-		if ( isset( $data['code'] ) || $is_insert ) {
+		if ( array_key_exists( 'code', $data ) || $is_insert ) {
 			$record['code'] = ! empty( $data['code'] ) ? sanitize_text_field( (string) $data['code'] ) : null;
 		}
 
@@ -422,11 +422,11 @@ class ServicePointRepository {
 			$record['address'] = sanitize_textarea_field( (string) ( $data['address'] ?? '' ) );
 		}
 
-		if ( isset( $data['postal_code'] ) || $is_insert ) {
+		if ( array_key_exists( 'postal_code', $data ) || $is_insert ) {
 			$record['postal_code'] = ! empty( $data['postal_code'] ) ? sanitize_text_field( (string) $data['postal_code'] ) : null;
 		}
 
-		if ( isset( $data['phone'] ) || $is_insert ) {
+		if ( array_key_exists( 'phone', $data ) || $is_insert ) {
 			$record['phone'] = ! empty( $data['phone'] ) ? sanitize_text_field( (string) $data['phone'] ) : null;
 		}
 
@@ -449,7 +449,7 @@ class ServicePointRepository {
 			$record['status'] = in_array( $status, array( 'active', 'inactive' ), true ) ? $status : 'active';
 		}
 
-		if ( isset( $data['metadata'] ) || $is_insert ) {
+		if ( array_key_exists( 'metadata', $data ) || $is_insert ) {
 			$meta = $data['metadata'] ?? null;
 			if ( is_array( $meta ) ) {
 				$record['metadata'] = wp_json_encode( $meta );

@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
 final class Api {
 	public function register(): void {
 		$this->route( '/points', 'GET', array( $this, 'points' ) );
+		$this->route( '/points/(?P<id>\d+)', 'GET', static fn( $r ) => ( new ServicePointRepository() )->get_by_id( (int) $r['id'] ) ?: new \WP_Error( 'not_found', 'نقطه خدماتی پیدا نشد.', array( 'status' => 404 ) ) );
 		$this->route( '/points', 'POST', static fn( $r ) => PointService::save( (array) $r->get_json_params() ) );
 		$this->route( '/points/(?P<id>\d+)', 'POST', static fn( $r ) => PointService::save( (array) $r->get_json_params(), (int) $r['id'] ) );
 		$this->route( '/points/(?P<id>\d+)', 'DELETE', static fn( $r ) => ( new ServicePointRepository() )->delete( (int) $r['id'] ) ? array( 'deleted' => true ) : new \WP_Error( 'not_found', 'رکورد پیدا نشد یا حذف نشد.', array( 'status' => 404 ) ) );
@@ -30,6 +31,10 @@ final class Api {
 	}
 
 	private function route( string $path, string $methods, callable $callback, bool $public = false ): void {
+		if ( 'GET' !== $methods && 0 !== strpos( $path, '/imports' ) ) {
+			$original = $callback;
+			$callback = static fn( $r ) => \Tapin\ServicePointLocator\Database\WriteLock::run( static fn() => $original( $r ) );
+		}
 		register_rest_route( 'tapin/v1', $path, array( 'methods' => $methods, 'callback' => $callback, 'permission_callback' => $public ? '__return_true' : static fn() => current_user_can( 'manage_options' ) ) );
 	}
 
