@@ -11,6 +11,7 @@ if ( ( $argv[1] ?? '' ) === 'cleanup' ) {
 			$wpdb->delete( $wpdb->prefix . 'tapin_service_points', array( 'id' => (int) $point_id ), array( '%d' ) );
 		}
 		foreach ( $data['test_jobs'] ?? array() as $job_id ) {
+			\Tapin\ServicePointLocator\Import\ImportJobs::cancel( (int) $job_id );
 			$wpdb->delete( $wpdb->prefix . 'tapin_imports', array( 'id' => (int) $job_id, 'user_id' => (int) $data['user_id'] ), array( '%d', '%d' ) );
 		}
 		WP_Session_Tokens::get_instance( $data['user_id'] )->destroy( $data['token'] );

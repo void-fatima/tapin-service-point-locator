@@ -7,8 +7,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Plugin runtime bootstrap. Registers WordPress hooks.
  *
- * No admin or frontend UI hooks are registered yet: the project is
- * still in the backend-foundation phase.
+ * Registers the admin application, public locator, REST API and import cleanup.
  */
 final class Plugin {
 
