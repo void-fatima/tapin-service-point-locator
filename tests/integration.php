@@ -46,11 +46,59 @@ try {
 	check( $done['data']['inserted'] === 1 && $done['data']['skipped'] === 1 && $done['data']['failed'] === 2, 'exact row outcome accounting' );
 	check( ImportJobs::step( (int) $job['id'] )['data']['processed'] === 4, 'repeated completed request is idempotent' );
 	check( ! isset( $done['data']['path'] ), 'private path never exposed' );
+	$match = $points->get_by_code( $provider, 'B-2' );
+	$update = \Tapin\ServicePointLocator\Import\RowProcessor::process( array( 'code' => 'B-2', 'name' => 'ویرایش واردشده', 'province' => 'تهران', 'city' => 'تهران', 'address' => 'نشانی تازه', 'phone' => '' ), $provider, 'update' );
+	check( $update['result'] === 'updated' && $points->get_by_id( $match['id'] )['phone'] === null, 'exact-code update clears optional phone' );
+	$shared_phone = $base; $shared_phone['code'] = 'OTHER-CODE'; $shared_phone['name'] = 'شعبه متفاوت';
+	$shared = \Tapin\ServicePointLocator\Import\RowProcessor::process( $shared_phone, $provider, 'update' );
+	check( $shared['result'] === 'skipped' && $points->get_by_id( $id )['name'] === $base['name'], 'shared phone cannot overwrite different branch' );
+	// At least two requests are needed; checkpoints survive page reloads.
+	$large = tempnam( sys_get_temp_dir(), 'tapin-large-' ); $files[] = $large;
+	$h = fopen( $large, 'wb' ); fputcsv( $h, array( 'code', 'name', 'province', 'city', 'address' ) );
+	for ( $i = 0; $i < 125; $i++ ) { fputcsv( $h, array( 'L-' . $i, 'Bulk ' . $i, 'Test', 'Test', 'Address ' . $i ) ); } fclose( $h );
+	$j = ImportJobs::stage( $large, 'large.csv' ); $jobs[] = (int) $j['id'];
+	ImportJobs::start( (int) $j['id'], array( 'provider_id' => $provider, 'mapping' => $j['data']['mapping'], 'duplicate_action' => 'skip' ) );
+	$partial = ImportJobs::step( (int) $j['id'] );
+	check( $partial['data']['processed'] > 0 && $partial['data']['processed'] <= 50 && $partial['status'] === 'running', 'bounded batch remains resumable' );
+	while ( $partial['status'] === 'running' ) { $partial = ImportJobs::step( (int) $j['id'] ); }
+	check( $partial['data']['inserted'] === 125, 'multi-request import inserts every row once' );
+	$cancelled = ImportJobs::stage( $file, 'cancel.csv' ); $jobs[] = (int) $cancelled['id'];
+	check( ImportJobs::cancel( (int) $cancelled['id'] )['status'] === 'cancelled', 'cancel preview without writing rows' );
+	// XLSX: first worksheet, shared strings, Persian values and blank trailing cells.
+	$xlsx = tempnam( sys_get_temp_dir(), 'tapin-xlsx-' ); $files[] = $xlsx;
+	$z = new ZipArchive(); $z->open( $xlsx, ZipArchive::OVERWRITE );
+	$z->addFromString( 'xl/workbook.xml', '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="First" sheetId="1" r:id="rId1"/></sheets></workbook>' );
+	$z->addFromString( 'xl/_rels/workbook.xml.rels', '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Target="worksheets/sheet1.xml" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"/></Relationships>' );
+	$z->addFromString( 'xl/sharedStrings.xml', '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><si><t>شعبه Excel</t></si></sst>' );
+	$sheet = '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData><row r="1">';
+	foreach ( array( 'A' => 'name', 'B' => 'province', 'C' => 'city', 'D' => 'address', 'E' => 'phone' ) as $col => $header ) { $sheet .= '<c r="' . $col . '1" t="inlineStr"><is><t>' . $header . '</t></is></c>'; }
+	$sheet .= '</row><row r="2"><c r="A2" t="s"><v>0</v></c><c r="B2" t="inlineStr"><is><t>فارس</t></is></c><c r="C2" t="inlineStr"><is><t>شیراز</t></is></c><c r="D2" t="inlineStr"><is><t>نشانی Excel</t></is></c></row></sheetData></worksheet>';
+	$z->addFromString( 'xl/worksheets/sheet1.xml', $sheet ); $z->close();
+	$xjob = ImportJobs::stage( $xlsx, 'test.xlsx' );
+	check( ! is_wp_error( $xjob ) && $xjob['data']['preview'][0][0] === 'شعبه Excel', 'XLSX shared strings decoded' );
+	if ( ! is_wp_error( $xjob ) ) {
+		$jobs[] = (int) $xjob['id'];
+		ImportJobs::start( (int) $xjob['id'], array( 'provider_id' => $provider, 'mapping' => $xjob['data']['mapping'], 'duplicate_action' => 'skip' ) );
+		check( ImportJobs::step( (int) $xjob['id'] )['data']['inserted'] === 1, 'XLSX blank trailing fields and address-only import' );
+	}
+	$z->open( $xlsx ); $z->addFromString( 'xl/worksheets/sheet1.xml', str_replace( '<v>0</v>', '<f>1+1</f><v>2</v>', $sheet ) ); $z->close();
+	check( is_wp_error( ImportJobs::stage( $xlsx, 'formula.xlsx' ) ), 'XLSX formulas rejected before import' );
+	$z->open( $xlsx ); $z->addFromString( 'xl/worksheets/sheet1.xml', substr( $sheet, 0, -20 ) ); $z->close();
+	check( is_wp_error( ImportJobs::stage( $xlsx, 'broken.xlsx' ) ), 'truncated worksheet rejected' );
+	$z->open( $xlsx ); $z->addFromString( 'xl/workbook.xml', '<!DOCTYPE x [<!ENTITY secret SYSTEM "file:///etc/passwd">]><x>&secret;</x>' ); $z->close();
+	check( is_wp_error( ImportJobs::stage( $xlsx, 'external-entity.xlsx' ) ), 'external entities rejected' );
+	check( is_wp_error( ImportJobs::stage( $file, 'legacy.xls' ) ), 'unsupported legacy XLS has explicit error' );
+	$summary = $points->summary();
+	check( $summary['total'] === $before['total'] + 128 && $summary['located'] === $before['located'], 'dashboard aggregation after all import paths' );
 	// REST permissions and public field minimization.
 	wp_set_current_user( 0 );
 	$server = rest_get_server();
 	$res = $server->dispatch( new WP_REST_Request( 'GET', '/tapin/v1/points' ) );
 	check( $res->get_status() >= 400, 'anonymous admin access denied' );
+	$subscriber = wp_insert_user( array( 'user_login' => 'tapin-test-' . wp_generate_password( 10, false ), 'user_pass' => wp_generate_password( 32 ), 'role' => 'subscriber' ) );
+	wp_set_current_user( $subscriber );
+	check( $server->dispatch( new WP_REST_Request( 'GET', '/tapin/v1/imports' ) )->get_status() === 403, 'subscriber denied import history' );
+	require_once ABSPATH . 'wp-admin/includes/user.php'; wp_delete_user( $subscriber ); wp_set_current_user( 0 );
 	$base['latitude'] = 35.7; $base['longitude'] = 51.4; $base['metadata'] = array( 'private' => 'hidden' );
 	PointService::save( $base, $id );
 	$req = new WP_REST_Request( 'GET', '/tapin/v1/public/points' ); $req->set_param( 'provider_id', $provider ); $req->set_param( 'status', 'any' );

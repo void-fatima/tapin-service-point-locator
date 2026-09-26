@@ -30,6 +30,8 @@ final class TableReader {
 		$zip = new \ZipArchive();
 		if ( true !== $zip->open( $path ) ) { throw new \RuntimeException( 'فایل XLSX معتبر نیست.' ); }
 		$temps = array();
+		$previous_errors = libxml_use_internal_errors( true );
+		libxml_clear_errors();
 		try {
 			$expanded = 0;
 			if ( $zip->numFiles > 2000 ) { throw new \RuntimeException( 'ساختار فایل Excel بیش از حد بزرگ است.' ); }
@@ -64,6 +66,7 @@ final class TableReader {
 							if ( count( $strings ) > 100000 ) { throw new \RuntimeException( 'تعداد متن‌های Excel بیش از حد مجاز است.' ); }
 						}
 					}
+					self::check_xml_errors();
 				} finally { $reader->close(); }
 			}
 			$reader = self::reader( $zip, $sheet, $temps );
@@ -92,10 +95,19 @@ final class TableReader {
 					$filled = array_fill( 0, max( array_keys( $row ) ) + 1, '' );
 					yield array_replace( $filled, $row );
 				}
+				self::check_xml_errors();
 			} finally { $reader->close(); }
 		} finally {
 			$zip->close();
 			foreach ( $temps as $temp ) { wp_delete_file( $temp ); }
+			libxml_clear_errors();
+			libxml_use_internal_errors( $previous_errors );
+		}
+	}
+
+	private static function check_xml_errors(): void {
+		foreach ( libxml_get_errors() as $error ) {
+			if ( $error->level >= LIBXML_ERR_ERROR ) { throw new \RuntimeException( 'ساختار XML فایل Excel خراب یا ناقص است.' ); }
 		}
 	}
 

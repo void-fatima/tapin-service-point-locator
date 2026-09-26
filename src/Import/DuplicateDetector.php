@@ -47,8 +47,8 @@ class DuplicateDetector {
 		global $wpdb;
 		$table = Schema::get_service_points_table();
 		if ( ! empty( $record['code'] ) ) {
-			$id = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE provider_id = %d AND code = %s ORDER BY id LIMIT 1", $this->provider_id, $record['code'] ) );
-			if ( $id ) { return array( 'id' => (int) $id, 'code_match' => true ); }
+			$ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} WHERE provider_id = %d AND code = %s ORDER BY id LIMIT 2", $this->provider_id, $record['code'] ) );
+			if ( $ids ) { return array( 'id' => (int) $ids[0], 'code_match' => count( $ids ) === 1 ); }
 		}
 		$id = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$table} WHERE provider_id = %d AND city = %s AND ((name = %s AND address = %s) OR (phone <> '' AND phone = %s)) ORDER BY id LIMIT 1", $this->provider_id, $record['city'], $record['name'], $record['address'], $record['phone'] ?? '' ) );
 		return $id ? array( 'id' => (int) $id, 'code_match' => false ) : null;

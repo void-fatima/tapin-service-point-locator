@@ -50,7 +50,7 @@ final class ImportJobs {
 		if ( ! $temp ) { return self::error( 'پوشه موقت قابل نوشتن نیست.', 500 ); }
 		@chmod( $temp, 0600 );
 		$handle = fopen( $temp, 'wb' );
-		$headers = null; $preview = array(); $total = 0; $started = microtime( true );
+		$headers = null; $preview = array(); $total = 0; $bytes = 0; $started = microtime( true );
 		try {
 			foreach ( TableReader::rows( $path, $type ) as $row ) {
 				if ( microtime( true ) - $started > 15 ) { throw new \RuntimeException( 'آماده‌سازی بیش از حد طول کشید؛ فایل را به چند CSV کوچک‌تر تقسیم کنید.' ); }
@@ -66,6 +66,8 @@ final class ImportJobs {
 				if ( 'xlsx' === $type && count( $row ) < count( $headers ) ) { $row = array_pad( $row, count( $headers ), '' ); }
 				$entry = array( 'row' => $total + 1, 'values' => $row );
 				$line = wp_json_encode( $entry, JSON_UNESCAPED_UNICODE ) . "\n";
+				$bytes += strlen( $line );
+				if ( $bytes > 64 * 1024 * 1024 ) { throw new \RuntimeException( 'حجم آماده‌سازی از ۶۴ مگابایت بیشتر است؛ فایل را تقسیم کنید.' ); }
 				if ( fwrite( $handle, $line ) !== strlen( $line ) ) { throw new \RuntimeException( 'فضای ذخیره موقت کافی نیست.' ); }
 				if ( count( $preview ) < 5 ) { $preview[] = $row; }
 			}
