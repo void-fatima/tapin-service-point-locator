@@ -132,6 +132,19 @@ $inconsistent['longitude'] = null;
 $val5 = ServicePointValidator::validate( $inconsistent );
 assert_test( 'Inconsistent lat/lng fails validation', ! $val5->is_valid() );
 
+$invalid_text = $valid_record;
+$invalid_text['latitude'] = 'not-a-coordinate';
+$invalid_text['longitude'] = 'bad';
+assert_test( 'Invalid coordinate text never becomes address-only', ! ServicePointValidator::validate( DataNormalizer::normalize_service_point( $invalid_text ) )->is_valid() );
+$invalid_text['latitude'] = '1e999';
+assert_test( 'Infinite coordinates rejected', ! ServicePointValidator::validate( DataNormalizer::normalize_service_point( $invalid_text ) )->is_valid() );
+$invalid_status = $valid_record;
+$invalid_status['status'] = 'typo';
+assert_test( 'Unknown status rejected', ! ServicePointValidator::validate( DataNormalizer::normalize_service_point( $invalid_status ) )->is_valid() );
+$too_long = $valid_record;
+$too_long['code'] = str_repeat( 'x', 65 );
+assert_test( 'Oversized branch code rejected before SQL', ! ServicePointValidator::validate( $too_long )->is_valid() );
+
 // --- Duplicate Detection Tests ---
 echo "\n--- Testing Duplicate Detection ---\n";
 $detector = new DuplicateDetector( 1 );

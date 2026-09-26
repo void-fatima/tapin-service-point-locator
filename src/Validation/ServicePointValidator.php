@@ -18,6 +18,11 @@ final class ServicePointValidator {
 	 */
 	public static function validate( array $record, bool $check_iran_bounds = true ): ValidationResult {
 		$result = new ValidationResult();
+		foreach ( array( 'code' => 64, 'name' => 255, 'province' => 100, 'city' => 100, 'phone' => 64, 'postal_code' => 20, 'address' => 10000 ) as $field => $limit ) {
+			if ( \Tapin\ServicePointLocator\Normalization\DataNormalizer::strlen( (string) ( $record[$field] ?? '' ) ) > $limit ) {
+				$result->add_error( $field, sprintf( 'طول فیلد %s نباید بیش از %d نویسه باشد.', $field, $limit ) );
+			}
+		}
 
 		// 1. Provider validation (Required).
 		$provider_id = (int) ( $record['provider_id'] ?? 0 );
@@ -72,11 +77,11 @@ final class ServicePointValidator {
 			$lat_val = (float) $lat;
 			$lng_val = (float) $lng;
 
-			if ( $lat_val < -90.0 || $lat_val > 90.0 ) {
+			if ( ! is_numeric( $lat ) || ! is_finite( $lat_val ) || $lat_val < -90.0 || $lat_val > 90.0 ) {
 				$result->add_error( 'latitude', __( 'Latitude must be between -90 and +90 degrees.', 'tapin-service-point-locator' ) );
 			}
 
-			if ( $lng_val < -180.0 || $lng_val > 180.0 ) {
+			if ( ! is_numeric( $lng ) || ! is_finite( $lng_val ) || $lng_val < -180.0 || $lng_val > 180.0 ) {
 				$result->add_error( 'longitude', __( 'Longitude must be between -180 and +180 degrees.', 'tapin-service-point-locator' ) );
 			}
 
