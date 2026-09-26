@@ -264,7 +264,10 @@ class ServicePointRepository {
 		$where_values  = array();
 		if ( ! empty( $params['public'] ) ) {
 			$providers = Schema::get_providers_table();
-			$where_clauses[] = "provider_id IN (SELECT id FROM {$providers} WHERE is_active = 1) AND has_coordinates = 1 AND latitude BETWEEN -90 AND 90 AND longitude BETWEEN -180 AND 180";
+			$where_clauses[] = "status = 'active' AND provider_id IN (SELECT id FROM {$providers} WHERE is_active = 1)";
+			if ( empty( $params['directory'] ) ) {
+				$where_clauses[] = 'has_coordinates = 1 AND latitude BETWEEN -90 AND 90 AND longitude BETWEEN -180 AND 180';
+			}
 		}
 		if ( ( $params['issue'] ?? '' ) === 'incomplete' ) {
 			$where_clauses[] = "(phone IS NULL OR phone = '' OR address = '' OR province = '' OR city = '')";
@@ -522,6 +525,8 @@ class ServicePointRepository {
 		$totals = array_map( 'intval', $totals );
 		$totals['duplicate'] = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE " . self::duplicate_clause( $table ) );
 		$totals['distribution'] = $wpdb->get_results( "SELECT provider_id, COUNT(*) total FROM {$table} GROUP BY provider_id", ARRAY_A );
+		$totals['public_mapped'] = $this->query( array( 'public' => true, 'per_page' => 1 ) )['total'];
+		$totals['public_directory'] = $this->query( array( 'public' => true, 'directory' => true, 'per_page' => 1 ) )['total'];
 		return $totals;
 	}
 
@@ -529,7 +534,7 @@ class ServicePointRepository {
 		global $wpdb;
 		$table = $this->get_table_name();
 		$providers = Schema::get_providers_table();
-		$where = $public ? "WHERE status = 'active' AND has_coordinates = 1 AND provider_id IN (SELECT id FROM {$providers} WHERE is_active = 1)" : '';
-		return $wpdb->get_results( "SELECT DISTINCT province, city FROM {$table} {$where} ORDER BY province, city LIMIT 10000", ARRAY_A );
+		$where = $public ? "WHERE status = 'active' AND provider_id IN (SELECT id FROM {$providers} WHERE is_active = 1)" : '';
+		return $wpdb->get_results( "SELECT DISTINCT provider_id, province, city FROM {$table} {$where} ORDER BY province, city LIMIT 10000", ARRAY_A );
 	}
 }

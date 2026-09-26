@@ -126,8 +126,17 @@ try {
 	$req = new WP_REST_Request( 'GET', '/tapin/v1/public/points' ); $req->set_param( 'provider_id', $provider ); $req->set_param( 'status', 'any' );
 	$res = $server->dispatch( $req ); $data = $res->get_data();
 	check( count( $data['items'] ) === 1 && ! isset( $data['items'][0]['metadata'] ), 'public map returns located records without private metadata' );
+	$directory = new WP_REST_Request( 'GET', '/tapin/v1/public/directory' );
+	$directory->set_param( 'provider_id', $provider );
+	$directory->set_param( 'status', 'any' );
+	$entries = $server->dispatch( $directory )->get_data();
+	check( $entries['total'] === 128 && array_key_exists( 'postal_code', $entries['items'][0] ) && ! isset( $entries['items'][0]['metadata'] ), 'public directory includes address-only branches and safe contact fields' );
+	check( $points->summary()['public_mapped'] === $before['public_mapped'] + 1 && $points->summary()['public_directory'] === $before['public_directory'] + 128, 'publication metrics match directory and marker rules' );
+	PointService::save( array_merge( $base, array( 'status' => 'inactive' ) ), $id );
+	check( $server->dispatch( $req )->get_data()['total'] === 0 && $server->dispatch( $directory )->get_data()['total'] === 127, 'inactive point excluded from both public experiences' );
 	$providers->update( $provider, array( 'is_active' => 0 ) );
 	check( $server->dispatch( $req )->get_data()['total'] === 0, 'inactive provider excluded publicly' );
+	check( $server->dispatch( $directory )->get_data()['total'] === 0, 'inactive provider also excluded from address directory' );
 } finally {
 	global $wpdb;
 	$wpdb->delete( $points->get_table_name(), array( 'provider_id' => $provider ), array( '%d' ) );

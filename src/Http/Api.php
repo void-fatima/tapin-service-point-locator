@@ -27,6 +27,7 @@ final class Api {
 		$this->route( '/imports/(?P<id>\d+)/step', 'POST', static fn( $r ) => ImportJobs::step( (int) $r['id'] ) );
 		$this->route( '/imports/(?P<id>\d+)/cancel', 'POST', static fn( $r ) => ImportJobs::cancel( (int) $r['id'] ) );
 		$this->route( '/public/points', 'GET', array( $this, 'public_points' ), true );
+		$this->route( '/public/directory', 'GET', fn( $r ) => $this->public_points( $r, true ), true );
 		$this->route( '/public/filters', 'GET', static fn() => array( 'providers' => self::providers( true ), 'locations' => ( new ServicePointRepository() )->locations( true ) ), true );
 	}
 
@@ -55,14 +56,15 @@ final class Api {
 		return ( new ServicePointRepository() )->query( $this->filters( $r ) );
 	}
 
-	public function public_points( $r ): array {
+	public function public_points( $r, bool $directory = false ): array {
 		$args = $this->filters( $r );
 		$args['status'] = 'active';
 		$args['public'] = true;
-		$args['has_coordinates'] = 1;
+		$args['directory'] = $directory;
+		$args['has_coordinates'] = $directory ? null : 1;
 		unset( $args['issue'] );
 		$result = ( new ServicePointRepository() )->query( $args );
-		$allowed = array_flip( array( 'id', 'provider_id', 'name', 'province', 'city', 'address', 'phone', 'latitude', 'longitude' ) );
+		$allowed = array_flip( array( 'id', 'provider_id', 'name', 'province', 'city', 'address', 'postal_code', 'phone', 'latitude', 'longitude', 'has_coordinates' ) );
 		$result['items'] = array_map( static fn( $row ) => array_intersect_key( $row, $allowed ), $result['items'] );
 		return $result;
 	}
