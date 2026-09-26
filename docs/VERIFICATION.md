@@ -42,4 +42,10 @@ Persian warnings, RTL layout, scoped WordPress styles, keyboard-visible focus, n
 - Minimum supported PHP/WordPress versions and multisite network activation were not runtime-tested. This release is verified on the single-site environment above.
 - The Local PHP installation emits a pre-existing missing `php_imagick.dll` startup warning. The plugin does not require Imagick; checks pass without it.
 
-No production deployment, remote push, or merge into `main` was performed.
+### Public locator alignment continuation
+
+Compared the live Tapin province map and its Semnan branch-directory PDF with the existing fields. Added a public address directory, postal codes and telephone links, provider-dependent locations, province polygon selection, search, light public styling, and separate directory/marker publication metrics. Preserved the dark administration interface and its operational view of inactive records.
+
+Re-ran 36 WordPress integration checks and 30 logic checks successfully. New assertions cover address-only publication, safe contact fields, public metric calculations and inactive point/provider exclusion from both endpoints. Playwright passed address-only cards without marker buttons, province/search filtering, branch popups, desktop/mobile layout, and existing CRUD/import/provider/nonce flows. Desktop and mobile screenshots are in ignored `artifacts/`.
+
+No production deployment was performed. Git publication is handled separately after verification.
