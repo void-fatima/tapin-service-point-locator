@@ -46,6 +46,11 @@ final class ImportJobs {
 		if ( ! in_array( $type, array( 'csv', 'xlsx' ), true ) ) { return self::error( 'فقط CSV (UTF-8) و XLSX پشتیبانی می‌شوند. فایل XLS را ابتدا به XLSX تبدیل کنید.' ); }
 		$limit = ( 'csv' === $type ? 50 : 10 ) * 1024 * 1024;
 		if ( ! is_readable( $path ) || filesize( $path ) > $limit ) { return self::error( 'حداکثر حجم CSV برابر ۵۰ و XLSX برابر ۱۰ مگابایت است.' ); }
+		$temp_dir = str_replace( '\\', '/', strtolower( (string) realpath( sys_get_temp_dir() ) ) );
+		$web_root = rtrim( str_replace( '\\', '/', strtolower( (string) realpath( ABSPATH ) ) ), '/' ) . '/';
+		if ( ! $temp_dir || 0 === strpos( $temp_dir . '/', $web_root ) ) {
+			return self::error( 'پوشه موقت PHP باید قابل نوشتن و بیرون از پوشه عمومی وردپرس باشد.', 500 );
+		}
 		$temp = tempnam( sys_get_temp_dir(), 'tapin-import-' );
 		if ( ! $temp ) { return self::error( 'پوشه موقت قابل نوشتن نیست.', 500 ); }
 		@chmod( $temp, 0600 );
