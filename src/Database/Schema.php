@@ -82,6 +82,18 @@ CREATE TABLE {$service_points_table} (
 ) {$charset_collate};";
 
 		dbDelta( $sql );
+		$imports = $wpdb->prefix . 'tapin_imports';
+		dbDelta( "CREATE TABLE {$imports} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  user_id bigint(20) unsigned NOT NULL,
+  filename varchar(255) NOT NULL,
+  status varchar(20) NOT NULL,
+  data longtext NOT NULL,
+  created_at datetime NOT NULL,
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY status_updated (status, updated_at)
+) ENGINE=InnoDB {$charset_collate};" );
 
 		self::seed_default_providers();
 

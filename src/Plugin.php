@@ -25,6 +25,15 @@ final class Plugin {
 	private function __construct() {}
 
 	public function boot(): void {
-		// Runtime hooks (REST, cron, admin UI, frontend) are added in later phases.
+		add_action( 'init', static function() {
+			if ( (int) get_option( Database\Schema::DB_VERSION_OPTION ) !== TAPIN_DB_VERSION ) {
+				Database\Schema::migrate();
+			}
+		} );
+		add_action( 'rest_api_init', array( new Http\Api(), 'register' ) );
+		add_action( 'tapin_cleanup_imports', array( Import\ImportJobs::class, 'cleanup' ) );
+		add_action( 'init', static function() {
+			if ( ! wp_next_scheduled( 'tapin_cleanup_imports' ) ) { wp_schedule_event( time() + HOUR_IN_SECONDS, 'hourly', 'tapin_cleanup_imports' ); }
+		} );
 	}
 }
