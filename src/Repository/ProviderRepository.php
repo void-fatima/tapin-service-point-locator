@@ -14,7 +14,7 @@ class ProviderRepository {
 	/**
 	 * Returns the table name.
 	 */
-	protected function get_table_name(): string {
+	public function get_table_name(): string {
 		return Schema::get_providers_table();
 	}
 
