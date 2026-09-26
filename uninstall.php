@@ -10,6 +10,8 @@
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
+wp_clear_scheduled_hook( 'tapin_cleanup_imports' );
+
 // Conservative cleanup: Tables and options are preserved unless explicitly requested
 // via the TAPIN_UNINSTALL_DROP_DATA constant or an explicit WordPress option.
 $drop_data = defined( 'TAPIN_UNINSTALL_DROP_DATA' ) && TAPIN_UNINSTALL_DROP_DATA;
@@ -19,12 +21,22 @@ if ( $drop_data ) {
 
 	$service_points_table = $wpdb->prefix . 'tapin_service_points';
 	$providers_table      = $wpdb->prefix . 'tapin_providers';
+	$imports_table        = $wpdb->prefix . 'tapin_imports';
+	// Remove only private staging files created by this plugin.
+	$jobs = $wpdb->get_col( "SELECT data FROM {$imports_table}" );
+	foreach ( $jobs ?: array() as $json ) {
+		$data = json_decode( $json, true );
+		$path = $data['path'] ?? '';
+		if ( $path && realpath( dirname( $path ) ) === realpath( sys_get_temp_dir() ) && 0 === strpos( basename( $path ), 'tapin-import-' ) ) { wp_delete_file( $path ); }
+	}
 
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	$wpdb->query( "DROP TABLE IF EXISTS {$service_points_table}" );
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	$wpdb->query( "DROP TABLE IF EXISTS {$providers_table}" );
+	$wpdb->query( "DROP TABLE IF EXISTS {$imports_table}" );
 
 	delete_option( 'tapin_db_version' );
 	delete_option( 'tapin_settings' );
+	delete_option( 'tapin_provider_styles' );
 }

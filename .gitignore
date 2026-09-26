@@ -13,7 +13,7 @@ desktop.ini
 *~
 
 # Dependencies
-vendor/
+/vendor/
 node_modules/
 
 # Logs & temp files
