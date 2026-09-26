@@ -88,6 +88,28 @@ try {
 	$z->open( $xlsx ); $z->addFromString( 'xl/workbook.xml', '<!DOCTYPE x [<!ENTITY secret SYSTEM "file:///etc/passwd">]><x>&secret;</x>' ); $z->close();
 	check( is_wp_error( ImportJobs::stage( $xlsx, 'external-entity.xlsx' ) ), 'external entities rejected' );
 	check( is_wp_error( ImportJobs::stage( $file, 'legacy.xls' ) ), 'unsupported legacy XLS has explicit error' );
+	// A checkpoint failure must roll back inserted rows, allowing a safe retry.
+	$retry_file = tempnam( sys_get_temp_dir(), 'tapin-retry-' ); $files[] = $retry_file;
+	file_put_contents( $retry_file, "code,name,province,city,address\nRETRY-1,Retry,Test,Test,Retry address\n" );
+	$retry = ImportJobs::stage( $retry_file, 'retry.csv' ); $jobs[] = (int) $retry['id'];
+	ImportJobs::start( (int) $retry['id'], array( 'provider_id' => $provider, 'mapping' => $retry['data']['mapping'], 'duplicate_action' => 'skip' ) );
+	global $wpdb;
+	$fail_checkpoint = static function( $sql ) use ( $wpdb ) {
+		return 0 === strpos( $sql, 'UPDATE `' . $wpdb->prefix . 'tapin_imports`' ) ? 'UPDATE tapin_intentionally_missing_table SET id = 1' : $sql;
+	};
+	$previous_suppression = $wpdb->suppress_errors( true );
+	add_filter( 'query', $fail_checkpoint );
+	try { $failed_step = ImportJobs::step( (int) $retry['id'] ); }
+	finally { remove_filter( 'query', $fail_checkpoint ); $wpdb->suppress_errors( $previous_suppression ); }
+	check( is_wp_error( $failed_step ) && ! $points->get_by_code( $provider, 'RETRY-1' ) && ImportJobs::get_public( (int) $retry['id'] )['data']['processed'] === 0, 'checkpoint failure rolls back data and cursor together' );
+	check( ImportJobs::step( (int) $retry['id'] )['data']['inserted'] === 1, 'retry after rollback inserts exactly once' );
+	$points->delete( $points->get_by_code( $provider, 'RETRY-1' )['id'] );
+	// Ambiguous exact codes remain candidates, never a random update target.
+	$ambiguous = $base; $ambiguous['code'] = 'B-2'; $ambiguous['name'] = 'Ambiguous';
+	$ambiguous_id = PointService::save( $ambiguous )['item']['id'];
+	check( $points->summary()['duplicate'] === $before['duplicate'] + 2, 'dashboard counts both duplicate-code candidates' );
+	check( \Tapin\ServicePointLocator\Import\RowProcessor::process( $ambiguous, $provider, 'update' )['result'] === 'skipped', 'ambiguous exact codes are not overwritten' );
+	$points->delete( $ambiguous_id );
 	$summary = $points->summary();
 	check( $summary['total'] === $before['total'] + 128 && $summary['located'] === $before['located'], 'dashboard aggregation after all import paths' );
 	// REST permissions and public field minimization.

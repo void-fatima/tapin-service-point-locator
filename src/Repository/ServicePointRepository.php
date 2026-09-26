@@ -512,7 +512,7 @@ class ServicePointRepository {
 
 	/** Candidate duplicates, never an instruction to merge records automatically. */
 	public static function duplicate_clause( string $table ): string {
-		return "EXISTS (SELECT 1 FROM {$table} d WHERE d.provider_id = {$table}.provider_id AND d.id <> {$table}.id AND (({$table}.code IS NOT NULL AND {$table}.code <> '' AND d.code = {$table}.code) OR (d.city = {$table}.city AND d.name = {$table}.name AND d.address = {$table}.address)))";
+		return "(EXISTS (SELECT 1 FROM {$table} d WHERE d.provider_id = {$table}.provider_id AND d.id <> {$table}.id AND {$table}.code IS NOT NULL AND {$table}.code <> '' AND d.code = {$table}.code) OR EXISTS (SELECT 1 FROM {$table} d WHERE d.provider_id = {$table}.provider_id AND d.id <> {$table}.id AND d.city = {$table}.city AND d.name = {$table}.name AND d.address = {$table}.address))";
 	}
 
 	public function summary(): array {

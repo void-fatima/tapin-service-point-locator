@@ -78,7 +78,9 @@ CREATE TABLE {$service_points_table} (
   KEY status (status),
   KEY coords_status (has_coordinates, status),
   KEY lat_lng (latitude, longitude),
-  KEY code_provider (provider_id, code)
+  KEY code_provider (provider_id, code),
+  KEY provider_city_name (provider_id, city, name(100)),
+  KEY provider_city_phone (provider_id, city, phone)
 ) {$charset_collate};";
 
 		dbDelta( $sql );
