@@ -45,10 +45,10 @@ final class ServicePointValidator {
 			$result->add_error( 'province', __( 'استان الزامی است.', 'tapin-service-point-locator' ) );
 		}
 
-		// 4. City validation (Required).
+		// 4. An unknown city stays empty rather than being guessed from a province.
 		$city = trim( (string) ( $record['city'] ?? '' ) );
 		if ( '' === $city ) {
-			$result->add_error( 'city', __( 'شهر الزامی است.', 'tapin-service-point-locator' ) );
+			$result->add_warning( 'city', __( 'شهر مشخص نیست؛ از حدس زدن شهر خودداری کنید.', 'tapin-service-point-locator' ) );
 		}
 
 		// 5. Address validation (Required).

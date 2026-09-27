@@ -41,4 +41,5 @@ if ( $drop_data ) {
 	delete_option( 'tapin_db_version' );
 	delete_option( 'tapin_settings' );
 	delete_option( 'tapin_provider_styles' );
+	delete_option( 'tapin_directory_snapshot' );
 }
