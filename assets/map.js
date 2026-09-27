@@ -72,7 +72,7 @@
       city.value=[...city.options].some(o=>o.value===oldCity)?oldCity:'';
     }
     const details = p => {
-      const contacts=[['تلفن همراه',p.mobile_phone],['تلفن ثابت',p.landline_phone],['تلفن',p.phone]].filter(([,value])=>value);
+      const contacts=[['تلفن همراه',p.mobile_phone],['تلفن ثابت',p.landline_phone],['تلفن',p.phone]].filter(([,value])=>value).flatMap(([label,value])=>String(value).split(/\s*[/;|]\s*/).map(part=>[label,part]));
       return '<p>'+esc(p.address)+'</p>'+(p.postal_code?'<p>کد پستی: <bdi>'+esc(p.postal_code)+'</bdi></p>':'')+contacts.map(([label,value])=>'<p>'+label+': <a href="tel:'+esc(String(value).replace(/[^+0-9]/g,''))+'"><bdi>'+esc(value)+'</bdi></a></p>').join('');
     };
     updateLocations();
