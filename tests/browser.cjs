@@ -58,7 +58,7 @@ const path=require('path');
     await publicPage.locator('.locator-search button').click();
     await expect(publicPage.locator('.branch-card')).toHaveCount(1);
     await publicPage.locator('.branch-card').filter({hasText:testName}).getByRole('button',{name:'نمایش روی نقشه'}).click();
-    await expect(publicPage.locator('.leaflet-popup-content')).toContainText('نشانی آزمایشی مرورگر');
+    await expect(publicPage.locator('.tapin-detail')).toContainText('نشانی آزمایشی مرورگر');
     await expect(publicPage.locator('.leaflet-tile-loaded').first()).toBeVisible({timeout:20000});
     await publicPage.screenshot({path:path.join(out,'public-map.png'),fullPage:true});
     await publicPage.setViewportSize({width:390,height:844});
