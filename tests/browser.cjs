@@ -62,6 +62,8 @@ const path=require('path');
     await expect(publicPage.locator('.leaflet-tile-loaded').first()).toBeVisible({timeout:20000});
     await publicPage.screenshot({path:path.join(out,'public-map.png'),fullPage:true});
     await publicPage.setViewportSize({width:390,height:844});
+    await publicPage.keyboard.press('Escape');
+    await publicPage.locator('button[data-view="list"]').click();
     await expect(publicPage.locator('.branch-card')).toBeVisible();
     if(await publicPage.locator('.tapin-public').evaluate(el=>el.scrollWidth>el.clientWidth+2))throw new Error('Public locator overflows on mobile');
     await publicPage.screenshot({path:path.join(out,'public-map-mobile.png'),fullPage:true});
