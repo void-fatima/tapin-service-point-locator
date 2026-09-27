@@ -279,7 +279,7 @@ class ServicePointRepository {
 			}
 		}
 		if ( ( $params['issue'] ?? '' ) === 'incomplete' ) {
-			$where_clauses[] = "(phone IS NULL OR phone = '' OR address = '' OR province = '' OR city = '')";
+			$where_clauses[] = "((COALESCE(phone, '') = '' AND COALESCE(mobile_phone, '') = '' AND COALESCE(landline_phone, '') = '') OR address = '' OR province = '' OR city = '')";
 		}
 		if ( ( $params['issue'] ?? '' ) === 'duplicate' ) {
 			$where_clauses[] = self::duplicate_clause( $table );
@@ -540,7 +540,7 @@ class ServicePointRepository {
 	public function summary(): array {
 		global $wpdb;
 		$table = $this->get_table_name();
-		$totals = $wpdb->get_row( "SELECT COUNT(*) total, COALESCE(SUM(has_coordinates = 1),0) located, COALESCE(SUM(has_coordinates = 0),0) missing, COALESCE(SUM(status = 'inactive'),0) inactive, COALESCE(SUM(phone IS NULL OR phone = '' OR address = '' OR province = '' OR city = ''),0) incomplete FROM {$table}", ARRAY_A );
+		$totals = $wpdb->get_row( "SELECT COUNT(*) total, COALESCE(SUM(has_coordinates = 1),0) located, COALESCE(SUM(has_coordinates = 0),0) missing, COALESCE(SUM(status = 'inactive'),0) inactive, COALESCE(SUM((COALESCE(phone, '') = '' AND COALESCE(mobile_phone, '') = '' AND COALESCE(landline_phone, '') = '') OR address = '' OR province = '' OR city = ''),0) incomplete FROM {$table}", ARRAY_A );
 		$totals = array_map( 'intval', $totals );
 		$totals['duplicate'] = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE " . self::duplicate_clause( $table ) );
 		$totals['distribution'] = $wpdb->get_results( "SELECT provider_id, COUNT(*) total FROM {$table} GROUP BY provider_id", ARRAY_A );

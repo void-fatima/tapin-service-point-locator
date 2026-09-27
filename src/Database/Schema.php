@@ -117,6 +117,11 @@ CREATE TABLE {$service_points_table} (
 ) ENGINE=InnoDB {$charset_collate};" );
 		self::seed_default_providers();
 
+		// Do not mark a failed/partial migration current: let the next request retry.
+		foreach ( array( $service_points_table => array( 'mobile_phone', 'landline_phone', 'source', 'data_quality_status' ), $logs => array( 'event', 'context', 'created_at' ) ) as $table => $required ) {
+			$columns = $wpdb->get_col( "SHOW COLUMNS FROM {$table}" );
+			if ( array_diff( $required, $columns ?: array() ) ) { return; }
+		}
 		update_option( self::DB_VERSION_OPTION, TAPIN_DB_VERSION );
 	}
 
