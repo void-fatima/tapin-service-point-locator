@@ -18,7 +18,7 @@ final class ServicePointValidator {
 	 */
 	public static function validate( array $record, bool $check_iran_bounds = true ): ValidationResult {
 		$result = new ValidationResult();
-		foreach ( array( 'code' => 64, 'name' => 255, 'province' => 100, 'city' => 100, 'phone' => 64, 'postal_code' => 20, 'address' => 10000 ) as $field => $limit ) {
+		foreach ( array( 'code' => 64, 'name' => 255, 'province' => 100, 'city' => 100, 'phone' => 64, 'mobile_phone' => 64, 'landline_phone' => 64, 'source' => 500, 'postal_code' => 20, 'address' => 10000 ) as $field => $limit ) {
 			if ( \Tapin\ServicePointLocator\Normalization\DataNormalizer::strlen( (string) ( $record[$field] ?? '' ) ) > $limit ) {
 				$result->add_error( $field, sprintf( 'طول فیلد %s نباید بیش از %d نویسه باشد.', $field, $limit ) );
 			}
@@ -115,7 +115,7 @@ final class ServicePointValidator {
 		}
 
 		// 9. Phone check (Non-blocking warning).
-		if ( empty( $record['phone'] ) ) {
+		if ( empty( $record['phone'] ) && empty( $record['mobile_phone'] ) && empty( $record['landline_phone'] ) ) {
 			$result->add_warning( 'phone', __( 'شماره تلفن وارد نشده است.', 'tapin-service-point-locator' ) );
 		}
 

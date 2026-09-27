@@ -16,7 +16,7 @@
 defined( 'ABSPATH' ) || exit;
 
 define( 'TAPIN_VERSION', '1.0.0' );
-define( 'TAPIN_DB_VERSION', 3 );
+define( 'TAPIN_DB_VERSION', 4 );
 define( 'TAPIN_PLUGIN_FILE', __FILE__ );
 define( 'TAPIN_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TAPIN_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

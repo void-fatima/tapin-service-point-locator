@@ -78,7 +78,7 @@ class ServicePointRepository {
 		$result = $wpdb->insert(
 			$this->get_table_name(),
 			$prepared,
-			$this->get_column_formats()
+			array_map( fn( $column ) => $this->get_column_formats()[$column] ?? '%s', array_keys( $prepared ) )
 		);
 
 		return $result ? (int) $wpdb->insert_id : 0;
@@ -160,6 +160,10 @@ class ServicePointRepository {
 			'address',
 			'postal_code',
 			'phone',
+			'mobile_phone',
+			'landline_phone',
+			'source',
+			'data_quality_status',
 			'latitude',
 			'longitude',
 			'has_coordinates',
@@ -187,6 +191,10 @@ class ServicePointRepository {
 					'%s', // address
 					'%s', // postal_code
 					'%s', // phone
+					'%s', // mobile_phone
+					'%s', // landline_phone
+					'%s', // source
+					'%s', // data_quality_status
 					null !== $prepared['latitude'] ? '%f' : 'NULL', // latitude
 					null !== $prepared['longitude'] ? '%f' : 'NULL', // longitude
 					'%d', // has_coordinates
@@ -206,6 +214,7 @@ class ServicePointRepository {
 				$values[] = $prepared['address'];
 				$values[] = $prepared['postal_code'];
 				$values[] = $prepared['phone'];
+				foreach ( array( 'mobile_phone', 'landline_phone', 'source', 'data_quality_status' ) as $field ) { $values[] = $prepared[$field]; }
 
 				if ( null !== $prepared['latitude'] ) {
 					$values[] = (float) $prepared['latitude'];
@@ -433,11 +442,14 @@ class ServicePointRepository {
 			$record['phone'] = ! empty( $data['phone'] ) ? sanitize_text_field( (string) $data['phone'] ) : null;
 		}
 
+		foreach ( array( 'mobile_phone', 'landline_phone', 'source' ) as $field ) {
+			if ( array_key_exists( $field, $data ) || $is_insert ) { $record[$field] = sanitize_text_field( (string) ( $data[$field] ?? '' ) ); }
+		}
 		// Coordinates handling.
 		$has_lat = isset( $data['latitude'] ) && '' !== (string) $data['latitude'] && null !== $data['latitude'];
 		$has_lng = isset( $data['longitude'] ) && '' !== (string) $data['longitude'] && null !== $data['longitude'];
 
-		if ( $has_lat && $has_lng ) {
+		if ( $has_lat && $has_lng && is_numeric( $data['latitude'] ) && is_numeric( $data['longitude'] ) && is_finite( (float) $data['latitude'] ) && is_finite( (float) $data['longitude'] ) && abs( (float) $data['latitude'] ) <= 90 && abs( (float) $data['longitude'] ) <= 180 ) {
 			$record['latitude']        = (float) $data['latitude'];
 			$record['longitude']       = (float) $data['longitude'];
 			$record['has_coordinates'] = 1;
@@ -463,6 +475,9 @@ class ServicePointRepository {
 			}
 		}
 
+		if ( $is_insert || array_key_exists( 'has_coordinates', $record ) ) {
+			$record['data_quality_status'] = empty( $record['has_coordinates'] ) ? 'missing_coordinates' : 'needs_review';
+		}
 		return $record;
 	}
 
@@ -480,6 +495,10 @@ class ServicePointRepository {
 			'address'         => $row['address'],
 			'postal_code'     => $row['postal_code'],
 			'phone'           => $row['phone'],
+			'mobile_phone' => $row['mobile_phone'] ?? null,
+			'landline_phone' => $row['landline_phone'] ?? null,
+			'source' => $row['source'] ?? null,
+			'data_quality_status' => $row['data_quality_status'] ?? 'needs_review',
 			'latitude'        => null !== $row['latitude'] ? (float) $row['latitude'] : null,
 			'longitude'       => null !== $row['longitude'] ? (float) $row['longitude'] : null,
 			'has_coordinates' => (bool) (int) $row['has_coordinates'],
