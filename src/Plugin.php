@@ -24,10 +24,17 @@ final class Plugin {
 	private function __construct() {}
 
 	public function boot(): void {
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			\WP_CLI::add_command( 'tapin import-reference', array( Import\SourceCommand::class, 'run' ) );
+		}
 		add_action( 'init', static function() {
 			if ( (int) get_option( Database\Schema::DB_VERSION_OPTION ) !== TAPIN_DB_VERSION ) {
 				Database\Schema::migrate();
 			}
+		} );
+		add_action( 'tapin_cleanup_logs', array( Service\OperationalLog::class, 'cleanup' ) );
+		add_action( 'init', static function() {
+			if ( ! wp_next_scheduled( 'tapin_cleanup_logs' ) ) { wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'tapin_cleanup_logs' ); }
 		} );
 		add_action( 'rest_api_init', array( new Http\Api(), 'register' ) );
 		( new UI\App() )->boot();

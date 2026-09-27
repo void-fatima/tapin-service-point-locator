@@ -17,6 +17,7 @@ final class Deactivator {
 	 */
 	public static function deactivate(): void {
 		wp_clear_scheduled_hook( 'tapin_cleanup_imports' );
+	wp_clear_scheduled_hook( 'tapin_cleanup_logs' );
 		// Clean up any temporary transients or cached calculations if present.
 		delete_transient( 'tapin_service_points_cache' );
 	}

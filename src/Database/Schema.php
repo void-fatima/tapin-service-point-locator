@@ -65,6 +65,10 @@ CREATE TABLE {$service_points_table} (
   address text NOT NULL,
   postal_code varchar(20) DEFAULT NULL,
   phone varchar(64) DEFAULT NULL,
+  mobile_phone varchar(64) DEFAULT NULL,
+  landline_phone varchar(64) DEFAULT NULL,
+  source varchar(500) DEFAULT NULL,
+  data_quality_status varchar(32) NOT NULL DEFAULT 'missing_coordinates',
   latitude decimal(10,8) DEFAULT NULL,
   longitude decimal(11,8) DEFAULT NULL,
   has_coordinates tinyint(1) NOT NULL DEFAULT 0,
@@ -76,6 +80,7 @@ CREATE TABLE {$service_points_table} (
   KEY provider_id (provider_id),
   KEY province_city (province, city),
   KEY status (status),
+  KEY province_map (province, has_coordinates, status, provider_id),
   KEY coords_status (has_coordinates, status),
   KEY lat_lng (latitude, longitude),
   KEY code_provider (provider_id, code),
@@ -97,8 +102,26 @@ CREATE TABLE {$service_points_table} (
   KEY status_updated (status, updated_at)
 ) ENGINE=InnoDB {$charset_collate};" );
 
+		// Backfill existing rows without inventing coordinates or contact types.
+		$wpdb->query( "UPDATE {$service_points_table} SET data_quality_status = CASE WHEN has_coordinates = 0 THEN 'missing_coordinates' ELSE 'needs_review' END WHERE data_quality_status = 'missing_coordinates' AND has_coordinates = 1" );
+		$logs = $wpdb->prefix . 'tapin_logs';
+		dbDelta( "CREATE TABLE {$logs} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  event varchar(40) NOT NULL,
+  user_id bigint(20) unsigned NOT NULL DEFAULT 0,
+  context longtext NOT NULL,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY created_at (created_at),
+  KEY event_created (event, created_at)
+) ENGINE=InnoDB {$charset_collate};" );
 		self::seed_default_providers();
 
+		// Do not mark a failed/partial migration current: let the next request retry.
+		foreach ( array( $service_points_table => array( 'mobile_phone', 'landline_phone', 'source', 'data_quality_status' ), $logs => array( 'event', 'context', 'created_at' ) ) as $table => $required ) {
+			$columns = $wpdb->get_col( "SHOW COLUMNS FROM {$table}" );
+			if ( array_diff( $required, $columns ?: array() ) ) { return; }
+		}
 		update_option( self::DB_VERSION_OPTION, TAPIN_DB_VERSION );
 	}
 

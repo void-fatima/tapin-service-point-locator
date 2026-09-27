@@ -106,6 +106,11 @@ final class DataNormalizer {
 
 		// Convert Persian/Arabic digits first.
 		$latin = self::to_latin_digits( $raw );
+		// Multiple published numbers must not become one invalid concatenated number.
+		if ( preg_match( '~[/;|]~', $latin ) ) {
+			$parts = preg_split( '~\s*[/;|]\s*~', $latin );
+			return implode( ' / ', array_filter( array_map( array( self::class, 'normalize_phone' ), $parts ) ) ) ?: null;
+		}
 
 		// If phone contains extensions or notes (e.g. "021-88990011 داخلی 12"), preserve note.
 		$has_note = preg_match( '/[\p{L}]/u', $latin );
@@ -189,6 +194,14 @@ final class DataNormalizer {
 	 * @return array
 	 */
 	public static function normalize_service_point( array $raw ): array {
+		$metadata = $raw['metadata'] ?? null;
+		if ( is_string( $metadata ) ) {
+			$metadata = self::normalize_empty( $metadata );
+			if ( null !== $metadata ) {
+				$decoded = json_decode( $metadata, true );
+				if ( JSON_ERROR_NONE === json_last_error() && is_array( $decoded ) ) { $metadata = $decoded; }
+			}
+		}
 		$code = self::normalize_empty( $raw['code'] ?? null );
 		if ( null !== $code ) {
 			$code = self::to_latin_digits( $code );
@@ -202,11 +215,14 @@ final class DataNormalizer {
 			'city'        => self::normalize_persian_text( $raw['city'] ?? null ) ?? '',
 			'address'     => self::normalize_persian_text( $raw['address'] ?? null ) ?? '',
 			'postal_code' => self::normalize_postal_code( $raw['postal_code'] ?? null ),
+			'mobile_phone' => self::normalize_phone( $raw['mobile_phone'] ?? null ),
+			'landline_phone' => self::normalize_phone( $raw['landline_phone'] ?? null ),
+			'source' => self::normalize_empty( $raw['source'] ?? null ),
 			'phone'       => self::normalize_phone( $raw['phone'] ?? null ),
 			'latitude'    => self::normalize_coordinate( $raw['latitude'] ?? null ),
 			'longitude'   => self::normalize_coordinate( $raw['longitude'] ?? null ),
 			'status'      => self::normalize_status( $raw['status'] ?? 'active' ),
-			'metadata'    => $raw['metadata'] ?? null,
+			'metadata'    => $metadata,
 		);
 	}
 }

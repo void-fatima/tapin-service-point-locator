@@ -49,6 +49,11 @@ final class Api {
 		if ( in_array( $r['has_coordinates'], array( '0', '1' ), true ) ) {
 			$args['has_coordinates'] = (int) $r['has_coordinates'];
 		}
+		$bounds = array();
+		foreach ( array( 'north', 'south', 'east', 'west' ) as $key ) {
+			if ( null !== $r[$key] && is_scalar( $r[$key] ) && is_numeric( $r[$key] ) && is_finite( (float) $r[$key] ) ) { $bounds[$key] = (float) $r[$key]; }
+		}
+		if ( count( $bounds ) === 4 && abs( $bounds['north'] ) <= 90 && abs( $bounds['south'] ) <= 90 && abs( $bounds['east'] ) <= 180 && abs( $bounds['west'] ) <= 180 ) { $args['bounds'] = $bounds; }
 		return $args;
 	}
 
@@ -64,7 +69,7 @@ final class Api {
 		$args['has_coordinates'] = $directory ? null : 1;
 		unset( $args['issue'] );
 		$result = ( new ServicePointRepository() )->query( $args );
-		$allowed = array_flip( array( 'id', 'provider_id', 'name', 'province', 'city', 'address', 'postal_code', 'phone', 'latitude', 'longitude', 'has_coordinates' ) );
+		$allowed = array_flip( array( 'id', 'provider_id', 'name', 'province', 'city', 'address', 'postal_code', 'phone', 'mobile_phone', 'landline_phone', 'latitude', 'longitude', 'has_coordinates' ) );
 		$result['items'] = array_map( static fn( $row ) => array_intersect_key( $row, $allowed ), $result['items'] );
 		return $result;
 	}
@@ -75,7 +80,7 @@ final class Api {
 			$defaults = array( 'post' => '#5694ff', 'tipax' => '#36cf8a' );
 			$slug = $p['slug'];
 			$p['color'] = sanitize_hex_color( $styles[$p['id']]['color'] ?? '' ) ?: ( $defaults[$slug] ?? '#b6a4e8' );
-			$p['logo'] = esc_url_raw( $styles[$p['id']]['logo'] ?? ( 'post' === $slug ? TAPIN_PLUGIN_URL . 'assets/brand/post.png' : ( 'tipax' === $slug ? TAPIN_PLUGIN_URL . 'assets/brand/tipax.svg' : '' ) ) );
+			$p['logo'] = esc_url_raw( ( $styles[$p['id']]['logo'] ?? '' ) ?: ( 'post' === $slug ? TAPIN_PLUGIN_URL . 'assets/brand/post.png' : ( 'tipax' === $slug ? TAPIN_PLUGIN_URL . 'assets/brand/tipax.svg' : '' ) ) );
 			return array_intersect_key( $p, array_flip( array( 'id', 'slug', 'name', 'is_active', 'color', 'logo' ) ) );
 		}, ( new ProviderRepository() )->get_all( ! $public ? false : true ) );
 	}

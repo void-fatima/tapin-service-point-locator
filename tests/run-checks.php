@@ -229,6 +229,20 @@ assert_test( 'Mapper detects latitude header', 'latitude' === ( $detected['عر�
 assert_test( 'Mapper detects longitude header', 'longitude' === ( $detected['طول جغرافیایی'] ?? '' ) );
 
 // --- Database & Repository Integration Tests (when in WordPress context) ---
+$contacts = DataNormalizer::normalize_service_point( array_merge( $valid_record, array( 'mobile_phone' => '+۹۸۹۱۲۱۱۱۲۲۳۳', 'landline_phone' => '۰۲۱-۸۸۹۹۰۰۱۱', 'source' => 'https://example.org/branches' ) ) );
+assert_test( 'Separate mobile normalized', $contacts['mobile_phone'] === '09121112233' );
+assert_test( 'Multiple published phones remain separate', DataNormalizer::normalize_phone( '02111111111 / 02122222222' ) === '02111111111 / 02122222222' );
+assert_test( 'Separate landline normalized', $contacts['landline_phone'] === '02188990011' );
+assert_test( 'Source provenance preserved', $contacts['source'] === 'https://example.org/branches' );
+$contact_mapping = ( new ColumnMapper() )->auto_detect_headers( array( 'تلفن همراه', 'تلفن ثابت', 'منبع' ) );
+assert_test( 'Independent contact and source mapping', $contact_mapping === array( 'تلفن همراه' => 'mobile_phone', 'تلفن ثابت' => 'landline_phone', 'منبع' => 'source' ) );
+$contacts['source'] = str_repeat( 'x', 501 );
+assert_test( 'Oversized source rejected before database write', ! ServicePointValidator::validate( $contacts )->is_valid() );
+$meta_record = DataNormalizer::normalize_service_point( array_merge( $valid_record, array( 'metadata' => '{"source_row":12}' ) ) );
+assert_test( 'Imported JSON metadata becomes structured data', $meta_record['metadata'] === array( 'source_row' => 12 ) );
+$meta_record['metadata'] = '{broken';
+assert_test( 'Malformed metadata rejected', ! ServicePointValidator::validate( $meta_record )->is_valid() );
+
 global $wpdb;
 if ( isset( $wpdb ) && $wpdb instanceof \wpdb ) {
 	echo "\n--- Testing Database & Repositories (WordPress Integration) ---\n";
