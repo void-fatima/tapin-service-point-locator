@@ -8,7 +8,8 @@
     "test:map": "node tests/map-engine.cjs",
     "test:source": "node tests/source-map.cjs",
     "test:tapin": "node tests/tapin-source.mjs",
-    "test:all": "node tests/browser.cjs && node tests/admin-ui.cjs && node tests/public-ux.cjs && node tests/map-engine.cjs && node tests/source-map.cjs"
+    "test:phase1": "node tests/phase1-ui.cjs",
+    "test:all": "node tests/browser.cjs && node tests/admin-ui.cjs && node tests/public-ux.cjs && node tests/map-engine.cjs && node tests/source-map.cjs && node tests/phase1-ui.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",

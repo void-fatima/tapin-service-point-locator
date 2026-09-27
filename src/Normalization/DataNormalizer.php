@@ -134,6 +134,11 @@ final class DataNormalizer {
 		return $digits ?: null;
 	}
 
+	/** Stable location labels for dropdowns and matching, including digit variants. */
+	public static function normalize_location( ?string $value ): string {
+		return self::to_latin_digits( self::normalize_persian_text( str_replace( "\u{200c}", ' ', $value ?? '' ) ) ?? '' );
+	}
+
 	/**
 	 * Normalizes postal codes to 10-digit clean string if possible.
 	 */
@@ -211,8 +216,8 @@ final class DataNormalizer {
 			'provider_id' => isset( $raw['provider_id'] ) ? (int) $raw['provider_id'] : 0,
 			'code'        => $code,
 			'name'        => self::normalize_persian_text( $raw['name'] ?? null ) ?? '',
-			'province'    => self::normalize_persian_text( $raw['province'] ?? null ) ?? '',
-			'city'        => self::normalize_persian_text( $raw['city'] ?? null ) ?? '',
+			'province'    => self::normalize_location( $raw['province'] ?? null ),
+			'city'        => self::normalize_location( $raw['city'] ?? null ),
 			'address'     => self::normalize_persian_text( $raw['address'] ?? null ) ?? '',
 			'postal_code' => self::normalize_postal_code( $raw['postal_code'] ?? null ),
 			'mobile_phone' => self::normalize_phone( $raw['mobile_phone'] ?? null ),

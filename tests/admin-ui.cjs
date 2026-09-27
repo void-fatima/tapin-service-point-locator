@@ -20,8 +20,9 @@ const path = require('path');
     await expect(page.locator('.coverage')).toBeVisible();
     await expect(page.locator('.coordinate-totals')).toContainText('دارای مختصات');
     await expect(page.locator('.coordinate-totals')).toContainText('بدون مختصات');
-    await expect(page.locator('.issue-list')).toContainText('مشکوک به تکرار');
-    await expect(page.locator('.issue-list')).toContainText('ارائه‌دهندگان فعال');
+    await expect(page.locator('.issue-list')).toHaveCount(0);
+    await expect(page.locator('.dashboard-bottom')).toHaveCount(0);
+    await expect(page.locator('.header-actions .primary')).toContainText('افزودن فایل');
     await expect(page.locator('.distribution-items')).toBeVisible();
 
     // 2. Service Points Management Table & Filters
@@ -41,7 +42,7 @@ const path = require('path');
     await expect(filters.locator('input[name=search]')).toBeVisible();
     await expect(filters.locator('select[name=provider_id]')).toBeVisible();
     await expect(filters.locator('select[name=province]')).toBeVisible();
-    await expect(filters.locator('input[name=city]')).toBeVisible();
+    await expect(filters.locator('select[name=city]')).toBeVisible();
     await expect(filters.locator('select[name=has_coordinates]')).toBeVisible();
     await expect(filters.locator('select[name=status]')).toBeVisible();
     await expect(filters.locator('select[name=issue]')).toBeVisible();

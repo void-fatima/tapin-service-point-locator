@@ -58,7 +58,9 @@ final class Api {
 	}
 
 	public function points( $r ): array {
-		return ( new ServicePointRepository() )->query( $this->filters( $r ) );
+		$args = $this->filters( $r );
+		$args['include_summary'] = '1' === $r['include_summary'];
+		return ( new ServicePointRepository() )->query( $args );
 	}
 
 	public function public_points( $r, bool $directory = false ): array {
