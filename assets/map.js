@@ -29,14 +29,25 @@
     let tileFailed = false;
     tile.on('tileerror', () => { if (!tileFailed) { tileFailed = true; const note = document.createElement('p'); note.className='tile-warning'; note.textContent='تصاویر زمینه نقشه بارگذاری نشد؛ اتصال اینترنت را بررسی کنید. فهرست نقاط در دسترس است.'; container.append(note); } });
     let geoCancelled = false;
+    const provinceLayers = new Map();
+    map.getPane('tilePane').style.filter='invert(1) hue-rotate(185deg) brightness(.6) saturate(.35)';
+    const countries=[['ترکیه',39,35],['عراق',33,43],['سوریه',35,38],['عربستان',24,44],['کویت',29.4,47.5],['امارات',24,54],['عمان',21,57],['پاکستان',29,68],['افغانستان',34,66],['ترکمنستان',40,59],['آذربایجان',40.5,48],['ارمنستان',40.3,44.8]];
+    countries.forEach(([name,lat,lng])=>L.marker([lat,lng],{interactive:false,keyboard:false,icon:L.divIcon({className:'country-label',html:esc(name),iconSize:[100,20]})}).addTo(map));
     map.createPane('boundaries');map.getPane('boundaries').style.zIndex='350';
     fetch(TapinConfig.assets+'iran-provinces.geojson').then(r=>r.ok?r.json():null).then(data=>{if(data && !geoCancelled) {
-      L.geoJSON(data,{pane:'boundaries',interactive:!admin,style:{color:admin?'#a294e7':'#71849a',weight:1,fillColor:admin?'#7866bd':'#e1ebf4',fillOpacity:0.20},onEachFeature:(feature, polygon)=>{
+      const holes=[];
+      data.features.forEach(feature=>{
+        const polygons=feature.geometry.type==='MultiPolygon'?feature.geometry.coordinates:[feature.geometry.coordinates];
+        polygons.forEach(polygon=>holes.push(polygon[0].map(([lng,lat])=>[lat,lng])));
+      });
+      // Opaque exterior prevents foreign cities/capitals baked into raster tiles leaking through.
+      L.polygon([[[-85,-180],[-85,180],[85,180],[85,-180]],...holes],{pane:'boundaries',interactive:false,stroke:false,fillColor:'#111622',fillOpacity:1,fillRule:'evenodd'}).addTo(map);
+      L.geoJSON(data,{pane:'boundaries',interactive:true,style:{color:'#a294e7',weight:1,fillColor:'#7866bd',fillOpacity:0.35},onEachFeature:(feature, polygon)=>{
         const name=provinceNames[feature.properties.shapeName];
-        if(!admin && name){polygon.bindTooltip(name,{direction:'center'});polygon.on('click',()=>{
+        if(name){provinceLayers.set(normalize(name),polygon);polygon.bindTooltip(name,{direction:'center'});polygon.on('click',()=>{
           const option=[...province.options].find(o=>normalize(o.value)===normalize(name));
-          if(!option){status.textContent='در این استان شعبه‌ای برای ارائه‌دهنده انتخاب‌شده ثبت نشده است.';return;}
-          province.value=option.value;province.onchange();map.fitBounds(polygon.getBounds());
+          if(!option){province.add(new Option(name,name));}
+          province.value=option?option.value:name;province.onchange();
         });}
       }}).addTo(map);
       map.attributionControl.addAttribution('<a href="https://www.geoboundaries.org/">geoBoundaries</a> / OSM');
@@ -53,14 +64,14 @@
     function updateLocations(){
       const rows=locations.filter(l=>!selected||Number(l.provider_id)===Number(selected));
       const oldProvince=province.value, oldCity=city.value;
-      province.innerHTML='<option value="">همه استان‌ها</option>'+[...new Set(rows.map(l=>l.province))].map(p=>'<option>'+esc(p)+'</option>').join('');
+      province.innerHTML='<option value="">همه استان‌ها</option>'+[...new Set([...Object.values(provinceNames),...rows.map(l=>l.province)])].map(p=>'<option>'+esc(p)+'</option>').join('');
       province.value=[...province.options].some(o=>o.value===oldProvince)?oldProvince:'';
       city.innerHTML='<option value="">همه شهرها</option>'+[...new Set(rows.filter(l=>!province.value||l.province===province.value).map(l=>l.city))].map(c=>'<option>'+esc(c)+'</option>').join('');
       city.value=[...city.options].some(o=>o.value===oldCity)?oldCity:'';
     }
     const details = p => {
-      const phone=String(p.phone||'').replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))).replace(/[^+0-9]/g,'');
-      return '<p>'+esc(p.address)+'</p>'+(p.postal_code?'<p>کد پستی: <bdi>'+esc(p.postal_code)+'</bdi></p>':'')+(p.phone?'<p><a href="tel:'+esc(phone)+'"><bdi>'+esc(p.phone)+'</bdi></a></p>':'');
+      const contacts=[['تلفن همراه',p.mobile_phone],['تلفن ثابت',p.landline_phone],['تلفن',p.phone]].filter(([,value])=>value);
+      return '<p>'+esc(p.address)+'</p>'+(p.postal_code?'<p>کد پستی: <bdi>'+esc(p.postal_code)+'</bdi></p>':'')+contacts.map(([label,value])=>'<p>'+label+': <a href="tel:'+esc(String(value).replace(/[^+0-9]/g,''))+'"><bdi>'+esc(value)+'</bdi></a></p>').join('');
     };
     updateLocations();
     container.querySelector('.map-list').hidden=admin;
@@ -68,38 +79,58 @@
     async function load(append=false) {
       controller?.abort(); controller = new AbortController();
       const token = ++generation;
-      if(!append){layer.clearLayers();markers.clear();items=[];container.querySelector('.map-list').innerHTML='';more.hidden=true;}
+      if(!append){items=[];container.querySelector('.map-list').innerHTML='';more.hidden=true;}
       status.textContent='در حال دریافت نقاط خدماتی…'; more.disabled=true; retry.hidden=true;
       const params = new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,per_page:'500',page:String(append?page+1:1),has_coordinates:'1',status:'any'});
       try {
         const data = await api((admin?'points':'public/directory')+'?'+params, {signal:controller.signal});
         if (token !== generation) return;
-        if (!append) { layer.clearLayers(); items=[]; markers.clear(); page=1; } else page++;
+        if (!append) { items=[]; page=1; } else page++;
         const valid = data.items.filter(p=>p.latitude!==null && p.longitude!==null && Number.isFinite(Number(p.latitude)) && Number.isFinite(Number(p.longitude)) && Math.abs(Number(p.latitude))<=90 && Math.abs(Number(p.longitude))<=180);
         items.push(...(admin?valid:data.items));
-        valid.forEach(p => {
-          const provider = providers.find(pr=>Number(pr.id)===p.provider_id);
-          const content = document.createElement('div'); content.className='tapin-popup'; content.dir='rtl';
-          content.innerHTML = `<strong>${esc(p.name)}</strong>${badge(provider)}<p>${esc(p.province)}، ${esc(p.city)}</p>${details(p)}${admin?`<a href="${safeUrl(TapinConfig.adminUrl)}#points?edit=${p.id}">ویرایش نقطه خدماتی</a>`:''}`;
-          const marker = L.circleMarker([p.latitude,p.longitude],{radius:6,color:color(provider),fillColor:color(provider),fillOpacity:0.95,weight:2}).bindPopup(content).addTo(layer);
-          markers.set(p.id, marker);
-        });
-        if (!append && (search || selected || province.value || city.value) && valid.length) map.fitBounds(valid.map(p=>[p.latitude,p.longitude]),{padding:[30,30],maxZoom:11});
-        status.textContent = data.total ? `نمایش ${num(items.length)} از ${num(data.total)} شعبه${admin?' دارای مختصات · شامل نقاط غیرفعال':' · '+num(markers.size)+' نشانگر روی نقشه'}` : 'شعبه‌ای با این فیلترها پیدا نشد.';
+        status.textContent = data.total ? `نمایش ${num(items.length)} از ${num(data.total)} شعبه${admin?' دارای مختصات · شامل نقاط غیرفعال':' · '+'فهرست نشانی‌ها'}` : 'شعبه‌ای با این فیلترها پیدا نشد.';
         more.hidden = page >= data.total_pages; more.disabled=false;
-        container.querySelector('.map-list').innerHTML = items.map(p=>`<article class="branch-card">${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}<strong>${esc(p.name)}</strong><small>${esc(p.province)}، ${esc(p.city)}</small>${details(p)}${markers.has(p.id)?`<button type="button" data-point="${p.id}">نمایش روی نقشه</button>`:'<span class="coordinate-note">بدون مختصات · نشانی متنی</span>'}</article>`).join('') || '<p>شعبه‌ای برای نمایش وجود ندارد.</p>';
+        container.querySelector('.map-list').innerHTML = items.map(p=>`<article class="branch-card">${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}<strong>${esc(p.name)}</strong><small>${esc(p.province)}، ${esc(p.city)}</small>${details(p)}${p.has_coordinates?`<button type="button" data-point="${p.id}">نمایش روی نقشه</button>`:'<span class="coordinate-note">بدون مختصات · نشانی متنی</span>'}</article>`).join('') || '<p>شعبه‌ای برای نمایش وجود ندارد.</p>';
       } catch(e) { if(e.name!=='AbortError') { status.textContent=e.message; retry.hidden=false; more.disabled=false; } }
     }
-    container.querySelectorAll('[data-provider]').forEach(button=>button.onclick=()=>{ selected=button.dataset.provider; container.querySelectorAll('[data-provider]').forEach(b=>{ b.classList.toggle('selected',b===button); b.setAttribute('aria-pressed',String(b===button)); }); updateLocations(); load(); });
-    province.onchange=()=>{city.value='';updateLocations();load();};
-    container.querySelector('.locator-search').onsubmit=e=>{e.preventDefault();search=new FormData(e.currentTarget).get('search').trim();load();};
-    city.onchange=()=>load();
-    container.querySelector('[data-reset]').onclick=()=>map.fitBounds(iran);
-    more.onclick=()=>load(true); retry.onclick=()=>load();
+    let markerController, markerTimer, markerGeneration=0;
+    const markerStatus=document.createElement('p');markerStatus.className='marker-status';markerStatus.setAttribute('role','status');container.querySelector('.tapin-map').after(markerStatus);
+    function drawMarkers(points){
+      layer.clearLayers();markers.clear();
+      const groups=new Map();
+      points.forEach(p=>{const xy=map.latLngToContainerPoint([p.latitude,p.longitude]);const key=Math.floor(xy.x/44)+':'+Math.floor(xy.y/44);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(p);});
+      groups.forEach(group=>{
+        const p=group[0], provider=providers.find(pr=>Number(pr.id)===Number(p.provider_id));
+        const content=document.createElement('div');content.className='tapin-popup';content.dir='rtl';
+        content.innerHTML='<strong>'+esc(p.name)+'</strong>'+badge(provider)+'<p>'+esc(p.province)+'، '+esc(p.city)+'</p>'+details(p);
+        const logo=selected&&provider?.logo?safeUrl(provider.logo):'';
+        const html=(logo?'<img src="'+logo+'" alt="">':selected?'<span>▣</span>':'<span>●</span>')+(group.length>1?'<b>'+num(group.length)+'</b>':'');
+        const marker=L.marker([p.latitude,p.longitude],{title:group.length>1?num(group.length)+' شعبه':p.name,icon:L.divIcon({className:'tapin-pin '+(selected?'provider-pin':'all-pin'),html,iconSize:[34,40],iconAnchor:[17,40]})}).addTo(layer);
+        if(group.length>1){marker.on('click',()=>{if(map.getZoom()<18){map.fitBounds(group.map(x=>[x.latitude,x.longitude]),{maxZoom:map.getZoom()+2,padding:[30,30]});}else{content.innerHTML=group.map(x=>'<strong>'+esc(x.name)+'</strong>'+details(x)).join('<hr>');marker.bindPopup(content).openPopup();}});}else{marker.bindPopup(content);}
+        group.forEach(x=>markers.set(x.id,marker));
+      });
+    }
+    async function loadMarkers(){
+      markerController?.abort();markerController=new AbortController();const token=++markerGeneration;
+      layer.clearLayers();markers.clear();markerStatus.textContent='در حال دریافت نشانگرها…';
+      const bounds=map.getBounds();
+      const params=new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,per_page:'500',north:String(Math.min(90,bounds.getNorth())),south:String(Math.max(-90,bounds.getSouth())),east:String(Math.min(180,bounds.getEast())),west:String(Math.max(-180,bounds.getWest())),has_coordinates:'1'});
+      const points=[];
+      try{let next=1,totalPages=1;do{params.set('page',String(next));const data=await api((admin?'points':'public/points')+'?'+params,{signal:markerController.signal});if(token!==markerGeneration)return;points.push(...data.items.filter(p=>p.has_coordinates&&p.latitude!==null&&p.longitude!==null));totalPages=data.total_pages;next++;}while(next<=totalPages);drawMarkers(points);markerStatus.textContent=num(points.length)+' نقطه دارای مختصات در محدوده نقشه';}
+      catch(e){if(e.name!=='AbortError'){markerStatus.textContent=e.message;retry.hidden=false;}}
+    }
+    function scheduleMarkers(){clearTimeout(markerTimer);markerController?.abort();markerGeneration++;markerTimer=setTimeout(loadMarkers,180);}
+    map.on('moveend',scheduleMarkers);
+    container.querySelectorAll('[data-provider]').forEach(button=>button.onclick=()=>{ selected=button.dataset.provider; container.querySelectorAll('[data-provider]').forEach(b=>{ b.classList.toggle('selected',b===button); b.setAttribute('aria-pressed',String(b===button)); }); updateLocations(); load(); scheduleMarkers(); });
+    province.onchange=()=>{city.value='';updateLocations();const polygon=provinceLayers.get(normalize(province.value));if(polygon)map.fitBounds(polygon.getBounds());load();scheduleMarkers();};
+    container.querySelector('.locator-search').onsubmit=e=>{e.preventDefault();search=new FormData(e.currentTarget).get('search').trim();load();scheduleMarkers();};
+    city.onchange=()=>{load();scheduleMarkers();};
+    container.querySelector('[data-reset]').onclick=()=>{province.value='';city.value='';updateLocations();map.fitBounds(iran);load();scheduleMarkers();};
+    more.onclick=()=>load(true); retry.onclick=()=>{load();loadMarkers();};
     container.querySelector('[data-list]').onclick=()=>{ const list=container.querySelector('.map-list'); list.hidden=!list.hidden;container.querySelector('[data-list]').setAttribute('aria-expanded',String(!list.hidden)); };
-    container.querySelector('.map-list').onclick=e=>{ const b=e.target.closest('[data-point]'); if(b){const marker=markers.get(Number(b.dataset.point));if(!marker)return;map.setView(marker.getLatLng(),12);marker.openPopup();} };
-    load();
-    return () => {geoCancelled=true; controller?.abort(); map.remove();};
+    container.querySelector('.map-list').onclick=e=>{ const b=e.target.closest('[data-point]'); if(b){const p=items.find(x=>Number(x.id)===Number(b.dataset.point));if(!p)return;map.setView([p.latitude,p.longitude],15);const content=document.createElement('div');content.className='tapin-popup';content.dir='rtl';content.innerHTML='<strong>'+esc(p.name)+'</strong>'+badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))+details(p);L.popup().setLatLng([p.latitude,p.longitude]).setContent(content).openOn(map);} };
+    load();loadMarkers();
+    return () => {clearTimeout(markerTimer);markerController?.abort();geoCancelled=true; controller?.abort(); map.remove();};
   }
   window.Tapin = {api,esc,num,badge,providerOptions,mapWidget,color,safeUrl};
   document.querySelectorAll('.tapin-public-root').forEach(async root=>{
