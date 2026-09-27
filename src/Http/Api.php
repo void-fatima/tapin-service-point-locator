@@ -64,7 +64,7 @@ final class Api {
 		$args['has_coordinates'] = $directory ? null : 1;
 		unset( $args['issue'] );
 		$result = ( new ServicePointRepository() )->query( $args );
-		$allowed = array_flip( array( 'id', 'provider_id', 'name', 'province', 'city', 'address', 'postal_code', 'phone', 'latitude', 'longitude', 'has_coordinates' ) );
+		$allowed = array_flip( array( 'id', 'provider_id', 'name', 'province', 'city', 'address', 'postal_code', 'phone', 'mobile_phone', 'landline_phone', 'latitude', 'longitude', 'has_coordinates' ) );
 		$result['items'] = array_map( static fn( $row ) => array_intersect_key( $row, $allowed ), $result['items'] );
 		return $result;
 	}
