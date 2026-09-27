@@ -8,7 +8,7 @@ const path=require('path');
   await context.addCookies(session.cookies);
   const page=await context.newPage();const errors=[];
   const testName='آزمایش مرورگر '+Date.now();
-  page.on('pageerror',e=>errors.push(e.message));
+  page.on('pageerror',e=>errors.push(e.stack||e.message));
   const out=process.env.TAPIN_ARTIFACTS||path.join(__dirname,'..','artifacts');fs.mkdirSync(out,{recursive:true});
   try{
     await page.goto(session.url+'/wp-admin/admin.php?page=tapin-locator',{waitUntil:'domcontentloaded'});

@@ -25,7 +25,7 @@ try {
 	}
 	echo "PASS extracted ZIP: real WordPress bootstrap, fresh activation, repeat activation, point save, shortcode and runtime assets.\n";
 } finally {
-	foreach ( array( 'tapin_service_points', 'tapin_providers', 'tapin_imports' ) as $suffix ) {
+	foreach ( array( 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_logs' ) as $suffix ) {
 		$wpdb->query( 'DROP TABLE IF EXISTS ' . $temporary_prefix . $suffix );
 	}
 	$wpdb->prefix = $original_prefix;
