@@ -104,6 +104,17 @@ CREATE TABLE {$service_points_table} (
 
 		// Backfill existing rows without inventing coordinates or contact types.
 		$wpdb->query( "UPDATE {$service_points_table} SET data_quality_status = CASE WHEN has_coordinates = 0 THEN 'missing_coordinates' ELSE 'needs_review' END WHERE data_quality_status = 'missing_coordinates' AND has_coordinates = 1" );
+		$logs = $wpdb->prefix . 'tapin_logs';
+		dbDelta( "CREATE TABLE {$logs} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  event varchar(40) NOT NULL,
+  user_id bigint(20) unsigned NOT NULL DEFAULT 0,
+  context longtext NOT NULL,
+  created_at datetime NOT NULL,
+  PRIMARY KEY  (id),
+  KEY created_at (created_at),
+  KEY event_created (event, created_at)
+) ENGINE=InnoDB {$charset_collate};" );
 		self::seed_default_providers();
 
 		update_option( self::DB_VERSION_OPTION, TAPIN_DB_VERSION );

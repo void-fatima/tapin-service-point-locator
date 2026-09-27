@@ -29,6 +29,10 @@ final class Plugin {
 				Database\Schema::migrate();
 			}
 		} );
+		add_action( 'tapin_cleanup_logs', array( Service\OperationalLog::class, 'cleanup' ) );
+		add_action( 'init', static function() {
+			if ( ! wp_next_scheduled( 'tapin_cleanup_logs' ) ) { wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'tapin_cleanup_logs' ); }
+		} );
 		add_action( 'rest_api_init', array( new Http\Api(), 'register' ) );
 		( new UI\App() )->boot();
 		add_action( 'tapin_cleanup_imports', array( Import\ImportJobs::class, 'cleanup' ) );
