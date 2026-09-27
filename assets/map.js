@@ -111,6 +111,7 @@
       });
     }
     async function loadMarkers(){
+      if(geoCancelled)return;
       markerController?.abort();markerController=new AbortController();const token=++markerGeneration;
       layer.clearLayers();markers.clear();markerStatus.textContent='در حال دریافت نشانگرها…';
       const bounds=map.getBounds();
@@ -119,7 +120,7 @@
       try{let next=1,totalPages=1;do{params.set('page',String(next));const data=await api((admin?'points':'public/points')+'?'+params,{signal:markerController.signal});if(token!==markerGeneration)return;points.push(...data.items.filter(p=>p.has_coordinates&&p.latitude!==null&&p.longitude!==null));totalPages=data.total_pages;next++;}while(next<=totalPages);drawMarkers(points);markerStatus.textContent=num(points.length)+' نقطه دارای مختصات در محدوده نقشه';}
       catch(e){if(e.name!=='AbortError'){markerStatus.textContent=e.message;retry.hidden=false;}}
     }
-    function scheduleMarkers(){clearTimeout(markerTimer);markerController?.abort();markerGeneration++;markerTimer=setTimeout(loadMarkers,180);}
+    function scheduleMarkers(){if(geoCancelled)return;clearTimeout(markerTimer);markerController?.abort();markerGeneration++;markerTimer=setTimeout(loadMarkers,180);}
     map.on('moveend',scheduleMarkers);
     container.querySelectorAll('[data-provider]').forEach(button=>button.onclick=()=>{ selected=button.dataset.provider; container.querySelectorAll('[data-provider]').forEach(b=>{ b.classList.toggle('selected',b===button); b.setAttribute('aria-pressed',String(b===button)); }); updateLocations(); load(); scheduleMarkers(); });
     province.onchange=()=>{city.value='';updateLocations();const polygon=provinceLayers.get(normalize(province.value));if(polygon)map.fitBounds(polygon.getBounds());load();scheduleMarkers();};
@@ -130,7 +131,7 @@
     container.querySelector('[data-list]').onclick=()=>{ const list=container.querySelector('.map-list'); list.hidden=!list.hidden;container.querySelector('[data-list]').setAttribute('aria-expanded',String(!list.hidden)); };
     container.querySelector('.map-list').onclick=e=>{ const b=e.target.closest('[data-point]'); if(b){const p=items.find(x=>Number(x.id)===Number(b.dataset.point));if(!p)return;map.setView([p.latitude,p.longitude],15);const content=document.createElement('div');content.className='tapin-popup';content.dir='rtl';content.innerHTML='<strong>'+esc(p.name)+'</strong>'+badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))+details(p);L.popup().setLatLng([p.latitude,p.longitude]).setContent(content).openOn(map);} };
     load();loadMarkers();
-    return () => {clearTimeout(markerTimer);markerController?.abort();geoCancelled=true; controller?.abort(); map.remove();};
+    return () => {geoCancelled=true;map.off('moveend',scheduleMarkers);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
   }
   window.Tapin = {api,esc,num,badge,providerOptions,mapWidget,color,safeUrl};
   document.querySelectorAll('.tapin-public-root').forEach(async root=>{
