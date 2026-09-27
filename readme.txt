@@ -4,7 +4,7 @@ Tags: locator, shipping, rtl, csv, map
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,9 +28,13 @@ Background map tiles are requested by the visitor's browser from https://tile.op
 CSV: UTF-8, 50 MiB. XLSX: first sheet, values only, 10 MiB compressed / 32 MiB expanded. 100,000 rows per file. XLS is not supported; convert to XLSX or CSV. Imports require InnoDB and named locks. XLSX requires PHP zip, XMLReader and SimpleXML. Closing the page pauses an import; resume it from history. See README.md for full limits.
 
 == Changelog ==
+= 1.1.0 =
+* Source-backed postal and Tipax datasets, separate contacts and provenance, viewport/provider markers, province focus, operational logs and retention.
 = 1.0.0 =
 * Persian RTL dashboard, service-point/provider management, resumable CSV/XLSX preview and mapping, public map, validation and integration checks.
 
 == Upgrade Notice ==
+= 1.1.0 =
+Preserves existing records while adding source, contact and quality columns and operational logs. Reference data is imported explicitly, never during activation.
 = 1.0.0 =
 Adds runtime UI and import history to the existing backend foundation. Database migrations preserve service points and providers.

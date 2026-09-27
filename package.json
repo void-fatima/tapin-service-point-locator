@@ -1,6 +1,13 @@
 {
   "name": "tapin-service-point-locator",
   "private": true,
-  "scripts": { "test:browser": "node tests/browser.cjs" },
+  "scripts": {
+    "test:browser": "node tests/browser.cjs",
+    "test:admin": "node tests/admin-ui.cjs",
+    "test:public": "node tests/public-ux.cjs",
+    "test:map": "node tests/map-engine.cjs",
+    "test:source": "node tests/source-map.cjs",
+    "test:all": "node tests/browser.cjs && node tests/admin-ui.cjs && node tests/public-ux.cjs && node tests/map-engine.cjs && node tests/source-map.cjs"
+  },
   "devDependencies": { "@playwright/test": "1.55.1", "leaflet": "1.9.4", "vazirmatn": "33.0.3" }
 }

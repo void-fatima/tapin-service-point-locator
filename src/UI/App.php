@@ -19,7 +19,7 @@ final class App {
 			ob_start();
 			if ( ! wp_style_is( 'tapin-app', 'done' ) ) { wp_print_styles( array( 'tapin-leaflet', 'tapin-app' ) ); }
 			$styles = ob_get_clean();
-			return $styles . '<div class="tapin-app tapin-public" dir="rtl" lang="fa"><div class="tapin-public-root"><p role="status">در حال بارگذاری نقشه…</p></div><noscript>برای استفاده از نقشه، جاوااسکریپت مرورگر را فعال کنید.</noscript></div>';
+			return $styles . '<div class="tapin-app tapin-public alignwide" dir="rtl" lang="fa"><div class="tapin-public-root"><p role="status">در حال بارگذاری نقشه…</p></div><noscript>برای استفاده از نقشه، جاوااسکریپت مرورگر را فعال کنید.</noscript></div>';
 		} );
 	}
 	public function admin(): void {

@@ -28,10 +28,12 @@ final class PointService {
 			$validation->add_error( 'metadata', 'اطلاعات تکمیلی باید یک شیء JSON با حجم کمتر از ۱۰ کیلوبایت باشد.' );
 		}
 		if ( ! $validation->is_valid() ) {
+			OperationalLog::record( 'validation_failed', array( 'provider_id' => $data['provider_id'] ) );
 			return new \WP_Error( 'invalid', implode( ' ', $validation->get_errors() ), array( 'status' => 400, 'fields' => $validation->get_errors() ) );
 		}
 		$saved = $id ? $repo->update( $id, $data ) : $repo->insert( $data );
 		if ( ! $saved ) {
+			OperationalLog::record( 'system_error', array( 'provider_id' => $data['provider_id'] ) );
 			return new \WP_Error( 'database', 'ذخیره اطلاعات انجام نشد. دوباره تلاش کنید.', array( 'status' => 500 ) );
 		}
 		return array( 'item' => $repo->get_by_id( $id ?: $saved ), 'warnings' => $validation->get_warnings() );

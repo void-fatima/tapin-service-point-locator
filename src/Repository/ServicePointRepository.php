@@ -78,7 +78,7 @@ class ServicePointRepository {
 		$result = $wpdb->insert(
 			$this->get_table_name(),
 			$prepared,
-			$this->get_column_formats()
+			array_map( fn( $column ) => $this->get_column_formats()[$column] ?? '%s', array_keys( $prepared ) )
 		);
 
 		return $result ? (int) $wpdb->insert_id : 0;
@@ -160,6 +160,10 @@ class ServicePointRepository {
 			'address',
 			'postal_code',
 			'phone',
+			'mobile_phone',
+			'landline_phone',
+			'source',
+			'data_quality_status',
 			'latitude',
 			'longitude',
 			'has_coordinates',
@@ -187,6 +191,10 @@ class ServicePointRepository {
 					'%s', // address
 					'%s', // postal_code
 					'%s', // phone
+					'%s', // mobile_phone
+					'%s', // landline_phone
+					'%s', // source
+					'%s', // data_quality_status
 					null !== $prepared['latitude'] ? '%f' : 'NULL', // latitude
 					null !== $prepared['longitude'] ? '%f' : 'NULL', // longitude
 					'%d', // has_coordinates
@@ -206,6 +214,7 @@ class ServicePointRepository {
 				$values[] = $prepared['address'];
 				$values[] = $prepared['postal_code'];
 				$values[] = $prepared['phone'];
+				foreach ( array( 'mobile_phone', 'landline_phone', 'source', 'data_quality_status' ) as $field ) { $values[] = $prepared[$field]; }
 
 				if ( null !== $prepared['latitude'] ) {
 					$values[] = (float) $prepared['latitude'];
@@ -270,7 +279,7 @@ class ServicePointRepository {
 			}
 		}
 		if ( ( $params['issue'] ?? '' ) === 'incomplete' ) {
-			$where_clauses[] = "(phone IS NULL OR phone = '' OR address = '' OR province = '' OR city = '')";
+			$where_clauses[] = "((COALESCE(phone, '') = '' AND COALESCE(mobile_phone, '') = '' AND COALESCE(landline_phone, '') = '') OR address = '' OR province = '' OR city = '')";
 		}
 		if ( ( $params['issue'] ?? '' ) === 'duplicate' ) {
 			$where_clauses[] = self::duplicate_clause( $table );
@@ -329,14 +338,13 @@ class ServicePointRepository {
 			$where_values[]  = max( $west, $east );
 		}
 
-		// Free text search across branch name, address, code, and phone.
+		// One search definition shared by directory, viewport and management queries.
 		if ( ! empty( $params['search'] ) ) {
-			$search_like     = '%' . $wpdb->esc_like( sanitize_text_field( $params['search'] ) ) . '%';
-			$where_clauses[] = '(name LIKE %s OR address LIKE %s OR code LIKE %s OR phone LIKE %s)';
-			$where_values[]  = $search_like;
-			$where_values[]  = $search_like;
-			$where_values[]  = $search_like;
-			$where_values[]  = $search_like;
+			$term = \Tapin\ServicePointLocator\Normalization\DataNormalizer::normalize_persian_text( sanitize_text_field( $params['search'] ) );
+			$search_like = '%' . $wpdb->esc_like( $term ?? '' ) . '%';
+			$providers = Schema::get_providers_table();
+			$where_clauses[] = "(name LIKE %s OR address LIKE %s OR code LIKE %s OR phone LIKE %s OR city LIKE %s OR province LIKE %s OR mobile_phone LIKE %s OR landline_phone LIKE %s OR provider_id IN (SELECT id FROM {$providers} WHERE name LIKE %s OR slug LIKE %s))";
+			$where_values = array_merge( $where_values, array_fill( 0, 10, $search_like ) );
 		}
 
 		$where_sql = '';
@@ -433,11 +441,14 @@ class ServicePointRepository {
 			$record['phone'] = ! empty( $data['phone'] ) ? sanitize_text_field( (string) $data['phone'] ) : null;
 		}
 
+		foreach ( array( 'mobile_phone', 'landline_phone', 'source' ) as $field ) {
+			if ( array_key_exists( $field, $data ) || $is_insert ) { $record[$field] = sanitize_text_field( (string) ( $data[$field] ?? '' ) ); }
+		}
 		// Coordinates handling.
 		$has_lat = isset( $data['latitude'] ) && '' !== (string) $data['latitude'] && null !== $data['latitude'];
 		$has_lng = isset( $data['longitude'] ) && '' !== (string) $data['longitude'] && null !== $data['longitude'];
 
-		if ( $has_lat && $has_lng ) {
+		if ( $has_lat && $has_lng && is_numeric( $data['latitude'] ) && is_numeric( $data['longitude'] ) && is_finite( (float) $data['latitude'] ) && is_finite( (float) $data['longitude'] ) && abs( (float) $data['latitude'] ) <= 90 && abs( (float) $data['longitude'] ) <= 180 ) {
 			$record['latitude']        = (float) $data['latitude'];
 			$record['longitude']       = (float) $data['longitude'];
 			$record['has_coordinates'] = 1;
@@ -463,6 +474,9 @@ class ServicePointRepository {
 			}
 		}
 
+		if ( $is_insert || array_key_exists( 'has_coordinates', $record ) ) {
+			$record['data_quality_status'] = empty( $record['has_coordinates'] ) ? 'missing_coordinates' : 'needs_review';
+		}
 		return $record;
 	}
 
@@ -480,6 +494,10 @@ class ServicePointRepository {
 			'address'         => $row['address'],
 			'postal_code'     => $row['postal_code'],
 			'phone'           => $row['phone'],
+			'mobile_phone' => $row['mobile_phone'] ?? null,
+			'landline_phone' => $row['landline_phone'] ?? null,
+			'source' => $row['source'] ?? null,
+			'data_quality_status' => $row['data_quality_status'] ?? 'needs_review',
 			'latitude'        => null !== $row['latitude'] ? (float) $row['latitude'] : null,
 			'longitude'       => null !== $row['longitude'] ? (float) $row['longitude'] : null,
 			'has_coordinates' => (bool) (int) $row['has_coordinates'],
@@ -521,7 +539,7 @@ class ServicePointRepository {
 	public function summary(): array {
 		global $wpdb;
 		$table = $this->get_table_name();
-		$totals = $wpdb->get_row( "SELECT COUNT(*) total, COALESCE(SUM(has_coordinates = 1),0) located, COALESCE(SUM(has_coordinates = 0),0) missing, COALESCE(SUM(status = 'inactive'),0) inactive, COALESCE(SUM(phone IS NULL OR phone = '' OR address = '' OR province = '' OR city = ''),0) incomplete FROM {$table}", ARRAY_A );
+		$totals = $wpdb->get_row( "SELECT COUNT(*) total, COALESCE(SUM(has_coordinates = 1),0) located, COALESCE(SUM(has_coordinates = 0),0) missing, COALESCE(SUM(status = 'inactive'),0) inactive, COALESCE(SUM((COALESCE(phone, '') = '' AND COALESCE(mobile_phone, '') = '' AND COALESCE(landline_phone, '') = '') OR address = '' OR province = '' OR city = ''),0) incomplete FROM {$table}", ARRAY_A );
 		$totals = array_map( 'intval', $totals );
 		$totals['duplicate'] = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE " . self::duplicate_clause( $table ) );
 		$totals['distribution'] = $wpdb->get_results( "SELECT provider_id, COUNT(*) total FROM {$table} GROUP BY provider_id", ARRAY_A );

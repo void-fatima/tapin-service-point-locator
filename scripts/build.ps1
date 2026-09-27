@@ -12,7 +12,10 @@ foreach ($directory in @('src', 'assets', 'docs')) {
 foreach ($file in @('tapin-service-point-locator.php', 'uninstall.php', 'README.md', 'readme.txt', 'LICENSE')) {
     Copy-Item -LiteralPath (Join-Path $repoRoot $file) -Destination (Join-Path $pluginRoot $file)
 }
-$archivePath = Join-Path $OutputDirectory 'tapin-service-point-locator-1.0.0.zip'
+$pluginHeader = Get-Content -LiteralPath (Join-Path $repoRoot 'tapin-service-point-locator.php') -Raw
+$releaseVersion = [regex]::Match($pluginHeader, 'Version:\s+([0-9.]+)').Groups[1].Value
+if (-not $releaseVersion) { throw 'Missing plugin release version.' }
+$archivePath = Join-Path $OutputDirectory ('tapin-service-point-locator-' + $releaseVersion + '.zip')
 Compress-Archive -LiteralPath $pluginRoot -DestinationPath $archivePath -Force
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $zip = [System.IO.Compression.ZipFile]::OpenRead($archivePath)

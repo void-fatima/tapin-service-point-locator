@@ -11,6 +11,7 @@
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
 wp_clear_scheduled_hook( 'tapin_cleanup_imports' );
+	wp_clear_scheduled_hook( 'tapin_cleanup_logs' );
 
 // Conservative cleanup: Tables and options are preserved unless explicitly requested
 // via the TAPIN_UNINSTALL_DROP_DATA constant or an explicit WordPress option.
@@ -36,6 +37,7 @@ if ( $drop_data ) {
 	$wpdb->query( "DROP TABLE IF EXISTS {$providers_table}" );
 	$wpdb->query( "DROP TABLE IF EXISTS {$imports_table}" );
 
+	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}tapin_logs" );
 	delete_option( 'tapin_db_version' );
 	delete_option( 'tapin_settings' );
 	delete_option( 'tapin_provider_styles' );
