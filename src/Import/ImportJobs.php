@@ -116,7 +116,7 @@ final class ImportJobs {
 					$used[] = $field;
 				}
 			}
-			if ( array_diff( array( 'name', 'province', 'city', 'address' ), $used ) ) { return self::error( 'ستون‌های نام، استان، شهر و نشانی را مشخص کنید.' ); }
+			if ( array_diff( array( 'name', 'address' ), $used ) ) { return self::error( 'ستون‌های نام و نشانی را مشخص کنید. استان باید در فایل یا تطبیق معتبر منبع مشخص باشد.' ); }
 			if ( ! in_array( $options['duplicate_action'] ?? '', array( 'skip', 'update' ), true ) ) { return self::error( 'روش برخورد با تکرار را انتخاب کنید.' ); }
 			$job['data']['mapping'] = $mapping;
 			$job['data']['provider_id'] = $provider;
