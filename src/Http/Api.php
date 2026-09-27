@@ -49,6 +49,11 @@ final class Api {
 		if ( in_array( $r['has_coordinates'], array( '0', '1' ), true ) ) {
 			$args['has_coordinates'] = (int) $r['has_coordinates'];
 		}
+		$bounds = array();
+		foreach ( array( 'north', 'south', 'east', 'west' ) as $key ) {
+			if ( null !== $r[$key] && is_scalar( $r[$key] ) && is_numeric( $r[$key] ) && is_finite( (float) $r[$key] ) ) { $bounds[$key] = (float) $r[$key]; }
+		}
+		if ( count( $bounds ) === 4 && abs( $bounds['north'] ) <= 90 && abs( $bounds['south'] ) <= 90 && abs( $bounds['east'] ) <= 180 && abs( $bounds['west'] ) <= 180 ) { $args['bounds'] = $bounds; }
 		return $args;
 	}
 
