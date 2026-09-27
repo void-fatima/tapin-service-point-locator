@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
 final class ImportJobs {
 	public const FIELDS = array( 'name', 'code', 'province', 'city', 'address', 'phone', 'mobile_phone', 'landline_phone', 'source', 'postal_code', 'latitude', 'longitude', 'status' );
 	public static function table(): string { global $wpdb; return $wpdb->prefix . 'tapin_imports'; }
-	private static function error( string $message, int $status = 400 ): \WP_Error { return new \WP_Error( 'import', $message, array( 'status' => $status ) ); }
+	private static function error( string $message, int $status = 400 ): \WP_Error { \Tapin\ServicePointLocator\Service\OperationalLog::record( 'import_failed' ); return new \WP_Error( 'import', $message, array( 'status' => $status ) ); }
 	private static function get( int $id ): ?array {
 		global $wpdb;
 		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . self::table() . ' WHERE id = %d', $id ), ARRAY_A );
@@ -170,7 +170,7 @@ final class ImportJobs {
 				$wpdb->query( 'ROLLBACK' );
 				return self::error( $e->getMessage(), 500 );
 			} finally { fclose( $handle ); }
-			if ( 'completed' === $job['status'] ) { wp_delete_file( $job['data']['path'] ); }
+			if ( 'completed' === $job['status'] ) { \Tapin\ServicePointLocator\Service\OperationalLog::record( 'import_completed', array_merge( $job['data'], array( 'job_id' => $id ) ) ); wp_delete_file( $job['data']['path'] ); }
 			return self::get_public( $id );
 		} );
 	}
