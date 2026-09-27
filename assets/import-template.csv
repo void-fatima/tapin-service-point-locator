@@ -1,1 +1,1 @@
-code,name,province,city,address,phone,postal_code,latitude,longitude,status
+code,name,province,city,address,phone,mobile_phone,landline_phone,postal_code,latitude,longitude,status,source

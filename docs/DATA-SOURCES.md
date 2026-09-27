@@ -15,12 +15,45 @@ that directory; personal contact names were omitted from addresses.
 The document is undated; current branch operation is not independently confirmed.
 Row 3 is excluded because its telephone appears malformed. Row 9 repeats the
 Damghan address, postal code and telephone of row 5 and is excluded as a duplicate.
-This sample is not national coverage and contains no Tipax locations.
+This postal sample is not national coverage.
 
-Import explicitly with `wp tapin import-reference`, or upload the CSV in the
-existing importer and select Iran Post. Re-running uses the existing duplicate
+Import both reference datasets explicitly with `wp tapin import-reference`, or
+upload each CSV in the existing importer and select its provider. Re-running uses the existing duplicate
 protection. No data is imported during activation. Source URLs are retained on
 admin records; private metadata/source fields are excluded from public responses.
+
+## Official Tipax Tehran snapshot
+
+`assets/data/tipax-tehran.csv` comes from the Tehran province/city selection at
+https://tipaxco.com/branches/standardpoint, retrieved 2026-09-27. Each included row
+is checked against its own official `/branches/...` detail URL, which is retained
+as `source`. Branch codes must match between the directory and detail page.
+Coordinates come exclusively from that branch's published navigation destination;
+nearby-branch navigation links are excluded. These are source-published locations,
+not independently surveyed coordinates. No geocoding is performed.
+
+The snapshot includes 231 records: 230 with coordinates, one address-only, and
+176 with published phone numbers. One of the 232 directory selections was excluded:
+code `21225/3` linked to a detail page whose branch identity did not match. Including
+the ten postal records, the two files contain 241 points, 230 located and 11 missing
+coordinates. These counts describe the bundled snapshot, not nationwide totals.
+
+Published eleven-digit phone numbers are separated into mobile and landline
+fields. Multiple numbers remain separate; absent contacts stay empty. Manager
+names are not collected. Postal codes are preserved and the importer reports
+format warnings rather than fabricating replacements. This is a Tehran snapshot,
+not a national or continuously synchronized Tipax directory.
+
+Maintainers can reproduce collection with `node scripts/collect-tipax.cjs` followed
+by `node scripts/enrich-tipax.cjs` after installing the existing Playwright dev
+dependency. Both run locally and access only the public official site. Intermediate
+snapshots and rejected-row reports stay in ignored `artifacts/`; review the final
+CSV diff before importing. The collector requires the site's current markup and
+fails closed when branch identities do not match. It is not a scheduled scraper.
+
+Without WP-CLI, set `TAPIN_WP_ROOT` to a local WordPress root and run
+`php scripts/import-reference.php`. This explicitly imports into that database;
+activation itself still never imports records.
 
 ## Future sources
 

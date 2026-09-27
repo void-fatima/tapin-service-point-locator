@@ -61,6 +61,12 @@ try {
 	$wpdb->query( "INSERT INTO {$logs} (event,user_id,context,created_at) VALUES ('system_error',0,'{}',UTC_TIMESTAMP() - INTERVAL 4 MONTH)" );
 	OperationalLog::cleanup();
 	verify_engine( (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$logs} WHERE created_at < UTC_TIMESTAMP() - INTERVAL 3 MONTH" ) === 0 && (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$logs}" ) === 3, 'three-month retention removes only old events' );
+	$tipax = (int) $providers->get_by_slug( 'tipax' )['id'];
+	$tipax_result = $import->import_csv( TAPIN_PLUGIN_DIR . 'assets/data/tipax-tehran.csv', $tipax );
+	verify_engine( $tipax_result->get_inserted_rows() === 231 && ! $tipax_result->get_errors(), 'verified official Tipax snapshot imports without validation errors' );
+	verify_engine( $points->query( array( 'provider_id' => $tipax, 'public' => true ) )['total'] === 230, 'only 230 source-published Tipax positions become map points' );
+	verify_engine( $points->query( array( 'provider_id' => $tipax, 'has_coordinates' => 0 ) )['total'] === 1, 'Tipax record lacking a navigation position remains address-only' );
+	verify_engine( $import->import_csv( TAPIN_PLUGIN_DIR . 'assets/data/tipax-tehran.csv', $tipax )->get_inserted_rows() === 0, 'official Tipax reimport does not duplicate branches' );
 	echo "{$passed} engine checks passed.\n";
 } finally {
 	foreach ( array( 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_logs' ) as $suffix ) { $wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . $suffix ); }
