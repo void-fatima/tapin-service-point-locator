@@ -80,7 +80,7 @@ final class Api {
 			$defaults = array( 'post' => '#5694ff', 'tipax' => '#36cf8a' );
 			$slug = $p['slug'];
 			$p['color'] = sanitize_hex_color( $styles[$p['id']]['color'] ?? '' ) ?: ( $defaults[$slug] ?? '#b6a4e8' );
-			$p['logo'] = esc_url_raw( $styles[$p['id']]['logo'] ?? ( 'post' === $slug ? TAPIN_PLUGIN_URL . 'assets/brand/post.png' : ( 'tipax' === $slug ? TAPIN_PLUGIN_URL . 'assets/brand/tipax.svg' : '' ) ) );
+			$p['logo'] = esc_url_raw( ( $styles[$p['id']]['logo'] ?? '' ) ?: ( 'post' === $slug ? TAPIN_PLUGIN_URL . 'assets/brand/post.png' : ( 'tipax' === $slug ? TAPIN_PLUGIN_URL . 'assets/brand/tipax.svg' : '' ) ) );
 			return array_intersect_key( $p, array_flip( array( 'id', 'slug', 'name', 'is_active', 'color', 'logo' ) ) );
 		}, ( new ProviderRepository() )->get_all( ! $public ? false : true ) );
 	}

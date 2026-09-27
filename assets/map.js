@@ -26,6 +26,7 @@
     L.control.zoom({position:'bottomleft'}).addTo(map);
     L.control.scale({imperial:false,position:'bottomleft'}).addTo(map);
     const tile = L.tileLayer(TapinConfig.tiles, {attribution:TapinConfig.attribution,maxZoom:19}).addTo(map);
+    map.getPane('tilePane').style.opacity='0';
     let tileFailed = false;
     tile.on('tileerror', () => { if (!tileFailed) { tileFailed = true; const note = document.createElement('p'); note.className='tile-warning'; note.textContent='تصاویر زمینه نقشه بارگذاری نشد؛ اتصال اینترنت را بررسی کنید. فهرست نقاط در دسترس است.'; container.append(note); } });
     let geoCancelled = false;
@@ -42,6 +43,7 @@
       });
       // Opaque exterior prevents foreign cities/capitals baked into raster tiles leaking through.
       L.polygon([[[-85,-180],[-85,180],[85,180],[85,-180]],...holes],{pane:'boundaries',interactive:false,stroke:false,fillColor:'#111622',fillOpacity:1,fillRule:'evenodd'}).addTo(map);
+      map.getPane('tilePane').style.opacity='1';
       L.geoJSON(data,{pane:'boundaries',interactive:true,style:{color:'#a294e7',weight:1,fillColor:'#7866bd',fillOpacity:0.35},onEachFeature:(feature, polygon)=>{
         const name=provinceNames[feature.properties.shapeName];
         if(name){provinceLayers.set(normalize(name),polygon);polygon.bindTooltip(name,{direction:'center'});polygon.on('click',()=>{
@@ -106,7 +108,7 @@
         const logo=selected&&provider?.logo?safeUrl(provider.logo):'';
         const html=(logo?'<img src="'+logo+'" alt="">':selected?'<span>▣</span>':'<span>●</span>')+(group.length>1?'<b>'+num(group.length)+'</b>':'');
         const marker=L.marker([p.latitude,p.longitude],{title:group.length>1?num(group.length)+' شعبه':p.name,icon:L.divIcon({className:'tapin-pin '+(selected?'provider-pin':'all-pin'),html,iconSize:[34,40],iconAnchor:[17,40]})}).addTo(layer);
-        if(group.length>1){marker.on('click',()=>{if(map.getZoom()<18){map.fitBounds(group.map(x=>[x.latitude,x.longitude]),{maxZoom:map.getZoom()+2,padding:[30,30]});}else{content.innerHTML=group.map(x=>'<strong>'+esc(x.name)+'</strong>'+details(x)).join('<hr>');marker.bindPopup(content).openPopup();}});}else{marker.bindPopup(content);}
+        if(group.length>1){marker.on('click',()=>{if(map.getZoom()<18){map.fitBounds(group.map(x=>[x.latitude,x.longitude]),{maxZoom:map.getZoom()+2,padding:[30,30]});}else{content.innerHTML=group.map(x=>'<strong>'+esc(x.name)+'</strong>'+badge(providers.find(pr=>Number(pr.id)===Number(x.provider_id)))+'<p>'+esc(x.province)+'، '+esc(x.city)+'</p>'+details(x)).join('<hr>');marker.bindPopup(content).openPopup();}});}else{marker.bindPopup(content);}
         group.forEach(x=>markers.set(x.id,marker));
       });
     }
