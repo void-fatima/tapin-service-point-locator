@@ -238,6 +238,10 @@ $contact_mapping = ( new ColumnMapper() )->auto_detect_headers( array( 'تلفن
 assert_test( 'Independent contact and source mapping', $contact_mapping === array( 'تلفن همراه' => 'mobile_phone', 'تلفن ثابت' => 'landline_phone', 'منبع' => 'source' ) );
 $contacts['source'] = str_repeat( 'x', 501 );
 assert_test( 'Oversized source rejected before database write', ! ServicePointValidator::validate( $contacts )->is_valid() );
+$meta_record = DataNormalizer::normalize_service_point( array_merge( $valid_record, array( 'metadata' => '{"source_row":12}' ) ) );
+assert_test( 'Imported JSON metadata becomes structured data', $meta_record['metadata'] === array( 'source_row' => 12 ) );
+$meta_record['metadata'] = '{broken';
+assert_test( 'Malformed metadata rejected', ! ServicePointValidator::validate( $meta_record )->is_valid() );
 
 global $wpdb;
 if ( isset( $wpdb ) && $wpdb instanceof \wpdb ) {

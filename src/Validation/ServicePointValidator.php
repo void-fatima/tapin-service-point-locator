@@ -18,6 +18,9 @@ final class ServicePointValidator {
 	 */
 	public static function validate( array $record, bool $check_iran_bounds = true ): ValidationResult {
 		$result = new ValidationResult();
+		if ( isset( $record['metadata'] ) && ( ! is_array( $record['metadata'] ) || strlen( wp_json_encode( $record['metadata'] ) ) > 10000 ) ) {
+			$result->add_error( 'metadata', 'Metadata must be a JSON object or array under 10 KB.' );
+		}
 		foreach ( array( 'code' => 64, 'name' => 255, 'province' => 100, 'city' => 100, 'phone' => 64, 'mobile_phone' => 64, 'landline_phone' => 64, 'source' => 500, 'postal_code' => 20, 'address' => 10000 ) as $field => $limit ) {
 			if ( \Tapin\ServicePointLocator\Normalization\DataNormalizer::strlen( (string) ( $record[$field] ?? '' ) ) > $limit ) {
 				$result->add_error( $field, sprintf( 'طول فیلد %s نباید بیش از %d نویسه باشد.', $field, $limit ) );

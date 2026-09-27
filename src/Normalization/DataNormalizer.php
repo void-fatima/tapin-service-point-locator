@@ -194,6 +194,14 @@ final class DataNormalizer {
 	 * @return array
 	 */
 	public static function normalize_service_point( array $raw ): array {
+		$metadata = $raw['metadata'] ?? null;
+		if ( is_string( $metadata ) ) {
+			$metadata = self::normalize_empty( $metadata );
+			if ( null !== $metadata ) {
+				$decoded = json_decode( $metadata, true );
+				if ( JSON_ERROR_NONE === json_last_error() && is_array( $decoded ) ) { $metadata = $decoded; }
+			}
+		}
 		$code = self::normalize_empty( $raw['code'] ?? null );
 		if ( null !== $code ) {
 			$code = self::to_latin_digits( $code );
@@ -214,7 +222,7 @@ final class DataNormalizer {
 			'latitude'    => self::normalize_coordinate( $raw['latitude'] ?? null ),
 			'longitude'   => self::normalize_coordinate( $raw['longitude'] ?? null ),
 			'status'      => self::normalize_status( $raw['status'] ?? 'active' ),
-			'metadata'    => $raw['metadata'] ?? null,
+			'metadata'    => $metadata,
 		);
 	}
 }

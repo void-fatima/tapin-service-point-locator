@@ -24,6 +24,7 @@ final class ColumnMapper {
 		'mobile_phone' => array( 'mobile_phone', 'mobile', 'موبایل', 'تلفن همراه' ),
 		'landline_phone' => array( 'landline_phone', 'landline', 'تلفن ثابت' ),
 		'source' => array( 'source', 'منبع' ),
+		'metadata' => array( 'metadata', 'اطلاعات تکمیلی' ),
 		'phone'       => array( 'تلفن', 'شماره تماس', 'شماره تلفن', 'تلفن تماس', 'موبایل', 'phone', 'tel', 'telephone', 'mobile' ),
 		'latitude'    => array( 'عرض جغرافیایی', 'عرض', 'latitude', 'lat', 'y', 'geo_lat' ),
 		'longitude'   => array( 'طول جغرافیایی', 'طول', 'longitude', 'lng', 'lon', 'x', 'geo_lng' ),
