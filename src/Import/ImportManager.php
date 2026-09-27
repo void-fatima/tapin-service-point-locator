@@ -38,6 +38,8 @@ class ImportManager {
     }
    }
   } catch ( \Throwable $e ) { $result->add_error( $number, 'file', $e->getMessage() ); }
-  $result->finish(); return $result;
+  $result->finish();
+  \Tapin\ServicePointLocator\Service\OperationalLog::record( $result->get_errors() ? 'import_failed' : 'import_completed', array( 'provider_id' => $provider, 'inserted' => $result->get_inserted_rows(), 'updated' => $result->get_updated_rows(), 'skipped' => $result->get_skipped_rows(), 'failed' => count( $result->get_errors() ) ) );
+  return $result;
  }
 }

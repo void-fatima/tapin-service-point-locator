@@ -24,6 +24,9 @@ final class Plugin {
 	private function __construct() {}
 
 	public function boot(): void {
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			\WP_CLI::add_command( 'tapin import-reference', array( Import\SourceCommand::class, 'run' ) );
+		}
 		add_action( 'init', static function() {
 			if ( (int) get_option( Database\Schema::DB_VERSION_OPTION ) !== TAPIN_DB_VERSION ) {
 				Database\Schema::migrate();
