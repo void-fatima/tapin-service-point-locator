@@ -8,6 +8,8 @@ const path=require('path');
   await context.addCookies(session.cookies);
   const page=await context.newPage();const errors=[];
   const testName='آزمایش مرورگر '+Date.now();
+  const importName=testName+' ورود',providerSlug='browser-test-'+Date.now();
+  session.test_names=[...(session.test_names||[]),testName,importName];session.test_provider_slugs=[...(session.test_provider_slugs||[]),providerSlug];fs.writeFileSync(process.env.TAPIN_SESSION_FILE,JSON.stringify(session));
   page.on('pageerror',e=>errors.push(e.stack||e.message));
   const out=process.env.TAPIN_ARTIFACTS||path.join(__dirname,'..','artifacts');fs.mkdirSync(out,{recursive:true});
   try{
@@ -77,7 +79,7 @@ const path=require('path');
     await expect(page.locator('dialog')).not.toBeVisible();
     await expect(page.locator('table tbody tr').filter({hasText:testName})).toHaveCount(0);
     await page.locator('[data-nav=imports]').click();
-    await page.locator('input[type=file]').setInputFiles({name:'browser-check.csv',mimeType:'text/csv',buffer:Buffer.from('name,province,city,address,latitude,longitude\nآزمایش ورود مرورگر,تهران,تهران,نشانی تست,,\nنامعتبر,تهران,تهران,تست,bad,bad\n')});
+    await page.locator('input[type=file]').setInputFiles({name:'browser-check.csv',mimeType:'text/csv',buffer:Buffer.from('name,province,city,address,latitude,longitude\n'+importName+',تهران,تهران,نشانی تست,,\nنامعتبر,تهران,تهران,تست,bad,bad\n')});
     await page.locator('#upload-form button[type=submit]').click();
     await expect(page.locator('#mapping-form')).toBeVisible({timeout:20000});
     session.test_jobs.push(Number(new URLSearchParams(page.url().split('?').slice(2).join('?')).get('id')) || Number(page.url().match(/id=(\d+)/)[1]));
@@ -91,18 +93,21 @@ const path=require('path');
     await expect(page.locator('.provider-cards')).toBeVisible();
     await page.locator('#new-provider').click();
     await page.locator('dialog input[name=name]').fill('ارائه‌دهنده آزمایشی مرورگر');
-    await page.locator('dialog input[name=slug]').fill('browser-test-'+Date.now());
+    await page.locator('dialog input[name=slug]').fill(providerSlug);
     await page.locator('dialog button[type=submit]').click();
     await expect(page.locator('dialog')).not.toBeVisible();
     await page.locator('.provider-cards article').filter({hasText:'ارائه‌دهنده آزمایشی مرورگر'}).getByRole('button',{name:'حذف',exact:true}).click();
     await page.locator('dialog button[type=submit]').click();
     await expect(page.locator('dialog')).not.toBeVisible();
     await page.locator('[data-nav=points]').click();
-    await page.locator('table tbody tr').filter({hasText:'آزمایش ورود مرورگر'}).getByRole('button',{name:'حذف',exact:true}).click();
+    await page.locator('table tbody tr').filter({hasText:importName}).getByRole('button',{name:'حذف',exact:true}).click();
     await page.locator('dialog button[type=submit]').click();
     await expect(page.locator('dialog')).not.toBeVisible();
     if(errors.length)throw new Error(errors.join('\n'));
     console.log('PASS browser: dashboard, create/edit/delete, Persian coordinates, upload/mapping/import results, provider create/delete, mobile overflow, invalid nonce, anonymous public map and popup, no JS errors');
   }catch(e){await page.screenshot({path:path.join(out,'failure.png'),fullPage:true});throw e;}
-  finally{await browser.close();}
+  finally{
+    try{await page.evaluate(async({names,slug})=>{for(const name of names){const data=await Tapin.api('points?status=any&search='+encodeURIComponent(name));for(const row of data.items.filter(p=>p.name===name))await Tapin.api('points/'+row.id,{method:'DELETE'});}const providers=await Tapin.api('providers');for(const p of providers.filter(p=>p.slug===slug))await Tapin.api('providers/'+p.id,{method:'DELETE'});},{names:[testName,importName],slug:providerSlug});}
+    finally{await browser.close();}
+  }
 })().catch(e=>{console.error(e);process.exit(1);});
