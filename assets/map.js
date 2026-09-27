@@ -113,23 +113,28 @@
     city.innerHTML='<option value="">همه شهرها</option>'+[...new Set(locations.map(l=>l.city))].map(c=>`<option>${esc(c)}</option>`).join('');
     let selected = '', search = '', page = 1, generation = 0, controller, items = [];
     const markers = new Map();
-    const drawer=document.createElement('dialog');drawer.className='tapin-detail';drawer.dir='rtl';drawer.setAttribute('aria-labelledby',detailId);
+    const drawer=document.createElement(admin?'div':'dialog');drawer.className='tapin-detail';drawer.dir='rtl';drawer.setAttribute('aria-labelledby',detailId);
+    if(admin)drawer.hidden=true;
     drawer.innerHTML=`<header><h2 id="${detailId}">اطلاعات نقطه خدماتی</h2><button type="button" data-close aria-label="بستن اطلاعات شعبه">×</button></header><div class="detail-body"></div>`;
     container.append(drawer);
     let detailOpener=null;
-    drawer.querySelector('[data-close]').onclick=()=>drawer.close();
+    drawer.querySelector('[data-close]').onclick=()=>{if(drawer.close)drawer.close();else drawer.hidden=true;};
     drawer.addEventListener('keydown',e=>{
       if(e.key!=='Tab')return;
       const controls=[...drawer.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex="0"]')].filter(el=>el.getClientRects().length);
       const first=controls[0],last=controls[controls.length-1];
       if((e.shiftKey&&document.activeElement===first)||(!e.shiftKey&&document.activeElement===last)){e.preventDefault();(e.shiftKey?last:first)?.focus();}
     });
-    drawer.addEventListener('click',e=>{if(e.target===drawer){const box=drawer.getBoundingClientRect();if(e.clientX<box.left||e.clientX>box.right||e.clientY<box.top||e.clientY>box.bottom)drawer.close();}});
+    drawer.addEventListener('click',e=>{if(e.target===drawer){const box=drawer.getBoundingClientRect();if(e.clientX<box.left||e.clientX>box.right||e.clientY<box.top||e.clientY>box.bottom){if(drawer.close)drawer.close();else drawer.hidden=true;}}});
     drawer.addEventListener('close',()=>{if(detailOpener?.isConnected&&detailOpener.getClientRects().length)detailOpener.focus();else container.querySelector('[data-provider].selected').focus();});
     function openDetails(points,opener=document.activeElement){
       detailOpener=opener;
-      drawer.querySelector('.detail-body').innerHTML=points.map(p=>`<article class="tapin-popup">${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}<h3>${esc(p.name)}</h3>${p.province||p.city?'<p class="detail-location">'+[p.province,p.city].filter(Boolean).map(esc).join('، ')+'</p>':''}${details(p)}${!validCoordinates(p)?'<p class="coordinate-note">بدون مختصات · نشانی متنی</p>':''}</article>`).join('');
-      if(!drawer.open)drawer.showModal();
+      drawer.querySelector('.detail-body').innerHTML=points.map(p=>{
+        const hasCoords=validCoordinates(p);
+        const navUrl=hasCoords?`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(p.latitude+','+p.longitude)}`:'';
+        return `<article class="tapin-popup">${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}<h3>${esc(p.name)}</h3>${p.province||p.city?'<p class="detail-location">'+[p.province,p.city].filter(Boolean).map(esc).join('، ')+'</p>':''}${details(p)}${!hasCoords?'<p class="coordinate-note">بدون مختصات · نشانی متنی</p>':`<div class="drawer-actions"><a class="directions-btn" href="${navUrl}" target="_blank" rel="noopener noreferrer">مسیریابی روی نقشه ↗</a></div>`}</article>`;
+      }).join('');
+      if(drawer.showModal){if(!drawer.open)drawer.showModal();}else{drawer.hidden=false;}
       drawer.querySelector('[data-close]').focus();
     }
     function updateLocations(){
@@ -220,16 +225,27 @@
     function refreshFilters(){updateLocations();updateLegend();load();scheduleMarkers();}
     container.querySelectorAll('[data-provider]').forEach(button=>button.onclick=()=>{selected=button.dataset.provider;refreshFilters();});
     province.onchange=()=>{city.value='';updateLocations();updateLegend();const polygon=provinceLayers.get(normalize(province.value));map.fitBounds(polygon?polygon.getBounds():iran);load();scheduleMarkers();};
-    container.querySelector('.locator-search').onsubmit=e=>{e.preventDefault();search=new FormData(e.currentTarget).get('search').trim();load();scheduleMarkers();};
+    let searchTimer=null;
+    const searchInput=container.querySelector('.locator-search input[name=search]');
+    if(searchInput){
+      searchInput.addEventListener('input',()=>{
+        clearTimeout(searchTimer);
+        searchTimer=setTimeout(()=>{
+          search=searchInput.value.trim();
+          load();scheduleMarkers();
+        },350);
+      });
+    }
+    container.querySelector('.locator-search').onsubmit=e=>{e.preventDefault();clearTimeout(searchTimer);search=new FormData(e.currentTarget).get('search').trim();load();scheduleMarkers();};
     city.onchange=()=>{load();scheduleMarkers();};
     container.querySelector('[data-reset]').onclick=()=>{province.value='';city.value='';updateLocations();updateLegend();map.fitBounds(iran);load();scheduleMarkers();};
-    function clearFilters(){selected='';search='';province.value='';city.value='';container.querySelector('[name=search]').value='';refreshFilters();map.fitBounds(iran);}
+    function clearFilters(){clearTimeout(searchTimer);selected='';search='';province.value='';city.value='';container.querySelector('[name=search]').value='';refreshFilters();map.fitBounds(iran);}
     container.querySelector('[data-clear]').onclick=clearFilters;
     more.onclick=()=>load(true); retry.onclick=()=>{load();loadMarkers();};
     container.querySelector('[data-list]').onclick=()=>{ const list=container.querySelector('.map-list'); list.hidden=!list.hidden;container.querySelector('[data-list]').setAttribute('aria-expanded',String(!list.hidden)); };
     container.querySelector('.map-list').onclick=e=>{if(e.target.closest('[data-empty-clear]')){clearFilters();return;}const b=e.target.closest('[data-point],[data-details]');if(!b)return;const p=items.find(x=>Number(x.id)===Number(b.dataset.point||b.dataset.details));if(!p)return;if(b.dataset.point&&validCoordinates(p)&&iranGeometry?.some(f=>insideGeometry(p,f.geometry))){setView('map');map.setView([p.latitude,p.longitude],15);}openDetails([p],b);};
     load();loadMarkers();
-    return () => {geoCancelled=true;if(drawer.open)drawer.close();drawer.remove();map.off('moveend',scheduleMarkers);map.off('moveend',declutterCountryLabels);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
+    return () => {geoCancelled=true;clearTimeout(searchTimer);if(drawer.close&&drawer.open)drawer.close();drawer.remove();map.off('moveend',scheduleMarkers);map.off('moveend',declutterCountryLabels);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
   }
   window.Tapin = {api,esc,num,badge,providerOptions,mapWidget,color,safeUrl};
   document.querySelectorAll('.tapin-public-root').forEach(async root=>{
