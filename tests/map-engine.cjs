@@ -44,7 +44,7 @@ const fs=require('fs');
   await page.locator('[data-provider="3"]').click();
   await expect(page.locator('.provider-pin').first()).toBeVisible();
   await expect(page.locator('.provider-pin img')).toHaveCount(0);
-  await page.locator('[data-province]').selectOption('سمنان');
+  await page.locator('path[aria-label="سمنان"]').focus();await page.keyboard.press('Enter');
   await expect(page.locator('.marker-status')).toContainText('۰ نقطه');
   await expect(page.locator('.tapin-pin')).toHaveCount(0);
   if(!requests.some(r=>r.province==='سمنان'))throw Error('Province omitted from marker API');

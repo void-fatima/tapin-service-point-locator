@@ -30,6 +30,7 @@ final class App {
 		$tiles = str_replace( array( '%7B', '%7D' ), array( '{', '}' ), esc_url_raw( str_replace( array( '{', '}' ), array( '%7B', '%7D' ), apply_filters( 'tapin_tile_url', 'https://tile.openstreetmap.org/{z}/{x}/{y}.png' ) ) ) );
 		wp_enqueue_style( 'tapin-leaflet', TAPIN_PLUGIN_URL . 'assets/vendor/leaflet.css', array(), '1.9.4' );
 		wp_enqueue_style( 'tapin-app', TAPIN_PLUGIN_URL . 'assets/app.css', array( 'tapin-leaflet' ), TAPIN_VERSION );
+		if ( $admin ) { wp_enqueue_style( 'tapin-dashboard', TAPIN_PLUGIN_URL . 'assets/dashboard.css', array( 'tapin-app' ), TAPIN_VERSION ); }
 		wp_enqueue_script( 'tapin-leaflet', TAPIN_PLUGIN_URL . 'assets/vendor/leaflet.js', array(), '1.9.4', true );
 		wp_enqueue_script( 'tapin-map', TAPIN_PLUGIN_URL . 'assets/map.js', array( 'tapin-leaflet' ), TAPIN_VERSION, true );
 		wp_localize_script( 'tapin-map', 'TapinConfig', array( 'api' => esc_url_raw( rest_url( 'tapin/v1/' ) ), 'nonce' => $admin ? wp_create_nonce( 'wp_rest' ) : '', 'assets' => TAPIN_PLUGIN_URL . 'assets/', 'adminUrl' => admin_url( 'admin.php?page=tapin-locator' ), 'tiles' => $tiles, 'attribution' => wp_kses_post( apply_filters( 'tapin_tile_attribution', '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' ) ) ) );

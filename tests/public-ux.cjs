@@ -14,7 +14,7 @@ const fs=require('fs');
   await expect(page.locator('.marker-status')).toContainText('۲۳۰');
   await expect(page.locator('.locator-heading img')).toHaveAttribute('alt','تاپین');
   await expect(page.locator('[data-provider=""]')).toHaveAttribute('aria-pressed','true');
-  await expect(page.locator('.leaflet-country-context-pane canvas').first()).toBeAttached();
+  await expect(page.locator('.leaflet-country-context-pane svg path').first()).toBeAttached();
   await page.screenshot({path:out+'/desktop.png',fullPage:true});
   await page.locator('.locator-search input').fill('سمنان');await page.locator('.locator-search [type=submit]').click();
   await expect(page.locator('.branch-card')).toHaveCount(10);await expect(page.locator('.marker-status')).toHaveText(/^۰ نقطه/);

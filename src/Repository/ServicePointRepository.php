@@ -10,6 +10,14 @@ defined( 'ABSPATH' ) || exit;
  * Repository for service point database operations.
  */
 class ServicePointRepository {
+	/** Canonical comparisons also cover legacy records without rewriting their provenance. */
+	private static function location_sql( string $field ): string {
+		$sql = $field;
+		$map = array( 'ي' => 'ی', 'ى' => 'ی', 'ك' => 'ک', 'ة' => 'ه', "\u{200c}" => ' ' );
+		foreach ( preg_split( '//u', '۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩', -1, PREG_SPLIT_NO_EMPTY ) as $index => $digit ) { $map[$digit] = (string) ( $index % 10 ); }
+		foreach ( $map as $from => $to ) { $sql = "REPLACE({$sql}, '{$from}', '{$to}')"; }
+		return "TRIM({$sql})";
+	}
 
 	/**
 	 * Returns the table name.
@@ -302,14 +310,14 @@ class ServicePointRepository {
 
 		// Province filter.
 		if ( ! empty( $params['province'] ) ) {
-			$where_clauses[] = 'province = %s';
-			$where_values[]  = sanitize_text_field( $params['province'] );
+			$where_clauses[] = self::location_sql( 'province' ) . ' = %s';
+			$where_values[]  = \Tapin\ServicePointLocator\Normalization\DataNormalizer::normalize_location( sanitize_text_field( $params['province'] ) );
 		}
 
 		// City filter.
 		if ( ! empty( $params['city'] ) ) {
-			$where_clauses[] = 'city = %s';
-			$where_values[]  = sanitize_text_field( $params['city'] );
+			$where_clauses[] = self::location_sql( 'city' ) . ' = %s';
+			$where_values[]  = \Tapin\ServicePointLocator\Normalization\DataNormalizer::normalize_location( sanitize_text_field( $params['city'] ) );
 		}
 
 		// Coordinates availability filter.
@@ -363,6 +371,14 @@ class ServicePointRepository {
 		}
 
 		// Whitelist sorting columns.
+		// Aggregate using exactly the same predicates as the directory, without downloading rows.
+		$summary = null;
+		if ( ! empty( $args['include_summary'] ) ) {
+			$sql = "SELECT provider_id, COUNT(*) total, COALESCE(SUM(has_coordinates = 1),0) located FROM {$table} {$where_sql} GROUP BY provider_id";
+			$distribution = $wpdb->get_results( $where_values ? $wpdb->prepare( $sql, $where_values ) : $sql, ARRAY_A );
+			$located = array_sum( array_column( $distribution, 'located' ) );
+			$summary = array( 'total' => $total, 'located' => $located, 'missing' => $total - $located, 'distribution' => $distribution );
+		}
 		$allowed_orderby = array(
 			'id'          => 'id',
 			'name'        => 'name',
@@ -395,6 +411,7 @@ class ServicePointRepository {
 		}
 
 		return array(
+			'summary'     => $summary,
 			'items'       => $items,
 			'total'       => $total,
 			'page'        => $page,
@@ -553,6 +570,12 @@ class ServicePointRepository {
 		$table = $this->get_table_name();
 		$providers = Schema::get_providers_table();
 		$where = $public ? "WHERE status = 'active' AND provider_id IN (SELECT id FROM {$providers} WHERE is_active = 1)" : '';
-		return $wpdb->get_results( "SELECT DISTINCT provider_id, province, city FROM {$table} {$where} ORDER BY province, city LIMIT 10000", ARRAY_A );
+		$rows = $wpdb->get_results( "SELECT DISTINCT provider_id, province, city FROM {$table} {$where} ORDER BY province, city", ARRAY_A );
+		$unique = array();
+		foreach ( $rows as $row ) {
+			foreach ( array( 'province', 'city' ) as $field ) { $row[$field] = \Tapin\ServicePointLocator\Normalization\DataNormalizer::normalize_location( $row[$field] ); }
+			$unique[wp_json_encode( $row )] = $row;
+		}
+		return array_values( $unique );
 	}
 }

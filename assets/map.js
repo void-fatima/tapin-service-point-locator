@@ -32,7 +32,7 @@
     const polygons=geometry.type==='MultiPolygon'?geometry.coordinates:[geometry.coordinates];
     return polygons.some(rings=>insideRing(Number(p.longitude),Number(p.latitude),rings[0])&&!rings.slice(1).some(ring=>insideRing(Number(p.longitude),Number(p.latitude),ring)));
   }
-  function mapWidget(container, providers, locations, admin = false) {
+  function mapWidget(container, providers, locations, admin = false, onSummary = () => {}) {
     const detailId='tapin-detail-'+(++widgetSequence);
     container.dataset.view='map';
     container.innerHTML = `<div class="map-tools"><div class="provider-tabs" role="group" aria-label="ارائه‌دهنده"><button type="button" class="selected" aria-pressed="true" data-provider="">همه ارائه‌دهندگان</button>${providers.map(p => `<button type="button" aria-pressed="false" data-provider="${Number(p.id)}">${badge(p)}</button>`).join('')}</div><div class="map-selects"><label><span>استان</span><select data-province><option value="">همه استان‌ها</option></select></label><label><span>شهر</span><select data-city><option value="">همه شهرها</option></select></label><button type="button" data-reset title="نمایش سراسر ایران" aria-label="نمایش سراسر ایران">◎ سراسر ایران</button></div></div>
@@ -40,11 +40,18 @@
       <div class="locator-view-switch" role="group" aria-label="شیوه نمایش" ${admin?'hidden':''}><button type="button" data-view="map" aria-pressed="true">نقشه</button><button type="button" data-view="list" aria-pressed="false">فهرست نشانی‌ها</button></div>
       <div class="locator-results"><section class="map-viewport" aria-label="نقشه و راهنما"><div class="tapin-map" role="region" aria-label="نقشه نقاط خدماتی؛ با کلیدهای جهت حرکت کنید" tabindex="0"></div><div class="map-legend"></div></section>
       <section class="directory-panel" aria-label="فهرست نقاط خدماتی"><div class="map-status" role="status"></div><p class="directory-hint">فهرست شامل همه نتایج فیلترهاست؛ نقشه فقط نقاط دارای مختصات در محدوده دیده‌شده را نشان می‌دهد.</p><div class="map-list" hidden></div><div class="map-actions"><button type="button" data-retry hidden>تلاش دوباره</button><button type="button" data-more hidden>نمایش نقاط بیشتر</button><button type="button" data-list ${admin?'':'hidden'}>فهرست قابل دسترس نقاط</button></div></section></div>`;
+    if(admin){
+      const tools=container.querySelector('.map-tools');
+      const title=document.createElement('strong');title.className='filter-title';title.textContent='فیلترها';tools.prepend(title);
+      const select=document.createElement('select');select.dataset.providerSelect='';select.setAttribute('aria-label','ارائه‌دهنده');select.innerHTML='<option value="">همه ارائه‌دهندگان</option>'+providerOptions(providers);tools.querySelector('.provider-tabs').hidden=true;tools.append(select);
+      tools.append(container.querySelector('.map-selects'),container.querySelector('.locator-search'));
+      select.onchange=()=>{selected=select.value;refreshFilters();};
+    }
     const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const map = L.map(container.querySelector('.tapin-map'), {preferCanvas:true, scrollWheelZoom:false, zoomControl:false, zoomSnap:0.1, minZoom:3, maxZoom:19,zoomAnimation:!reducedMotion,fadeAnimation:!reducedMotion,markerZoomAnimation:!reducedMotion});
+    const map = L.map(container.querySelector('.tapin-map'), {preferCanvas:false, scrollWheelZoom:false, zoomControl:false, zoomSnap:0.1, minZoom:3, maxZoom:19,zoomAnimation:!reducedMotion,fadeAnimation:!reducedMotion,markerZoomAnimation:!reducedMotion});
     const iran = [[24.6,43.5],[40.2,63.5]];
     map.fitBounds(iran, {padding:[12,12]});
-    L.control.zoom({position:'bottomleft',zoomInTitle:'بزرگ‌نمایی',zoomOutTitle:'کوچک‌نمایی'}).addTo(map);
+    L.control.zoom({position:admin?'topright':'bottomleft',zoomInTitle:'بزرگ‌نمایی',zoomOutTitle:'کوچک‌نمایی'}).addTo(map);
     L.control.scale({imperial:false,position:'bottomleft'}).addTo(map);
     const tile = L.tileLayer(TapinConfig.tiles, {attribution:TapinConfig.attribution,maxZoom:19}).addTo(map);
     map.getPane('tilePane').style.opacity='0';
@@ -73,7 +80,7 @@
     map.createPane('country-context');map.getPane('country-context').style.zIndex='351';
     fetch(TapinConfig.assets+'neighbor-countries.geojson').then(r=>{if(!r.ok)throw Error();return r.json();}).then(data=>{
       if(geoCancelled)return;
-      L.geoJSON(data,{pane:'country-context',interactive:false,style:{color:'#697283',weight:1,opacity:.65,fill:false}}).addTo(map);
+      L.geoJSON(data,{pane:'country-context',interactive:false,style:{color:'#697283',weight:1,opacity:.4,fill:false}}).addTo(map);
       data.features.forEach(f=>countryLabels.push(L.marker(f.properties.label,{interactive:false,keyboard:false,icon:L.divIcon({className:'country-label',html:esc(f.properties.name),iconSize:[100,20]})}).addTo(map)));
       declutterCountryLabels();
       map.attributionControl.addAttribution('<a href="https://www.naturalearthdata.com/">Natural Earth</a>');
@@ -88,12 +95,12 @@
         polygons.forEach(polygon=>holes.push(polygon[0].map(([lng,lat])=>[lat,lng])));
       });
       // Opaque exterior prevents foreign cities/capitals baked into raster tiles leaking through.
-      L.polygon([[[-85,-180],[-85,180],[85,180],[85,-180]],...holes],{pane:'boundaries',interactive:false,stroke:false,fillColor:'#111622',fillOpacity:1,fillRule:'evenodd'}).addTo(map);
+      L.polygon([[[-85,-180],[-85,180],[85,180],[85,-180]],...holes],{pane:'boundaries',interactive:false,stroke:false,fillColor:'#08192b',fillOpacity:1,fillRule:'evenodd'}).addTo(map);
       map.getPane('tilePane').style.opacity='1';
       map.createPane('provinces');map.getPane('provinces').style.zIndex='352';
-      L.geoJSON(data,{pane:'provinces',interactive:true,style:{color:'#a294e7',weight:1,fillColor:'#7866bd',fillOpacity:0.22},onEachFeature:(feature, polygon)=>{
+      L.geoJSON(data,{pane:'provinces',interactive:true,style:feature=>({color:'#69c8ec',weight:.8,fillColor:['#087ac0','#155bd2','#5140c4','#008c9a'][Object.keys(provinceNames).indexOf(feature.properties.shapeName)%4],fillOpacity:.28}),onEachFeature:(feature, polygon)=>{
         const name=provinceNames[feature.properties.shapeName];
-        if(name){provinceLayers.set(normalize(name),polygon);polygon.bindTooltip(name,{direction:'center'});polygon.on('click',()=>{
+        if(name){polygon.on('mouseover',()=>polygon.setStyle({fillOpacity:.4,weight:2}));polygon.on('mouseout',()=>{polygon.setStyle({fillOpacity:.22});updateLegend();});polygon.on('add',()=>{const path=polygon.getElement();if(path){path.setAttribute('tabindex','0');path.setAttribute('role','button');path.setAttribute('aria-label',name);path.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();polygon.fire('click');}});}});provinceLayers.set(normalize(name),polygon);polygon.bindTooltip(name,{direction:'center'});polygon.on('click',()=>{
           const option=[...province.options].find(o=>normalize(o.value)===normalize(name));
           if(!option){province.add(new Option(name,name));}
           province.value=option?option.value:name;province.onchange();
@@ -140,16 +147,16 @@
     function updateLocations(){
       const rows=locations.filter(l=>!selected||Number(l.provider_id)===Number(selected));
       const oldProvince=province.value, oldCity=city.value;
-      province.innerHTML='<option value="">همه استان‌ها</option>'+[...new Set([...Object.values(provinceNames),...rows.map(l=>l.province)])].map(p=>'<option>'+esc(p)+'</option>').join('');
-      province.value=[...province.options].some(o=>o.value===oldProvince)?oldProvince:'';
-      city.innerHTML='<option value="">همه شهرها</option>'+[...new Set(rows.filter(l=>!province.value||l.province===province.value).map(l=>l.city))].map(c=>'<option>'+esc(c)+'</option>').join('');
-      city.value=[...city.options].some(o=>o.value===oldCity)?oldCity:'';
+      province.innerHTML='<option value="">همه استان‌ها</option>'+[...new Set(rows.map(l=>l.province).filter(Boolean))].map(p=>'<option>'+esc(p)+'</option>').join('');
+      if(oldProvince&&![...province.options].some(o=>o.value===oldProvince))province.add(new Option(oldProvince,oldProvince));province.value=oldProvince;
+      city.innerHTML='<option value="">همه شهرها</option>'+[...new Set(rows.filter(l=>!province.value||l.province===province.value).map(l=>l.city).filter(Boolean))].map(c=>'<option>'+esc(c)+'</option>').join('');
+      city.value=[...city.options].some(o=>o.value===oldCity)?oldCity:'';city.disabled=city.options.length===1;
     }
     function updateLegend(){
       const provider=providers.find(p=>Number(p.id)===Number(selected));
-      container.querySelector('.map-legend').innerHTML=(selected?badge(provider):'<span class="legend-dot" aria-hidden="true"></span><span>همه ارائه‌دهندگان</span>')+'<small>عدد روی نشانگر: تعداد شعب نزدیک</small>';
+      container.querySelector('.map-legend').innerHTML=(selected?badge(provider):'<span style="color:#ffbd18">● پست</span><span style="color:#00d59b">● تیپاکس</span><span style="color:#9975ff">● سایر</span>')+'<small>عدد روی نشانگر: تعداد شعب نزدیک</small>';
       container.querySelectorAll('[data-provider]').forEach(b=>{const active=b.dataset.provider===selected;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active));});
-      provinceLayers.forEach((polygon,name)=>polygon.setStyle({color:name===normalize(province.value)?'#f6ce45':'#a294e7',weight:name===normalize(province.value)?2:1}));
+      provinceLayers.forEach((polygon,name)=>polygon.setStyle({color:name===normalize(province.value)?'#99eaff':'#598cad',weight:name===normalize(province.value)?2:.8,fillOpacity:name===normalize(province.value)?.42:.28}));
     }
     function setView(view){
       container.dataset.view=view;
@@ -176,14 +183,13 @@
       const token = ++generation;
       if(!append){items=[];container.querySelector('.map-list').innerHTML='';more.hidden=true;}
       status.textContent='در حال دریافت نقاط خدماتی…';container.querySelector('.map-list').setAttribute('aria-busy','true');more.disabled=true; retry.hidden=true;
-      const params = new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,per_page:admin?'500':'50',page:String(append?page+1:1),has_coordinates:'1',status:'any'});
+      const params = new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,per_page:admin?'500':'50',page:String(append?page+1:1),include_summary:admin?'1':'0',status:'any'});
       try {
         const data = await api((admin?'points':'public/directory')+'?'+params, {signal:controller.signal});
         if (token !== generation) return;
         if (!append) { items=[]; page=1; } else page++;
-        const valid = data.items.filter(p=>p.latitude!==null && p.longitude!==null && Number.isFinite(Number(p.latitude)) && Number.isFinite(Number(p.longitude)) && Math.abs(Number(p.latitude))<=90 && Math.abs(Number(p.longitude))<=180);
-        items.push(...(admin?valid:data.items));
-        status.textContent = data.total ? `نمایش ${num(items.length)} از ${num(data.total)} شعبه${admin?' دارای مختصات · شامل نقاط غیرفعال':' · '+'فهرست نشانی‌ها'}` : 'شعبه‌ای با این فیلترها پیدا نشد.';
+        items.push(...data.items);if(admin&&data.summary)onSummary(data.summary);
+        status.textContent = data.total ? `نمایش ${num(items.length)} از ${num(data.total)} شعبه${admin?' شامل نقاط بدون مختصات و غیرفعال':' · '+'فهرست نشانی‌ها'}` : 'شعبه‌ای با این فیلترها پیدا نشد.';
         more.hidden = page >= data.total_pages; more.disabled=false;
         renderDirectory();
       } catch(e) { if(e.name!=='AbortError') { status.textContent=e.message; retry.hidden=false; more.disabled=false; } }
@@ -200,11 +206,11 @@
         if(match)match.points.push(p);else{const group={xy,points:[p]},key=x+':'+y;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(group);clusters.push(group);}
       });
       clusters.forEach(({points:group})=>{
-        const p=group[0], provider=providers.find(pr=>Number(pr.id)===Number(p.provider_id));
-        const logo=selected&&provider?.logo?safeUrl(provider.logo):'';
+        const p=group[0], provider=group.every(row=>Number(row.provider_id)===Number(p.provider_id))?providers.find(pr=>Number(pr.id)===Number(p.provider_id)):null;
+        const logo=provider?.logo?safeUrl(provider.logo):'';
         const html=(logo?'<img src="'+logo+'" alt="">':selected?'<span>▣</span>':'<span>●</span>')+(group.length>1?'<b>'+num(group.length)+'</b>':'');
         const marker=L.marker([p.latitude,p.longitude],{title:group.length>1?num(group.length)+' شعبه':p.name,icon:L.divIcon({className:'tapin-pin '+(selected?'provider-pin':'all-pin'),html,iconSize:[34,40],iconAnchor:[17,40]})}).addTo(layer);
-        if(selected)marker.getElement().style.borderColor=color(provider);
+        marker.getElement().style.background=provider?.slug==='post'?'#ffbd18':provider?.slug==='tipax'?'#00ba88':'#7349ff';marker.getElement().style.borderColor=color(provider);
         marker.getElement().setAttribute('aria-label',group.length>1?num(group.length)+' شعبه؛ بزرگ‌نمایی یا مشاهده فهرست':p.name+'؛ اطلاعات شعبه');
         if(group.length>1){marker.on('click',()=>{if(map.getZoom()<18){map.fitBounds(group.map(x=>[x.latitude,x.longitude]),{maxZoom:map.getZoom()+2,padding:[30,30]});}else{openDetails(group,marker.getElement());}});}else{marker.on('click',()=>openDetails([p],marker.getElement()));}
         group.forEach(x=>markers.set(x.id,marker));
@@ -215,12 +221,12 @@
       markerController?.abort();markerController=new AbortController();const token=++markerGeneration;
       layer.clearLayers();markers.clear();markerStatus.textContent='در حال دریافت نشانگرها…';
       const bounds=map.getBounds();
-      const params=new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,per_page:'500',north:String(Math.min(90,bounds.getNorth())),south:String(Math.max(-90,bounds.getSouth())),east:String(Math.min(180,bounds.getEast())),west:String(Math.max(-180,bounds.getWest())),has_coordinates:'1'});
+      const params=new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,status:admin?'any':'active',per_page:'500',north:String(Math.min(90,bounds.getNorth())),south:String(Math.max(-90,bounds.getSouth())),east:String(Math.min(180,bounds.getEast())),west:String(Math.max(-180,bounds.getWest())),has_coordinates:'1'});
       const points=[];
       try{await geographyReady;if(geoCancelled||token!==markerGeneration)return;if(!iranGeometry)throw Error('نقشه آماده نیست؛ فهرست نشانی‌ها را ببینید.');let next=1,totalPages=1;do{params.set('page',String(next));const data=await api((admin?'points':'public/points')+'?'+params,{signal:markerController.signal});if(token!==markerGeneration)return;points.push(...data.items.filter(p=>validCoordinates(p)&&iranGeometry.some(f=>insideGeometry(p,f.geometry))));totalPages=data.total_pages;next++;}while(next<=totalPages);drawMarkers(points);markerStatus.textContent=num(points.length)+' نقطه دارای مختصات در محدوده نقشه';}
       catch(e){if(e.name!=='AbortError'){markerStatus.textContent=e.message;retry.hidden=false;}}
     }
-    function scheduleMarkers(){if(geoCancelled)return;clearTimeout(markerTimer);markerController?.abort();markerGeneration++;markerTimer=setTimeout(loadMarkers,180);}
+    function scheduleMarkers(){if(geoCancelled)return;layer.clearLayers();markers.clear();clearTimeout(markerTimer);markerController?.abort();markerGeneration++;markerTimer=setTimeout(loadMarkers,180);}
     map.on('moveend',scheduleMarkers);
     function refreshFilters(){updateLocations();updateLegend();load();scheduleMarkers();}
     container.querySelectorAll('[data-provider]').forEach(button=>button.onclick=()=>{selected=button.dataset.provider;refreshFilters();});
@@ -239,7 +245,7 @@
     container.querySelector('.locator-search').onsubmit=e=>{e.preventDefault();clearTimeout(searchTimer);search=new FormData(e.currentTarget).get('search').trim();load();scheduleMarkers();};
     city.onchange=()=>{load();scheduleMarkers();};
     container.querySelector('[data-reset]').onclick=()=>{province.value='';city.value='';updateLocations();updateLegend();map.fitBounds(iran);load();scheduleMarkers();};
-    function clearFilters(){clearTimeout(searchTimer);selected='';search='';province.value='';city.value='';container.querySelector('[name=search]').value='';refreshFilters();map.fitBounds(iran);}
+    function clearFilters(){clearTimeout(searchTimer);selected='';if(admin)container.querySelector('[data-provider-select]').value='';search='';province.value='';city.value='';container.querySelector('[name=search]').value='';refreshFilters();map.fitBounds(iran);}
     container.querySelector('[data-clear]').onclick=clearFilters;
     more.onclick=()=>load(true); retry.onclick=()=>{load();loadMarkers();};
     container.querySelector('[data-list]').onclick=()=>{ const list=container.querySelector('.map-list'); list.hidden=!list.hidden;container.querySelector('[data-list]').setAttribute('aria-expanded',String(!list.hidden)); };
