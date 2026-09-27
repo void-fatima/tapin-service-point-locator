@@ -18,6 +18,7 @@
   const providerOptions = providers => providers.map(p => `<option value="${Number(p.id)}">${esc(p.name)}${Number(p.is_active) ? '' : ' (غیرفعال)'}</option>`).join('');
   const provinceNames = {'Mazandaran':'مازندران','North Khorasan':'خراسان شمالی','Kerman':'کرمان','Ilam':'ایلام','Lorestan':'لرستان','Markazi':'مرکزی','Chaharmahal and Bakhtiari':'چهارمحال و بختیاری','Kermanshah':'کرمانشاه','Hamadan':'همدان','Qazvin':'قزوین','Gilan':'گیلان','Zanjan':'زنجان','Semnan':'سمنان','Isfahan':'اصفهان','Kohgiluyeh and Boyer-Ahmad':'کهگیلویه و بویراحمد','Kurdistan':'کردستان','West Azerbaijan':'آذربایجان غربی','Fars':'فارس','Bushehr':'بوشهر','Ardabil':'اردبیل','Golestan':'گلستان','Razavi Khorasan':'خراسان رضوی','South Khorasan':'خراسان جنوبی','Sistan and Baluchestan':'سیستان و بلوچستان','Qom':'قم','Alborz':'البرز','East Azerbaijan':'آذربایجان شرقی','Yazd':'یزد','Hormozgan':'هرمزگان','Khuzestan':'خوزستان','Tehran':'تهران'};
   const normalize = value => String(value).replace(/ي/g,'ی').replace(/ك/g,'ک').replace(/[\s‌]/g,'');
+  let widgetSequence=0;
   const validCoordinates = p => p.has_coordinates && p.latitude!==null && p.longitude!==null && p.latitude!=='' && p.longitude!=='' && Number.isFinite(Number(p.latitude)) && Number.isFinite(Number(p.longitude)) && Math.abs(Number(p.latitude))<=90 && Math.abs(Number(p.longitude))<=180;
   function insideRing(x,y,ring){
     let inside=false;
@@ -32,6 +33,7 @@
     return polygons.some(rings=>insideRing(Number(p.longitude),Number(p.latitude),rings[0])&&!rings.slice(1).some(ring=>insideRing(Number(p.longitude),Number(p.latitude),ring)));
   }
   function mapWidget(container, providers, locations, admin = false) {
+    const detailId='tapin-detail-'+(++widgetSequence);
     container.innerHTML = `<div class="map-tools"><div class="provider-tabs" role="group" aria-label="ارائه‌دهنده"><button type="button" class="selected" data-provider="">همه</button>${providers.map(p => `<button type="button" data-provider="${Number(p.id)}">${badge(p)}</button>`).join('')}</div><div class="map-selects"><label><span class="sr-only">استان</span><select data-province><option value="">همه استان‌ها</option>${[...new Set(locations.map(l=>l.province))].map(p=>`<option>${esc(p)}</option>`).join('')}</select></label><label><span class="sr-only">شهر</span><select data-city><option value="">همه شهرها</option></select></label><button type="button" data-reset title="نمایش سراسر ایران" aria-label="نمایش سراسر ایران">◎</button></div></div><form class="locator-search"><label><span class="sr-only">جستجوی شعبه یا نشانی</span><input name="search" type="search" placeholder="نام شعبه، نشانی یا تلفن…"></label><button type="submit">جستجو</button></form><div class="tapin-map" role="region" aria-label="نقشه نقاط خدماتی"></div><div class="map-status" role="status"></div><div class="map-actions"><button type="button" data-retry hidden>تلاش دوباره</button><button type="button" data-more hidden>نمایش نقاط بیشتر</button><button type="button" data-list>فهرست قابل دسترس نقاط</button></div><div class="map-list" hidden></div>`;
     const map = L.map(container.querySelector('.tapin-map'), {preferCanvas:true, scrollWheelZoom:false, zoomControl:false, zoomSnap:0.1, minZoom:3, maxZoom:19});
     const iran = [[24.6,43.5],[40.2,63.5]];
@@ -85,6 +87,19 @@
     city.innerHTML='<option value="">همه شهرها</option>'+[...new Set(locations.map(l=>l.city))].map(c=>`<option>${esc(c)}</option>`).join('');
     let selected = '', search = '', page = 1, generation = 0, controller, items = [];
     const markers = new Map();
+    const drawer=document.createElement('dialog');drawer.className='tapin-detail';drawer.dir='rtl';drawer.setAttribute('aria-labelledby',detailId);
+    drawer.innerHTML=`<header><h2 id="${detailId}">اطلاعات نقطه خدماتی</h2><button type="button" data-close aria-label="بستن اطلاعات شعبه">×</button></header><div class="detail-body"></div>`;
+    container.append(drawer);
+    let detailOpener=null;
+    drawer.querySelector('[data-close]').onclick=()=>drawer.close();
+    drawer.addEventListener('click',e=>{if(e.target===drawer){const box=drawer.getBoundingClientRect();if(e.clientX<box.left||e.clientX>box.right||e.clientY<box.top||e.clientY>box.bottom)drawer.close();}});
+    drawer.addEventListener('close',()=>{if(detailOpener?.isConnected)detailOpener.focus();else container.querySelector('[data-list]').focus();});
+    function openDetails(points,opener=document.activeElement){
+      detailOpener=opener;
+      drawer.querySelector('.detail-body').innerHTML=points.map(p=>`<article class="tapin-popup">${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}<h3>${esc(p.name)}</h3>${p.province||p.city?'<p class="detail-location">'+[p.province,p.city].filter(Boolean).map(esc).join('، ')+'</p>':''}${details(p)}${!validCoordinates(p)?'<p class="coordinate-note">بدون مختصات · نشانی متنی</p>':''}</article>`).join('');
+      if(!drawer.open)drawer.showModal();
+      drawer.querySelector('[data-close]').focus();
+    }
     function updateLocations(){
       const rows=locations.filter(l=>!selected||Number(l.provider_id)===Number(selected));
       const oldProvince=province.value, oldCity=city.value;
@@ -95,7 +110,7 @@
     }
     const details = p => {
       const contacts=[['تلفن همراه',p.mobile_phone],['تلفن ثابت',p.landline_phone],['تلفن',p.phone]].filter(([,value])=>value).flatMap(([label,value])=>String(value).split(/\s*[/;|]\s*/).map(part=>[label,part]));
-      return '<p>'+esc(p.address)+'</p>'+(p.postal_code?'<p>کد پستی: <bdi>'+esc(p.postal_code)+'</bdi></p>':'')+contacts.map(([label,value])=>'<p>'+label+': <a href="tel:'+esc(String(value).replace(/[^+0-9]/g,''))+'"><bdi>'+esc(value)+'</bdi></a></p>').join('');
+      return (p.address?'<p>'+esc(p.address)+'</p>':'')+(p.postal_code?'<p>کد پستی: <bdi>'+esc(p.postal_code)+'</bdi></p>':'')+contacts.map(([label,value])=>'<p>'+label+': <a href="tel:'+esc(String(value).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[^+0-9]/g,''))+'"><bdi>'+esc(value)+'</bdi></a></p>').join('');
     };
     updateLocations();
     container.querySelector('.map-list').hidden=admin;
@@ -114,7 +129,7 @@
         items.push(...(admin?valid:data.items));
         status.textContent = data.total ? `نمایش ${num(items.length)} از ${num(data.total)} شعبه${admin?' دارای مختصات · شامل نقاط غیرفعال':' · '+'فهرست نشانی‌ها'}` : 'شعبه‌ای با این فیلترها پیدا نشد.';
         more.hidden = page >= data.total_pages; more.disabled=false;
-        container.querySelector('.map-list').innerHTML = items.map(p=>`<article class="branch-card">${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}<strong>${esc(p.name)}</strong><small>${esc(p.province)}، ${esc(p.city)}</small>${details(p)}${p.has_coordinates?`<button type="button" data-point="${p.id}">نمایش روی نقشه</button>`:'<span class="coordinate-note">بدون مختصات · نشانی متنی</span>'}</article>`).join('') || '<p>شعبه‌ای برای نمایش وجود ندارد.</p>';
+        container.querySelector('.map-list').innerHTML = items.map(p=>`<article class="branch-card">${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}<strong>${esc(p.name)}</strong><small>${esc(p.province)}، ${esc(p.city)}</small>${details(p)}<div class="branch-actions"><button type="button" data-details="${p.id}">اطلاعات شعبه</button>${validCoordinates(p)?`<button type="button" data-point="${p.id}">نمایش روی نقشه</button>`:'<span class="coordinate-note">بدون مختصات · نشانی متنی</span>'}</div></article>`).join('') || '<p>شعبه‌ای برای نمایش وجود ندارد.</p>';
       } catch(e) { if(e.name!=='AbortError') { status.textContent=e.message; retry.hidden=false; more.disabled=false; } }
     }
     let markerController, markerTimer, markerGeneration=0;
@@ -125,12 +140,11 @@
       points.forEach(p=>{const xy=map.latLngToContainerPoint([p.latitude,p.longitude]);const key=Math.floor(xy.x/44)+':'+Math.floor(xy.y/44);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(p);});
       groups.forEach(group=>{
         const p=group[0], provider=providers.find(pr=>Number(pr.id)===Number(p.provider_id));
-        const content=document.createElement('div');content.className='tapin-popup';content.dir='rtl';
-        content.innerHTML='<strong>'+esc(p.name)+'</strong>'+badge(provider)+'<p>'+esc(p.province)+'، '+esc(p.city)+'</p>'+details(p);
         const logo=selected&&provider?.logo?safeUrl(provider.logo):'';
         const html=(logo?'<img src="'+logo+'" alt="">':selected?'<span>▣</span>':'<span>●</span>')+(group.length>1?'<b>'+num(group.length)+'</b>':'');
         const marker=L.marker([p.latitude,p.longitude],{title:group.length>1?num(group.length)+' شعبه':p.name,icon:L.divIcon({className:'tapin-pin '+(selected?'provider-pin':'all-pin'),html,iconSize:[34,40],iconAnchor:[17,40]})}).addTo(layer);
-        if(group.length>1){marker.on('click',()=>{if(map.getZoom()<18){map.fitBounds(group.map(x=>[x.latitude,x.longitude]),{maxZoom:map.getZoom()+2,padding:[30,30]});}else{content.innerHTML=group.map(x=>'<strong>'+esc(x.name)+'</strong>'+badge(providers.find(pr=>Number(pr.id)===Number(x.provider_id)))+'<p>'+esc(x.province)+'، '+esc(x.city)+'</p>'+details(x)).join('<hr>');marker.bindPopup(content).openPopup();}});}else{marker.bindPopup(content);}
+        marker.getElement().setAttribute('aria-label',group.length>1?num(group.length)+' شعبه؛ بزرگ‌نمایی یا مشاهده فهرست':p.name+'؛ اطلاعات شعبه');
+        if(group.length>1){marker.on('click',()=>{if(map.getZoom()<18){map.fitBounds(group.map(x=>[x.latitude,x.longitude]),{maxZoom:map.getZoom()+2,padding:[30,30]});}else{openDetails(group,marker.getElement());}});}else{marker.on('click',()=>openDetails([p],marker.getElement()));}
         group.forEach(x=>markers.set(x.id,marker));
       });
     }
@@ -153,9 +167,9 @@
     container.querySelector('[data-reset]').onclick=()=>{province.value='';city.value='';updateLocations();map.fitBounds(iran);load();scheduleMarkers();};
     more.onclick=()=>load(true); retry.onclick=()=>{load();loadMarkers();};
     container.querySelector('[data-list]').onclick=()=>{ const list=container.querySelector('.map-list'); list.hidden=!list.hidden;container.querySelector('[data-list]').setAttribute('aria-expanded',String(!list.hidden)); };
-    container.querySelector('.map-list').onclick=e=>{ const b=e.target.closest('[data-point]'); if(b){const p=items.find(x=>Number(x.id)===Number(b.dataset.point));if(!p)return;map.setView([p.latitude,p.longitude],15);const content=document.createElement('div');content.className='tapin-popup';content.dir='rtl';content.innerHTML='<strong>'+esc(p.name)+'</strong>'+badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))+details(p);L.popup().setLatLng([p.latitude,p.longitude]).setContent(content).openOn(map);} };
+    container.querySelector('.map-list').onclick=e=>{const b=e.target.closest('[data-point],[data-details]');if(!b)return;const p=items.find(x=>Number(x.id)===Number(b.dataset.point||b.dataset.details));if(!p)return;if(b.dataset.point&&validCoordinates(p)&&iranGeometry?.some(f=>insideGeometry(p,f.geometry)))map.setView([p.latitude,p.longitude],15);openDetails([p],b);};
     load();loadMarkers();
-    return () => {geoCancelled=true;map.off('moveend',scheduleMarkers);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
+    return () => {geoCancelled=true;if(drawer.open)drawer.close();drawer.remove();map.off('moveend',scheduleMarkers);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
   }
   window.Tapin = {api,esc,num,badge,providerOptions,mapWidget,color,safeUrl};
   document.querySelectorAll('.tapin-public-root').forEach(async root=>{
