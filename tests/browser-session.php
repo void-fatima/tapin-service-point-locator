@@ -7,6 +7,12 @@ if ( ( $argv[1] ?? '' ) === 'cleanup' ) {
 	if ( is_file( $file ) ) {
 		$data = json_decode( file_get_contents( $file ), true );
 		global $wpdb;
+		foreach ( $data['test_names'] ?? array() as $name ) {
+			if ( preg_match( '/^آزمایش مرورگر [0-9]{13}( ورود)?$/uD', $name ) ) { $wpdb->delete( $wpdb->prefix . 'tapin_service_points', array( 'name' => $name ), array( '%s' ) ); }
+		}
+		foreach ( $data['test_provider_slugs'] ?? array() as $slug ) {
+			if ( preg_match( '/^browser-test-[0-9]{13}$/D', $slug ) ) { $wpdb->delete( $wpdb->prefix . 'tapin_providers', array( 'slug' => $slug ), array( '%s' ) ); }
+		}
 		foreach ( $data['test_points'] ?? array() as $point_id ) {
 			$wpdb->delete( $wpdb->prefix . 'tapin_service_points', array( 'id' => (int) $point_id ), array( '%d' ) );
 		}
