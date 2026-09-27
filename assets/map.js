@@ -18,6 +18,19 @@
   const providerOptions = providers => providers.map(p => `<option value="${Number(p.id)}">${esc(p.name)}${Number(p.is_active) ? '' : ' (غیرفعال)'}</option>`).join('');
   const provinceNames = {'Mazandaran':'مازندران','North Khorasan':'خراسان شمالی','Kerman':'کرمان','Ilam':'ایلام','Lorestan':'لرستان','Markazi':'مرکزی','Chaharmahal and Bakhtiari':'چهارمحال و بختیاری','Kermanshah':'کرمانشاه','Hamadan':'همدان','Qazvin':'قزوین','Gilan':'گیلان','Zanjan':'زنجان','Semnan':'سمنان','Isfahan':'اصفهان','Kohgiluyeh and Boyer-Ahmad':'کهگیلویه و بویراحمد','Kurdistan':'کردستان','West Azerbaijan':'آذربایجان غربی','Fars':'فارس','Bushehr':'بوشهر','Ardabil':'اردبیل','Golestan':'گلستان','Razavi Khorasan':'خراسان رضوی','South Khorasan':'خراسان جنوبی','Sistan and Baluchestan':'سیستان و بلوچستان','Qom':'قم','Alborz':'البرز','East Azerbaijan':'آذربایجان شرقی','Yazd':'یزد','Hormozgan':'هرمزگان','Khuzestan':'خوزستان','Tehran':'تهران'};
   const normalize = value => String(value).replace(/ي/g,'ی').replace(/ك/g,'ک').replace(/[\s‌]/g,'');
+  const validCoordinates = p => p.has_coordinates && p.latitude!==null && p.longitude!==null && p.latitude!=='' && p.longitude!=='' && Number.isFinite(Number(p.latitude)) && Number.isFinite(Number(p.longitude)) && Math.abs(Number(p.latitude))<=90 && Math.abs(Number(p.longitude))<=180;
+  function insideRing(x,y,ring){
+    let inside=false;
+    for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+      const [xi,yi]=ring[i],[xj,yj]=ring[j];
+      if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))inside=!inside;
+    }
+    return inside;
+  }
+  function insideGeometry(p,geometry){
+    const polygons=geometry.type==='MultiPolygon'?geometry.coordinates:[geometry.coordinates];
+    return polygons.some(rings=>insideRing(Number(p.longitude),Number(p.latitude),rings[0])&&!rings.slice(1).some(ring=>insideRing(Number(p.longitude),Number(p.latitude),ring)));
+  }
   function mapWidget(container, providers, locations, admin = false) {
     container.innerHTML = `<div class="map-tools"><div class="provider-tabs" role="group" aria-label="ارائه‌دهنده"><button type="button" class="selected" data-provider="">همه</button>${providers.map(p => `<button type="button" data-provider="${Number(p.id)}">${badge(p)}</button>`).join('')}</div><div class="map-selects"><label><span class="sr-only">استان</span><select data-province><option value="">همه استان‌ها</option>${[...new Set(locations.map(l=>l.province))].map(p=>`<option>${esc(p)}</option>`).join('')}</select></label><label><span class="sr-only">شهر</span><select data-city><option value="">همه شهرها</option></select></label><button type="button" data-reset title="نمایش سراسر ایران" aria-label="نمایش سراسر ایران">◎</button></div></div><form class="locator-search"><label><span class="sr-only">جستجوی شعبه یا نشانی</span><input name="search" type="search" placeholder="نام شعبه، نشانی یا تلفن…"></label><button type="submit">جستجو</button></form><div class="tapin-map" role="region" aria-label="نقشه نقاط خدماتی"></div><div class="map-status" role="status"></div><div class="map-actions"><button type="button" data-retry hidden>تلاش دوباره</button><button type="button" data-more hidden>نمایش نقاط بیشتر</button><button type="button" data-list>فهرست قابل دسترس نقاط</button></div><div class="map-list" hidden></div>`;
     const map = L.map(container.querySelector('.tapin-map'), {preferCanvas:true, scrollWheelZoom:false, zoomControl:false, zoomSnap:0.1, minZoom:3, maxZoom:19});
@@ -32,10 +45,17 @@
     let geoCancelled = false;
     const provinceLayers = new Map();
     map.getPane('tilePane').style.filter='invert(1) hue-rotate(185deg) brightness(.6) saturate(.35)';
-    const countries=[['ترکیه',39,35],['عراق',33,43],['سوریه',35,38],['عربستان',24,44],['کویت',29.4,47.5],['امارات',24,54],['عمان',21,57],['پاکستان',29,68],['افغانستان',34,66],['ترکمنستان',40,59],['آذربایجان',40.5,48],['ارمنستان',40.3,44.8]];
-    countries.forEach(([name,lat,lng])=>L.marker([lat,lng],{interactive:false,keyboard:false,icon:L.divIcon({className:'country-label',html:esc(name),iconSize:[100,20]})}).addTo(map));
+    map.createPane('country-context');map.getPane('country-context').style.zIndex='351';
+    fetch(TapinConfig.assets+'neighbor-countries.geojson').then(r=>{if(!r.ok)throw Error();return r.json();}).then(data=>{
+      if(geoCancelled)return;
+      L.geoJSON(data,{pane:'country-context',interactive:false,style:{color:'#697283',weight:1,opacity:.65,fill:false}}).addTo(map);
+      data.features.forEach(f=>L.marker(f.properties.label,{interactive:false,keyboard:false,icon:L.divIcon({className:'country-label',html:esc(f.properties.name),iconSize:[100,20]})}).addTo(map));
+      map.attributionControl.addAttribution('<a href="https://www.naturalearthdata.com/">Natural Earth</a>');
+    }).catch(()=>{if(!geoCancelled){const note=document.createElement('p');note.className='tile-warning';note.textContent='مرز کشورهای پیرامون بارگذاری نشد. برای تلاش دوباره صفحه را تازه کنید.';container.append(note);}});
     map.createPane('boundaries');map.getPane('boundaries').style.zIndex='350';
-    fetch(TapinConfig.assets+'iran-provinces.geojson').then(r=>r.ok?r.json():null).then(data=>{if(data && !geoCancelled) {
+    let iranGeometry=null;
+    const geographyReady=fetch(TapinConfig.assets+'iran-provinces.geojson').then(r=>{if(!r.ok)throw Error();return r.json();}).then(data=>{if(data && !geoCancelled) {
+      iranGeometry=data.features;
       const holes=[];
       data.features.forEach(feature=>{
         const polygons=feature.geometry.type==='MultiPolygon'?feature.geometry.coordinates:[feature.geometry.coordinates];
@@ -44,7 +64,8 @@
       // Opaque exterior prevents foreign cities/capitals baked into raster tiles leaking through.
       L.polygon([[[-85,-180],[-85,180],[85,180],[85,-180]],...holes],{pane:'boundaries',interactive:false,stroke:false,fillColor:'#111622',fillOpacity:1,fillRule:'evenodd'}).addTo(map);
       map.getPane('tilePane').style.opacity='1';
-      L.geoJSON(data,{pane:'boundaries',interactive:true,style:{color:'#a294e7',weight:1,fillColor:'#7866bd',fillOpacity:0.35},onEachFeature:(feature, polygon)=>{
+      map.createPane('provinces');map.getPane('provinces').style.zIndex='352';
+      L.geoJSON(data,{pane:'provinces',interactive:true,style:{color:'#a294e7',weight:1,fillColor:'#7866bd',fillOpacity:0.22},onEachFeature:(feature, polygon)=>{
         const name=provinceNames[feature.properties.shapeName];
         if(name){provinceLayers.set(normalize(name),polygon);polygon.bindTooltip(name,{direction:'center'});polygon.on('click',()=>{
           const option=[...province.options].find(o=>normalize(o.value)===normalize(name));
@@ -53,7 +74,8 @@
         });}
       }}).addTo(map);
       map.attributionControl.addAttribution('<a href="https://www.geoboundaries.org/">geoBoundaries</a> / OSM');
-    }}).catch(()=>{});
+      if(province.value)map.fitBounds(provinceLayers.get(normalize(province.value))?.getBounds()||iran);
+    }}).catch(()=>{if(!geoCancelled){const note=document.createElement('p');note.className='tile-warning';note.setAttribute('role','alert');note.textContent='مرز استان‌ها بارگذاری نشد؛ فهرست نشانی‌ها در دسترس است. برای بازیابی نقشه صفحه را تازه کنید.';container.append(note);}});
     const layer = L.layerGroup().addTo(map);
     const status = container.querySelector('.map-status');
     const more = container.querySelector('[data-more]');
@@ -119,7 +141,7 @@
       const bounds=map.getBounds();
       const params=new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,per_page:'500',north:String(Math.min(90,bounds.getNorth())),south:String(Math.max(-90,bounds.getSouth())),east:String(Math.min(180,bounds.getEast())),west:String(Math.max(-180,bounds.getWest())),has_coordinates:'1'});
       const points=[];
-      try{let next=1,totalPages=1;do{params.set('page',String(next));const data=await api((admin?'points':'public/points')+'?'+params,{signal:markerController.signal});if(token!==markerGeneration)return;points.push(...data.items.filter(p=>p.has_coordinates&&p.latitude!==null&&p.longitude!==null));totalPages=data.total_pages;next++;}while(next<=totalPages);drawMarkers(points);markerStatus.textContent=num(points.length)+' نقطه دارای مختصات در محدوده نقشه';}
+      try{await geographyReady;if(geoCancelled||token!==markerGeneration)return;if(!iranGeometry)throw Error('نقشه آماده نیست؛ فهرست نشانی‌ها را ببینید.');let next=1,totalPages=1;do{params.set('page',String(next));const data=await api((admin?'points':'public/points')+'?'+params,{signal:markerController.signal});if(token!==markerGeneration)return;points.push(...data.items.filter(p=>validCoordinates(p)&&iranGeometry.some(f=>insideGeometry(p,f.geometry))));totalPages=data.total_pages;next++;}while(next<=totalPages);drawMarkers(points);markerStatus.textContent=num(points.length)+' نقطه دارای مختصات در محدوده نقشه';}
       catch(e){if(e.name!=='AbortError'){markerStatus.textContent=e.message;retry.hidden=false;}}
     }
     function scheduleMarkers(){if(geoCancelled)return;clearTimeout(markerTimer);markerController?.abort();markerGeneration++;markerTimer=setTimeout(loadMarkers,180);}
