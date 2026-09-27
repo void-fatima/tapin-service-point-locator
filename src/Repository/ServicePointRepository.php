@@ -338,14 +338,13 @@ class ServicePointRepository {
 			$where_values[]  = max( $west, $east );
 		}
 
-		// Free text search across branch name, address, code, and phone.
+		// One search definition shared by directory, viewport and management queries.
 		if ( ! empty( $params['search'] ) ) {
-			$search_like     = '%' . $wpdb->esc_like( sanitize_text_field( $params['search'] ) ) . '%';
-			$where_clauses[] = '(name LIKE %s OR address LIKE %s OR code LIKE %s OR phone LIKE %s)';
-			$where_values[]  = $search_like;
-			$where_values[]  = $search_like;
-			$where_values[]  = $search_like;
-			$where_values[]  = $search_like;
+			$term = \Tapin\ServicePointLocator\Normalization\DataNormalizer::normalize_persian_text( sanitize_text_field( $params['search'] ) );
+			$search_like = '%' . $wpdb->esc_like( $term ?? '' ) . '%';
+			$providers = Schema::get_providers_table();
+			$where_clauses[] = "(name LIKE %s OR address LIKE %s OR code LIKE %s OR phone LIKE %s OR city LIKE %s OR province LIKE %s OR mobile_phone LIKE %s OR landline_phone LIKE %s OR provider_id IN (SELECT id FROM {$providers} WHERE name LIKE %s OR slug LIKE %s))";
+			$where_values = array_merge( $where_values, array_fill( 0, 10, $search_like ) );
 		}
 
 		$where_sql = '';
