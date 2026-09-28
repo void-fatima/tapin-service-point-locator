@@ -2,6 +2,8 @@
 
 Installable WordPress plugin for managing shipping service points, importing CSV/XLSX files, and publishing an interactive locator. The Persian RTL admin application follows the approved dark dashboard direction and uses actual stored data and official brand assets.
 
+This branch contains **unvalidated Phase 3 implementation**: accessible admin directory, filtered XLSX export and import/export history. See [Phase 3 handoff](docs/PHASE3.md). Tests were intentionally not run; version 1.3.0 is unchanged and the Phase 2 validation below does not validate these changes.
+
 Phase 2 release **1.3.0** is on `feat/geocoding-map-enrichment`, based on Phase 1 commit `97e6fd5`. See [Phase 2 configuration](docs/PHASE2.md) and [Phase 2 validation results](docs/PHASE2-VALIDATION.md). Live Neshan testing and validation against the unavailable original LocalWP site were not performed.
 
 ## Install
