@@ -30,6 +30,17 @@ final class OperationalLog {
 		), array( '%s', '%d', '%s', '%s' ) );
 	}
 
+	public static function recent_exports() {
+		global $wpdb;
+		$rows = $wpdb->get_results( "SELECT id, event, user_id, context, created_at FROM " . self::table() . " WHERE event IN ('export_completed','export_failed') ORDER BY id DESC LIMIT 50", ARRAY_A );
+		if ( $wpdb->last_error ) { return new \WP_Error( 'export_history', 'دریافت تاریخچه خروجی انجام نشد.', array( 'status' => 503 ) ); }
+		return array_map( static function( $row ) {
+			$context = json_decode( $row['context'], true ) ?: array();
+			$row['context'] = array_intersect_key( $context, array_flip( array( 'format', 'rows', 'filters' ) ) );
+			return $row;
+		}, $rows ?: array() );
+	}
+
 	public static function cleanup(): void {
 		global $wpdb;
 		// Indexed retention cutoff, in UTC and calendar months.
