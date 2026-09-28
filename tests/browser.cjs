@@ -47,7 +47,7 @@ const path=require('path');
     await expect(page.locator('table tbody tr').filter({hasText:testName})).toContainText('ثبت‌شده');
     await page.locator('[data-nav=dashboard]').click();
     await expect(page.locator('.hero-number')).toBeVisible();
-    await expect(page.locator('.map-status')).toContainText('نمایش');
+    await expect(page.locator('.map-status')).toContainText('نتیجه · صفحه');
     await expect(page.locator('.leaflet-tile-loaded').first()).toBeVisible({timeout:20000});
     await page.screenshot({path:path.join(out,'dashboard-desktop.png'),fullPage:true});
     await page.setViewportSize({width:390,height:844});
