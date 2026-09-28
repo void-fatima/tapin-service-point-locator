@@ -244,6 +244,9 @@
         marker.bindTooltip(document.createTextNode(group.length>1?num(group.length)+' شعبه':p.name+(provider?.name?' · '+provider.name:'')),{direction:'top',offset:[0,-30]});
         marker.getElement().addEventListener('focus',()=>marker.openTooltip());
         marker.getElement().addEventListener('blur',()=>marker.closeTooltip());
+        marker.getElement().addEventListener('keydown',e=>{
+          if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();marker.fire('click');}
+        });
         if(group.length>1){marker.on('click',()=>{if(map.getZoom()<18){map.fitBounds(group.map(x=>[x.latitude,x.longitude]),{maxZoom:map.getZoom()+2,padding:[30,30]});}else{openDetails(group,marker.getElement());}});}else{marker.on('click',()=>openDetails([p],marker.getElement()));}
         group.forEach(x=>markers.set(x.id,marker));
       });

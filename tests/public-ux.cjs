@@ -53,6 +53,8 @@ const fs=require('fs');
   const gate=new Promise(resolve=>{release=resolve;});
   const mockRoute=async route=>{
    const url=new URL(route.request().url()),p=url.searchParams;
+   const detail=url.pathname.match(/\/public\/points\/(\d+)$/);
+   if(detail)return route.fulfill({json:rows.find(row=>row.id===Number(detail[1]))});
    if(url.pathname.endsWith('/filters'))return route.fulfill({json:{providers,locations:providers.map(pr=>({provider_id:pr.id,province:'تهران',city:'تهران'}))}});
    const directory=url.pathname.endsWith('/directory');
    if(!directory){markerRequests++;if(hold)await gate;if(fail)return route.fulfill({status:503,json:{message:'Fixture marker outage'}});}
@@ -70,7 +72,7 @@ const fs=require('fs');
    await expect.poll(async()=>await mock.locator('.tapin-detail').isVisible()||markerRequests>previous).toBeTruthy();
    if(!await mock.locator('.tapin-detail').isVisible())await expect(mock.locator('.tapin-pin')).toHaveCount(1);
   }
-  await expect(mock.locator('.tapin-detail')).toBeVisible();await expect(mock.locator('.detail-body article')).toHaveCount(3);await mock.keyboard.press('Escape');
+  await expect(mock.locator('.tapin-detail')).toBeVisible();await expect(mock.locator('[data-cluster-detail]')).toHaveCount(3);await mock.locator('[data-cluster-detail="2"]').click();await expect(mock.locator('.detail-body article')).toHaveCount(1);await expect(mock.locator('.detail-body')).toContainText('Fixture 2');await mock.keyboard.press('Escape');
   for(const id of ['1','2','3']){await mock.locator('[data-provider="'+id+'"]').click();await expect(mock.locator('.provider-pin')).toHaveCount(1);if(id==='3')await expect(mock.locator('.provider-pin img')).toHaveCount(0);else await expect(mock.locator('.provider-pin img')).toHaveAttribute('src',id==='1'?/post\.png/:/tipax\.svg/);}
   fail=true;await mock.locator('[data-clear]').click();await expect(mock.locator('.marker-status')).toContainText('Fixture marker outage');await expect(mock.locator('[data-retry]')).toBeVisible();
   fail=false;await mock.locator('[data-retry]').click();await expect(mock.locator('.marker-status')).toContainText('۳ نقطه');
