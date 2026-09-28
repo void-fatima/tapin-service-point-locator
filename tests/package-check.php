@@ -20,7 +20,7 @@ try {
 	$result = \Tapin\ServicePointLocator\Service\PointService::save( array( 'provider_id' => $providers[0]['id'], 'name' => 'Package check', 'province' => 'Test', 'city' => 'Test', 'address' => 'Package test only' ) );
 	if ( is_wp_error( $result ) || $result['item']['has_coordinates'] ) { throw new RuntimeException( 'Packaged point workflow failed.' ); }
 	if ( ! shortcode_exists( 'tapin_service_points' ) ) { throw new RuntimeException( 'Packaged shortcode missing.' ); }
-	foreach ( array( 'assets/vendor/leaflet.js', 'assets/fonts/Vazirmatn.woff2', 'assets/brand/tapin.png', 'assets/brand/post.png', 'assets/brand/tipax.svg', 'assets/iran-provinces.geojson' ) as $asset ) {
+	foreach ( array( 'assets/dashboard.css', 'assets/data/tapin-tehran-reviewed.json', 'src/Import/TapinDirectory.php', 'assets/vendor/leaflet.js', 'assets/fonts/Vazirmatn.woff2', 'assets/brand/tapin.png', 'assets/brand/post.png', 'assets/brand/tipax.svg', 'assets/iran-provinces.geojson' ) as $asset ) {
 		if ( ! is_file( $package . '/' . $asset ) ) { throw new RuntimeException( 'Missing packaged asset: ' . $asset ); }
 	}
 	echo "PASS extracted ZIP: real WordPress bootstrap, fresh activation, repeat activation, point save, shortcode and runtime assets.\n";
