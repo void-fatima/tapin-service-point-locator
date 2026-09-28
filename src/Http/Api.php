@@ -10,6 +10,8 @@ defined( 'ABSPATH' ) || exit;
 
 final class Api {
 	public function register(): void {
+		$this->route( '/geocoding', 'GET', array( $this, 'geocoding_status' ) );
+		$this->route( '/geocoding/retry', 'POST', array( $this, 'retry_geocoding' ) );
 		$this->route( '/points', 'GET', array( $this, 'points' ) );
 		$this->route( '/points/(?P<id>\d+)', 'GET', static fn( $r ) => ( new ServicePointRepository() )->get_by_id( (int) $r['id'] ) ?: new \WP_Error( 'not_found', 'نقطه خدماتی پیدا نشد.', array( 'status' => 404 ) ) );
 		$this->route( '/points', 'POST', static fn( $r ) => PointService::save( (array) $r->get_json_params() ) );
@@ -37,6 +39,28 @@ final class Api {
 			$callback = static fn( $r ) => \Tapin\ServicePointLocator\Database\WriteLock::run( static fn() => $original( $r ) );
 		}
 		register_rest_route( 'tapin/v1', $path, array( 'methods' => $methods, 'callback' => $callback, 'permission_callback' => $public ? '__return_true' : static fn() => current_user_can( 'manage_options' ) ) );
+	}
+
+	public function geocoding_status( $r ) {
+		$raw = $r['ids'];
+		$ids = null === $raw || '' === $raw ? array() : ( is_string( $raw ) ? explode( ',', $raw ) : null );
+		if ( ! $this->valid_point_ids( $ids ) ) { return new \WP_Error( 'invalid_ids', 'حداکثر ۱۰۰ شناسه معتبر ارسال کنید.', array( 'status' => 400 ) ); }
+		return \Tapin\ServicePointLocator\Geocoding\Jobs::status( array_map( 'intval', $ids ) );
+	}
+
+	public function retry_geocoding( $r ) {
+		$data = (array) $r->get_json_params();
+		$ids = $data['ids'] ?? null;
+		if ( ! $this->valid_point_ids( $ids ) || ! $ids ) { return new \WP_Error( 'invalid_ids', 'بین ۱ تا ۱۰۰ شناسه معتبر ارسال کنید.', array( 'status' => 400 ) ); }
+		return \Tapin\ServicePointLocator\Geocoding\Jobs::retry( array_map( 'intval', $ids ) );
+	}
+
+	private function valid_point_ids( $ids ): bool {
+		if ( ! is_array( $ids ) || count( $ids ) > 100 ) { return false; }
+		foreach ( $ids as $id ) {
+			if ( ( ! is_int( $id ) && ! is_string( $id ) ) || ! preg_match( '/^[1-9][0-9]*$/D', (string) $id ) || false === filter_var( $id, FILTER_VALIDATE_INT, array( 'options' => array( 'min_range' => 1 ) ) ) ) { return false; }
+		}
+		return true;
 	}
 
 	private function filters( $r ): array {

@@ -89,6 +89,19 @@ CREATE TABLE {$service_points_table} (
 ) {$charset_collate};";
 
 		dbDelta( $sql );
+		$geocoding = $wpdb->prefix . 'tapin_geocoding_jobs';
+		dbDelta( "CREATE TABLE {$geocoding} (
+  point_id bigint(20) unsigned NOT NULL,
+  query_hash varchar(64) NOT NULL,
+  provider varchar(64) NOT NULL,
+  status varchar(20) NOT NULL,
+  attempts int unsigned NOT NULL DEFAULT 0,
+  next_attempt datetime NOT NULL,
+  last_code varchar(64) NOT NULL DEFAULT '',
+  updated_at datetime NOT NULL,
+  PRIMARY KEY  (point_id),
+  KEY status_due (status, next_attempt)
+) ENGINE=InnoDB {$charset_collate};" );
 		$imports = $wpdb->prefix . 'tapin_imports';
 		dbDelta( "CREATE TABLE {$imports} (
   id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -118,7 +131,7 @@ CREATE TABLE {$service_points_table} (
 		self::seed_default_providers();
 
 		// Do not mark a failed/partial migration current: let the next request retry.
-		foreach ( array( $service_points_table => array( 'mobile_phone', 'landline_phone', 'source', 'data_quality_status' ), $logs => array( 'event', 'context', 'created_at' ) ) as $table => $required ) {
+		foreach ( array( $service_points_table => array( 'mobile_phone', 'landline_phone', 'source', 'data_quality_status' ), $logs => array( 'event', 'context', 'created_at' ), $geocoding => array( 'point_id', 'query_hash', 'provider', 'status', 'attempts', 'next_attempt', 'last_code', 'updated_at' ) ) as $table => $required ) {
 			$columns = $wpdb->get_col( "SHOW COLUMNS FROM {$table}" );
 			if ( array_diff( $required, $columns ?: array() ) ) { return; }
 		}
