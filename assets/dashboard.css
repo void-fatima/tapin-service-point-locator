@@ -96,7 +96,7 @@
 #tapin-admin .directory-table [data-details]:hover{background:#234a85;border-color:#467bc4;color:#fff;box-shadow:0 0 8px rgba(45,85,138,0.4)}
 
 /* Global icon-button alignment: any control carrying an inline SVG + label. */
-#tapin-admin button:has(>svg),#tapin-admin a:has(>svg){display:inline-flex!important;align-items:center;justify-content:center;gap:7px;line-height:1;text-align:center;box-sizing:border-box}
+#tapin-admin button:has(>svg):not([hidden]),#tapin-admin a:has(>svg):not([hidden]){display:inline-flex!important;align-items:center;justify-content:center;gap:7px;line-height:1;text-align:center;box-sizing:border-box}
 #tapin-admin button:has(>svg)>span,#tapin-admin a:has(>svg)>span{display:inline-flex;align-items:center;line-height:1}
 #tapin-admin button:has(>svg) svg,#tapin-admin a:has(>svg) svg{flex:0 0 auto;display:block;vertical-align:middle}
 /* Title group stacks; action groups stay inline rows. */
