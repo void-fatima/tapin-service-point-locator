@@ -27,13 +27,16 @@ final class App {
 		echo '<div id="tapin-admin" class="tapin-app" dir="rtl" lang="fa"><p role="status">در حال بارگذاری داشبورد…</p><noscript>برای مدیریت نقاط خدماتی، جاوااسکریپت مرورگر را فعال کنید.</noscript></div>';
 	}
 	private function assets( bool $admin ): void {
+		// Development stages retain the release version until validation is authorized.
+		// Content timestamps prevent browsers retaining Phase 1 scripts/styles meanwhile.
+		$version = static fn( $file ) => TAPIN_VERSION . '.' . (string) filemtime( TAPIN_PLUGIN_DIR . 'assets/' . $file );
 		$tiles = str_replace( array( '%7B', '%7D' ), array( '{', '}' ), esc_url_raw( str_replace( array( '{', '}' ), array( '%7B', '%7D' ), apply_filters( 'tapin_tile_url', 'https://tile.openstreetmap.org/{z}/{x}/{y}.png' ) ) ) );
 		wp_enqueue_style( 'tapin-leaflet', TAPIN_PLUGIN_URL . 'assets/vendor/leaflet.css', array(), '1.9.4' );
-		wp_enqueue_style( 'tapin-app', TAPIN_PLUGIN_URL . 'assets/app.css', array( 'tapin-leaflet' ), TAPIN_VERSION );
+		wp_enqueue_style( 'tapin-app', TAPIN_PLUGIN_URL . 'assets/app.css', array( 'tapin-leaflet' ), $version( 'app.css' ) );
 		if ( $admin ) { wp_enqueue_style( 'tapin-dashboard', TAPIN_PLUGIN_URL . 'assets/dashboard.css', array( 'tapin-app' ), TAPIN_VERSION ); }
 		wp_enqueue_script( 'tapin-leaflet', TAPIN_PLUGIN_URL . 'assets/vendor/leaflet.js', array(), '1.9.4', true );
-		wp_enqueue_script( 'tapin-map', TAPIN_PLUGIN_URL . 'assets/map.js', array( 'tapin-leaflet' ), TAPIN_VERSION, true );
+		wp_enqueue_script( 'tapin-map', TAPIN_PLUGIN_URL . 'assets/map.js', array( 'tapin-leaflet' ), $version( 'map.js' ), true );
 		wp_localize_script( 'tapin-map', 'TapinConfig', array( 'api' => esc_url_raw( rest_url( 'tapin/v1/' ) ), 'nonce' => $admin ? wp_create_nonce( 'wp_rest' ) : '', 'assets' => TAPIN_PLUGIN_URL . 'assets/', 'adminUrl' => admin_url( 'admin.php?page=tapin-locator' ), 'tiles' => $tiles, 'attribution' => wp_kses_post( apply_filters( 'tapin_tile_attribution', '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' ) ) ) );
-		if ( $admin ) { wp_enqueue_script( 'tapin-admin', TAPIN_PLUGIN_URL . 'assets/admin.js', array( 'tapin-map' ), TAPIN_VERSION, true ); }
+		if ( $admin ) { wp_enqueue_script( 'tapin-admin', TAPIN_PLUGIN_URL . 'assets/admin.js', array( 'tapin-map' ), $version( 'admin.js' ), true ); }
 	}
 }

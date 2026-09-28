@@ -39,9 +39,11 @@ final class Jobs {
 		$provider = Configuration::provider();
 		$query = AddressQuery::build( $point );
 		$hash = AddressQuery::hash( is_wp_error( $query ) ? array_intersect_key( $point, array_flip( array( 'province', 'city', 'address', 'metadata' ) ) ) : $query, $provider->name() );
-		if ( $old && $old['query_hash'] === $hash && ( ! $retry || in_array( $old['status'], array( 'pending', 'retry', 'processing' ), true ) ) ) { return array( 'status' => $old['status'], 'point_id' => $id ); }
 		$shipping = ( new ProviderRepository() )->get_by_id( (int) $point['provider_id'] );
 		$blocked = is_wp_error( $query ) || 'active' !== $point['status'] || empty( $shipping['is_active'] );
+		$active_job = $old && in_array( $old['status'], array( 'pending', 'retry', 'processing' ), true );
+		// Recheck eligibility even when the address is unchanged (activation/conflict edits).
+		if ( $old && $old['query_hash'] === $hash && ! $blocked && ( $active_job || ( ! $retry && 'blocked' !== $old['status'] ) ) ) { return array( 'status' => $old['status'], 'point_id' => $id ); }
 		$record = array(
 			'point_id' => $id, 'query_hash' => $hash, 'provider' => $provider->name(),
 			'status' => $blocked ? 'blocked' : 'pending', 'attempts' => 0,
@@ -132,7 +134,7 @@ final class Jobs {
 	}
 
 	private static function delay( array $job, array $info ): int {
-		return max( 60 * ( 2 ** max( 0, (int) $job['attempts'] - 1 ) ), min( DAY_IN_SECONDS, (int) ( $info['retry_after'] ?? 0 ) ) );
+		return max( 60 * ( 2 ** max( 0, (int) $job['attempts'] - 1 ) ), (int) ( $info['retry_after'] ?? 0 ) );
 	}
 
 	private static function finish( array $job, $result, GeocoderInterface $provider ): void {

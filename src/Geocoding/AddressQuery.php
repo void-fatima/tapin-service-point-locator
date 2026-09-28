@@ -16,7 +16,9 @@ final class AddressQuery {
 			$fields[$key] = trim( preg_replace( '/\s+/u', ' ', N::normalize_location( $point[$key] ?? '' ) ) );
 		}
 		// A city/province name alone is not a branch address.
-		if ( '' === $fields['province'] || N::strlen( $fields['address'] ) < 12 || in_array( $fields['address'], array( $fields['province'], $fields['city'] ), true ) ) { return new \WP_Error( 'insufficient_address', 'A specific normalized address and province are required.' ); }
+		$specific = str_replace( array_filter( array( $fields['province'], $fields['city'], 'ایران' ) ), '', $fields['address'] );
+		$specific = preg_replace( '/(?:استان|شهرستان|شهر)|[\s،,؛;.-]+/u', '', $specific );
+		if ( '' === $fields['province'] || N::strlen( $fields['address'] ) < 12 || N::strlen( $specific ) < 5 ) { return new \WP_Error( 'insufficient_address', 'A specific normalized address and province are required.' ); }
 		$fields['address'] = implode( '، ', array_filter( array( 'ایران', $fields['province'], $fields['city'], $fields['address'] ) ) );
 		return $fields;
 	}
