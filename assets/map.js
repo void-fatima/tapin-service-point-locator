@@ -121,7 +121,7 @@
       L.polygon([[[-85,-180],[-85,180],[85,180],[85,-180]],...holes],{pane:'boundaries',interactive:false,stroke:false,fillColor:'#08192b',fillOpacity:1,fillRule:'evenodd'}).addTo(map);
       map.getPane('tilePane').style.opacity='1';
       map.createPane('provinces');map.getPane('provinces').style.zIndex='352';
-      L.geoJSON(data,{pane:'provinces',interactive:true,style:feature=>({color:'#69c8ec',weight:.8,fillColor:['#087ac0','#155bd2','#5140c4','#008c9a'][Object.keys(provinceNames).indexOf(feature.properties.shapeName)%4],fillOpacity:.28}),onEachFeature:(feature, polygon)=>{
+      L.geoJSON(data,{pane:'provinces',interactive:true,style:feature=>({className:'tapin-province-boundary',color:'#67d9ff',opacity:.85,weight:1,fillColor:['#087ac0','#155bd2','#5140c4','#008c9a'][Object.keys(provinceNames).indexOf(feature.properties.shapeName)%4],fillOpacity:.32}),onEachFeature:(feature, polygon)=>{
         const name=provinceNames[feature.properties.shapeName];
         if(name){polygon.on('mouseover',()=>polygon.setStyle({fillOpacity:.4,weight:2}));polygon.on('mouseout',()=>{polygon.setStyle({fillOpacity:.22});updateLegend();});polygon.on('add',()=>{const path=polygon.getElement();if(path){path.setAttribute('tabindex','0');path.setAttribute('role','button');path.setAttribute('aria-label',name);path.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();polygon.fire('click');}});}});provinceLayers.set(normalize(name),polygon);polygon.bindTooltip(name,{direction:'center'});polygon.on('click',()=>{
           const option=[...province.options].find(o=>normalize(o.value)===normalize(name));
@@ -209,7 +209,7 @@
       const provider=providers.find(p=>Number(p.id)===Number(selected));
       container.querySelector('.map-legend').innerHTML=(selected?badge(provider):'<span style="color:#ffbd18">● پست</span><span style="color:#00d59b">● تیپاکس</span><span style="color:#9975ff">● سایر</span>')+'<small>عدد روی نشانگر: تعداد شعب نزدیک</small>';
       container.querySelectorAll('[data-provider]').forEach(b=>{const active=b.dataset.provider===selected;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active));});
-      provinceLayers.forEach((polygon,name)=>polygon.setStyle({color:name===normalize(province.value)?'#99eaff':'#598cad',weight:name===normalize(province.value)?2:.8,fillOpacity:name===normalize(province.value)?.42:.28}));
+      provinceLayers.forEach((polygon,name)=>polygon.setStyle({color:name===normalize(province.value)?'#c4f5ff':'#67d9ff',weight:name===normalize(province.value)?2:1,fillOpacity:name===normalize(province.value)?.42:.32}));
     }
     function setView(view){
       container.dataset.view=view;
@@ -286,7 +286,7 @@
       clusters.forEach(({points:group})=>{
         const p=group[0], provider=group.every(row=>Number(row.provider_id)===Number(p.provider_id))?providers.find(pr=>Number(pr.id)===Number(p.provider_id)):null;
         const logo=provider?.logo?safeUrl(provider.logo):'';
-        const html=(logo?'<img src="'+logo+'" alt="">':selected?'<span>▣</span>':'<span>●</span>')+(group.length>1?'<b>'+num(group.length)+'</b>':'');
+        const html=(logo?'<img src="'+logo+'" alt="">':'<svg width="22" height="26" viewBox="0 0 24 28" aria-hidden="true" focusable="false"><path d="M12 26S3 16 3 10a9 9 0 0 1 18 0c0 6-9 16-9 16Z" fill="white"/><circle cx="12" cy="10" r="4" fill="#7349ff"/></svg>')+(group.length>1?'<b>'+num(group.length)+'</b>':'');
         const marker=L.marker([p.latitude,p.longitude],{title:group.length>1?num(group.length)+' شعبه':p.name,icon:L.divIcon({className:'tapin-pin '+(selected?'provider-pin':'all-pin'),html,iconSize:[34,40],iconAnchor:[17,40]})}).addTo(layer);
         marker.getElement().style.background=/^#[0-9a-f]{6}$/i.test(provider?.marker_color)?provider.marker_color:'#7349ff';marker.getElement().style.borderColor=color(provider);
         marker.getElement().setAttribute('aria-label',group.length>1?num(group.length)+' شعبه؛ بزرگ‌نمایی یا مشاهده فهرست':p.name+'؛ اطلاعات شعبه');
@@ -339,11 +339,18 @@
       more.before(pageIndicator);
       previous.onclick=()=>load(false,Math.max(1,page-1));
     }
+    let pagination;
+    if(admin){
+      const toggleRow=document.createElement('div');toggleRow.className='map-actions directory-toggle';mapList.before(toggleRow);toggleRow.append(listToggle);
+      pagination=document.createElement('div');pagination.className='map-actions directory-pagination';pagination.hidden=mapList.hidden;mapList.after(pagination);pagination.append(previous,pageIndicator,more,status);
+      mapList.id=detailId+'-list';pagination.id=detailId+'-pages';listToggle.setAttribute('aria-controls',mapList.id+' '+pagination.id);
+    }
     if(admin)exportControl(directoryPanel,()=>({search,provider_id:selected,province:province.value,city:city.value,status:'any'}));
     more.onclick=()=>admin?load(false,page+1):load(true); retry.onclick=()=>{load();loadMarkers();};
     const listIcon='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>';
     listToggle.onclick=()=>{
       mapList.hidden=!mapList.hidden;
+      if(admin)pagination.hidden=mapList.hidden;
       listToggle.setAttribute('aria-expanded',String(!mapList.hidden));
       if(admin)listToggle.innerHTML=listIcon+'<span>'+(mapList.hidden?'نمایش فهرست نقاط':'بستن فهرست نقاط')+'</span>';
     };
