@@ -88,9 +88,9 @@
   }
   function mountGeocoding(form,points,token){
     const panel=document.createElement('section');panel.className='geocoding-controls';panel.setAttribute('aria-label','موقعیت‌یابی نقاط خدماتی');
-    panel.innerHTML='<div class="section-title"><h3>موقعیت‌یابی نشانی‌ها</h3><div class="tapin-row-actions"><button type="button" data-enrich-page>تلاش مجدد برای نقاط بدون مختصات این صفحه</button><button type="button" data-geocoding-refresh>تازه‌سازی وضعیت</button><button type="button" data-points-refresh>تازه‌سازی فهرست</button></div></div><p data-geocoding-summary role="status">در حال دریافت وضعیت…</p><p class="help">مختصات معتبر تغییر نمی‌کند. نشانی‌های مبهم یا ناسازگار تا زمان بررسی بدون نشانگر می‌مانند.</p><p data-geocoding-message role="status"></p>';
+    panel.innerHTML='<div class="section-title"><h3>موقعیت‌یابی نشانی‌ها</h3><div class="tapin-row-actions"><button type="button" data-enrich-page>تلاش مجدد برای نقاط بدون مختصات این صفحه</button><button type="button" data-geocoding-refresh>تازه‌سازی وضعیت</button><button type="button" data-points-refresh>تازه‌سازی فهرست</button></div></div><p data-geocoding-message role="status"></p>';
     form.after(panel);
-    const summary=panel.querySelector('[data-geocoding-summary]'),message=panel.querySelector('[data-geocoding-message]');
+    const message=panel.querySelector('[data-geocoding-message]');
     const batch=panel.querySelector('[data-enrich-page]');
     const unresolved=points.filter(p=>!p.has_coordinates).map(p=>Number(p.id));
     batch.disabled=!unresolved.length;
@@ -110,10 +110,8 @@
       try{
         const data=await api('geocoding?ids='+points.map(p=>Number(p.id)).join(','),{signal:controller.signal,cache:'no-store'});
         if(disposed||token!==routeToken)return;
-        const counts=data.counts||{},waiting=(counts.pending||0)+(counts.retry||0)+(counts.processing||0);
-        summary.textContent=(data.configured?'صف موقعیت‌یابی: ':'سرویس موقعیت‌یابی تنظیم نشده؛ صف منتظر تنظیم کلید سرور است. ')+num(waiting)+' در انتظار · '+num(counts.succeeded)+' موفق · '+num((counts.failed||0)+(counts.blocked||0))+' نیازمند بررسی';
         data.items.forEach(job=>{const controls=rowControls.get(Number(job.point_id));if(!controls)return;controls.state.textContent=(labels[job.status]||'بدون مختصات')+' · '+num(job.attempts)+' تلاش'+(reasons[job.last_code]?' · '+reasons[job.last_code]:'');controls.button.disabled=busy||['pending','retry','processing','succeeded'].includes(job.status);});
-      }catch(e){if(e.name!=='AbortError'&&!disposed)summary.textContent='دریافت وضعیت موقعیت‌یابی انجام نشد. از تازه‌سازی وضعیت استفاده کنید.';}
+      }catch(e){if(e.name!=='AbortError'&&!disposed)message.textContent='دریافت وضعیت موقعیت‌یابی انجام نشد. از تازه‌سازی وضعیت استفاده کنید.';}
       finally{loading=false;}
     }
     async function retry(ids){
