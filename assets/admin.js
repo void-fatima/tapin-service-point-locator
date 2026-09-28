@@ -45,7 +45,12 @@
         const pct=s.total?Math.round(g.count/s.total*100):0;
         return '<div class="provider-summary-item" style="--provider:'+g.color+'"><span class="provider-logo" tabindex="0" aria-label="'+esc(g.name)+'" data-tooltip="'+esc(g.name)+'">'+(g.slug!=='other'&&g.logo?'<img src="'+safeUrl(g.logo)+'" alt="'+esc(g.name)+'">':'<span>'+esc(g.name)+'</span>')+'</span><strong>'+num(g.count)+'</strong><div class="distribution-bar"><span style="width:'+pct+'%"></span></div><small>'+num(pct)+'٪</small></div>';
       };
-      content().querySelector('.metric-rail').innerHTML='<div class="eyebrow">نمای کلی شبکه نقاط خدماتی</div><strong class="hero-number">'+num(s.total)+'</strong><h2>نقطه خدماتی</h2><div class="coverage"><span style="width:'+(s.total?s.located/s.total*100:0)+'%"></span></div><div class="coordinate-totals"><div><b>'+num(s.located)+'</b>دارای مختصات</div><div class="bad"><b>'+num(s.missing)+'</b>بدون مختصات</div></div>';
+      const pin='<svg viewBox="0 0 24 28" aria-hidden="true"><path d="M12 26S3 16 3 10a9 9 0 0 1 18 0c0 6-9 16-9 16Z" fill="currentColor"/><circle cx="12" cy="10" r="3.5" fill="#0c1a2b"/></svg>';
+      const coordinateCard=(count,label,missing=false)=>{
+        const percent=s.total?Math.round(count/s.total*100):0;
+        return '<div class="coordinate-card'+(missing?' bad':'')+'"><span class="coordinate-icon">'+pin+'</span><span class="coordinate-copy"><b>'+num(count)+'</b><span>'+label+'</span></span><span class="coordinate-ring" style="--percent:'+percent+'%" aria-label="'+num(percent)+'٪"><span>'+num(percent)+'٪</span></span></div>';
+      };
+      content().querySelector('.metric-rail').innerHTML='<div class="eyebrow">نمای کلی شبکه نقاط خدماتی</div><div class="metric-total"><strong class="hero-number">'+num(s.total)+'</strong><h2>'+pin+'نقطه خدماتی</h2></div><div class="coordinate-totals">'+coordinateCard(s.located,'دارای مختصات')+coordinateCard(s.missing,'بدون مختصات',true)+'</div><div class="coverage"><span style="width:'+(s.total?s.located/s.total*100:0)+'%"></span></div>';
       content().querySelector('.provider-overview').innerHTML='<h2>توزیع نقاط خدماتی بر اساس ارائه‌دهنده</h2>'+groups.map(g=>item(g,true)).join('');
     };
     render({total:0,located:0,missing:0,distribution:[]});
