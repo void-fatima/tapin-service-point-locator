@@ -260,3 +260,29 @@
   #tapin-admin #point-filters .filter-actions button.primary{flex:1}
 }
 #tapin-admin .tapin-province-boundary{filter:drop-shadow(0 0 2px #35bdff88);stroke-linejoin:round}
+
+/* Center the directory controls independently of the scrollable table. */
+#tapin-admin .dashboard-directory-panel .directory-toggle{justify-content:center;padding:4px 0 22px}
+#tapin-admin .dashboard-directory-panel .directory-toggle [data-list]{margin:0;min-height:48px;padding:12px 24px;gap:10px;border-radius:14px;border:1px solid #526aa1;background:linear-gradient(135deg,#223b68,#20294d);color:#e5eeff;font-size:14px;font-weight:700;box-shadow:0 5px 16px #02081740,inset 0 1px 0 #ffffff12;transition:background .18s ease,border-color .18s ease,box-shadow .18s ease}
+#tapin-admin .dashboard-directory-panel .directory-toggle [data-list]>svg{width:18px;height:18px;color:#ffcf58}
+#tapin-admin .dashboard-directory-panel .directory-toggle [data-list]::after{content:'';width:7px;height:7px;border-right:2px solid #a9bfe5;border-bottom:2px solid #a9bfe5;transform:rotate(45deg);margin-inline-start:8px;margin-top:-4px}
+#tapin-admin .dashboard-directory-panel .directory-toggle [data-list][aria-expanded=true]::after{transform:rotate(225deg);margin-top:4px}
+#tapin-admin .dashboard-directory-panel .directory-toggle [data-list]:hover{background:linear-gradient(135deg,#2b4c82,#303965);border-color:#849ed1;box-shadow:0 6px 20px #02081755,inset 0 1px 0 #ffffff18;transform:none}
+#tapin-admin .dashboard-directory-panel .directory-pagination{justify-content:center;gap:16px;padding:24px 0 0}
+#tapin-admin .dashboard-directory-panel .dashboard-pager{width:100%;min-width:0;display:flex;justify-content:center}
+#tapin-admin .dashboard-directory-panel .dashboard-pager .pagination{width:fit-content;max-width:100%;box-sizing:border-box;margin:0 auto;padding:18px 24px;gap:16px;border:1px solid #2c4264;border-radius:16px;background:linear-gradient(145deg,#102039,#0b1629);box-shadow:0 4px 16px #02081726,inset 0 1px 0 #ffffff08}
+#tapin-admin .dashboard-directory-panel .dashboard-pager .pagination-controls{gap:8px;max-width:100%}
+#tapin-admin .dashboard-directory-panel .dashboard-pager .pagination-pages{flex-wrap:wrap;justify-content:center;gap:6px}
+#tapin-admin .dashboard-directory-panel .dashboard-pager button{min-width:40px;min-height:42px;border-radius:10px;font-variant-numeric:tabular-nums}
+#tapin-admin .dashboard-directory-panel .dashboard-pager .pagination-num{padding:0 10px;font-size:13px}
+#tapin-admin .dashboard-directory-panel .dashboard-pager .pagination-num.active{background:linear-gradient(135deg,#3563b0,#244681);border-color:#7da4e6;color:#fff;box-shadow:0 0 0 2px #5586d41a,inset 0 1px 0 #ffffff1a;opacity:1}
+#tapin-admin .dashboard-directory-panel .dashboard-pager .pagination-info{text-align:center;line-height:1.8;color:#a7bad8}
+#tapin-admin .dashboard-directory-panel .directory-pagination .map-status{justify-content:center;text-align:center;padding:0;line-height:1.8;font-weight:400;color:#8fa6c7}
+#tapin-admin .dashboard-directory-panel .directory-toggle button:focus-visible,#tapin-admin .dashboard-directory-panel .dashboard-pager button:focus-visible{outline:2px solid #ffcf58;outline-offset:4px}
+@media(max-width:550px){
+  #tapin-admin .dashboard-directory-panel .directory-toggle [data-list]{max-width:100%;padding:12px 18px;font-size:13px}
+  #tapin-admin .dashboard-directory-panel .dashboard-pager .pagination{width:100%;padding:16px 10px}
+  #tapin-admin .dashboard-directory-panel .dashboard-pager .pagination-controls{gap:6px}
+  #tapin-admin .dashboard-directory-panel .dashboard-pager .pagination-pages{flex-basis:100%;order:-1}
+  #tapin-admin .dashboard-directory-panel .dashboard-pager .pagination-btn{padding:8px 10px}
+}
