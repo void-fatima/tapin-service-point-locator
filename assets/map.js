@@ -222,6 +222,7 @@
     function renderDirectory(){
       if(admin){
         container.querySelector('.map-list').innerHTML=items.length?`<div class="table-scroll directory-table" role="region" aria-label="فهرست قابل دسترس نقاط" tabindex="0"><table><caption>نقاط خدماتی مطابق فیلترهای انتخاب‌شده</caption><thead><tr>${['ارائه‌دهنده','نام شعبه','استان','شهر','آدرس','کد پستی','تلفن ثابت','وضعیت موقعیت','جزئیات'].map(label=>`<th scope="col">${label}</th>`).join('')}</tr></thead><tbody>${items.map(p=>`<tr><td>${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}</td><th scope="row">${esc(p.name)}</th><td>${esc(p.province||'—')}</td><td>${esc(p.city||'—')}</td><td class="directory-address">${esc(p.address||'—')}</td><td><bdi>${esc(p.postal_code||'—')}</bdi></td><td><bdi>${esc(p.landline_phone||'—')}</bdi></td><td>${validCoordinates(p)?'دارای موقعیت':'بدون مختصات'}</td><td><button type="button" data-details="${Number(p.id)}" aria-label="${esc('اطلاعات شعبه '+p.name)}">اطلاعات شعبه</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="locator-empty">هیچ نقطه خدماتی با فیلترهای انتخاب‌شده پیدا نشد.</p>';
+        if(!items.length)container.querySelector('.locator-empty').insertAdjacentHTML('beforeend','<button type="button" data-empty-clear>پاک کردن فیلترها</button>');
         return;
       }
       container.querySelector('.map-list').innerHTML=items.map(p=>{
