@@ -8,11 +8,21 @@ final class OperationalLog {
 	public static function table(): string { global $wpdb; return $wpdb->prefix . 'tapin_logs'; }
 
 	public static function record( string $event, array $context = array() ): bool {
-		if ( ! in_array( $event, array( 'import_completed', 'import_failed', 'validation_failed', 'security_event', 'bulk_updated', 'system_error' ), true ) ) { return false; }
+		if ( ! in_array( $event, array( 'import_completed', 'import_failed', 'validation_failed', 'security_event', 'bulk_updated', 'system_error', 'export_completed', 'export_failed' ), true ) ) { return false; }
 		global $wpdb;
 		$safe = array();
 		foreach ( array( 'job_id', 'provider_id', 'inserted', 'updated', 'failed', 'skipped' ) as $key ) {
 			if ( isset( $context[$key] ) ) { $safe[$key] = absint( $context[$key] ); }
+		}
+		if ( in_array( $event, array( 'export_completed', 'export_failed' ), true ) ) {
+			$safe['format'] = 'xlsx';
+			if ( isset( $context['rows'] ) ) { $safe['rows'] = absint( $context['rows'] ); }
+			$filters = (array) ( $context['filters'] ?? array() ); $safe['filters'] = array();
+			foreach ( array( 'provider_id', 'province', 'city', 'status', 'issue', 'has_coordinates' ) as $key ) {
+				if ( isset( $filters[$key] ) && is_scalar( $filters[$key] ) ) { $safe['filters'][$key] = sanitize_text_field( (string) $filters[$key] ); }
+			}
+			// Search may contain a phone/address: record its presence, not personal text.
+			$safe['filters']['search_applied'] = ! empty( $filters['search'] );
 		}
 		return false !== $wpdb->insert( self::table(), array(
 			'event' => $event, 'user_id' => get_current_user_id(),

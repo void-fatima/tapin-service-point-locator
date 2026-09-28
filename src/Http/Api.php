@@ -10,6 +10,8 @@ defined( 'ABSPATH' ) || exit;
 
 final class Api {
 	public function register(): void {
+		add_filter( 'rest_pre_serve_request', array( \Tapin\ServicePointLocator\Export\DownloadResponse::class, 'serve' ), 10, 4 );
+		$this->route( '/exports/points', 'POST', array( $this, 'export_points' ) );
 		$this->route( '/geocoding', 'GET', array( $this, 'geocoding_status' ) );
 		$this->route( '/geocoding/retry', 'POST', array( $this, 'retry_geocoding' ) );
 		$this->route( '/points', 'GET', array( $this, 'points' ) );
@@ -36,7 +38,7 @@ final class Api {
 	}
 
 	private function route( string $path, string $methods, callable $callback, bool $public = false ): void {
-		if ( 'GET' !== $methods && 0 !== strpos( $path, '/imports' ) ) {
+		if ( 'GET' !== $methods && 0 !== strpos( $path, '/imports' ) && 0 !== strpos( $path, '/exports' ) ) {
 			$original = $callback;
 			$callback = static fn( $r ) => \Tapin\ServicePointLocator\Database\WriteLock::run( static fn() => $original( $r ) );
 		}
@@ -81,6 +83,16 @@ final class Api {
 		}
 		if ( count( $bounds ) === 4 && abs( $bounds['north'] ) <= 90 && abs( $bounds['south'] ) <= 90 && abs( $bounds['east'] ) <= 180 && abs( $bounds['west'] ) <= 180 ) { $args['bounds'] = $bounds; }
 		return $args;
+	}
+
+	public function export_points( $r ) {
+		if ( ! wp_verify_nonce( $r->get_header( 'X-WP-Nonce' ), 'wp_rest' ) ) { return new \WP_Error( 'export_nonce', 'درخواست معتبر نیست؛ صفحه را تازه کنید.', array( 'status' => 403 ) ); }
+		foreach ( array( 'provider_id', 'province', 'city', 'search', 'status', 'issue', 'has_coordinates' ) as $key ) {
+			if ( null !== $r[$key] && ! is_string( $r[$key] ) ) { return new \WP_Error( 'export_filter', 'فیلتر خروجی معتبر نیست.', array( 'status' => 400 ) ); }
+		}
+		if ( ( $r['provider_id'] && ! preg_match( '/^[1-9][0-9]*$/D', $r['provider_id'] ) ) || ( $r['status'] && ! in_array( $r['status'], array( 'any', 'active', 'inactive' ), true ) ) || ( $r['issue'] && ! in_array( $r['issue'], array( 'duplicate', 'incomplete' ), true ) ) || ( null !== $r['has_coordinates'] && ! in_array( $r['has_coordinates'], array( '', '0', '1' ), true ) ) ) { return new \WP_Error( 'export_filter', 'فیلتر خروجی معتبر نیست.', array( 'status' => 400 ) ); }
+		$args = array_intersect_key( $this->filters( $r ), array_flip( array( 'provider_id', 'province', 'city', 'search', 'status', 'issue', 'has_coordinates' ) ) );
+		return \Tapin\ServicePointLocator\Export\ServicePoints::download( $args );
 	}
 
 	public function points( $r ): array {
