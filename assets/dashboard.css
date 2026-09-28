@@ -1,6 +1,8 @@
 /* Approved dashboard: statistics left, map right, shared filters above. */
 #tapin-admin{--bg:#071020;--panel:#0b172b;--line:#233654;--orange:#ffbd18;--green:#00d59b;flex-direction:row-reverse;background:radial-gradient(ellipse at top,#132340,#071020 65%)}
 #tapin-admin .tapin-sidebar{background:#081324;border-color:#182a44}
+@media(min-width:851px){body.toplevel_page_tapin-locator{overflow:hidden}#tapin-admin{height:calc(100vh - 32px);height:calc(100dvh - 32px);min-height:0;overflow:hidden}#tapin-admin .tapin-sidebar{height:100%;overflow-y:auto;flex-shrink:0}#tapin-admin .tapin-main{height:100%;min-height:0;overflow-y:auto;overscroll-behavior-y:contain}}
+@media(max-width:850px){#tapin-admin .tapin-sidebar{position:sticky;top:var(--wp-admin--admin-bar--height,46px);z-index:1001}}
 #tapin-admin .tapin-header{border-color:#162b49}
 #tapin-admin .header-actions{gap:16px;flex-shrink:0;flex-direction:row}
 #tapin-admin .header-actions a{padding:12px 22px;border-radius:10px;font-size:16px;font-weight:700}
