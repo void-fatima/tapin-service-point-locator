@@ -150,12 +150,17 @@ try {
 	Deactivator::deactivate(); Activator::activate();
 	queue_check( $before_deactivate === $wpdb->get_results( 'SELECT * FROM ' . Schema::get_service_points_table() . ' ORDER BY id', ARRAY_A ), 'deactivation/reactivation preserve every record' );
 	queue_check( ! wp_next_scheduled( Jobs::HOOK ), 'deactivation unschedules geocoding event' );
-	do_action( 'init' );
+	// Replay only the worker's init callback, not WordPress core block registration.
+	foreach ( $GLOBALS['wp_filter']['init']->callbacks as $callbacks ) {
+		foreach ( $callbacks as $callback ) {
+			if ( $callback['function'] instanceof Closure && Jobs::class === ( ( new ReflectionFunction( $callback['function'] ) )->getClosureScopeClass()->name ?? '' ) ) { $callback['function'](); }
+		}
+	}
 	queue_check( (bool) wp_next_scheduled( Jobs::HOOK ), 'reactivated plugin reschedules worker on init' );
-	$before_uninstall_jobs = $wpdb->get_results( 'SELECT * FROM ' . Jobs::table() . ' ORDER BY id', ARRAY_A );
+	$before_uninstall_jobs = $wpdb->get_results( 'SELECT * FROM ' . Jobs::table() . ' ORDER BY point_id', ARRAY_A );
 	define( 'WP_UNINSTALL_PLUGIN', 'tapin-service-point-locator/tapin-service-point-locator.php' );
 	require dirname( __DIR__ ) . '/uninstall.php';
-	queue_check( $before_deactivate === $wpdb->get_results( 'SELECT * FROM ' . Schema::get_service_points_table() . ' ORDER BY id', ARRAY_A ) && $before_uninstall_jobs === $wpdb->get_results( 'SELECT * FROM ' . Jobs::table() . ' ORDER BY id', ARRAY_A ), 'ordinary uninstall preserves points and queued work' );
+	queue_check( is_array( $before_uninstall_jobs ) && count( $before_uninstall_jobs ) > 0 && $before_deactivate === $wpdb->get_results( 'SELECT * FROM ' . Schema::get_service_points_table() . ' ORDER BY id', ARRAY_A ) && $before_uninstall_jobs === $wpdb->get_results( 'SELECT * FROM ' . Jobs::table() . ' ORDER BY point_id', ARRAY_A ), 'ordinary uninstall preserves points and queued work' );
 	queue_check( ! wp_next_scheduled( Jobs::HOOK ), 'ordinary uninstall clears worker schedule' );
 } finally {
 	remove_filter( 'tapin_geocoder', $filter ); remove_filter( 'pre_http_request', $block_http ); wp_set_current_user( 0 );
