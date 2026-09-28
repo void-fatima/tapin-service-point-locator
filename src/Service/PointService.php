@@ -11,7 +11,8 @@ defined( 'ABSPATH' ) || exit;
 final class PointService {
 	public static function save( array $data, int $id = 0 ) {
 		$repo = new ServicePointRepository();
-		if ( $id && ! $repo->get_by_id( $id ) ) {
+		$existing = $id ? $repo->get_by_id( $id ) : null;
+		if ( $id && ! $existing ) {
 			return new \WP_Error( 'not_found', 'نقطه خدماتی پیدا نشد.', array( 'status' => 404 ) );
 		}
 		foreach ( $data as $key => $value ) {
@@ -31,11 +32,26 @@ final class PointService {
 			OperationalLog::record( 'validation_failed', array( 'provider_id' => $data['provider_id'] ) );
 			return new \WP_Error( 'invalid', implode( ' ', $validation->get_errors() ), array( 'status' => 400, 'fields' => $validation->get_errors() ) );
 		}
+		$data = \Tapin\ServicePointLocator\Geocoding\CoordinatePolicy::prepare( $data, $existing, 'manual' );
+		// Editing reconciled fields invalidates old evidence; never geocode a stale official address.
+		if ( $existing && isset( $data['metadata']['tapin_reconciliation'] ) ) {
+			foreach ( array( 'name', 'province', 'city', 'address', 'postal_code', 'landline_phone' ) as $field ) {
+				if ( (string) ( $existing[$field] ?? '' ) !== (string) ( $data[$field] ?? '' ) ) {
+					$data['metadata']['tapin_reconciliation']['result'] = 'stale'; break;
+				}
+			}
+		}
 		$saved = $id ? $repo->update( $id, $data ) : $repo->insert( $data );
 		if ( ! $saved ) {
 			OperationalLog::record( 'system_error', array( 'provider_id' => $data['provider_id'] ) );
 			return new \WP_Error( 'database', 'ذخیره اطلاعات انجام نشد. دوباره تلاش کنید.', array( 'status' => 500 ) );
 		}
-		return array( 'item' => $repo->get_by_id( $id ?: $saved ), 'warnings' => $validation->get_warnings() );
+		$item = $repo->get_by_id( $id ?: $saved );
+		$warnings = $validation->get_warnings();
+		try {
+			$queued = \Tapin\ServicePointLocator\Geocoding\Jobs::enqueue( $item );
+			if ( is_wp_error( $queued ) ) { $warnings['geocoding'] = $queued->get_error_message(); }
+		} catch ( \Throwable $e ) { $warnings['geocoding'] = 'رکورد ذخیره شد؛ موقعیت‌یابی را بعداً دوباره درخواست کنید.'; }
+		return array( 'item' => $item, 'warnings' => $warnings );
 	}
 }

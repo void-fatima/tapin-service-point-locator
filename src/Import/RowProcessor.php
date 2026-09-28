@@ -4,6 +4,8 @@ namespace Tapin\ServicePointLocator\Import;
 use Tapin\ServicePointLocator\Normalization\DataNormalizer;
 use Tapin\ServicePointLocator\Validation\ServicePointValidator;
 use Tapin\ServicePointLocator\Repository\ServicePointRepository;
+use Tapin\ServicePointLocator\Geocoding\CoordinatePolicy;
+use Tapin\ServicePointLocator\Geocoding\Jobs;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,12 +29,23 @@ final class RowProcessor {
 		if ( in_array( $outcome, array( 'conflict', 'probable_match' ), true ) ) { $warnings[] = 'Tapin directory: ' . $outcome . ' — uploaded values preserved; review source evidence.'; }
 		if ( $match ) {
 			if ( 'update' === $action && $match['code_match'] ) {
+				$data = CoordinatePolicy::prepare( $data, $repo->get_by_id( $match['id'] ), 'uploaded' );
 				$ok = $repo->update( $match['id'], $data );
+				if ( $ok ) { self::queue( $repo, (int) $match['id'], $warnings ); }
 				return array( 'result' => $ok ? 'updated' : 'failed', 'messages' => $ok ? $warnings : array( 'به‌روزرسانی رکورد در پایگاه داده ناموفق بود.' ), 'existing_id' => $match['id'] );
 			}
 			return array( 'result' => 'skipped', 'messages' => array( 'احتمال تکرار؛ رکورد موجود تغییر نکرد. شناسه: ' . $match['id'] ), 'existing_id' => $match['id'] );
 		}
+		$data = CoordinatePolicy::prepare( $data, null, 'uploaded' );
 		$id = $repo->insert( $data );
+		if ( $id ) { self::queue( $repo, $id, $warnings ); }
 		return array( 'result' => $id ? 'inserted' : 'failed', 'messages' => $id ? $warnings : array( 'ثبت رکورد در پایگاه داده ناموفق بود.' ) );
+	}
+	private static function queue( ServicePointRepository $repo, int $id, array &$warnings ): void {
+		try {
+			$point = $repo->get_by_id( $id );
+			$result = $point ? Jobs::enqueue( $point ) : null;
+			if ( is_wp_error( $result ) ) { $warnings[] = $result->get_error_message(); }
+		} catch ( \Throwable $e ) { $warnings[] = 'رکورد ذخیره شد؛ صف موقعیت‌یابی در دسترس نیست. بعداً دوباره تلاش کنید.'; }
 	}
 }

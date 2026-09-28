@@ -24,6 +24,7 @@ final class Plugin {
 	private function __construct() {}
 
 	public function boot(): void {
+		Geocoding\Jobs::boot();
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			\WP_CLI::add_command( 'tapin import-reference', array( Import\SourceCommand::class, 'run' ) );
 		}
