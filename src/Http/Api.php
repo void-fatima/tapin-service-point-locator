@@ -12,6 +12,7 @@ final class Api {
 	public function register(): void {
 		add_filter( 'rest_pre_serve_request', array( \Tapin\ServicePointLocator\Export\DownloadResponse::class, 'serve' ), 10, 4 );
 		$this->route( '/exports/points', 'POST', array( $this, 'export_points' ) );
+		$this->route( '/exports', 'GET', static fn() => \Tapin\ServicePointLocator\Service\OperationalLog::recent_exports() );
 		$this->route( '/geocoding', 'GET', array( $this, 'geocoding_status' ) );
 		$this->route( '/geocoding/retry', 'POST', array( $this, 'retry_geocoding' ) );
 		$this->route( '/points', 'GET', array( $this, 'points' ) );
