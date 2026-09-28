@@ -1,11 +1,14 @@
 <?php
-/** Optional development-only benchmark. Removes its own provider, points and import job. */
+/** Optional development-only benchmark using disposable tables. */
 if ( PHP_SAPI !== 'cli' || ! getenv( 'TAPIN_WP_ROOT' ) ) { exit( 1 ); }
 require getenv( 'TAPIN_WP_ROOT' ) . '/wp-load.php';
 use Tapin\ServicePointLocator\Import\ImportJobs;
 use Tapin\ServicePointLocator\Repository\ProviderRepository;
 use Tapin\ServicePointLocator\Repository\ServicePointRepository;
 $count = 10000;
+$original_prefix = $wpdb->prefix;
+$wpdb->prefix .= 'benchmark_' . bin2hex( random_bytes( 4 ) ) . '_';
+\Tapin\ServicePointLocator\Database\Schema::migrate();
 $providers = new ProviderRepository(); $points = new ServicePointRepository();
 $provider = $providers->insert( array( 'slug' => 'benchmark-' . wp_generate_password( 12, false ), 'name' => 'Temporary benchmark', 'is_active' => 1 ) );
 $file = tempnam( sys_get_temp_dir(), 'tapin-benchmark-' ); $job_id = 0;
@@ -34,4 +37,6 @@ try {
 	$providers->delete( $provider );
 	if ( $job_id ) { ImportJobs::cancel( $job_id ); $wpdb->delete( ImportJobs::table(), array( 'id' => $job_id ), array( '%d' ) ); }
 	wp_delete_file( $file );
+	foreach ( array( 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_logs' ) as $suffix ) { $wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . $suffix ); }
+	$wpdb->prefix = $original_prefix;
 }
