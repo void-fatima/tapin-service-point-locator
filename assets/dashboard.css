@@ -259,7 +259,7 @@
   #tapin-admin #point-filters .filter-actions{width:100%}
   #tapin-admin #point-filters .filter-actions button.primary{flex:1}
 }
-#tapin-admin .tapin-province-boundary{filter:drop-shadow(0 0 2px #35bdff88);stroke-linejoin:round}
+#tapin-admin .tapin-province-boundary{filter:drop-shadow(0 0 3px #35bdff40);stroke-linejoin:round;stroke-linecap:round}
 
 /* Center the directory controls independently of the scrollable table. */
 #tapin-admin .dashboard-directory-panel .directory-toggle{justify-content:center;padding:4px 0 22px}
@@ -286,3 +286,24 @@
   #tapin-admin .dashboard-directory-panel .dashboard-pager .pagination-pages{flex-basis:100%;order:-1}
   #tapin-admin .dashboard-directory-panel .dashboard-pager .pagination-btn{padding:8px 10px}
 }
+
+/* Overview card: coordinate icons and percentages from the current filtered totals. */
+#tapin-admin .metric-rail{padding:16px;gap:12px;background:linear-gradient(145deg,#0c192d,#080f1e);border-color:#263b5c;border-radius:14px}
+#tapin-admin .metric-rail .eyebrow{font-size:16px;margin:0;line-height:1.8}
+#tapin-admin .metric-total{padding:12px 18px;border:1px solid #253857;border-radius:12px;background:radial-gradient(ellipse at left bottom,#5034a52b,transparent 65%),linear-gradient(120deg,#0d1830,#0a1221)}
+#tapin-admin .metric-total .hero-number{display:block;font-size:clamp(48px,5vw,76px);margin:0 0 8px;line-height:1.1}
+#tapin-admin .metric-total h2{display:flex;align-items:center;gap:8px;margin:0;color:#e0e8f7;font-size:14px}
+#tapin-admin .metric-total h2 svg{width:17px;height:21px;color:#b997ff}
+#tapin-admin .metric-rail .coordinate-totals{gap:10px;flex-wrap:wrap}
+#tapin-admin .metric-rail .coordinate-card{--accent:#00d5a0;flex:1 1 170px;min-width:0;box-sizing:border-box;display:flex;flex-direction:row;align-items:center;gap:9px;padding:12px 10px;border-color:#203451;background:linear-gradient(135deg,#0c1b2b,#090f1d);border-radius:12px}
+#tapin-admin .metric-rail .coordinate-card.bad{--accent:#ff4269}
+#tapin-admin .coordinate-icon{display:grid;place-items:center;flex:0 0 40px;height:46px;border-radius:10px;background:#00d5a01c;color:var(--accent);box-shadow:inset 0 0 18px #00d5a00d}
+#tapin-admin .bad .coordinate-icon{background:#ff426922;box-shadow:inset 0 0 18px #ff426910}
+#tapin-admin .coordinate-icon svg{width:23px;height:29px}
+#tapin-admin .coordinate-copy{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
+#tapin-admin .coordinate-copy b{font-size:23px;color:var(--accent)}
+#tapin-admin .coordinate-copy>span{font-size:11px;white-space:nowrap;color:#d5deed}
+#tapin-admin .coordinate-ring{position:relative;flex:0 0 46px;height:46px;display:grid;place-items:center;border-radius:50%;background:conic-gradient(var(--accent) var(--percent),#26324d 0);direction:ltr}
+#tapin-admin .coordinate-ring::before{content:'';position:absolute;inset:5px;border-radius:50%;background:#0b1425}
+#tapin-admin .coordinate-ring>span{position:relative;font-size:13px;font-weight:800;color:#eaf0ff;font-variant-numeric:tabular-nums}
+#tapin-admin .metric-rail .coverage{margin:0;height:4px;opacity:.7}

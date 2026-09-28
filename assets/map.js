@@ -153,9 +153,9 @@
       L.polygon([[[-85,-180],[-85,180],[85,180],[85,-180]],...holes],{pane:'boundaries',interactive:false,stroke:false,fillColor:'#08192b',fillOpacity:1,fillRule:'evenodd'}).addTo(map);
       map.getPane('tilePane').style.opacity='1';
       map.createPane('provinces');map.getPane('provinces').style.zIndex='352';
-      L.geoJSON(data,{pane:'provinces',interactive:true,style:feature=>({className:'tapin-province-boundary',color:'#67d9ff',opacity:.85,weight:1,fillColor:['#087ac0','#155bd2','#5140c4','#008c9a'][Object.keys(provinceNames).indexOf(feature.properties.shapeName)%4],fillOpacity:.32}),onEachFeature:(feature, polygon)=>{
+      L.geoJSON(data,{pane:'provinces',interactive:true,style:feature=>({className:'tapin-province-boundary',color:'#79cfe8',opacity:.55,weight:.7,lineCap:'round',lineJoin:'round',smoothFactor:1.2,fillColor:['#087ac0','#155bd2','#5140c4','#008c9a'][Object.keys(provinceNames).indexOf(feature.properties.shapeName)%4],fillOpacity:.32}),onEachFeature:(feature, polygon)=>{
         const name=provinceNames[feature.properties.shapeName];
-        if(name){polygon.on('mouseover',()=>polygon.setStyle({fillOpacity:.4,weight:2}));polygon.on('mouseout',()=>{polygon.setStyle({fillOpacity:.22});updateLegend();});polygon.on('add',()=>{const path=polygon.getElement();if(path){path.setAttribute('tabindex','0');path.setAttribute('role','button');path.setAttribute('aria-label',name);path.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();polygon.fire('click');}});}});provinceLayers.set(normalize(name),polygon);polygon.bindTooltip(name,{direction:'center'});polygon.on('click',()=>{
+        if(name){polygon.on('mouseover',()=>polygon.setStyle({fillOpacity:.4,weight:1.2}));polygon.on('mouseout',()=>{polygon.setStyle({fillOpacity:.22});updateLegend();});polygon.on('add',()=>{const path=polygon.getElement();if(path){path.setAttribute('tabindex','0');path.setAttribute('role','button');path.setAttribute('aria-label',name);path.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();polygon.fire('click');}});}});provinceLayers.set(normalize(name),polygon);polygon.bindTooltip(name,{direction:'center'});polygon.on('click',()=>{
           const option=[...province.options].find(o=>normalize(o.value)===normalize(name));
           if(!option){province.add(new Option(name,name));}
           province.value=option?option.value:name;province.onchange();
@@ -245,7 +245,7 @@
       const provider=providers.find(p=>Number(p.id)===Number(selected));
       container.querySelector('.map-legend').innerHTML=(selected?badge(provider):'<span style="color:#ffbd18">● پست</span><span style="color:#00d59b">● تیپاکس</span><span style="color:#9975ff">● سایر</span>')+'<small>عدد روی نشانگر: تعداد شعب نزدیک</small>';
       container.querySelectorAll('[data-provider]').forEach(b=>{const active=b.dataset.provider===selected;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active));});
-      provinceLayers.forEach((polygon,name)=>polygon.setStyle({color:name===normalize(province.value)?'#c4f5ff':'#67d9ff',weight:name===normalize(province.value)?2:1,fillOpacity:name===normalize(province.value)?.42:.32}));
+      provinceLayers.forEach((polygon,name)=>polygon.setStyle({color:name===normalize(province.value)?'#c4f5ff':'#79cfe8',weight:name===normalize(province.value)?1.4:.7,fillOpacity:name===normalize(province.value)?.42:.32}));
     }
     function setView(view){
       container.dataset.view=view;
