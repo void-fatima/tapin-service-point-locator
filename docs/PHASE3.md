@@ -1,11 +1,11 @@
-# Phase 3 implementation handoff — validation deferred
+# Phase 3 behavior and release
 
 Branch: `feat/service-points-xlsx-history`.
 Phase 2 base: `ec37b129b8d70496ded2ef9acb9678d45b644fb9`.
 
-**Phase 3 implementation was completed without running tests at user request.** No PHP/JavaScript syntax checks, automated suites, browser sessions, activation/deactivation checks, source parser, benchmarks, packaging or live Neshan requests were run. Phase 2 results are not evidence of Phase 3 correctness.
+The implementation session originally deferred tests at user request. The subsequent authorized validation session is recorded in [PHASE3-VALIDATION.md](PHASE3-VALIDATION.md); it includes focused XLSX/security/history tests, browser checks, Phase 1/2 regressions and extracted-package lifecycle checks.
 
-Release constants, stable tag and database version remain **1.3.0 / schema 6**. No new validated release, ZIP, PR or main merge was produced. A potential 1.4.0 release requires the separate validation/review session.
+Release: **1.4.0**, database schema **6** unchanged. An installable ZIP is prepared through the existing build process. No PR, main merge or production deployment was performed.
 
 ## Accessible directory and filters
 
@@ -34,13 +34,13 @@ Release constants, stable tag and database version remain **1.3.0 / schema 6**. 
 - “File ready” means generation succeeded, not proof the browser saved the download. Files are not archived for re-download. Permission/input rejections and hard process termination are not guaranteed generation-history events. Logging is best effort; it does not prevent a valid export if the log write fails.
 - History has an independent loading/error/retry area, so export-history failure does not block uploading. No full history table was added to the dashboard.
 
-## Safety and deferred validation
+## Safety and validation limits
 
 Filters are type/length/enum checked; provider IDs must be valid positive integers. Existing prepared repository queries remain the only point-filter implementation. Export accepts no filesystem path, exports only fixed user-facing columns, sends no-cache download headers, uses temporary files outside `ABSPATH`, and attempts cleanup on success, failure and PHP shutdown. User-facing failures do not include exception details or filesystem paths.
 
-Requires writable private PHP temporary storage, ZipArchive and transactional InnoDB/MySQL snapshot support. Host limits may be tighter; abnormal OS termination can require administrator cleanup of private `tapin-export-*` leftovers. Snapshot cost, concurrent edits, execution limits, actual download delivery, Excel/LibreOffice interoperability and runtime compatibility are **unverified** in this session.
+Requires writable private PHP temporary storage, ZipArchive and transactional InnoDB/MySQL snapshot support. Host limits may be tighter; abnormal OS termination can require administrator cleanup of private `tapin-export-*` leftovers. Automated checks parsed generated and HTTP-downloaded workbooks with the existing XLSX reader and inspected OOXML cell types. Excel/LibreOffice GUI behavior, hard process termination, concurrent-writer load, maximum-size benchmarks and minimum supported runtime versions were not separately exercised.
 
-Later validation must cover workbook structure/types/formula safety, exact filtered multi-page row sets and address-only records, REST permissions/nonces/malformed input, temp cleanup/resource failures, history counts and retention, RTL/mobile/keyboard UX, and Phase 1/2 dashboard/map/import regressions. Release packaging and lifecycle checks are also deferred.
+Validation covered workbook structure/types/formula safety, exact filtered multi-page row sets and address-only records, REST permissions/nonces/malformed input, cleanup and oversized-cell failure, history counts/retention, RTL/mobile/keyboard UX, Phase 1/2 dashboard/map/import regressions, lifecycle preservation and packaging. See the validation record for exact results and environment boundaries.
 
 ## Implementation commits
 
