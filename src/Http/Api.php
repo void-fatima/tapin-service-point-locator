@@ -14,6 +14,7 @@ final class Api {
 		$this->route( '/geocoding/retry', 'POST', array( $this, 'retry_geocoding' ) );
 		$this->route( '/points', 'GET', array( $this, 'points' ) );
 		$this->route( '/points/(?P<id>\d+)', 'GET', static fn( $r ) => ( new ServicePointRepository() )->get_by_id( (int) $r['id'] ) ?: new \WP_Error( 'not_found', 'نقطه خدماتی پیدا نشد.', array( 'status' => 404 ) ) );
+		$this->route( '/points/(?P<id>\d+)/details', 'GET', fn( $r ) => $this->point_details( $r, false ) );
 		$this->route( '/points', 'POST', static fn( $r ) => PointService::save( (array) $r->get_json_params() ) );
 		$this->route( '/points/(?P<id>\d+)', 'POST', static fn( $r ) => PointService::save( (array) $r->get_json_params(), (int) $r['id'] ) );
 		$this->route( '/points/(?P<id>\d+)', 'DELETE', static fn( $r ) => ( new ServicePointRepository() )->delete( (int) $r['id'] ) ? array( 'deleted' => true ) : new \WP_Error( 'not_found', 'رکورد پیدا نشد یا حذف نشد.', array( 'status' => 404 ) ) );
@@ -29,6 +30,7 @@ final class Api {
 		$this->route( '/imports/(?P<id>\d+)/step', 'POST', static fn( $r ) => ImportJobs::step( (int) $r['id'] ) );
 		$this->route( '/imports/(?P<id>\d+)/cancel', 'POST', static fn( $r ) => ImportJobs::cancel( (int) $r['id'] ) );
 		$this->route( '/public/points', 'GET', array( $this, 'public_points' ), true );
+		$this->route( '/public/points/(?P<id>\d+)', 'GET', array( $this, 'point_details' ), true );
 		$this->route( '/public/directory', 'GET', fn( $r ) => $this->public_points( $r, true ), true );
 		$this->route( '/public/filters', 'GET', static fn() => array( 'providers' => self::providers( true ), 'locations' => ( new ServicePointRepository() )->locations( true ) ), true );
 	}
@@ -84,7 +86,25 @@ final class Api {
 	public function points( $r ): array {
 		$args = $this->filters( $r );
 		$args['include_summary'] = '1' === $r['include_summary'];
-		return ( new ServicePointRepository() )->query( $args );
+		$result = ( new ServicePointRepository() )->query( $args );
+		if ( '1' === $r['map_view'] ) { $result['items'] = array_map( array( self::class, 'public_fields' ), $result['items'] ); }
+		return $result;
+	}
+
+	/** Only approved branch information crosses into marker/drawer responses. */
+	public static function public_fields( array $point ): array {
+		$point = \Tapin\ServicePointLocator\Service\PointEvidence::fields( $point );
+		$allowed = array_flip( array( 'id', 'provider_id', 'name', 'province', 'city', 'address', 'postal_code', 'phone', 'mobile_phone', 'landline_phone', 'latitude', 'longitude', 'has_coordinates' ) );
+		return array_intersect_key( $point, $allowed );
+	}
+
+	public function point_details( $r, bool $public = true ) {
+		$point = ( new ServicePointRepository() )->get_by_id( (int) $r['id'] );
+		$provider = $point ? ( new ProviderRepository() )->get_by_id( $point['provider_id'] ) : null;
+		if ( ! $point || ( $public && ( 'active' !== $point['status'] || empty( $provider['is_active'] ) ) ) ) {
+			return new \WP_Error( 'not_found', 'نقطه خدماتی در دسترس نیست.', array( 'status' => 404 ) );
+		}
+		return self::public_fields( $point );
 	}
 
 	public function public_points( $r, bool $directory = false ): array {
@@ -95,19 +115,19 @@ final class Api {
 		$args['has_coordinates'] = $directory ? null : 1;
 		unset( $args['issue'] );
 		$result = ( new ServicePointRepository() )->query( $args );
-		$allowed = array_flip( array( 'id', 'provider_id', 'name', 'province', 'city', 'address', 'postal_code', 'phone', 'mobile_phone', 'landline_phone', 'latitude', 'longitude', 'has_coordinates' ) );
-		$result['items'] = array_map( static fn( $row ) => array_intersect_key( $row, $allowed ), $result['items'] );
+		$result['items'] = array_map( array( self::class, 'public_fields' ), $result['items'] );
 		return $result;
 	}
 
 	public static function providers( bool $public = false ): array {
 		$styles = get_option( 'tapin_provider_styles', array() );
 		return array_map( static function( $p ) use ( $styles ) {
-			$defaults = array( 'post' => '#5694ff', 'tipax' => '#36cf8a' );
+			$defaults = array( 'post' => '#ffbd18', 'tipax' => '#00ba88' );
 			$slug = $p['slug'];
-			$p['color'] = sanitize_hex_color( $styles[$p['id']]['color'] ?? '' ) ?: ( $defaults[$slug] ?? '#b6a4e8' );
+			$p['color'] = sanitize_hex_color( $styles[$p['id']]['color'] ?? '' ) ?: ( $defaults[$slug] ?? '#7349ff' );
+			$p['marker_color'] = $defaults[$slug] ?? '#7349ff';
 			$p['logo'] = esc_url_raw( ( $styles[$p['id']]['logo'] ?? '' ) ?: ( 'post' === $slug ? TAPIN_PLUGIN_URL . 'assets/brand/post.png' : ( 'tipax' === $slug ? TAPIN_PLUGIN_URL . 'assets/brand/tipax.svg' : '' ) ) );
-			return array_intersect_key( $p, array_flip( array( 'id', 'slug', 'name', 'is_active', 'color', 'logo' ) ) );
+			return array_intersect_key( $p, array_flip( array( 'id', 'slug', 'name', 'is_active', 'color', 'marker_color', 'logo' ) ) );
 		}, ( new ProviderRepository() )->get_all( ! $public ? false : true ) );
 	}
 

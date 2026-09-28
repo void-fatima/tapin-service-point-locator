@@ -15,6 +15,9 @@
   const content=()=>root.querySelector('#tapin-content');
   const empty=(message,action='')=>`<div class="empty">${icon('points')}<p>${message}</p>${action}</div>`;
   const qualityBadge=p=>{
+    const geo=p.metadata?.geocoding?.status;
+    if(!p.has_coordinates&&['pending','processing','retry'].includes(geo))return '<span class="badge muted">در انتظار موقعیت</span>';
+    if(!p.has_coordinates&&['failed','blocked'].includes(geo))return '<span class="badge warning">موقعیت‌یابی نیازمند بررسی</span>';
     if(p.data_quality_status==='needs_review')return '<span class="badge warning">نیازمند بررسی</span>';
     if(!p.has_coordinates||p.data_quality_status==='missing_coordinates')return '<span class="badge muted">بدون مختصات</span>';
     return '<span class="badge good">کامل</span>';
@@ -56,6 +59,7 @@
     const data=await api('points?'+query);if(token!==routeToken)return;
     content().innerHTML=`<section class="panel"><div class="section-title"><h2>نقاط خدماتی <small>${num(data.total)} نتیجه</small></h2><a href="#points?new=1" class="primary">＋ افزودن نقطه</a></div>${filtersForm(params)}${params.get('issue')==='duplicate'?'<p class="help">کد یکسان یا نام و نشانی یکسان در یک شهر و ارائه‌دهنده، فقط نشانه احتمال تکرار است. پیش از حذف، رکوردها را بررسی کنید.</p>':''}${params.get('issue')==='incomplete'?'<p class="help">رکوردهای فاقد تلفن، نشانی، استان یا شهر.</p>':''}${pointTable(data.items)}<div class="pagination"><button type="button" data-page="${data.page-1}" ${data.page<=1?'disabled':''}>قبلی</button><span>صفحه ${num(data.page)} از ${num(Math.max(1,data.total_pages))}</span><button type="button" data-page="${data.page+1}" ${data.page>=data.total_pages?'disabled':''}>بعدی</button></div></section>`;
     const form=content().querySelector('#point-filters');
+    mountGeocoding(form,data.items,token);
     ['provider_id','province','has_coordinates','status','issue'].forEach(key=>{if(params.has(key))form.elements[key].value=params.get(key);});
     const updateCities=()=>{const old=form.elements.city.value;const rows=locations.filter(l=>(!form.elements.province.value||l.province===form.elements.province.value)&&(!form.elements.provider_id.value||Number(l.provider_id)===Number(form.elements.provider_id.value)));const cities=[...new Set(rows.map(l=>l.city).filter(Boolean))];form.elements.city.innerHTML='<option value="">همه شهرها</option>'+cities.map(c=>'<option>'+esc(c)+'</option>').join('');form.elements.city.value=cities.includes(old)?old:'';form.elements.city.disabled=!cities.length;};
     updateCities();if(params.get('city')&&[...form.elements.city.options].some(o=>o.value===params.get('city')))form.elements.city.value=params.get('city');form.elements.province.onchange=updateCities;form.elements.provider_id.onchange=updateCities;
@@ -68,6 +72,55 @@
     if(params.has('new'))pointDialog();
     if(params.has('view')){const found=data.items.find(p=>p.id===Number(params.get('view')))||await api('points/'+Number(params.get('view')));if(found&&token===routeToken)pointViewDialog(found);}
     if(params.has('edit')){const found=data.items.find(p=>p.id===Number(params.get('edit')))||await api('points/'+Number(params.get('edit')));if(found&&token===routeToken)pointDialog(found);}
+  }
+  function mountGeocoding(form,points,token){
+    const panel=document.createElement('section');panel.className='geocoding-controls';panel.setAttribute('aria-label','موقعیت‌یابی نقاط خدماتی');
+    panel.innerHTML='<div class="section-title"><h3>موقعیت‌یابی نشانی‌ها</h3><div class="tapin-row-actions"><button type="button" data-enrich-page>تلاش مجدد برای نقاط بدون مختصات این صفحه</button><button type="button" data-geocoding-refresh>تازه‌سازی وضعیت</button><button type="button" data-points-refresh>تازه‌سازی فهرست</button></div></div><p data-geocoding-summary role="status">در حال دریافت وضعیت…</p><p class="help">مختصات معتبر تغییر نمی‌کند. نشانی‌های مبهم یا ناسازگار تا زمان بررسی بدون نشانگر می‌مانند.</p><p data-geocoding-message role="status"></p>';
+    form.after(panel);
+    const summary=panel.querySelector('[data-geocoding-summary]'),message=panel.querySelector('[data-geocoding-message]');
+    const batch=panel.querySelector('[data-enrich-page]');
+    const unresolved=points.filter(p=>!p.has_coordinates).map(p=>Number(p.id));
+    batch.disabled=!unresolved.length;
+    const labels={pending:'در انتظار موقعیت',processing:'در حال موقعیت‌یابی',retry:'در انتظار تلاش مجدد',succeeded:'مختصات ثبت شد',failed:'موقعیت‌یابی ناموفق',blocked:'نیازمند بررسی نشانی',skipped:'بدون نیاز به پردازش'};
+    const reasons={source_conflict:'تطبیق منبع را بررسی کنید.',insufficient_address:'نشانی دقیق و استان لازم است.',ambiguous:'چند موقعیت محتمل پیدا شد.',low_quality:'بخشی از نشانی تطبیق نداشت.',outside_iran:'نتیجه خارج از مرز ایران است.',province_mismatch:'استان نتیجه با شعبه یکسان نیست.',city_mismatch:'شهر نتیجه با شعبه یکسان نیست.',no_match:'موقعیت قابل اعتماد پیدا نشد.',inactive:'شعبه یا ارائه‌دهنده غیرفعال است.',rate_limited:'محدودیت سرویس؛ تلاش بعدی زمان‌بندی شده است.'};
+    const rowControls=new Map();let busy=false,loading=false,disposed=false;
+    const controller=new AbortController();
+    points.filter(p=>!p.has_coordinates).forEach(point=>{
+      const actions=content().querySelector('[data-view="'+Number(point.id)+'"]')?.parentElement;if(!actions)return;
+      const button=document.createElement('button');button.type='button';button.textContent='یافتن موقعیت';button.setAttribute('aria-label','یافتن موقعیت '+point.name);
+      const state=document.createElement('small');state.className='geocoding-row-status';state.textContent='بدون مختصات';
+      actions.append(button);actions.parentElement.append(state);rowControls.set(Number(point.id),{button,state});
+      button.onclick=()=>retry([Number(point.id)]);
+    });
+    async function loadStatus(){
+      if(disposed||loading)return;loading=true;
+      try{
+        const data=await api('geocoding?ids='+points.map(p=>Number(p.id)).join(','),{signal:controller.signal,cache:'no-store'});
+        if(disposed||token!==routeToken)return;
+        const counts=data.counts||{},waiting=(counts.pending||0)+(counts.retry||0)+(counts.processing||0);
+        summary.textContent=(data.configured?'صف موقعیت‌یابی: ':'سرویس موقعیت‌یابی تنظیم نشده؛ صف منتظر تنظیم کلید سرور است. ')+num(waiting)+' در انتظار · '+num(counts.succeeded)+' موفق · '+num((counts.failed||0)+(counts.blocked||0))+' نیازمند بررسی';
+        data.items.forEach(job=>{const controls=rowControls.get(Number(job.point_id));if(!controls)return;controls.state.textContent=(labels[job.status]||'بدون مختصات')+' · '+num(job.attempts)+' تلاش'+(reasons[job.last_code]?' · '+reasons[job.last_code]:'');controls.button.disabled=busy||['pending','retry','processing','succeeded'].includes(job.status);});
+      }catch(e){if(e.name!=='AbortError'&&!disposed)summary.textContent='دریافت وضعیت موقعیت‌یابی انجام نشد. از تازه‌سازی وضعیت استفاده کنید.';}
+      finally{loading=false;}
+    }
+    async function retry(ids){
+      if(busy||disposed)return;busy=true;batch.disabled=true;rowControls.forEach(c=>c.button.disabled=true);message.textContent='در حال ثبت درخواست…';
+      try{
+        const result=await api('geocoding/retry',{method:'POST',body:{ids},signal:controller.signal});
+        if(disposed||token!==routeToken)return;
+        const queued=result.items.filter(j=>['pending','retry','processing'].includes(j.status)).length;
+        const blocked=result.items.filter(j=>['blocked','error','failed'].includes(j.status)).length;
+        message.textContent=num(queued)+' نقطه در صف · '+num(blocked)+' نیازمند بررسی.'+(result.configured?'':' برای پردازش، کلید سرویس باید روی سرور تنظیم شود.');
+      }catch(e){if(e.name!=='AbortError'&&!disposed)message.textContent=e.message;}
+      finally{busy=false;if(!disposed){batch.disabled=!unresolved.length;rowControls.forEach(c=>c.button.disabled=false);await loadStatus();}}
+    }
+    batch.onclick=()=>retry(unresolved);
+    panel.querySelector('[data-geocoding-refresh]').onclick=loadStatus;
+    panel.querySelector('[data-points-refresh]').onclick=refresh;
+    loadStatus();
+    const timer=setInterval(()=>{if(!document.hidden&&!busy)loadStatus();},15000);
+    const previousCleanup=cleanup;
+    cleanup=()=>{disposed=true;clearInterval(timer);controller.abort();previousCleanup();};
   }
   function modal(title,body,onSubmit){
     const dialog=root.querySelector('dialog');const previous=document.activeElement;
@@ -144,7 +197,10 @@
     content().innerHTML='<div class="loading" role="status"><span></span>در حال دریافت اطلاعات…</div>';
     try{
       [providers,locations]=await Promise.all([api('providers'),api('locations')]);if(token!==routeToken)return;
-      if(name==='points')await pointsPage(params,token);else if(name==='imports')await importsPage(params,token);else if(name==='providers')await providersPage();else if(name==='settings')settingsPage();else await dashboard(token);
+      if(name==='points')await pointsPage(params,token);else if(name==='imports')await importsPage(params,token);else if(name==='providers')await providersPage();else if(name==='settings'){
+        settingsPage();
+        content().querySelector('.guide').insertAdjacentHTML('beforeend','<h3>موقعیت‌یابی نشانی‌ها</h3><p>در صفحه نقاط خدماتی می‌توانید موقعیت‌یابی یک شعبه یا نقاط بدون مختصات همان صفحه را درخواست کنید و وضعیت صف را ببینید. پردازش در پس‌زمینه وردپرس انجام می‌شود و به فعال بودن WP-Cron نیاز دارد.</p><p>مدیر سرور باید کلید سرویس نشان را در تنظیمات امن سرور با نام <code>TAPIN_NESHAN_API_KEY</code> قرار دهد. کلید را در اطلاعات شعبه، فایل ورودی یا مرورگر وارد نکنید. تا پیش از تنظیم سرویس، نشانی‌ها در فهرست باقی می‌مانند و نشانگر ساختگی ایجاد نمی‌شود.</p><p>نشانی نرمال‌شده، استان و شهر فقط برای موقعیت‌یابی از سرور به نشان ارسال می‌شود. اطلاعات تماس ارسال نمی‌شود.</p>');
+      }else await dashboard(token);
     }catch(e){if(token===routeToken){content().innerHTML=`<div class="panel error" role="alert"><h2>دریافت اطلاعات انجام نشد</h2><p>${esc(e.message)}</p><button type="button" id="retry-page">تلاش دوباره</button></div>`;content().querySelector('#retry-page').onclick=refresh;}}
   }
   shell();window.addEventListener('hashchange',()=>{root.querySelector('dialog').close();refresh();});refresh();
