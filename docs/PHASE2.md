@@ -1,11 +1,11 @@
-# Phase 2 implementation handoff — validation deferred
+# Phase 2 configuration and release
 
 Branch: `feat/geocoding-map-enrichment`.
 Base: `97e6fd5` on `feat/tapin-source-dashboard-refinement`, verified against the fetched remote before implementation.
 
-User direction for this implementation: do not run tests; commit and push each stage. No PHP/JavaScript syntax checks, automated suites, browser sessions, live geocoding requests, activation checks, or packaging were run. Existing Phase 1 test results are not Phase 2 results. No test files were added or changed; focused Phase 2 coverage remains to be written and executed in the later validation pass.
+Implementation originally deferred testing at the user's request. The subsequent authorized validation pass is recorded in [PHASE2-VALIDATION.md](PHASE2-VALIDATION.md), including mocked-provider, database, lifecycle, security and browser results.
 
-Release stays **1.2.0** until validation. Database schema version **6** adds the idempotent `tapin_geocoding_jobs` table. No database reset, seed, production migration, or live dataset update was executed in this workspace. The source snapshots and geometry assets were not changed; the reported 241 live records were not re-counted here.
+Release: **1.3.0**. Database schema version **6** adds the idempotent `tapin_geocoding_jobs` table. No production database reset, migration or live dataset update was performed. Source snapshots and geometry were unchanged. The unavailable original LocalWP site's reported 241 records were not recounted; tests used disposable data.
 
 ## Configuration
 
@@ -54,11 +54,11 @@ WP-Cron depends on site traffic. Low-traffic sites should arrange an actual sche
 - Idle first-page map views refresh after 60 seconds without changing filters or viewport. Refresh is suspended while a detail is open, the document is hidden, a control in the widget is focused, or additional directory pages have been loaded. Dashboard totals still come from database aggregates using the current filters.
 - Changed local script/style URLs include file timestamps so Phase 1 browser caches do not hide Phase 2 changes while the release version is held pending validation.
 
-## Later validation and release work
+## Validation and remaining scope
 
-No checks listed here have been executed for Phase 2. Add focused mocked-provider coverage for query construction, quality/ambiguity, Iran/province/city mismatches, cache reuse, timeout/transient/permanent errors, retry bounds, interrupted leases, duplicate enqueue, source edits during HTTP, and existing-coordinate precedence. Cover queue accounting, migration preservation, capability/nonce protection, and public allowlists.
+Focused mocked-provider tests cover query construction, quality/ambiguity, Iran/province/city mismatches, caching, provider errors, retry bounds, interrupted leases, duplicate enqueue, concurrent edits and coordinate precedence. Integration tests cover queue accounting, migration preservation, capabilities, lifecycle and public allowlists.
 
-Run the existing PHP, WordPress, source/data, REST, filter, admin, map, and public UX suites. Add browser coverage for both provider identities, fresh details, phone/directions links, keyboard focus, clustered markers, address-only detail, and delayed response cancellation. Run syntax and activation/deactivation checks, then prepare release 1.3.0 using the existing conventions only after successful validation.
+Existing PHP, WordPress, source/data, filter, admin, map and public UX suites passed. Added browser coverage checks provider identities, details, phone/directions links, keyboard activation, address-only detail, delayed response cancellation and nonce protection. See the validation record for exact results and environment limits.
 
 Phase 3 remains excluded: final accessible table UX, filtered XLSX export, export naming/metadata, import/export history polish, final delivery audit, and final merge/release work.
 
