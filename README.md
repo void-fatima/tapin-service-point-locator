@@ -2,6 +2,8 @@
 
 Installable WordPress plugin for managing shipping service points, importing CSV/XLSX files, and publishing an interactive locator. The Persian RTL admin application follows the approved dark dashboard direction and uses actual stored data and official brand assets.
 
+Phase 2 implementation is on `feat/geocoding-map-enrichment`, based on Phase 1 commit `97e6fd5`. See [Phase 2 configuration and handoff](docs/PHASE2.md). Tests and release packaging are explicitly deferred; the release version remains 1.2.0. Earlier verification results below do not validate Phase 2.
+
 ## Install
 
 1. Upload `dist/tapin-service-point-locator-1.0.0.zip` through **Plugins → Add New → Upload Plugin**, then activate it. Alternatively copy the `tapin-service-point-locator` folder into `wp-content/plugins`.
@@ -16,7 +18,7 @@ Requirements: WordPress 6.0+, PHP 7.4+, MySQL 5.7+/MariaDB 10.3+. Resumable impo
 ## Completed workflows
 
 - Points: create, edit, delete, search, provider/province/city/status/coordinate filters, paginated lists, branch codes, phones, postal codes, and JSON metadata.
-- Address-only points: retained with an explicit missing-coordinate state; absent from map markers. Both coordinates must be supplied together. Invalid numeric values are rejected. Clearing both coordinates removes the marker on the next refresh.
+- Address-only points: retained with an explicit missing-coordinate state; absent from map markers. Both coordinates must be supplied together. Invalid numeric values are rejected. Blank coordinate fields on an update preserve existing valid coordinates. Eligible unresolved points enter the background geocoding queue; automatic enrichment never overwrites valid coordinates.
 - Providers: add/edit/delete, unique slugs, active status, configurable color and logo URL. Providers with points cannot be deleted. Inactive providers are hidden publicly.
 - Dashboard: real totals, coordinate coverage, provider distribution, incomplete/duplicate candidate links, recent points and import activity.
 - Public map: active points from active providers only; filters, branch detail popups, zoom/pan, reset view, an accessible branch list, and explicit loading/empty/error states. Internal metadata never appears in public responses. Map results load in pages of 500 with a visible load-more control and count.
@@ -39,7 +41,7 @@ Use the header-only template at `assets/import-template.csv`. Required mapped fi
 
 ## Maps, brands and privacy
 
-See [third-party attribution](docs/THIRD-PARTY.md). Official logos are unchanged. The downloaded Post logo is blue, unlike the yellow logo in the mockup, so its map/chart/filter accent uses blue. The white official Tipax header logo has a consistent green provider accent. Other providers without logo assets use a neutral indicator. Tapin orange is reserved for primary actions and coverage emphasis.
+See [third-party attribution](docs/THIRD-PARTY.md). Official logos are unchanged. Provider registry marker colors follow the approved dashboard: Post yellow, Tipax green, other providers violet. Provider IDs are not hardcoded. Existing custom provider styles remain available.
 
 The map uses real geographic geometry and real saved points. It does not reproduce the mockup's illustrative markers or metrics. Bundled boundaries are historical contextual data, not an authoritative administrative registry. WordPress navigation remains available around the scoped plugin UI.
 
