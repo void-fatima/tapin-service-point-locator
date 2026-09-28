@@ -16,6 +16,25 @@
   const safeUrl = value => { try { const url = new URL(value, location.href); return /https?:/.test(url.protocol) ? esc(url.href) : ''; } catch { return ''; } };
   const badge = p => `<span class="provider-badge"><span class="provider-symbol" style="--provider:${color(p)}">${p?.logo ? `<img src="${safeUrl(p.logo)}" alt="" loading="lazy">` : '<i></i>'}</span>${esc(p?.name || 'سایر')}</span>`;
   const providerOptions = providers => providers.map(p => `<option value="${Number(p.id)}">${esc(p.name)}${Number(p.is_active) ? '' : ' (غیرفعال)'}</option>`).join('');
+  function exportControl(container,getFilters){
+    const section=document.createElement('div');section.className='export-controls';
+    section.innerHTML='<button type="button" data-export>خروجی اکسل</button><small>همه نتایج فیلترهای اعمال‌شده، نه فقط صفحه فعلی</small><span role="status" aria-live="polite"></span>';
+    container.append(section);const button=section.querySelector('button'),message=section.querySelector('[role=status]');
+    button.onclick=async()=>{
+      button.disabled=true;message.textContent='در حال آماده‌سازی خروجی…';
+      const filters={};const current=new URLSearchParams(getFilters());
+      ['provider_id','province','city','search','status','issue','has_coordinates'].forEach(key=>{if(current.has(key))filters[key]=current.get(key);});
+      try{
+        const response=await fetch(TapinConfig.api+'exports/points',{method:'POST',credentials:'same-origin',headers:{'X-WP-Nonce':TapinConfig.nonce,'Content-Type':'application/json'},body:JSON.stringify(filters)});
+        if(!response.ok||!response.headers.get('Content-Type')?.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'))throw Error();
+        const blob=await response.blob();if(!blob.size)throw Error();
+        const filename=response.headers.get('Content-Disposition')?.match(/filename="(tapin-service-points-\d{4}-\d{2}-\d{2}\.xlsx)"/)?.[1];
+        const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download=filename||'tapin-service-points.xlsx';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+        message.textContent='فایل آماده شد و به مرورگر تحویل داده شد.';
+      }catch(e){message.textContent='دریافت خروجی اکسل انجام نشد. فیلترها را محدودتر کنید یا صفحه را تازه کنید و دوباره تلاش کنید.';}
+      finally{button.disabled=false;}
+    };
+  }
   const provinceNames = {'Mazandaran':'مازندران','North Khorasan':'خراسان شمالی','Kerman':'کرمان','Ilam':'ایلام','Lorestan':'لرستان','Markazi':'مرکزی','Chaharmahal and Bakhtiari':'چهارمحال و بختیاری','Kermanshah':'کرمانشاه','Hamadan':'همدان','Qazvin':'قزوین','Gilan':'گیلان','Zanjan':'زنجان','Semnan':'سمنان','Isfahan':'اصفهان','Kohgiluyeh and Boyer-Ahmad':'کهگیلویه و بویراحمد','Kurdistan':'کردستان','West Azerbaijan':'آذربایجان غربی','Fars':'فارس','Bushehr':'بوشهر','Ardabil':'اردبیل','Golestan':'گلستان','Razavi Khorasan':'خراسان رضوی','South Khorasan':'خراسان جنوبی','Sistan and Baluchestan':'سیستان و بلوچستان','Qom':'قم','Alborz':'البرز','East Azerbaijan':'آذربایجان شرقی','Yazd':'یزد','Hormozgan':'هرمزگان','Khuzestan':'خوزستان','Tehran':'تهران'};
   const normalize = value => String(value).replace(/ي/g,'ی').replace(/ك/g,'ک').replace(/[\s‌]/g,'');
   let widgetSequence=0;
@@ -290,6 +309,7 @@
     container.querySelector('[data-clear]').onclick=clearFilters;
     const previous=document.createElement('button');previous.type='button';previous.textContent='صفحه قبلی';previous.disabled=true;
     if(admin){more.before(previous);previous.onclick=()=>load(false,Math.max(1,page-1));}
+    if(admin)exportControl(container.querySelector('.directory-panel'),()=>({search,provider_id:selected,province:province.value,city:city.value,status:'any'}));
     more.onclick=()=>admin?load(false,page+1):load(true); retry.onclick=()=>{load();loadMarkers();};
     container.querySelector('[data-list]').onclick=()=>{ const list=container.querySelector('.map-list'); list.hidden=!list.hidden;container.querySelector('[data-list]').setAttribute('aria-expanded',String(!list.hidden)); };
     container.querySelector('.map-list').onclick=e=>{if(e.target.closest('[data-empty-clear]')){clearFilters();return;}const b=e.target.closest('[data-point],[data-details]');if(!b)return;const p=items.find(x=>Number(x.id)===Number(b.dataset.point||b.dataset.details));if(!p)return;if(b.dataset.point&&validCoordinates(p)&&iranGeometry?.some(f=>insideGeometry(p,f.geometry))){setView('map');map.setView([p.latitude,p.longitude],15);}openDetails([p],b);};
@@ -298,7 +318,7 @@
     const refreshTimer=setInterval(()=>{const detailOpen=drawer.showModal?drawer.open:!drawer.hidden;if(!geoCancelled&&!document.hidden&&!detailOpen&&page===1&&!container.contains(document.activeElement)){load();scheduleMarkers();}},60000);
     return () => {geoCancelled=true;clearInterval(refreshTimer);detailGeneration++;detailController?.abort();clearTimeout(searchTimer);if(drawer.close&&drawer.open)drawer.close();drawer.remove();map.off('moveend',scheduleMarkers);map.off('moveend',declutterCountryLabels);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
   }
-  window.Tapin = {api,esc,num,badge,providerOptions,mapWidget,color,safeUrl};
+  window.Tapin = {api,esc,num,badge,providerOptions,mapWidget,color,safeUrl,exportControl};
   document.querySelectorAll('.tapin-public-root').forEach(async root=>{
     try { const data=await api('public/filters'); root.innerHTML='<header class="locator-heading"><img src="'+safeUrl(TapinConfig.assets+'brand/tapin.png')+'" alt="تاپین" width="108"><div><p>نزدیک‌تر به مسیر ارسال شما</p><h2>نقاط خدماتی تاپین</h2></div></header><p class="locator-intro">استان، شهر یا ارائه‌دهنده را انتخاب کنید. نقاط بدون مختصات در فهرست نشانی‌ها در دسترس‌اند.</p><div class="map-panel"></div><footer class="locator-coverage">این فهرست شامل نقاط ثبت‌شده است و پوشش کامل شعب سراسر ایران را نشان نمی‌دهد. <a href="https://tapin.ir/map/" target="_blank" rel="noopener noreferrer">مرجع پستی تاپین</a></footer>'; mapWidget(root.querySelector('.map-panel'),data.providers,data.locations); }
     catch(e){root.innerHTML=`<p role="alert">${esc(e.message)}</p><button type="button" onclick="location.reload()">تلاش دوباره</button>`;}
