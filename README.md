@@ -2,11 +2,11 @@
 
 Installable WordPress plugin for managing shipping service points, importing CSV/XLSX files, and publishing an interactive locator. The Persian RTL admin application follows the approved dark dashboard direction and uses actual stored data and official brand assets.
 
-Phase 2 implementation is on `feat/geocoding-map-enrichment`, based on Phase 1 commit `97e6fd5`. See [Phase 2 configuration and handoff](docs/PHASE2.md). Tests and release packaging are explicitly deferred; the release version remains 1.2.0. Earlier verification results below do not validate Phase 2.
+Phase 2 release **1.3.0** is on `feat/geocoding-map-enrichment`, based on Phase 1 commit `97e6fd5`. See [Phase 2 configuration](docs/PHASE2.md) and [Phase 2 validation results](docs/PHASE2-VALIDATION.md). Live Neshan testing and validation against the unavailable original LocalWP site were not performed.
 
 ## Install
 
-1. Upload `dist/tapin-service-point-locator-1.0.0.zip` through **Plugins → Add New → Upload Plugin**, then activate it. Alternatively copy the `tapin-service-point-locator` folder into `wp-content/plugins`.
+1. Upload `dist/tapin-service-point-locator-1.3.0.zip` through **Plugins → Add New → Upload Plugin**, then activate it. Alternatively copy the `tapin-service-point-locator` folder into `wp-content/plugins`.
 2. Open **تاپین** in WordPress admin. Administrators (`manage_options`) can manage points, providers, and imports.
 3. Add `[tapin_service_points]` to a Shortcode block in a public page.
 4. Add real points or import a file. Installation does not insert demo service points or fabricated coordinates.
