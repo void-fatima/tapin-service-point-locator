@@ -23,7 +23,7 @@ const path = require('path');
     await expect(page.locator('.issue-list')).toHaveCount(0);
     await expect(page.locator('.dashboard-bottom')).toHaveCount(0);
     await expect(page.locator('.header-actions .primary')).toContainText('افزودن فایل');
-    await expect(page.locator('.distribution-items')).toBeVisible();
+    await expect(page.locator('.dashboard-directory-panel')).toBeVisible();
 
     // 2. Service Points Management Table & Filters
     await page.locator('[data-nav=points]').click();

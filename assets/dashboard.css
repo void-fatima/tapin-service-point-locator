@@ -7,38 +7,59 @@
 #tapin-admin .header-actions .primary{background:#ffbd18;box-shadow:0 0 14px #ffb90035}
 #tapin-admin .header-actions .text-action{background:linear-gradient(130deg,#242a96,#251061);border:1px solid #7552ff;color:#fff!important}
 #tapin-admin #tapin-content{padding:14px}
-#tapin-admin .dashboard-hero{position:relative;direction:ltr;grid-template-columns:minmax(270px,.58fr) minmax(0,1fr);gap:14px;padding-top:94px;align-items:start}
-#tapin-admin .dashboard-overview,#tapin-admin .dashboard-map{direction:rtl;min-width:0}
-#tapin-admin .dashboard-map{position:static;overflow:visible;background:#071324}
-#tapin-admin .dashboard-map .map-tools{position:absolute;top:0;left:0;right:0;display:flex;flex-wrap:nowrap;gap:10px;padding:12px;border:1px solid #163868;border-radius:12px;background:linear-gradient(110deg,#0b1e43,#091327);box-shadow:inset 0 0 16px #0b326733;min-height:78px}
-#tapin-admin .filter-title{padding:10px 18px;background:linear-gradient(120deg,#5130eb,#211459);border:1px solid #7553ff;border-radius:9px;white-space:nowrap;flex-shrink:0;font-size:18px}
-#tapin-admin .map-tools>select{width:19%;min-width:0}
+#tapin-admin .dashboard-hero{position:relative;direction:ltr;grid-template-columns:minmax(280px,.55fr) minmax(0,1fr);gap:16px;padding-top:100px;align-items:stretch}
+#tapin-admin .dashboard-overview{direction:rtl;min-width:0;display:flex;flex-direction:column;gap:14px}
+#tapin-admin .dashboard-map{direction:rtl;min-width:0;position:static;overflow:visible;background:transparent;display:flex;flex-direction:column}
+#tapin-admin .dashboard-map .map-tools{position:absolute;top:0;left:0;right:0;display:flex;flex-wrap:nowrap;gap:8px;padding:12px;border:1px solid #163868;border-radius:12px;background:linear-gradient(110deg,#0b1e43,#091327);box-shadow:inset 0 0 16px #0b326733;min-height:78px;align-items:center;box-sizing:border-box}
+#tapin-admin .filter-title{padding:9px 18px;background:linear-gradient(120deg,#5b34eb,#211459);border:1px solid #7553ff;border-radius:8px;white-space:nowrap;flex-shrink:0;font-size:14px;font-weight:700;color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;box-shadow:0 0 12px rgba(117,83,255,0.35);transition:all .15s ease;box-sizing:border-box}
+#tapin-admin .filter-title:hover{background:linear-gradient(120deg,#6b46ff,#2d197a);border-color:#9374ff;box-shadow:0 0 18px rgba(117,83,255,0.55);transform:translateY(-1px)}
+#tapin-admin .filter-title:active{transform:translateY(0);box-shadow:0 0 8px rgba(117,83,255,0.3)}
+#tapin-admin .filter-title:focus-visible{outline:2px solid #e6c174;outline-offset:2px}
+#tapin-admin .map-tools>select{flex:1;min-width:0;width:auto}
 #tapin-admin .map-tools .map-selects{display:contents}
-#tapin-admin .map-tools .map-selects label{flex:1;min-width:0}
+#tapin-admin .map-tools .map-selects label{flex:1;min-width:0;display:flex;margin:0}
 #tapin-admin .map-tools .map-selects label>span{position:absolute;clip:rect(0,0,0,0);width:1px;height:1px;overflow:hidden}
-#tapin-admin .map-tools select,#tapin-admin .map-tools input,#tapin-admin .map-tools [data-reset]{max-width:none;min-height:46px;font-size:12px;border-color:#30466b;background:#0d1c35}
-#tapin-admin .map-tools .locator-search{flex:1.6;min-width:0;padding:0;border:0;display:flex}
-#tapin-admin .map-tools .locator-search label{width:100%;min-width:0}
-#tapin-admin .map-tools .locator-search button{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);padding:0}
-#tapin-admin .map-tools .locator-search button:focus-visible{position:static;width:auto;height:auto;clip-path:none;padding:6px}
-#tapin-admin .dashboard-map .tapin-map{height:490px;border-radius:10px 10px 0 0;background:#071a31}
-#tapin-admin .dashboard-map .map-viewport{position:relative;overflow:hidden;border-radius:10px}
-#tapin-admin .dashboard-map .map-legend{position:absolute;bottom:38px;left:12px;z-index:400;border:1px solid #233653;border-radius:9px;background:#071322e8;max-width:230px;padding:8px}
+#tapin-admin .map-tools select,#tapin-admin .map-tools input,#tapin-admin .map-tools [data-reset]{max-width:none;min-height:46px;font-size:12px;border-color:#30466b;background:#0d1c35;color:#eeeef7;box-sizing:border-box}
+#tapin-admin .map-tools select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238fa5c7' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 12px center;padding-inline-start:12px;padding-inline-end:32px;cursor:pointer;border-radius:8px;transition:border-color .15s ease,background-color .15s ease}
+#tapin-admin .map-tools select:hover{border-color:#486b9c;background-color:#10223e}
+#tapin-admin .map-tools select:focus{border-color:#7553ff;box-shadow:0 0 0 2px rgba(117,83,255,0.25);outline:none}
+#tapin-admin .map-tools [data-reset]{cursor:pointer;background:linear-gradient(135deg,#13284a,#0d1a33);border:1px solid #2b4b7a;color:#d5e4f7;border-radius:8px;padding:8px 14px;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px;flex-shrink:0;transition:all .15s ease}
+#tapin-admin .map-tools [data-reset]:hover{background:linear-gradient(135deg,#1b396b,#122547);border-color:#4878b5;color:#fff;box-shadow:0 0 10px rgba(43,75,122,0.4);transform:translateY(-1px)}
+#tapin-admin .map-tools [data-reset]:active{transform:translateY(0)}
+#tapin-admin .map-tools [data-reset]:focus-visible{outline:2px solid #e6c174;outline-offset:2px}
+#tapin-admin .map-tools .locator-search{flex:1.8;min-width:0;padding:0;border:0;display:flex;align-items:center;gap:6px}
+#tapin-admin .map-tools .locator-search label{flex:1;min-width:0;display:flex;margin:0}
+#tapin-admin .map-tools .locator-search input{width:100%;border-radius:8px;padding:8px 12px;transition:border-color .15s ease,background-color .15s ease}
+#tapin-admin .map-tools .locator-search input:hover{border-color:#486b9c;background-color:#10223e}
+#tapin-admin .map-tools .locator-search input:focus{border-color:#7553ff;box-shadow:0 0 0 2px rgba(117,83,255,0.25);outline:none}
+#tapin-admin .map-tools .locator-search button{position:static;width:auto;height:auto;clip-path:none;min-height:46px;font-size:12px;border-radius:8px;cursor:pointer;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:8px 14px;transition:all .15s ease;flex-shrink:0;box-sizing:border-box}
+#tapin-admin .map-tools .locator-search button[type="submit"]{background:linear-gradient(135deg,#1d4ed8,#1e3a8a);border:1px solid #3b82f6;color:#fff}
+#tapin-admin .map-tools .locator-search button[type="submit"]:hover{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-color:#60a5fa;box-shadow:0 0 10px rgba(59,130,246,0.4);transform:translateY(-1px)}
+#tapin-admin .map-tools .locator-search button[type="submit"]:active{transform:translateY(0)}
+#tapin-admin .map-tools .locator-search [data-clear]{background:#101f38;border:1px solid #28446b;color:#a3badc;padding:8px 12px}
+#tapin-admin .map-tools .locator-search [data-clear]:hover{background:#182e52;border-color:#426ca3;color:#fff;transform:translateY(-1px)}
+#tapin-admin .map-tools .locator-search [data-clear]:active{transform:translateY(0)}
+#tapin-admin .map-tools .locator-search button:focus-visible{outline:2px solid #e6c174;outline-offset:2px}
+#tapin-admin .dashboard-map .locator-results{flex:1;display:flex;flex-direction:column;min-height:0}
+#tapin-admin .dashboard-map .map-viewport{flex:1;position:relative;overflow:hidden;border-radius:12px;border:1px solid #213453;background:linear-gradient(135deg,#0c192d,#081223);display:flex;flex-direction:column;min-height:540px;box-sizing:border-box}
+#tapin-admin .dashboard-map .tapin-map{flex:1;width:100%;height:100%;min-height:500px;border-radius:11px;background:#071a31}
+#tapin-admin .dashboard-map .map-legend{position:absolute;bottom:38px;left:12px;z-index:400;border:1px solid #233653;border-radius:9px;background:#071322e8;max-width:240px;padding:8px 12px}
 #tapin-admin .dashboard-map .map-legend small{display:none}
-#tapin-admin .dashboard-map .marker-status{font-size:10px;padding:6px 12px}
+#tapin-admin .dashboard-map .marker-status{font-size:11px;padding:8px 14px;color:#9ab5db}
 #tapin-admin .dashboard-map .directory-hint{display:none}
-#tapin-admin .dashboard-overview{display:grid;gap:12px}
 #tapin-admin .panel{background:linear-gradient(135deg,#0c192d,#081223);border-color:#213453;border-radius:11px}
-#tapin-admin .metric-rail{text-align:right;padding:16px}
-#tapin-admin .eyebrow{color:#f4f4ff;font-size:18px;letter-spacing:0;font-weight:750}
-#tapin-admin .hero-number{font-size:82px;background:linear-gradient(110deg,#c589ff,#78b0ff);background-clip:text;color:transparent;line-height:1.3;text-align:left}
-#tapin-admin .metric-rail h2{font-size:17px;margin:0 0 12px;text-align:left}
-#tapin-admin .coordinate-totals{gap:10px;margin:16px 0 0}
-#tapin-admin .coordinate-totals>div{width:50%;padding:9px;border:1px solid #23324c;border-radius:10px;display:flex;flex-direction:column;font-size:12px;text-align:center}
-#tapin-admin .coordinate-totals b{color:#00d59b;font-size:25px}
-#tapin-admin .coordinate-totals .bad b{color:#ff4a71}
-#tapin-admin .provider-overview{padding:14px}
-#tapin-admin .provider-overview h2{font-size:16px;margin-bottom:12px}
+#tapin-admin .metric-rail{text-align:right;padding:20px;display:flex;flex-direction:column}
+#tapin-admin .eyebrow{color:#f0f4fc;font-size:17px;letter-spacing:0;font-weight:750;margin-bottom:6px;text-align:right}
+#tapin-admin .hero-number{font-size:86px;background:linear-gradient(110deg,#c589ff,#78b0ff);background-clip:text;-webkit-background-clip:text;color:transparent;line-height:1.15;text-align:right;font-variant-numeric:tabular-nums;font-weight:800;margin:6px 0 2px}
+#tapin-admin .metric-rail h2{font-size:16px;font-weight:500;color:#9eb5d6;margin:0 0 14px;text-align:right}
+#tapin-admin .coverage{height:6px;background:#17263d;border-radius:6px;margin:8px 0 16px;overflow:hidden;direction:rtl}
+#tapin-admin .coverage span{display:block;height:100%;background:linear-gradient(90deg,#ffb020,#00d59b);border-radius:6px}
+#tapin-admin .coordinate-totals{display:flex;gap:12px;margin:0}
+#tapin-admin .coordinate-totals>div{flex:1;padding:12px 10px;border:1px solid #1c3252;border-radius:10px;background:rgba(10,22,42,0.6);display:flex;flex-direction:column;align-items:center;font-size:12px;font-weight:600;color:#b0c7e5;gap:4px}
+#tapin-admin .coordinate-totals b{color:#00e5a3;font-size:26px;font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}
+#tapin-admin .coordinate-totals .bad b{color:#ff5277}
+#tapin-admin .provider-overview{padding:20px;flex:1;display:flex;flex-direction:column}
+#tapin-admin .provider-overview h2{font-size:15px;font-weight:700;color:#f0f4fc;margin:0 0 14px;text-align:right}
 #tapin-admin .provider-summary-item{position:relative;min-width:0;text-align:center;display:grid;gap:4px;justify-items:center;align-items:center}
 #tapin-admin .provider-logo{display:grid;place-items:center;background:var(--provider);width:54px;height:50px;border-radius:10px;position:relative;color:white;font-size:13px}
 #tapin-admin .provider-logo img{width:40px;height:36px;object-fit:contain}
@@ -46,20 +67,42 @@
 #tapin-admin .provider-summary-item strong{font-size:24px}
 #tapin-admin .distribution-bar{position:static;max-width:none;height:9px;border-radius:8px;background:#1a2842;width:100%;overflow:hidden}
 #tapin-admin .distribution-bar span{display:block;height:100%;background:var(--provider);border-radius:8px}
-#tapin-admin .provider-overview .provider-summary-item{grid-template-columns:54px 1fr 44px;grid-template-rows:auto auto;direction:ltr;border:1px solid #1f304c;padding:5px;margin-top:7px;border-radius:9px;gap:3px 12px}
-#tapin-admin .provider-overview .provider-logo{grid-row:1/3}
-#tapin-admin .provider-overview strong{font-size:17px;justify-self:end}
-#tapin-admin .provider-overview .distribution-bar{grid-column:2/4;grid-row:2}
-#tapin-admin .provider-overview small{grid-column:3;grid-row:1}
-#tapin-admin .distribution{display:flex;flex-direction:row;direction:rtl;gap:26px;align-items:center;margin-top:12px;border:1px solid #6746f0;padding:16px 22px}
-#tapin-admin .drawer-title{flex:0 0 175px;text-align:right}
-#tapin-admin .drawer-title h2{border:0;font-size:23px;min-width:0}
-#tapin-admin .drawer-title p{font-size:12px;color:#afc6ee}
-#tapin-admin .distribution-items{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;min-width:0}
-#tapin-admin .distribution-items .provider-summary-item{border-inline-start:1px solid #365077;padding:0 18px}
-#tapin-admin .drawer-toggle{align-self:start;border:0;background:transparent;font-size:25px;padding:0 6px}
-#tapin-admin .leaflet-interactive{cursor:pointer;transition:fill-opacity .15s}
-#tapin-admin .tapin-pin{box-shadow:0 0 12px #548bdc88}
-@media(max-width:1200px){#tapin-admin .dashboard-hero{padding-top:155px;grid-template-columns:minmax(240px,.6fr) minmax(0,1fr)}#tapin-admin .dashboard-map .map-tools{flex-wrap:wrap}#tapin-admin .map-tools .locator-search{flex-basis:100%}#tapin-admin .eyebrow{font-size:15px}#tapin-admin .header-actions a{font-size:13px;padding:10px}#tapin-admin .drawer-title{flex-basis:140px}}
-@media(max-width:850px){#tapin-admin{flex-direction:column}#tapin-admin .dashboard-hero{display:flex;flex-direction:column;padding-top:0}#tapin-admin .dashboard-map{width:100%;order:0}#tapin-admin .dashboard-overview{width:100%;order:1;grid-template-columns:1fr 1fr}#tapin-admin .dashboard-map .map-tools{position:static}#tapin-admin .distribution{flex-wrap:wrap;gap:14px}#tapin-admin .drawer-title{flex:1}#tapin-admin .distribution-items{order:2;flex-basis:100%;gap:10px}#tapin-admin .distribution-items .provider-summary-item{padding:0 8px}#tapin-admin .tapin-header{height:auto;flex-wrap:wrap}#tapin-admin .header-actions{flex-wrap:wrap}}
-@media(max-width:550px){#tapin-admin .dashboard-overview{grid-template-columns:1fr}#tapin-admin .dashboard-map .map-tools{display:grid;grid-template-columns:1fr 1fr}#tapin-admin .filter-title{grid-column:1/-1}#tapin-admin .map-tools>select{width:100%}#tapin-admin .map-tools .locator-search{grid-column:1/-1}#tapin-admin .dashboard-map .tapin-map{height:390px}#tapin-admin .distribution{padding:12px}#tapin-admin .drawer-title h2{font-size:19px}}
+#tapin-admin .provider-overview .provider-summary-item{grid-template-columns:48px 1fr 48px;grid-template-rows:auto auto;direction:rtl;border:1px solid #1a304e;background:rgba(10,22,42,0.5);padding:10px 14px;margin-top:10px;border-radius:10px;gap:4px 12px;align-items:center}
+#tapin-admin .provider-overview .provider-logo{grid-row:1/3;width:48px;height:44px;border-radius:8px}
+#tapin-admin .provider-overview strong{font-size:18px;font-weight:700;justify-self:start;color:#fff;font-variant-numeric:tabular-nums}
+#tapin-admin .provider-overview .distribution-bar{grid-column:2/4;grid-row:2;height:7px;border-radius:6px;background:#14243b}
+#tapin-admin .provider-overview small{grid-column:3;grid-row:1;justify-self:end;color:#9ab5db;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+#tapin-admin .dashboard-directory-panel{width:100%;margin-top:16px;background:linear-gradient(135deg,#0c192d,#081223);border:1px solid #213453;border-radius:12px;padding:20px;box-sizing:border-box;direction:rtl}
+#tapin-admin .dashboard-directory-panel .map-status{padding:0 0 14px;background:transparent;color:#9eb5d6;font-size:13px;font-weight:600;min-height:auto;display:flex;align-items:center;justify-content:space-between}
+#tapin-admin .dashboard-directory-panel .directory-hint{display:none}
+#tapin-admin .dashboard-directory-panel .map-list{max-height:none;padding:0;overflow:visible}
+#tapin-admin .directory-table{overflow-x:auto;width:100%;border-radius:9px;border:1px solid #1a2f4d;background:#091426;box-shadow:inset 0 0 12px rgba(9,20,38,0.5)}
+#tapin-admin .directory-table caption{font-size:16px;font-weight:700;color:#f0f4fc;padding:14px 18px;text-align:right;background:#0d1d36;border-bottom:1px solid #1e3557}
+#tapin-admin .directory-table table{width:100%;border-collapse:collapse;font-size:13px;min-width:850px}
+#tapin-admin .directory-table th{background:#0f223f;color:#b4cbe8;font-weight:600;padding:12px 14px;white-space:nowrap;border-bottom:2px solid #223e66;text-align:right}
+#tapin-admin .directory-table td{padding:12px 14px;border-bottom:1px solid #14263f;color:#dbe6f5;vertical-align:middle;white-space:nowrap;overflow-wrap:normal;word-break:keep-all}
+#tapin-admin .directory-table tbody tr:hover td,#tapin-admin .directory-table tbody tr:hover th{background:rgba(23,49,85,0.45)}
+#tapin-admin .directory-table tbody th[scope="row"]{background:transparent;color:#fff;font-weight:600;white-space:nowrap;padding:12px 14px;border-bottom:1px solid #14263f}
+#tapin-admin .directory-table .directory-address{white-space:normal;overflow-wrap:break-word;word-break:normal;max-width:420px;min-width:240px;line-height:1.6;color:#b0c7e5;font-size:12px}
+#tapin-admin .directory-table th:nth-child(1),#tapin-admin .directory-table td:nth-child(1){width:110px;white-space:nowrap}
+#tapin-admin .directory-table th:nth-child(3),#tapin-admin .directory-table td:nth-child(3){width:85px;min-width:85px;white-space:nowrap !important;overflow-wrap:normal !important;word-break:keep-all !important}
+#tapin-admin .directory-table th:nth-child(4),#tapin-admin .directory-table td:nth-child(4){width:95px;min-width:95px;white-space:nowrap !important;overflow-wrap:normal !important;word-break:keep-all !important}
+#tapin-admin .directory-table th:nth-child(6),#tapin-admin .directory-table td:nth-child(6),#tapin-admin .directory-table th:nth-child(7),#tapin-admin .directory-table td:nth-child(7){width:105px;white-space:nowrap;direction:ltr;text-align:center}
+#tapin-admin .directory-table th:nth-child(8),#tapin-admin .directory-table td:nth-child(8){width:125px;white-space:nowrap;text-align:center}
+#tapin-admin .directory-table th:nth-child(9),#tapin-admin .directory-table td:nth-child(9){width:105px;white-space:nowrap;text-align:center}
+#tapin-admin .directory-table [data-details]{background:linear-gradient(135deg,#1b3966,#132847);border:1px solid #2d558a;color:#d5e5fa;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;transition:all .15s ease}
+#tapin-admin .directory-table [data-details]:hover{background:#234a85;border-color:#467bc4;color:#fff;box-shadow:0 0 8px rgba(45,85,138,0.4)}
+#tapin-admin .dashboard-directory-panel .map-actions{display:flex;align-items:center;justify-content:flex-start;gap:10px;padding:14px 0 0;background:transparent}
+#tapin-admin .dashboard-directory-panel .map-actions button{background:linear-gradient(135deg,#132747,#0d1a33);border:1px solid #2b4b7a;color:#d5e4f7;padding:8px 16px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;min-height:38px;transition:all .15s ease}
+#tapin-admin .dashboard-directory-panel .map-actions button:hover:not(:disabled){background:#1c3866;border-color:#4878b5;color:#fff;transform:translateY(-1px)}
+#tapin-admin .dashboard-directory-panel .map-actions button:disabled{opacity:0.4;cursor:not-allowed}
+#tapin-admin .dashboard-directory-panel .map-actions [data-list]{background:#10223d;border:1px solid #22426d;color:#94b1d6}
+#tapin-admin .dashboard-directory-panel .map-actions [data-list]:hover{background:#173259;border-color:#396aa8;color:#fff}
+#tapin-admin .dashboard-directory-panel .export-controls{display:flex;align-items:center;gap:14px;padding:14px 18px;margin-top:14px;background:rgba(10,24,46,0.6);border:1px solid #1c365b;border-radius:8px}
+#tapin-admin .dashboard-directory-panel .export-controls button{background:linear-gradient(135deg,#059669,#047857);border:1px solid #10b981;color:#fff;font-weight:700;padding:9px 18px;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap;transition:all .15s ease}
+#tapin-admin .dashboard-directory-panel .export-controls button:hover{background:#10b981;box-shadow:0 0 12px rgba(16,185,129,0.4)}
+#tapin-admin .dashboard-directory-panel .export-controls small{color:#8ba3c7;font-size:12px}
+#tapin-admin .dashboard-directory-panel .export-controls [role="status"]{color:#34d399;font-size:12px;font-weight:600}
+@media(max-width:1200px){#tapin-admin .dashboard-hero{padding-top:165px;grid-template-columns:minmax(240px,.6fr) minmax(0,1fr)}#tapin-admin .dashboard-map .map-tools{flex-wrap:wrap;min-height:auto}#tapin-admin .map-tools .locator-search{flex-basis:100%}#tapin-admin .eyebrow{font-size:15px}#tapin-admin .header-actions a{font-size:13px;padding:10px}}
+@media(max-width:850px){#tapin-admin{flex-direction:column}#tapin-admin .dashboard-hero{display:flex;flex-direction:column;padding-top:0}#tapin-admin .dashboard-map{width:100%;order:0}#tapin-admin .dashboard-overview{width:100%;order:1;grid-template-columns:1fr 1fr}#tapin-admin .dashboard-map .map-tools{position:static}#tapin-admin .dashboard-directory-panel{margin-top:14px;padding:14px}#tapin-admin .tapin-header{height:auto;flex-wrap:wrap}#tapin-admin .header-actions{flex-wrap:wrap}}
+@media(max-width:550px){#tapin-admin .dashboard-overview{grid-template-columns:1fr}#tapin-admin .dashboard-map .map-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}#tapin-admin .filter-title{grid-column:1/-1}#tapin-admin .map-tools>select{width:100%}#tapin-admin .map-tools [data-reset]{grid-column:1/-1}#tapin-admin .map-tools .locator-search{grid-column:1/-1;flex-wrap:wrap}#tapin-admin .map-tools .locator-search label{flex-basis:100%}#tapin-admin .map-tools .locator-search button{flex:1}#tapin-admin .dashboard-map .tapin-map{height:390px}#tapin-admin .dashboard-directory-panel .export-controls{flex-direction:column;align-items:flex-start;gap:8px}}
