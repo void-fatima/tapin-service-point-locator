@@ -66,7 +66,7 @@
       <div class="pagination-info">صفحه ${num(cur)} از ${num(totalPages)} · کل ${num(totalItems)} نقطه خدماتی</div>
     </div>`;
   }
-  const normalize = value => String(value).replace(/ي/g,'ی').replace(/ك/g,'ک').replace(/[\s‌]/g,'');
+  const normalize = value => String(value).replace(/\u064a/g,'\u06cc').replace(/\u0643/g,'\u06a9').replace(/[\s\u200c]/g,'');
   let widgetSequence=0;
   const validCoordinates = p => p.has_coordinates && p.latitude!==null && p.longitude!==null && p.latitude!=='' && p.longitude!=='' && Number.isFinite(Number(p.latitude)) && Number.isFinite(Number(p.longitude)) && Math.abs(Number(p.latitude))<=90 && Math.abs(Number(p.longitude))<=180;
   function insideRing(x,y,ring){
@@ -82,6 +82,8 @@
     return polygons.some(rings=>insideRing(Number(p.longitude),Number(p.latitude),rings[0])&&!rings.slice(1).some(ring=>insideRing(Number(p.longitude),Number(p.latitude),ring)));
   }
   function mapWidget(container, providers, locations, admin = false, onSummary = () => {}) {
+    // Keep geography independent of provider coverage; prefer stored spellings for filters.
+    const locationRows=[...locations,...(window.TapinLocationCatalog||[]).flatMap(p=>p.cities.map(city=>({province:p.province,city})))];
     const detailId='tapin-detail-'+(++widgetSequence);
     container.dataset.view='map';
     container.innerHTML = `<div class="map-tools"><div class="provider-tabs" role="group" aria-label="ارائه‌دهنده"><button type="button" class="selected" aria-pressed="true" data-provider="">همه ارائه‌دهندگان</button>${providers.map(p => `<button type="button" aria-pressed="false" data-provider="${Number(p.id)}">${badge(p)}</button>`).join('')}</div><div class="map-selects"><label><span>استان</span><select data-province autocomplete="off"><option value="">همه استان‌ها</option></select></label><label><span>شهر</span><select data-city autocomplete="off"><option value="">همه شهرها</option></select></label><button type="button" data-reset title="نمایش سراسر ایران" aria-label="نمایش سراسر ایران"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>سراسر ایران</span></button></div></div>
@@ -225,14 +227,18 @@
       finally{if(token===detailGeneration)drawer.removeAttribute('aria-busy');}
     }
     function updateLocations(){
-      const rows=locations.filter(l=>!selected||Number(l.provider_id)===Number(selected));
+      const options=values=>{
+        const unique=new Map();
+        values.filter(Boolean).forEach(value=>{const key=normalize(value);if(!unique.has(key))unique.set(key,value);});
+        return [...unique.values()].sort((a,b)=>a.localeCompare(b,'fa')).map(value=>'<option>'+esc(value)+'</option>').join('');
+      };
       const oldProvince=province.value, oldCity=city.value;
-      province.innerHTML='<option value="">همه استان‌ها</option>'+[...new Set(rows.map(l=>l.province).filter(Boolean))].map(p=>'<option>'+esc(p)+'</option>').join('');
+      province.innerHTML='<option value="">همه استان‌ها</option>'+options(locationRows.map(l=>l.province));
       // Keep an explicitly chosen province selectable even when the current
       // filter has no rows for it, so "0 نتیجه" reads as a real state.
       if(oldProvince&&![...province.options].some(o=>o.value===oldProvince))province.add(new Option(oldProvince,oldProvince));
       province.value=oldProvince;
-      city.innerHTML='<option value="">همه شهرها</option>'+[...new Set(rows.filter(l=>!province.value||l.province===province.value).map(l=>l.city).filter(Boolean))].map(c=>'<option>'+esc(c)+'</option>').join('');
+      city.innerHTML='<option value="">همه شهرها</option>'+options(locationRows.filter(l=>!province.value||normalize(l.province)===normalize(province.value)).map(l=>l.city));
       city.value=[...city.options].some(o=>o.value===oldCity)?oldCity:'';city.disabled=city.options.length===1;
     }
     function updateLegend(){
