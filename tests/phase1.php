@@ -64,7 +64,7 @@ try {
 	$saved = $repo->query( array( 'search' => 'phase1-import' ) )['items'][0];
 	phase_check( 'سمنان' === $saved['province'] && 'سمنان' === $saved['city'] && $saved['has_coordinates'], 'official province enrichment preserves uploaded coordinates' );
 	phase_check( '۳۵۱۳۶۷۴۶۸۶' === $saved['metadata']['tapin_reconciliation']['original_uploaded']['postal_code'], 'raw uploaded digits retained before normalization' );
-	phase_check( 'verified' === $saved['metadata']['tapin_reconciliation']['result'] && 'uploaded survey' === $saved['metadata']['coordinate_source'], 'persisted reconciliation and coordinate provenance retained' );
+	phase_check( 'verified' === $saved['metadata']['tapin_reconciliation']['result'] && 'uploaded' === $saved['metadata']['coordinate_source'], 'persisted reconciliation and trusted upload provenance retained' );
 	foreach ( array( 'منطقه ۱', 'منطقه ١', 'منطقه 1' ) as $city ) { $repo->insert( array_merge( $ref, array( 'city' => $city ) ) ); }
 	phase_check( 3 === $repo->query( array( 'city' => 'منطقه ۱' ) )['total'], 'digit variants filter legacy location values consistently' );
 	phase_check( 1 === count( array_filter( $repo->locations(), static fn( $r ) => $r['city'] === 'منطقه 1' ) ), 'digit variants do not duplicate dropdown labels' );
