@@ -90,8 +90,13 @@ final class Api {
 		if ( ! wp_verify_nonce( $r->get_header( 'X-WP-Nonce' ), 'wp_rest' ) ) { return new \WP_Error( 'export_nonce', 'درخواست معتبر نیست؛ صفحه را تازه کنید.', array( 'status' => 403 ) ); }
 		foreach ( array( 'provider_id', 'province', 'city', 'search', 'status', 'issue', 'has_coordinates' ) as $key ) {
 			if ( null !== $r[$key] && ! is_string( $r[$key] ) ) { return new \WP_Error( 'export_filter', 'فیلتر خروجی معتبر نیست.', array( 'status' => 400 ) ); }
+			if ( is_string( $r[$key] ) && strlen( $r[$key] ) > 2000 ) { return new \WP_Error( 'export_filter', 'فیلتر خروجی بیش از حد طولانی است.', array( 'status' => 400 ) ); }
 		}
-		if ( ( $r['provider_id'] && ! preg_match( '/^[1-9][0-9]*$/D', $r['provider_id'] ) ) || ( $r['status'] && ! in_array( $r['status'], array( 'any', 'active', 'inactive' ), true ) ) || ( $r['issue'] && ! in_array( $r['issue'], array( 'duplicate', 'incomplete' ), true ) ) || ( null !== $r['has_coordinates'] && ! in_array( $r['has_coordinates'], array( '', '0', '1' ), true ) ) ) { return new \WP_Error( 'export_filter', 'فیلتر خروجی معتبر نیست.', array( 'status' => 400 ) ); }
+		foreach ( array( 'status' => array( '', 'any', 'active', 'inactive' ), 'issue' => array( '', 'duplicate', 'incomplete' ), 'has_coordinates' => array( '', '0', '1' ) ) as $key => $allowed ) {
+			if ( null !== $r[$key] && ! in_array( $r[$key], $allowed, true ) ) { return new \WP_Error( 'export_filter', 'فیلتر خروجی معتبر نیست.', array( 'status' => 400 ) ); }
+		}
+		$id = $r['provider_id'];
+		if ( null !== $id && '' !== $id && ( ! preg_match( '/^[1-9][0-9]*$/D', $id ) || false === filter_var( $id, FILTER_VALIDATE_INT, array( 'options' => array( 'min_range' => 1 ) ) ) ) ) { return new \WP_Error( 'export_filter', 'ارائه‌دهنده خروجی معتبر نیست.', array( 'status' => 400 ) ); }
 		$args = array_intersect_key( $this->filters( $r ), array_flip( array( 'provider_id', 'province', 'city', 'search', 'status', 'issue', 'has_coordinates' ) ) );
 		return \Tapin\ServicePointLocator\Export\ServicePoints::download( $args );
 	}

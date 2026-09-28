@@ -234,6 +234,7 @@
       const token = ++generation;
       if(!append){items=[];container.querySelector('.map-list').innerHTML='';more.hidden=true;}
       status.textContent='در حال دریافت نقاط خدماتی…';container.querySelector('.map-list').setAttribute('aria-busy','true');more.disabled=true; retry.hidden=true;
+      if(admin)previous.disabled=true;
       const params = new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,per_page:'50',page:String(admin?requestedPage:append?page+1:1),include_summary:admin?'1':'0',status:'any'});
       if(admin)params.set('map_view','1');
       try {
@@ -245,8 +246,8 @@
         more.hidden = page >= data.total_pages; more.disabled=false;
         if(admin){status.textContent=`${num(data.total)} نتیجه · صفحه ${num(page)} از ${num(Math.max(1,data.total_pages))} · شامل نقاط بدون مختصات و غیرفعال`;previous.disabled=page<=1;more.textContent='صفحه بعدی';}
         renderDirectory();
-      } catch(e) { if(e.name!=='AbortError') { status.textContent=e.message; retry.hidden=false; more.disabled=false; } }
-      finally{if(token===generation)container.querySelector('.map-list').setAttribute('aria-busy','false');}
+      } catch(e) { if(e.name!=='AbortError') { status.textContent=admin?'دریافت فهرست انجام نشد. دوباره تلاش کنید.':e.message; retry.hidden=false; more.disabled=false; } }
+      finally{if(token===generation){container.querySelector('.map-list').setAttribute('aria-busy','false');if(admin)previous.disabled=page<=1;}}
     }
     let markerController, markerTimer, markerGeneration=0;
     const markerStatus=document.createElement('p');markerStatus.className='marker-status';markerStatus.setAttribute('role','status');container.querySelector('.tapin-map').after(markerStatus);

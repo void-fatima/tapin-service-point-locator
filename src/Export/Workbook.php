@@ -17,11 +17,11 @@ final class Workbook {
 		if ( ! $dir || ! $root || 0 === strpos( $normalize( $dir ) . '/', rtrim( $normalize( $root ), '/' ) . '/' ) ) { throw new \RuntimeException( 'unsafe_temp' ); }
 		register_shutdown_function( array( $this, 'cleanup' ) );
 		foreach ( array( 'sheet', 'zip' ) as $key ) {
-			$file = tempnam( $dir, 'tapin-export-' );
-			if ( ! $file || realpath( dirname( $file ) ) !== $dir ) { if ( $file ) { unlink( $file ); } throw new \RuntimeException( 'temp_failed' ); }
+			$file = @tempnam( $dir, 'tapin-export-' );
+			if ( ! $file || realpath( dirname( $file ) ) !== $dir ) { if ( $file ) { @unlink( $file ); } throw new \RuntimeException( 'temp_failed' ); }
 			$this->files[$key] = $file; @chmod( $file, 0600 );
 		}
-		$this->sheet = fopen( $this->files['sheet'], 'wb' );
+		$this->sheet = @fopen( $this->files['sheet'], 'wb' );
 		if ( ! $this->sheet ) { throw new \RuntimeException( 'temp_failed' ); }
 		$this->write( '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0" rightToLeft="1"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>' );
 		foreach ( array( 22, 32, 20, 20, 65, 18, 24, 24, 24, 18, 18, 22 ) as $i => $width ) { $n = $i + 1; $this->write( '<col min="' . $n . '" max="' . $n . '" width="' . $width . '" customWidth="1"/>' ); }
@@ -29,7 +29,7 @@ final class Workbook {
 	}
 
 	private function write( string $xml ): void {
-		if ( fwrite( $this->sheet, $xml ) !== strlen( $xml ) ) { throw new \RuntimeException( 'disk_write_failed' ); }
+		if ( @fwrite( $this->sheet, $xml ) !== strlen( $xml ) ) { throw new \RuntimeException( 'disk_write_failed' ); }
 		if ( ftell( $this->sheet ) > 64 * 1024 * 1024 ) { throw new \RuntimeException( 'export_limit' ); }
 	}
 
@@ -57,7 +57,7 @@ final class Workbook {
 		$this->write( '</sheetData><autoFilter ref="A1:L' . $this->row . '"/></worksheet>' );
 		fclose( $this->sheet ); $this->sheet = null;
 		$zip = new \ZipArchive();
-		if ( true !== $zip->open( $this->files['zip'], \ZipArchive::OVERWRITE ) ) { throw new \RuntimeException( 'zip_failed' ); }
+		if ( true !== @$zip->open( $this->files['zip'], \ZipArchive::OVERWRITE ) ) { throw new \RuntimeException( 'zip_failed' ); }
 		$parts = array(
 			'[Content_Types].xml' => '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>',
 			'_rels/.rels' => '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>',
@@ -68,14 +68,14 @@ final class Workbook {
 		try {
 			foreach ( $parts as $name => $xml ) { if ( ! $zip->addFromString( $name, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . $xml ) ) { throw new \RuntimeException( 'zip_failed' ); } }
 			if ( ! $zip->addFile( $this->files['sheet'], 'xl/worksheets/sheet1.xml' ) ) { throw new \RuntimeException( 'zip_failed' ); }
-		} finally { $closed = $zip->close(); }
+		} finally { $closed = @$zip->close(); }
 		if ( ! $closed ) { throw new \RuntimeException( 'zip_failed' ); }
 		return $this->files['zip'];
 	}
 
 	public function cleanup(): void {
 		if ( is_resource( $this->sheet ) ) { fclose( $this->sheet ); $this->sheet = null; }
-		foreach ( $this->files as $file ) { if ( is_file( $file ) ) { unlink( $file ); } }
+		foreach ( $this->files as $file ) { if ( is_file( $file ) ) { @unlink( $file ); } }
 		$this->files = array();
 	}
 }
