@@ -23,7 +23,10 @@ try {
 	check( $id > 0 && $saved['item']['has_coordinates'], 'create located service point' );
 	$base['latitude'] = null; $base['longitude'] = null;
 	$cleared = PointService::save( $base, $id );
-	check( null === $cleared['item']['latitude'] && ! $cleared['item']['has_coordinates'], 'clear coordinates on update' );
+	check( 35.7 === $cleared['item']['latitude'] && $cleared['item']['has_coordinates'], 'blank edit preserves valid coordinates under Phase 2 policy' );
+	// Explicitly prepare the address-only fixture through the repository; a blank
+	// import/admin edit is intentionally no longer a coordinate deletion action.
+	$points->update( $id, array( 'latitude' => null, 'longitude' => null ) );
 	check( $points->summary()['missing'] === $before['missing'] + 1, 'real missing-coordinate metric' );
 	check( 0 === $points->query( array( 'provider_id' => $provider, 'public' => true ) )['total'], 'address-only excluded from public query' );
 	$bad = $base; $bad['latitude'] = 'garbage';
@@ -139,6 +142,7 @@ try {
 	check( $server->dispatch( $directory )->get_data()['total'] === 0, 'inactive provider also excluded from address directory' );
 } finally {
 	global $wpdb;
+	$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . \Tapin\ServicePointLocator\Geocoding\Jobs::table() . ' WHERE point_id IN (SELECT id FROM ' . $points->get_table_name() . ' WHERE provider_id = %d)', $provider ) );
 	$wpdb->delete( $points->get_table_name(), array( 'provider_id' => $provider ), array( '%d' ) );
 	$providers->delete( $provider );
 	foreach ( $jobs as $job_id ) { ImportJobs::cancel( $job_id ); $wpdb->delete( ImportJobs::table(), array( 'id' => $job_id ), array( '%d' ) ); }
