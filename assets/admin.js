@@ -51,31 +51,7 @@
     render({total:0,located:0,missing:0,distribution:[]});
     cleanup=mapWidget(content().querySelector('.map-panel'),providers,locations,true,render);
   }
-  const paginationBar=(currentPage,totalPages,totalItems)=>{
-    if(totalPages<=1)return `<div class="pagination"><div class="pagination-info">کل نتایج: ${num(totalItems)} نقطه</div></div>`;
-    const cur=Number(currentPage);
-    const delta=2;const range=[];
-    for(let i=Math.max(2,cur-delta);i<=Math.min(totalPages-1,cur+delta);i++)range.push(i);
-    if(cur-delta>2)range.unshift('...');
-    if(cur+delta<totalPages-1)range.push('...');
-    range.unshift(1);
-    if(totalPages>1)range.push(totalPages);
-    const pagesHtml=range.map(p=>{
-      if(p==='...')return '<span class="pagination-ellipsis">…</span>';
-      const isCur=Number(p)===cur;
-      return `<button type="button" class="pagination-num ${isCur?'active':''}" data-page="${p}" ${isCur?'aria-current="page" disabled':''}>${num(p)}</button>`;
-    }).join('');
-    return `<div class="pagination" role="navigation" aria-label="صفحه‌بندی نقاط">
-      <div class="pagination-controls">
-        <button type="button" class="pagination-btn pagination-first" data-page="1" ${cur<=1?'disabled':''} aria-label="صفحه اول" title="صفحه اول"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg></button>
-        <button type="button" class="pagination-btn pagination-prev" data-page="${cur-1}" ${cur<=1?'disabled':''} aria-label="صفحه قبلی" title="صفحه قبلی"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg><span>قبلی</span></button>
-        <div class="pagination-pages">${pagesHtml}</div>
-        <button type="button" class="pagination-btn pagination-next" data-page="${cur+1}" ${cur>=totalPages?'disabled':''} aria-label="صفحه بعدی" title="صفحه بعدی"><span>بعدی</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></button>
-        <button type="button" class="pagination-btn pagination-last" data-page="${totalPages}" ${cur>=totalPages?'disabled':''} aria-label="صفحه آخر" title="صفحه آخر"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg></button>
-      </div>
-      <div class="pagination-info">صفحه ${num(cur)} از ${num(totalPages)} · کل ${num(totalItems)} نقطه خدماتی</div>
-    </div>`;
-  };
+  const {paginationBar}=Tapin;
   function filtersForm(params){
     return `<form id="point-filters" class="filters">
       <div class="filter-field search-field">

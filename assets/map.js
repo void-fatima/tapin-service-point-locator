@@ -36,6 +36,36 @@
     };
   }
   const provinceNames = {'Mazandaran':'مازندران','North Khorasan':'خراسان شمالی','Kerman':'کرمان','Ilam':'ایلام','Lorestan':'لرستان','Markazi':'مرکزی','Chaharmahal and Bakhtiari':'چهارمحال و بختیاری','Kermanshah':'کرمانشاه','Hamadan':'همدان','Qazvin':'قزوین','Gilan':'گیلان','Zanjan':'زنجان','Semnan':'سمنان','Isfahan':'اصفهان','Kohgiluyeh and Boyer-Ahmad':'کهگیلویه و بویراحمد','Kurdistan':'کردستان','West Azerbaijan':'آذربایجان غربی','Fars':'فارس','Bushehr':'بوشهر','Ardabil':'اردبیل','Golestan':'گلستان','Razavi Khorasan':'خراسان رضوی','South Khorasan':'خراسان جنوبی','Sistan and Baluchestan':'سیستان و بلوچستان','Qom':'قم','Alborz':'البرز','East Azerbaijan':'آذربایجان شرقی','Yazd':'یزد','Hormozgan':'هرمزگان','Khuzestan':'خوزستان','Tehran':'تهران'};
+  // Shared numbered pager: dashboard directory and points table use the same markup.
+  function paginationBar(currentPage,totalPages,totalItems,label){
+    const aria=label||'صفحه‌بندی';
+    if(totalPages<=1)return `<div class="pagination"><div class="pagination-info">کل نتایج: ${num(totalItems)} نقطه</div></div>`;
+    const cur=Number(currentPage);
+    const delta=2;const range=[];
+    for(let i=Math.max(2,cur-delta);i<=Math.min(totalPages-1,cur+delta);i++)range.push(i);
+    if(cur-delta>2)range.unshift('...');
+    if(cur+delta<totalPages-1)range.push('...');
+    range.unshift(1);
+    range.push(totalPages);
+    const pagesHtml=range.map(p=>{
+      if(p==='...')return '<span class="pagination-ellipsis">…</span>';
+      const isCur=Number(p)===cur;
+      return `<button type="button" class="pagination-num ${isCur?'active':''}" data-page="${p}" ${isCur?'aria-current="page" disabled':''}>${num(p)}</button>`;
+    }).join('');
+    const arrow=inner=>`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+    const one=d=>arrow(`<polyline points="${d}"/>`);
+    const double=(a,z)=>arrow(`<polyline points="${a}"/><polyline points="${z}"/>`);
+    return `<div class="pagination" role="navigation" aria-label="${esc(aria)}">
+      <div class="pagination-controls">
+        <button type="button" class="pagination-btn pagination-first" data-page="1" ${cur<=1?'disabled':''} aria-label="صفحه اول" title="صفحه اول">${double('13 17 18 12 13 7','6 17 11 12 6 7')}</button>
+        <button type="button" class="pagination-btn pagination-prev" data-page="${cur-1}" ${cur<=1?'disabled':''} aria-label="صفحه قبلی" title="صفحه قبلی">${one('15 18 9 12 15 6')}<span>قبلی</span></button>
+        <div class="pagination-pages">${pagesHtml}</div>
+        <button type="button" class="pagination-btn pagination-next" data-page="${cur+1}" ${cur>=totalPages?'disabled':''} aria-label="صفحه بعدی" title="صفحه بعدی"><span>بعدی</span>${one('9 18 15 12 9 6')}</button>
+        <button type="button" class="pagination-btn pagination-last" data-page="${totalPages}" ${cur>=totalPages?'disabled':''} aria-label="صفحه آخر" title="صفحه آخر">${double('11 17 6 12 11 7','18 17 13 12 18 7')}</button>
+      </div>
+      <div class="pagination-info">صفحه ${num(cur)} از ${num(totalPages)} · کل ${num(totalItems)} نقطه خدماتی</div>
+    </div>`;
+  }
   const normalize = value => String(value).replace(/ي/g,'ی').replace(/ك/g,'ک').replace(/[\s‌]/g,'');
   let widgetSequence=0;
   const validCoordinates = p => p.has_coordinates && p.latitude!==null && p.longitude!==null && p.latitude!=='' && p.longitude!=='' && Number.isFinite(Number(p.latitude)) && Number.isFinite(Number(p.longitude)) && Math.abs(Number(p.latitude))<=90 && Math.abs(Number(p.longitude))<=180;
@@ -248,7 +278,6 @@
       const token = ++generation;
       if(!append){items=[];mapList.innerHTML='';more.hidden=true;}
       status.textContent='در حال دریافت نقاط خدماتی…';mapList.setAttribute('aria-busy','true');more.disabled=true; retry.hidden=true;
-      if(admin)previous.disabled=true;
       const params = new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,per_page:admin?'10':'50',page:String(admin?requestedPage:append?page+1:1),include_summary:admin?'1':'0',status:'any'});
       if(admin)params.set('map_view','1');
       try {
@@ -257,21 +286,18 @@
         if (!append) { items=[]; page=admin?requestedPage:1; } else page++;
         items.push(...data.items);if(admin&&data.summary)onSummary(data.summary);
         status.textContent = data.total ? `نمایش ${num(items.length)} از ${num(data.total)} شعبه${admin?' شامل نقاط بدون مختصات و غیرفعال':' · '+'فهرست نشانی‌ها'}` : 'شعبه‌ای با این فیلترها پیدا نشد.';
-        more.hidden = page >= data.total_pages; more.disabled=false;
         if(admin){
           const totalPages=Math.max(1,data.total_pages||1);
           status.textContent=`${num(data.total)} نتیجه · صفحه ${num(page)} از ${num(totalPages)} · شامل نقاط بدون مختصات و غیرفعال`;
-          previous.disabled=page<=1;
-          previous.hidden=totalPages<=1;
-          pageIndicator.textContent=`صفحه ${num(page)} از ${num(totalPages)}`;
-          pageIndicator.hidden=!data.total;
-          more.disabled=page>=totalPages;
-          more.hidden=page>=totalPages;
-          more.innerHTML='<span>صفحه بعدی</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>';
+          pagerSlot.innerHTML=paginationBar(page,totalPages,data.total,'فهرست قابل دسترس نقاط');
+          pagerSlot.querySelectorAll('[data-page]').forEach(btn=>{btn.onclick=()=>{const target=Number(btn.dataset.page);if(!btn.disabled&&!Number.isNaN(target)&&target!==page)load(false,target);};});
+          more.hidden=true;
+        } else {
+          more.hidden = page >= data.total_pages; more.disabled=false;
         }
         renderDirectory();
       } catch(e) { if(e.name!=='AbortError') { status.textContent=admin?'دریافت فهرست انجام نشد. دوباره تلاش کنید.':e.message; retry.hidden=false; more.disabled=false; } }
-      finally{if(token===generation){mapList.setAttribute('aria-busy','false');if(admin)previous.disabled=page<=1;}}
+      finally{if(token===generation){mapList.setAttribute('aria-busy','false');}}
     }
     let markerController, markerTimer, markerGeneration=0;
     const markerStatus=document.createElement('p');markerStatus.className='marker-status';markerStatus.setAttribute('role','status');container.querySelector('.tapin-map').after(markerStatus);
@@ -332,17 +358,15 @@
     container.querySelector('[data-reset]').onclick=()=>{clearTimeout(searchTimer);search='';const s=container.querySelector('.locator-search input[name=search]');if(s)s.value='';province.value='';city.value='';updateLocations();updateLegend();map.stop();map.fitBounds(iran,{animate:false});load();scheduleMarkers();};
     function clearFilters(){clearTimeout(searchTimer);selected='';if(admin)container.querySelector('[data-provider-select]').value='';search='';province.value='';city.value='';container.querySelector('[name=search]').value='';refreshFilters();map.stop();map.fitBounds(iran,{animate:false});}
     container.querySelector('[data-clear]').onclick=clearFilters;
-    const previous=document.createElement('button');previous.type='button';previous.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg><span>صفحه قبلی</span>';previous.disabled=true;
-    const pageIndicator=document.createElement('span');pageIndicator.className='page-indicator';pageIndicator.setAttribute('role','status');pageIndicator.setAttribute('aria-live','polite');
+    const pagerSlot=document.createElement('div');pagerSlot.className='dashboard-pager';
     if(admin){
-      more.before(previous);
-      more.before(pageIndicator);
-      previous.onclick=()=>load(false,Math.max(1,page-1));
+      mapList.after(pagerSlot);
+      more.hidden=true;
     }
     let pagination;
     if(admin){
       const toggleRow=document.createElement('div');toggleRow.className='map-actions directory-toggle';mapList.before(toggleRow);toggleRow.append(listToggle);
-      pagination=document.createElement('div');pagination.className='map-actions directory-pagination';pagination.hidden=mapList.hidden;mapList.after(pagination);pagination.append(previous,pageIndicator,more,status);
+      pagination=document.createElement('div');pagination.className='map-actions directory-pagination';pagination.hidden=mapList.hidden;mapList.after(pagination);pagination.append(pagerSlot,more,status);
       mapList.id=detailId+'-list';pagination.id=detailId+'-pages';listToggle.setAttribute('aria-controls',mapList.id+' '+pagination.id);
     }
     if(admin)exportControl(directoryPanel,()=>({search,provider_id:selected,province:province.value,city:city.value,status:'any'}));
@@ -361,7 +385,7 @@
     const refreshTimer=setInterval(()=>{const detailOpen=drawer.showModal?drawer.open:!drawer.hidden;if(!geoCancelled&&!document.hidden&&!detailOpen&&page===1&&!container.contains(document.activeElement)){load();scheduleMarkers();}},60000);
     return () => {geoCancelled=true;clearInterval(refreshTimer);detailGeneration++;detailController?.abort();clearTimeout(searchTimer);if(drawer.close&&drawer.open)drawer.close();drawer.remove();if(admin&&directoryPanel&&directoryPanel.parentElement&&directoryPanel.parentElement!==container)directoryPanel.remove();map.off('moveend',scheduleMarkers);map.off('moveend',declutterCountryLabels);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
   }
-  window.Tapin = {api,esc,num,badge,providerOptions,mapWidget,color,safeUrl,exportControl};
+  window.Tapin = {api,esc,num,badge,providerOptions,mapWidget,color,safeUrl,exportControl,paginationBar};
   document.querySelectorAll('.tapin-public-root').forEach(async root=>{
     try { const data=await api('public/filters'); root.innerHTML='<header class="locator-heading"><img src="'+safeUrl(TapinConfig.assets+'brand/tapin.png')+'" alt="تاپین" width="108"><div><p>نزدیک‌تر به مسیر ارسال شما</p><h2>نقاط خدماتی تاپین</h2></div></header><p class="locator-intro">استان، شهر یا ارائه‌دهنده را انتخاب کنید. نقاط بدون مختصات در فهرست نشانی‌ها در دسترس‌اند.</p><div class="map-panel"></div><footer class="locator-coverage">این فهرست شامل نقاط ثبت‌شده است و پوشش کامل شعب سراسر ایران را نشان نمی‌دهد. <a href="https://tapin.ir/map/" target="_blank" rel="noopener noreferrer">مرجع پستی تاپین</a></footer>'; mapWidget(root.querySelector('.map-panel'),data.providers,data.locations); }
     catch(e){root.innerHTML=`<p role="alert">${esc(e.message)}</p><button type="button" onclick="location.reload()">تلاش دوباره</button>`;}
