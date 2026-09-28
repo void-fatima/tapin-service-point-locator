@@ -54,6 +54,7 @@
 /* Phase 3 Admin & Management UI Enhancements */
 .tapin-app .tapin-row-actions{display:flex;align-items:center;gap:6px;white-space:nowrap}
 .tapin-app .tapin-row-actions button{font-size:11px;padding:3px 9px;min-height:28px;border-radius:6px}
+.tapin-app td:has(>.tapin-row-actions){min-width:120px;white-space:normal}.tapin-app td>.tapin-row-actions{flex-wrap:wrap;justify-content:flex-start;max-width:100%;min-width:0;white-space:normal}.tapin-app td>.tapin-row-actions button{flex:0 1 auto;max-width:100%;white-space:normal;overflow-wrap:anywhere;margin:0}
 .tapin-app .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:500;line-height:1.4;white-space:nowrap}
 .tapin-app .badge.good{background:#132b1f;color:#6ee7b7;border:1px solid #1e4a33}
 .tapin-app .badge.warning{background:#2d2412;color:#fbbf24;border:1px solid #4d3a17}
