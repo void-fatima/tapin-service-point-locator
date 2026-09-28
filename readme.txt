@@ -4,7 +4,7 @@ Tags: locator, shipping, rtl, csv, map
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,6 +14,8 @@ Persian RTL service-point management, CSV/XLSX imports, live dashboard and publi
 Manage shipping providers and physical service points. Save address-only records, import validated tables, review missing data, and publish active located points with [tapin_service_points].
 
 Only administrators can manage data. Public responses exclude internal metadata. Bundled font, Leaflet, geographic boundaries and official brand assets require no build step.
+
+The accessible admin directory has shared filters and pagination. Export all currently filtered service points as a real XLSX workbook, including address-only records. Import summaries and recent export activity remain in the file-management screen.
 
 == Installation ==
 1. Upload the plugin ZIP and activate it.
@@ -26,9 +28,14 @@ Optional server-side Neshan geocoding sends normalized country/province/city/add
 Background map tiles are requested by the visitor's browser from https://tile.openstreetmap.org. Requests include the visitor IP and referrer. Usage policy: https://operations.osmfoundation.org/policies/tiles/ . Privacy policy: https://osmfoundation.org/wiki/Privacy_Policy . Site developers may configure another tile URL and attribution using tapin_tile_url and tapin_tile_attribution. Custom provider logo URLs are browser-loaded images. Uploaded import files are processed locally, not sent to external services.
 
 == Limits ==
+XLSX export: up to 100,000 filtered rows and 64 MiB worksheet XML, with a bounded generation deadline. Requires ZipArchive, InnoDB and writable private PHP temporary storage. Narrow filters when host limits are reached. Postal codes and phones are text; unresolved coordinates remain blank. Export history retains recent events for three months, without archiving files or raw search text.
 CSV: UTF-8, 50 MiB. XLSX: first sheet, values only, 10 MiB compressed / 32 MiB expanded. 100,000 rows per file. XLS is not supported; convert to XLSX or CSV. Imports require InnoDB and named locks. XLSX requires PHP zip, XMLReader and SimpleXML. Closing the page pauses an import; resume it from history. See README.md for full limits.
 
 == Changelog ==
+= 1.4.0 =
+* Paginated accessible RTL service-point table, filtered server-side XLSX export, and improved import/export history.
+* Preserve inactive provider names in exports and restore empty-directory filter reset.
+* Validated workbook types/formula safety, permissions, lifecycle, package contents and Phase 1/2/3 regressions.
 = 1.3.0 =
 * Optional validated geocoding, durable bounded-retry queue, coordinate preservation, safe public branch details, provider markers and keyboard activation.
 * Mocked geocoding, migration, security, lifecycle and browser regression validation; existing dashboard and Phase 1 filters preserved.
@@ -38,6 +45,8 @@ CSV: UTF-8, 50 MiB. XLSX: first sheet, values only, 10 MiB compressed / 32 MiB e
 * Persian RTL dashboard, service-point/provider management, resumable CSV/XLSX preview and mapping, public map, validation and integration checks.
 
 == Upgrade Notice ==
+= 1.4.0 =
+Preserves existing records and schema version 6. Adds filtered XLSX downloads and export activity using existing logs. No automatic geocoding or source scraping occurs during export.
 = 1.3.0 =
 Preserves existing points, coordinates and provenance. Adds the geocoding queue through an idempotent migration. Neshan requires explicit server-side configuration; ordinary uninstall preserves data.
 = 1.1.0 =
