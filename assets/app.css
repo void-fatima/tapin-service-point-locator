@@ -82,6 +82,11 @@
 .tapin-app .provider-card-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
 .tapin-app .provider-card-actions button{font-size:11px;padding:4px 10px;min-height:30px}
 .tapin-app .drawer-actions{margin-top:12px;padding-top:10px;border-top:1px solid #2b3047}
+.tapin-app .tapin-detail{z-index:1200}
+.tapin-app .geocoding-controls{padding:14px 0;margin-block:12px;border-block:1px solid var(--line)}
+.tapin-app .geocoding-controls .section-title{flex-wrap:wrap;gap:12px}
+.tapin-app .geocoding-controls h3{margin:0}
+.tapin-app .geocoding-row-status{display:block;max-width:240px;margin-block-start:6px;color:var(--muted);white-space:normal}
 .tapin-app .directions-btn{display:inline-flex;align-items:center;gap:6px;background:#20283c;color:#fce473!important;border:1px solid #4a4563;border-radius:7px;padding:6px 14px;font-size:12px;text-decoration:none}
 .tapin-app .directions-btn:hover{background:#2a334d;border-color:var(--orange)}
 @media(max-width:700px){.tapin-app .sheet-grid{grid-template-columns:1fr}.tapin-app .tapin-row-actions{flex-direction:column;align-items:stretch}}
