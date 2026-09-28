@@ -48,7 +48,7 @@
       select.onchange=()=>{selected=select.value;refreshFilters();};
     }
     const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const map = L.map(container.querySelector('.tapin-map'), {preferCanvas:false, scrollWheelZoom:false, zoomControl:false, zoomSnap:0.1, minZoom:3, maxZoom:19,zoomAnimation:!reducedMotion,fadeAnimation:!reducedMotion,markerZoomAnimation:!reducedMotion});
+    const map = L.map(container.querySelector('.tapin-map'), {preferCanvas:false, scrollWheelZoom:false, zoomControl:false, zoomSnap:0.1, minZoom:3, maxZoom:19,zoomAnimation:false,fadeAnimation:!reducedMotion,markerZoomAnimation:!reducedMotion});
     const iran = [[24.6,43.5],[40.2,63.5]];
     map.fitBounds(iran, {padding:[12,12]});
     L.control.zoom({position:admin?'topright':'bottomleft',zoomInTitle:'بزرگ‌نمایی',zoomOutTitle:'کوچک‌نمایی'}).addTo(map);
@@ -186,7 +186,7 @@
       const params = new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,per_page:admin?'500':'50',page:String(append?page+1:1),include_summary:admin?'1':'0',status:'any'});
       try {
         const data = await api((admin?'points':'public/directory')+'?'+params, {signal:controller.signal});
-        if (token !== generation) return;
+        if (token !== generation || geoCancelled) return;
         if (!append) { items=[]; page=1; } else page++;
         items.push(...data.items);if(admin&&data.summary)onSummary(data.summary);
         status.textContent = data.total ? `نمایش ${num(items.length)} از ${num(data.total)} شعبه${admin?' شامل نقاط بدون مختصات و غیرفعال':' · '+'فهرست نشانی‌ها'}` : 'شعبه‌ای با این فیلترها پیدا نشد.';
@@ -230,7 +230,7 @@
     map.on('moveend',scheduleMarkers);
     function refreshFilters(){updateLocations();updateLegend();load();scheduleMarkers();}
     container.querySelectorAll('[data-provider]').forEach(button=>button.onclick=()=>{selected=button.dataset.provider;refreshFilters();});
-    province.onchange=()=>{city.value='';updateLocations();updateLegend();const polygon=provinceLayers.get(normalize(province.value));map.fitBounds(polygon?polygon.getBounds():iran);load();scheduleMarkers();};
+    province.onchange=()=>{city.value='';updateLocations();updateLegend();const polygon=provinceLayers.get(normalize(province.value));map.stop();map.fitBounds(polygon?polygon.getBounds():iran,{animate:false});load();scheduleMarkers();};
     let searchTimer=null;
     const searchInput=container.querySelector('.locator-search input[name=search]');
     if(searchInput){
@@ -244,8 +244,8 @@
     }
     container.querySelector('.locator-search').onsubmit=e=>{e.preventDefault();clearTimeout(searchTimer);search=new FormData(e.currentTarget).get('search').trim();load();scheduleMarkers();};
     city.onchange=()=>{load();scheduleMarkers();};
-    container.querySelector('[data-reset]').onclick=()=>{province.value='';city.value='';updateLocations();updateLegend();map.fitBounds(iran);load();scheduleMarkers();};
-    function clearFilters(){clearTimeout(searchTimer);selected='';if(admin)container.querySelector('[data-provider-select]').value='';search='';province.value='';city.value='';container.querySelector('[name=search]').value='';refreshFilters();map.fitBounds(iran);}
+    container.querySelector('[data-reset]').onclick=()=>{province.value='';city.value='';updateLocations();updateLegend();map.stop();map.fitBounds(iran,{animate:false});load();scheduleMarkers();};
+    function clearFilters(){clearTimeout(searchTimer);selected='';if(admin)container.querySelector('[data-provider-select]').value='';search='';province.value='';city.value='';container.querySelector('[name=search]').value='';refreshFilters();map.stop();map.fitBounds(iran,{animate:false});}
     container.querySelector('[data-clear]').onclick=clearFilters;
     more.onclick=()=>load(true); retry.onclick=()=>{load();loadMarkers();};
     container.querySelector('[data-list]').onclick=()=>{ const list=container.querySelector('.map-list'); list.hidden=!list.hidden;container.querySelector('[data-list]').setAttribute('aria-expanded',String(!list.hidden)); };

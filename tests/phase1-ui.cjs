@@ -23,6 +23,8 @@ const {chromium,expect}=require('@playwright/test');const fs=require('fs');
   const layout=await page.evaluate(()=>{const box=s=>document.querySelector(s).getBoundingClientRect();return {stats:box('.metric-rail').x,map:box('.dashboard-map').x,title:box('.filter-title').right,provider:box('[data-provider-select]').right,drawerTitle:box('.drawer-title').right,drawerItems:box('.distribution-items').right};});
   expect(layout.stats).toBeLessThan(layout.map);expect(layout.title).toBeGreaterThan(layout.provider);expect(layout.drawerTitle).toBeGreaterThan(layout.drawerItems);
   await expect(page.locator('.distribution-items .provider-summary-item')).toHaveCount(3);
+  await expect(page.locator('.distribution-items .provider-logo').filter({hasText:'سایر'})).toHaveCount(1);
+  await expect(page.locator('.distribution-items .provider-logo').filter({hasText:'تیپاکس'})).toHaveCount(1);
   await expect(page.locator('.dashboard-bottom,.issue-list')).toHaveCount(0);
   await page.locator('[data-list]').click();await expect(page.locator('.branch-card')).toHaveCount(5);
   await province.selectOption('تهران');await expect(total).toHaveText('۳');await expect(city.locator('option')).toHaveCount(3);
@@ -37,6 +39,8 @@ const {chromium,expect}=require('@playwright/test');const fs=require('fs');
   await page.locator('path[aria-label="سمنان"]').focus();await page.keyboard.press('Enter');await expect(province).toHaveValue('سمنان');await expect(city).toBeDisabled();await expect(total).toHaveText('۰');await expect(page.locator('.tapin-pin')).toHaveCount(0);
   await page.locator('[data-reset]').click();await expect(total).toHaveText('۵');
   for(const name of ['تهران','فارس','تهران','فارس']){await province.selectOption(name);await expect(total).toHaveText(name==='فارس'?'۲':'۳');}
+  await expect.poll(()=>requests.filter(r=>r.province==='فارس'&&r.north).at(-1)?.north).toBeDefined();
+  await expect.poll(()=>Number(requests.filter(r=>r.province==='فارس'&&r.north).at(-1)?.north)).toBeLessThan(35);
   await page.locator('.drawer-toggle').click();await expect(page.locator('.distribution-items')).toBeHidden();await page.locator('.drawer-toggle').click();await expect(page.locator('.distribution-items')).toBeVisible();
   await page.screenshot({path:'artifacts/phase1-filter-desktop.png',fullPage:true});
   await page.setViewportSize({width:390,height:844});await expect(province).toBeVisible();expect(await page.locator('#tapin-admin').evaluate(e=>e.scrollWidth<=e.clientWidth+2)).toBe(true);await page.screenshot({path:'artifacts/phase1-filter-mobile.png',fullPage:true});
