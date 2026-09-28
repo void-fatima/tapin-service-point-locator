@@ -54,17 +54,21 @@
   function mapWidget(container, providers, locations, admin = false, onSummary = () => {}) {
     const detailId='tapin-detail-'+(++widgetSequence);
     container.dataset.view='map';
-    container.innerHTML = `<div class="map-tools"><div class="provider-tabs" role="group" aria-label="ارائه‌دهنده"><button type="button" class="selected" aria-pressed="true" data-provider="">همه ارائه‌دهندگان</button>${providers.map(p => `<button type="button" aria-pressed="false" data-provider="${Number(p.id)}">${badge(p)}</button>`).join('')}</div><div class="map-selects"><label><span>استان</span><select data-province><option value="">همه استان‌ها</option></select></label><label><span>شهر</span><select data-city><option value="">همه شهرها</option></select></label><button type="button" data-reset title="نمایش سراسر ایران" aria-label="نمایش سراسر ایران">◎ سراسر ایران</button></div></div>
-      <form class="locator-search" role="search"><label><span class="sr-only">جستجوی شعبه، شهر، استان یا ارائه‌دهنده</span><input name="search" type="search" placeholder="نام شعبه، شهر، استان یا ارائه‌دهنده…"></label><button type="submit">جستجو</button><button type="button" data-clear>پاک کردن فیلترها</button></form>
+    container.innerHTML = `<div class="map-tools"><div class="provider-tabs" role="group" aria-label="ارائه‌دهنده"><button type="button" class="selected" aria-pressed="true" data-provider="">همه ارائه‌دهندگان</button>${providers.map(p => `<button type="button" aria-pressed="false" data-provider="${Number(p.id)}">${badge(p)}</button>`).join('')}</div><div class="map-selects"><label><span>استان</span><select data-province autocomplete="off"><option value="">همه استان‌ها</option></select></label><label><span>شهر</span><select data-city autocomplete="off"><option value="">همه شهرها</option></select></label><button type="button" data-reset title="نمایش سراسر ایران" aria-label="نمایش سراسر ایران">◎ سراسر ایران</button></div></div>
+      <form class="locator-search" role="search" autocomplete="off"><label><span class="sr-only">جستجوی شعبه، شهر، استان یا ارائه‌دهنده</span><input name="search" type="search" autocomplete="off" placeholder="نام شعبه، شهر، استان یا ارائه‌دهنده…"></label><button type="submit">جستجو</button><button type="button" data-clear>پاک کردن فیلترها</button></form>
       <div class="locator-view-switch" role="group" aria-label="شیوه نمایش" ${admin?'hidden':''}><button type="button" data-view="map" aria-pressed="true">نقشه</button><button type="button" data-view="list" aria-pressed="false">فهرست نشانی‌ها</button></div>
       <div class="locator-results"><section class="map-viewport" aria-label="نقشه و راهنما"><div class="tapin-map" role="region" aria-label="نقشه نقاط خدماتی؛ با کلیدهای جهت حرکت کنید" tabindex="0"></div><div class="map-legend"></div></section>
       <section class="directory-panel" aria-label="فهرست نقاط خدماتی"><div class="map-status" role="status"></div><p class="directory-hint">فهرست شامل همه نتایج فیلترهاست؛ نقشه فقط نقاط دارای مختصات در محدوده دیده‌شده را نشان می‌دهد.</p><div class="map-list" hidden></div><div class="map-actions"><button type="button" data-retry hidden>تلاش دوباره</button><button type="button" data-more hidden>نمایش نقاط بیشتر</button><button type="button" data-list ${admin?'':'hidden'}>فهرست قابل دسترس نقاط</button></div></section></div>`;
     if(admin){
       const tools=container.querySelector('.map-tools');
-      const title=document.createElement('strong');title.className='filter-title';title.textContent='فیلترها';tools.prepend(title);
-      const select=document.createElement('select');select.dataset.providerSelect='';select.setAttribute('aria-label','ارائه‌دهنده');select.innerHTML='<option value="">همه ارائه‌دهندگان</option>'+providerOptions(providers);tools.querySelector('.provider-tabs').hidden=true;tools.append(select);
+      const title=document.createElement('button');title.type='button';title.className='filter-title';title.textContent='فیلترها';title.setAttribute('aria-label','اعمال فیلترها');title.setAttribute('title','اعمال فیلترها');tools.prepend(title);
+      const select=document.createElement('select');select.dataset.providerSelect='';select.setAttribute('aria-label','ارائه‌دهنده');select.setAttribute('autocomplete','off');select.innerHTML='<option value="">همه ارائه‌دهندگان</option>'+providerOptions(providers);tools.querySelector('.provider-tabs').hidden=true;tools.append(select);
       tools.append(container.querySelector('.map-selects'),container.querySelector('.locator-search'));
       select.onchange=()=>{selected=select.value;refreshFilters();};
+      title.onclick=()=>{clearTimeout(searchTimer);const s=container.querySelector('.locator-search input[name=search]');if(s)search=s.value.trim();selected=select.value;refreshFilters();};
+      const directoryPanel=container.querySelector('.directory-panel');
+      const hero=container.closest('.dashboard-hero');
+      if(hero&&directoryPanel){hero.after(directoryPanel);directoryPanel.classList.add('panel','dashboard-directory-panel');}
     }
     const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const map = L.map(container.querySelector('.tapin-map'), {preferCanvas:false, scrollWheelZoom:false, zoomControl:false, zoomSnap:0.1, minZoom:3, maxZoom:19,zoomAnimation:false,fadeAnimation:!reducedMotion,markerZoomAnimation:!reducedMotion});
@@ -130,12 +134,17 @@
       updateLegend();if(items.length)renderDirectory();
     }}).catch(()=>{if(!geoCancelled){const note=document.createElement('p');note.className='tile-warning';note.setAttribute('role','alert');note.textContent='مرز استان‌ها بارگذاری نشد؛ فهرست نشانی‌ها در دسترس است. برای بازیابی نقشه صفحه را تازه کنید.';container.append(note);}});
     const layer = L.layerGroup().addTo(map);
-    const status = container.querySelector('.map-status');
-    const more = container.querySelector('[data-more]');
-    const retry = container.querySelector('[data-retry]');
+    const directoryPanel = (container.closest('#tapin-content')||container.parentElement||document).querySelector('.directory-panel')||container.querySelector('.directory-panel');
+    const status = directoryPanel.querySelector('.map-status');
+    const more = directoryPanel.querySelector('[data-more]');
+    const retry = directoryPanel.querySelector('[data-retry]');
+    const listToggle = directoryPanel.querySelector('[data-list]');
+    const mapList = directoryPanel.querySelector('.map-list');
     retry.className='locator-retry';container.querySelector('.locator-search').after(retry);
     const province = container.querySelector('[data-province]');
     const city = container.querySelector('[data-city]');
+    province.value = '';
+    city.value = '';
     city.innerHTML='<option value="">همه شهرها</option>'+[...new Set(locations.map(l=>l.city))].map(c=>`<option>${esc(c)}</option>`).join('');
     let selected = '', search = '', page = 1, generation = 0, controller, items = [];
     const markers = new Map();
@@ -189,7 +198,7 @@
       const rows=locations.filter(l=>!selected||Number(l.provider_id)===Number(selected));
       const oldProvince=province.value, oldCity=city.value;
       province.innerHTML='<option value="">همه استان‌ها</option>'+[...new Set(rows.map(l=>l.province).filter(Boolean))].map(p=>'<option>'+esc(p)+'</option>').join('');
-      if(oldProvince&&![...province.options].some(o=>o.value===oldProvince))province.add(new Option(oldProvince,oldProvince));province.value=oldProvince;
+      province.value=oldProvince&&[...province.options].some(o=>o.value===oldProvince)?oldProvince:'';
       city.innerHTML='<option value="">همه شهرها</option>'+[...new Set(rows.filter(l=>!province.value||l.province===province.value).map(l=>l.city).filter(Boolean))].map(c=>'<option>'+esc(c)+'</option>').join('');
       city.value=[...city.options].some(o=>o.value===oldCity)?oldCity:'';city.disabled=city.options.length===1;
     }
@@ -217,15 +226,15 @@
     };
     updateLocations();
     updateLegend();
-    container.querySelector('.map-list').hidden=admin;
-    container.querySelector('[data-list]').setAttribute('aria-expanded',String(!admin));
+    mapList.hidden=admin;
+    listToggle.setAttribute('aria-expanded',String(!admin));
     function renderDirectory(){
       if(admin){
-        container.querySelector('.map-list').innerHTML=items.length?`<div class="table-scroll directory-table" role="region" aria-label="فهرست قابل دسترس نقاط" tabindex="0"><table><caption>نقاط خدماتی مطابق فیلترهای انتخاب‌شده</caption><thead><tr>${['ارائه‌دهنده','نام شعبه','استان','شهر','آدرس','کد پستی','تلفن ثابت','وضعیت موقعیت','جزئیات'].map(label=>`<th scope="col">${label}</th>`).join('')}</tr></thead><tbody>${items.map(p=>`<tr><td>${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}</td><th scope="row">${esc(p.name)}</th><td>${esc(p.province||'—')}</td><td>${esc(p.city||'—')}</td><td class="directory-address">${esc(p.address||'—')}</td><td><bdi>${esc(p.postal_code||'—')}</bdi></td><td><bdi>${esc(p.landline_phone||'—')}</bdi></td><td>${validCoordinates(p)?'دارای موقعیت':'بدون مختصات'}</td><td><button type="button" data-details="${Number(p.id)}" aria-label="${esc('اطلاعات شعبه '+p.name)}">اطلاعات شعبه</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="locator-empty">هیچ نقطه خدماتی با فیلترهای انتخاب‌شده پیدا نشد.</p>';
-        if(!items.length)container.querySelector('.locator-empty').insertAdjacentHTML('beforeend','<button type="button" data-empty-clear>پاک کردن فیلترها</button>');
+        mapList.innerHTML=items.length?`<div class="table-scroll directory-table" role="region" aria-label="فهرست قابل دسترس نقاط" tabindex="0"><table><caption>نقاط خدماتی مطابق فیلترهای انتخاب‌شده</caption><thead><tr>${['ارائه‌دهنده','نام شعبه','استان','شهر','آدرس','کد پستی','تلفن ثابت','وضعیت موقعیت','جزئیات'].map(label=>`<th scope="col">${label}</th>`).join('')}</tr></thead><tbody>${items.map(p=>`<tr><td>${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}</td><th scope="row">${esc(p.name)}</th><td>${esc(p.province||'—')}</td><td>${esc(p.city||'—')}</td><td class="directory-address">${esc(p.address||'—')}</td><td><bdi>${esc(p.postal_code||'—')}</bdi></td><td><bdi>${esc(p.landline_phone||'—')}</bdi></td><td><span class="badge ${validCoordinates(p)?'good':'muted'}">${validCoordinates(p)?'● دارای موقعیت':'! بدون مختصات'}</span></td><td><button type="button" data-details="${Number(p.id)}" aria-label="${esc('اطلاعات شعبه '+p.name)}">اطلاعات شعبه</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="locator-empty">هیچ نقطه خدماتی با فیلترهای انتخاب‌شده پیدا نشد.</p>';
+        if(!items.length)mapList.querySelector('.locator-empty')?.insertAdjacentHTML('beforeend','<button type="button" data-empty-clear>پاک کردن فیلترها</button>');
         return;
       }
-      container.querySelector('.map-list').innerHTML=items.map(p=>{
+      mapList.innerHTML=items.map(p=>{
         const valid=validCoordinates(p),mapped=valid&&iranGeometry?.some(f=>insideGeometry(p,f.geometry));
         return `<article class="branch-card">${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}<strong>${esc(p.name)}</strong><small>${esc(p.province)}، ${esc(p.city)}</small>${details(p)}<div class="branch-actions"><button type="button" data-details="${p.id}">اطلاعات شعبه</button>${mapped?`<button type="button" data-point="${p.id}">نمایش روی نقشه</button>`:!valid?'<span class="coordinate-note">بدون مختصات · نشانی متنی</span>':iranGeometry?'<span class="coordinate-note">مختصات خارج از محدوده نقشه</span>':''}</div></article>`;
       }).join('')||'<div class="locator-empty"><strong>شعبه‌ای پیدا نشد</strong><p>عبارت جستجو را تغییر دهید یا فیلترها را پاک کنید. پوشش این فهرست سراسری نیست.</p><button type="button" data-empty-clear>پاک کردن فیلترها</button></div>';
@@ -233,8 +242,8 @@
     async function load(append=false,requestedPage=1) {
       controller?.abort(); controller = new AbortController();
       const token = ++generation;
-      if(!append){items=[];container.querySelector('.map-list').innerHTML='';more.hidden=true;}
-      status.textContent='در حال دریافت نقاط خدماتی…';container.querySelector('.map-list').setAttribute('aria-busy','true');more.disabled=true; retry.hidden=true;
+      if(!append){items=[];mapList.innerHTML='';more.hidden=true;}
+      status.textContent='در حال دریافت نقاط خدماتی…';mapList.setAttribute('aria-busy','true');more.disabled=true; retry.hidden=true;
       if(admin)previous.disabled=true;
       const params = new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,per_page:'50',page:String(admin?requestedPage:append?page+1:1),include_summary:admin?'1':'0',status:'any'});
       if(admin)params.set('map_view','1');
@@ -248,7 +257,7 @@
         if(admin){status.textContent=`${num(data.total)} نتیجه · صفحه ${num(page)} از ${num(Math.max(1,data.total_pages))} · شامل نقاط بدون مختصات و غیرفعال`;previous.disabled=page<=1;more.textContent='صفحه بعدی';}
         renderDirectory();
       } catch(e) { if(e.name!=='AbortError') { status.textContent=admin?'دریافت فهرست انجام نشد. دوباره تلاش کنید.':e.message; retry.hidden=false; more.disabled=false; } }
-      finally{if(token===generation){container.querySelector('.map-list').setAttribute('aria-busy','false');if(admin)previous.disabled=page<=1;}}
+      finally{if(token===generation){mapList.setAttribute('aria-busy','false');if(admin)previous.disabled=page<=1;}}
     }
     let markerController, markerTimer, markerGeneration=0;
     const markerStatus=document.createElement('p');markerStatus.className='marker-status';markerStatus.setAttribute('role','status');container.querySelector('.tapin-map').after(markerStatus);
@@ -306,19 +315,20 @@
     }
     container.querySelector('.locator-search').onsubmit=e=>{e.preventDefault();clearTimeout(searchTimer);search=new FormData(e.currentTarget).get('search').trim();load();scheduleMarkers();};
     city.onchange=()=>{load();scheduleMarkers();};
-    container.querySelector('[data-reset]').onclick=()=>{province.value='';city.value='';updateLocations();updateLegend();map.stop();map.fitBounds(iran,{animate:false});load();scheduleMarkers();};
+    container.querySelector('[data-reset]').onclick=()=>{clearTimeout(searchTimer);search='';const s=container.querySelector('.locator-search input[name=search]');if(s)s.value='';province.value='';city.value='';updateLocations();updateLegend();map.stop();map.fitBounds(iran,{animate:false});load();scheduleMarkers();};
     function clearFilters(){clearTimeout(searchTimer);selected='';if(admin)container.querySelector('[data-provider-select]').value='';search='';province.value='';city.value='';container.querySelector('[name=search]').value='';refreshFilters();map.stop();map.fitBounds(iran,{animate:false});}
     container.querySelector('[data-clear]').onclick=clearFilters;
     const previous=document.createElement('button');previous.type='button';previous.textContent='صفحه قبلی';previous.disabled=true;
     if(admin){more.before(previous);previous.onclick=()=>load(false,Math.max(1,page-1));}
-    if(admin)exportControl(container.querySelector('.directory-panel'),()=>({search,provider_id:selected,province:province.value,city:city.value,status:'any'}));
+    if(admin)exportControl(directoryPanel,()=>({search,provider_id:selected,province:province.value,city:city.value,status:'any'}));
     more.onclick=()=>admin?load(false,page+1):load(true); retry.onclick=()=>{load();loadMarkers();};
-    container.querySelector('[data-list]').onclick=()=>{ const list=container.querySelector('.map-list'); list.hidden=!list.hidden;container.querySelector('[data-list]').setAttribute('aria-expanded',String(!list.hidden)); };
-    container.querySelector('.map-list').onclick=e=>{if(e.target.closest('[data-empty-clear]')){clearFilters();return;}const b=e.target.closest('[data-point],[data-details]');if(!b)return;const p=items.find(x=>Number(x.id)===Number(b.dataset.point||b.dataset.details));if(!p)return;if(b.dataset.point&&validCoordinates(p)&&iranGeometry?.some(f=>insideGeometry(p,f.geometry))){setView('map');map.setView([p.latitude,p.longitude],15);}openDetails([p],b);};
+    listToggle.onclick=()=>{ mapList.hidden=!mapList.hidden;listToggle.setAttribute('aria-expanded',String(!mapList.hidden)); };
+    mapList.onclick=e=>{if(e.target.closest('[data-empty-clear]')){clearFilters();return;}const b=e.target.closest('[data-point],[data-details]');if(!b)return;const p=items.find(x=>Number(x.id)===Number(b.dataset.point||b.dataset.details));if(!p)return;if(b.dataset.point&&validCoordinates(p)&&iranGeometry?.some(f=>insideGeometry(p,f.geometry))){setView('map');map.setView([p.latitude,p.longitude],15);}openDetails([p],b);};
     load();loadMarkers();
+    requestAnimationFrame(()=>{if(!geoCancelled)map.invalidateSize();});
     // Refresh newly enriched points without changing filters, viewport, or an open detail.
     const refreshTimer=setInterval(()=>{const detailOpen=drawer.showModal?drawer.open:!drawer.hidden;if(!geoCancelled&&!document.hidden&&!detailOpen&&page===1&&!container.contains(document.activeElement)){load();scheduleMarkers();}},60000);
-    return () => {geoCancelled=true;clearInterval(refreshTimer);detailGeneration++;detailController?.abort();clearTimeout(searchTimer);if(drawer.close&&drawer.open)drawer.close();drawer.remove();map.off('moveend',scheduleMarkers);map.off('moveend',declutterCountryLabels);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
+    return () => {geoCancelled=true;clearInterval(refreshTimer);detailGeneration++;detailController?.abort();clearTimeout(searchTimer);if(drawer.close&&drawer.open)drawer.close();drawer.remove();if(admin&&directoryPanel&&directoryPanel.parentElement&&directoryPanel.parentElement!==container)directoryPanel.remove();map.off('moveend',scheduleMarkers);map.off('moveend',declutterCountryLabels);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
   }
   window.Tapin = {api,esc,num,badge,providerOptions,mapWidget,color,safeUrl,exportControl};
   document.querySelectorAll('.tapin-public-root').forEach(async root=>{
