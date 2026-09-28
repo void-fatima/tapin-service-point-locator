@@ -26,15 +26,15 @@ const {chromium,expect}=require('@playwright/test');const fs=require('fs');
   await expect(page.locator('.distribution-items .provider-logo').filter({hasText:'سایر'})).toHaveCount(1);
   await expect(page.locator('.distribution-items .provider-logo').filter({hasText:'تیپاکس'})).toHaveCount(1);
   await expect(page.locator('.dashboard-bottom,.issue-list')).toHaveCount(0);
-  await page.locator('[data-list]').click();await expect(page.locator('.branch-card')).toHaveCount(5);
+  await page.locator('[data-list]').click();await expect(page.locator('.directory-table tbody tr')).toHaveCount(5);
   await province.selectOption('تهران');await expect(total).toHaveText('۳');await expect(city.locator('option')).toHaveCount(3);
-  await city.selectOption('ری');await expect(total).toHaveText('۱');await expect(page.locator('.coordinate-totals')).toContainText('بدون مختصات');await expect(page.locator('.tapin-pin')).toHaveCount(0);await expect(page.locator('.branch-card')).toHaveCount(1);await expect(page.locator('.branch-card [data-point]')).toHaveCount(0);
+  await city.selectOption('ری');await expect(total).toHaveText('۱');await expect(page.locator('.coordinate-totals')).toContainText('بدون مختصات');await expect(page.locator('.tapin-pin')).toHaveCount(0);await expect(page.locator('.directory-table tbody tr')).toHaveCount(1);await expect(page.locator('.directory-table tbody tr')).toContainText('بدون مختصات');
   await province.selectOption('فارس');await expect(total).toHaveText('۲');await expect(city).toHaveValue('');await expect(city.locator('option')).toHaveCount(2);
   await province.selectOption('تهران');await page.locator('[data-provider-select]').selectOption('1');await city.selectOption('تهران');await expect(total).toHaveText('۱');
   await page.locator('.locator-search input').fill('فقط');await expect(total).toHaveText('۰');await expect(page.locator('.tapin-pin')).toHaveCount(0);await expect(page.locator('.locator-empty')).toBeVisible();
   await page.locator('[data-empty-clear]').click();await expect(total).toHaveText('۵');await expect(province).toHaveValue('');await expect(city).toHaveValue('');
   // Keyboard activation fires exactly the polygon click handler, and fits the selected geometry.
-  await page.locator('path[aria-label="فارس"]').focus();await page.keyboard.press('Enter');await expect(province).toHaveValue('فارس');await expect(total).toHaveText('۲');await expect(page.locator('.branch-card')).toHaveCount(2);await expect(page.locator('.tapin-pin')).toHaveCount(1);
+  await page.locator('path[aria-label="فارس"]').focus();await page.keyboard.press('Enter');await expect(province).toHaveValue('فارس');await expect(total).toHaveText('۲');await expect(page.locator('.directory-table tbody tr')).toHaveCount(2);await expect(page.locator('.tapin-pin')).toHaveCount(1);
   await page.locator('[data-reset]').click();await expect(total).toHaveText('۵');await expect(province).toHaveValue('');
   await page.locator('path[aria-label="سمنان"]').focus();await page.keyboard.press('Enter');await expect(province).toHaveValue('سمنان');await expect(city).toBeDisabled();await expect(total).toHaveText('۰');await expect(page.locator('.tapin-pin')).toHaveCount(0);
   await page.locator('[data-reset]').click();await expect(total).toHaveText('۵');
