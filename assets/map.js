@@ -311,9 +311,16 @@
     container.querySelector('[data-clear]').onclick=clearFilters;
     const previous=document.createElement('button');previous.type='button';previous.textContent='صفحه قبلی';previous.disabled=true;
     if(admin){more.before(previous);previous.onclick=()=>load(false,Math.max(1,page-1));}
+    const list=container.querySelector('.map-list'),listToggle=container.querySelector('[data-list]');
+    let pagination;
+    if(admin){
+      const toggleRow=document.createElement('div');toggleRow.className='map-actions directory-toggle';list.before(toggleRow);toggleRow.append(listToggle);
+      pagination=document.createElement('div');pagination.className='map-actions directory-pagination';pagination.hidden=true;list.after(pagination);pagination.append(previous,more,status);
+      list.id=detailId+'-list';pagination.id=detailId+'-pages';listToggle.setAttribute('aria-controls',list.id+' '+pagination.id);listToggle.textContent='نمایش فهرست نقاط';
+    }
     if(admin)exportControl(container.querySelector('.directory-panel'),()=>({search,provider_id:selected,province:province.value,city:city.value,status:'any'}));
     more.onclick=()=>admin?load(false,page+1):load(true); retry.onclick=()=>{load();loadMarkers();};
-    container.querySelector('[data-list]').onclick=()=>{ const list=container.querySelector('.map-list'); list.hidden=!list.hidden;container.querySelector('[data-list]').setAttribute('aria-expanded',String(!list.hidden)); };
+    listToggle.onclick=()=>{list.hidden=!list.hidden;listToggle.setAttribute('aria-expanded',String(!list.hidden));if(admin){pagination.hidden=list.hidden;listToggle.textContent=list.hidden?'نمایش فهرست نقاط':'بستن فهرست نقاط';}};
     container.querySelector('.map-list').onclick=e=>{if(e.target.closest('[data-empty-clear]')){clearFilters();return;}const b=e.target.closest('[data-point],[data-details]');if(!b)return;const p=items.find(x=>Number(x.id)===Number(b.dataset.point||b.dataset.details));if(!p)return;if(b.dataset.point&&validCoordinates(p)&&iranGeometry?.some(f=>insideGeometry(p,f.geometry))){setView('map');map.setView([p.latitude,p.longitude],15);}openDetails([p],b);};
     load();loadMarkers();
     // Refresh newly enriched points without changing filters, viewport, or an open detail.
