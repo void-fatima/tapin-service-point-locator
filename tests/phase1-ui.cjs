@@ -26,7 +26,7 @@ const {chromium,expect}=require('@playwright/test');const fs=require('fs');
   await expect(page.locator('.provider-overview .provider-logo').filter({hasText:'سایر'})).toHaveCount(1);
   await expect(page.locator('.provider-overview .provider-logo').filter({hasText:'تیپاکس'})).toHaveCount(1);
   await expect(page.locator('.dashboard-bottom,.issue-list,.distribution')).toHaveCount(0);
-  await page.locator('[data-list]').click();await expect(page.locator('.directory-table tbody tr')).toHaveCount(5);
+  await expect(page.locator('.directory-table tbody tr')).toHaveCount(5);
   await province.selectOption('تهران');await expect(total).toHaveText('۳');await expect(city.locator('option')).toHaveCount(3);
   await city.selectOption('ری');await expect(total).toHaveText('۱');await expect(page.locator('.coordinate-totals')).toContainText('بدون مختصات');await expect(page.locator('.tapin-pin')).toHaveCount(0);await expect(page.locator('.directory-table tbody tr')).toHaveCount(1);await expect(page.locator('.directory-table tbody tr')).toContainText('بدون مختصات');
   await province.selectOption('فارس');await expect(total).toHaveText('۲');await expect(city).toHaveValue('');await expect(city.locator('option')).toHaveCount(2);

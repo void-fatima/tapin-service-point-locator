@@ -7,6 +7,10 @@
 .tapin-app a{color:var(--purple);text-decoration:none}.tapin-app a:hover{color:#d6c4ff}.tapin-app a:focus{box-shadow:none}
 .tapin-app button,.tapin-app input,.tapin-app select,.tapin-app textarea{font:inherit;color:var(--text);border:1px solid var(--line);border-radius:7px;background:#141827;min-height:40px;box-shadow:none}
 .tapin-app button{padding:7px 14px;cursor:pointer}.tapin-app button:hover{border-color:#777495;background:#212539}.tapin-app button:disabled{opacity:.5;cursor:not-allowed}
+/* Icon + label buttons stay centered and vertically aligned everywhere. */
+.tapin-app button:has(>svg),.tapin-app a:has(>svg){display:inline-flex;align-items:center;justify-content:center;gap:7px;line-height:1;white-space:nowrap;box-sizing:border-box}
+.tapin-app button:has(>svg)>span,.tapin-app a:has(>svg)>span{display:inline-flex;align-items:center;line-height:1}
+.tapin-app button:has(>svg) svg,.tapin-app a:has(>svg) svg{flex:0 0 auto;display:block}
 .tapin-app input,.tapin-app select,.tapin-app textarea{width:100%;padding:8px 11px;max-width:none}.tapin-app select{appearance:auto;background-image:none;padding-inline-end:10px}.tapin-app input::placeholder,.tapin-app textarea::placeholder{color:#a4a6bd}.tapin-app textarea{min-height:90px;resize:vertical}
 .tapin-app :focus-visible{outline:2px solid #e6c174;outline-offset:3px;box-shadow:none}.tapin-app input:focus,.tapin-app select:focus,.tapin-app textarea:focus{border-color:var(--orange);box-shadow:none}
 .tapin-app .primary{background:linear-gradient(120deg,#ffb022,#ffc14f);color:#211604;border:1px solid #ffc15a;padding:9px 20px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;gap:9px;font-weight:750;box-shadow:0 2px 14px #ffad1710;white-space:nowrap}
