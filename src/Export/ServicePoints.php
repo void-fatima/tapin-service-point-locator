@@ -18,7 +18,7 @@ final class ServicePoints {
 			// One read-only snapshot prevents skipped/duplicated rows during concurrent edits.
 			if ( false === $wpdb->query( 'SET TRANSACTION ISOLATION LEVEL REPEATABLE READ' ) || false === $wpdb->query( 'START TRANSACTION WITH CONSISTENT SNAPSHOT, READ ONLY' ) ) { throw new \RuntimeException( 'snapshot_failed' ); }
 			$transaction = true;
-			$providers = array_column( ( new ProviderRepository() )->get_all(), 'name', 'id' );
+			$providers = array_column( ( new ProviderRepository() )->get_all( false ), 'name', 'id' );
 			if ( $wpdb->last_error ) { throw new \RuntimeException( 'query_failed' ); }
 			$repo = new ServicePointRepository(); $count = 0; $started = microtime( true );
 			$php_limit = (int) ini_get( 'max_execution_time' );
