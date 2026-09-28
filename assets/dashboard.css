@@ -61,6 +61,7 @@
 #tapin-admin .distribution-items .provider-summary-item{border-inline-start:1px solid #365077;padding:0 18px}
 #tapin-admin .drawer-toggle{align-self:start;border:0;background:transparent;font-size:25px;padding:0 6px}
 #tapin-admin .leaflet-interactive{cursor:pointer;transition:fill-opacity .15s}
+#tapin-admin .tapin-province-boundary{filter:drop-shadow(0 0 2px #35bdff88);stroke-linejoin:round}
 #tapin-admin .tapin-pin{box-shadow:0 0 12px #548bdc88}
 @media(max-width:1200px){#tapin-admin .dashboard-hero{padding-top:155px;grid-template-columns:minmax(240px,.6fr) minmax(0,1fr)}#tapin-admin .dashboard-map .map-tools{flex-wrap:wrap}#tapin-admin .map-tools .locator-search{flex-basis:100%}#tapin-admin .eyebrow{font-size:15px}#tapin-admin .header-actions a{font-size:13px;padding:10px}#tapin-admin .drawer-title{flex-basis:140px}}
 @media(max-width:850px){#tapin-admin{flex-direction:column}#tapin-admin .dashboard-hero{display:flex;flex-direction:column;padding-top:0}#tapin-admin .dashboard-map{width:100%;order:0}#tapin-admin .dashboard-overview{width:100%;order:1;grid-template-columns:1fr 1fr}#tapin-admin .dashboard-map .map-tools{position:static}#tapin-admin .distribution{flex-wrap:wrap;gap:14px}#tapin-admin .drawer-title{flex:1}#tapin-admin .distribution-items{order:2;flex-basis:100%;gap:10px}#tapin-admin .distribution-items .provider-summary-item{padding:0 8px}#tapin-admin .tapin-header{height:auto;flex-wrap:wrap}#tapin-admin .header-actions{flex-wrap:wrap}}
