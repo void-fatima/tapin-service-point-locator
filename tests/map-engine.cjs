@@ -13,6 +13,8 @@ const fs=require('fs');
   const missing={...points[0],id:999,name:'Address only fixture',has_coordinates:false,latitude:null,longitude:null};
   await page.route('**/tapin/v1/public/**',async route=>{
    const url=new URL(route.request().url()),params=url.searchParams;
+   const detail=url.pathname.match(/\/public\/points\/(\d+)$/);
+   if(detail)return route.fulfill({json:[missing,...points].find(p=>p.id===Number(detail[1]))});
    if(url.pathname.endsWith('/filters'))return route.fulfill({json:{providers,locations:providers.map(p=>({provider_id:p.id,province:'تهران',city:'تهران'}))}});
    const directory=url.pathname.endsWith('/directory');
    if(!directory)requests.push(Object.fromEntries(params));
