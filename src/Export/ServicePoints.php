@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
 final class ServicePoints {
 	public static function download( array $filters ) {
 		global $wpdb;
+		$previous_errors = $wpdb->suppress_errors( true );
 		$workbook = null; $transaction = false;
 		try {
 			$workbook = new Workbook();
@@ -20,13 +21,16 @@ final class ServicePoints {
 			$providers = array_column( ( new ProviderRepository() )->get_all(), 'name', 'id' );
 			if ( $wpdb->last_error ) { throw new \RuntimeException( 'query_failed' ); }
 			$repo = new ServicePointRepository(); $count = 0; $started = microtime( true );
+			$php_limit = (int) ini_get( 'max_execution_time' );
+			$seconds = $php_limit > 0 ? max( 1, min( 45, $php_limit - 5 ) ) : 45;
 			$args = array_merge( $filters, array( 'page' => 1, 'per_page' => 500, 'order' => 'ASC', 'orderby' => 'id', 'include_summary' => false ) );
 			$workbook->row( array( 'ارائه‌دهنده', 'نام شعبه', 'استان', 'شهر', 'آدرس', 'کد پستی', 'تلفن ثابت', 'تلفن همراه', 'تلفن عمومی', 'عرض جغرافیایی', 'طول جغرافیایی', 'وضعیت موقعیت' ), true );
 			do {
 				$result = $repo->query( $args );
 				if ( $wpdb->last_error ) { throw new \RuntimeException( 'query_failed' ); }
-				if ( $result['total'] > 100000 || microtime( true ) - $started > 45 ) { throw new \RuntimeException( 'export_limit' ); }
+				if ( $result['total'] > 100000 || microtime( true ) - $started > $seconds ) { throw new \RuntimeException( 'export_limit' ); }
 				foreach ( $result['items'] as $point ) {
+					if ( microtime( true ) - $started > $seconds ) { throw new \RuntimeException( 'export_limit' ); }
 					$p = PointEvidence::fields( $point );
 					$located = ! empty( $p['has_coordinates'] ) && \Tapin\ServicePointLocator\Geocoding\CoordinatePolicy::valid( $p );
 					$phone = in_array( $p['phone'], array( $p['landline_phone'], $p['mobile_phone'] ), true ) ? '' : $p['phone'];
@@ -46,6 +50,6 @@ final class ServicePoints {
 			OperationalLog::record( 'export_failed', array( 'filters' => $filters ) );
 			$message = 'تهیه خروجی اکسل انجام نشد. فیلترها را محدودتر کنید یا با مدیر سرور تماس بگیرید.';
 			return new \WP_Error( 'export_failed', $message, array( 'status' => 503 ) );
-		}
+		} finally { $wpdb->suppress_errors( $previous_errors ); }
 	}
 }

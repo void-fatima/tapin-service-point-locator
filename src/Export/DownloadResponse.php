@@ -17,7 +17,7 @@ final class DownloadResponse extends \WP_REST_Response {
 	}
 	public static function serve( $served, $response, $request, $server ) {
 		if ( ! $response instanceof self ) { return $served; }
-		try { if ( ! $served ) { readfile( $response->file ); } }
+		try { if ( ! $served ) { @readfile( $response->file ); } }
 		finally { $response->workbook->cleanup(); }
 		return true;
 	}
