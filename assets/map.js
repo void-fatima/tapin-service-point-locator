@@ -201,25 +201,30 @@
     container.querySelector('.map-list').hidden=admin;
     container.querySelector('[data-list]').setAttribute('aria-expanded',String(!admin));
     function renderDirectory(){
+      if(admin){
+        container.querySelector('.map-list').innerHTML=items.length?`<div class="table-scroll directory-table" role="region" aria-label="فهرست قابل دسترس نقاط" tabindex="0"><table><caption>نقاط خدماتی مطابق فیلترهای انتخاب‌شده</caption><thead><tr>${['ارائه‌دهنده','نام شعبه','استان','شهر','آدرس','کد پستی','تلفن ثابت','وضعیت موقعیت','جزئیات'].map(label=>`<th scope="col">${label}</th>`).join('')}</tr></thead><tbody>${items.map(p=>`<tr><td>${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}</td><th scope="row">${esc(p.name)}</th><td>${esc(p.province||'—')}</td><td>${esc(p.city||'—')}</td><td class="directory-address">${esc(p.address||'—')}</td><td><bdi>${esc(p.postal_code||'—')}</bdi></td><td><bdi>${esc(p.landline_phone||'—')}</bdi></td><td>${validCoordinates(p)?'دارای موقعیت':'بدون مختصات'}</td><td><button type="button" data-details="${Number(p.id)}" aria-label="${esc('اطلاعات شعبه '+p.name)}">اطلاعات شعبه</button></td></tr>`).join('')}</tbody></table></div>`:'<p class="locator-empty">هیچ نقطه خدماتی با فیلترهای انتخاب‌شده پیدا نشد.</p>';
+        return;
+      }
       container.querySelector('.map-list').innerHTML=items.map(p=>{
         const valid=validCoordinates(p),mapped=valid&&iranGeometry?.some(f=>insideGeometry(p,f.geometry));
         return `<article class="branch-card">${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}<strong>${esc(p.name)}</strong><small>${esc(p.province)}، ${esc(p.city)}</small>${details(p)}<div class="branch-actions"><button type="button" data-details="${p.id}">اطلاعات شعبه</button>${mapped?`<button type="button" data-point="${p.id}">نمایش روی نقشه</button>`:!valid?'<span class="coordinate-note">بدون مختصات · نشانی متنی</span>':iranGeometry?'<span class="coordinate-note">مختصات خارج از محدوده نقشه</span>':''}</div></article>`;
       }).join('')||'<div class="locator-empty"><strong>شعبه‌ای پیدا نشد</strong><p>عبارت جستجو را تغییر دهید یا فیلترها را پاک کنید. پوشش این فهرست سراسری نیست.</p><button type="button" data-empty-clear>پاک کردن فیلترها</button></div>';
     }
-    async function load(append=false) {
+    async function load(append=false,requestedPage=1) {
       controller?.abort(); controller = new AbortController();
       const token = ++generation;
       if(!append){items=[];container.querySelector('.map-list').innerHTML='';more.hidden=true;}
       status.textContent='در حال دریافت نقاط خدماتی…';container.querySelector('.map-list').setAttribute('aria-busy','true');more.disabled=true; retry.hidden=true;
-      const params = new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,per_page:admin?'500':'50',page:String(append?page+1:1),include_summary:admin?'1':'0',status:'any'});
+      const params = new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,per_page:'50',page:String(admin?requestedPage:append?page+1:1),include_summary:admin?'1':'0',status:'any'});
       if(admin)params.set('map_view','1');
       try {
         const data = await api((admin?'points':'public/directory')+'?'+params, {signal:controller.signal});
         if (token !== generation || geoCancelled) return;
-        if (!append) { items=[]; page=1; } else page++;
+        if (!append) { items=[]; page=admin?requestedPage:1; } else page++;
         items.push(...data.items);if(admin&&data.summary)onSummary(data.summary);
         status.textContent = data.total ? `نمایش ${num(items.length)} از ${num(data.total)} شعبه${admin?' شامل نقاط بدون مختصات و غیرفعال':' · '+'فهرست نشانی‌ها'}` : 'شعبه‌ای با این فیلترها پیدا نشد.';
         more.hidden = page >= data.total_pages; more.disabled=false;
+        if(admin){status.textContent=`${num(data.total)} نتیجه · صفحه ${num(page)} از ${num(Math.max(1,data.total_pages))} · شامل نقاط بدون مختصات و غیرفعال`;previous.disabled=page<=1;more.textContent='صفحه بعدی';}
         renderDirectory();
       } catch(e) { if(e.name!=='AbortError') { status.textContent=e.message; retry.hidden=false; more.disabled=false; } }
       finally{if(token===generation)container.querySelector('.map-list').setAttribute('aria-busy','false');}
@@ -283,7 +288,9 @@
     container.querySelector('[data-reset]').onclick=()=>{province.value='';city.value='';updateLocations();updateLegend();map.stop();map.fitBounds(iran,{animate:false});load();scheduleMarkers();};
     function clearFilters(){clearTimeout(searchTimer);selected='';if(admin)container.querySelector('[data-provider-select]').value='';search='';province.value='';city.value='';container.querySelector('[name=search]').value='';refreshFilters();map.stop();map.fitBounds(iran,{animate:false});}
     container.querySelector('[data-clear]').onclick=clearFilters;
-    more.onclick=()=>load(true); retry.onclick=()=>{load();loadMarkers();};
+    const previous=document.createElement('button');previous.type='button';previous.textContent='صفحه قبلی';previous.disabled=true;
+    if(admin){more.before(previous);previous.onclick=()=>load(false,Math.max(1,page-1));}
+    more.onclick=()=>admin?load(false,page+1):load(true); retry.onclick=()=>{load();loadMarkers();};
     container.querySelector('[data-list]').onclick=()=>{ const list=container.querySelector('.map-list'); list.hidden=!list.hidden;container.querySelector('[data-list]').setAttribute('aria-expanded',String(!list.hidden)); };
     container.querySelector('.map-list').onclick=e=>{if(e.target.closest('[data-empty-clear]')){clearFilters();return;}const b=e.target.closest('[data-point],[data-details]');if(!b)return;const p=items.find(x=>Number(x.id)===Number(b.dataset.point||b.dataset.details));if(!p)return;if(b.dataset.point&&validCoordinates(p)&&iranGeometry?.some(f=>insideGeometry(p,f.geometry))){setView('map');map.setView([p.latitude,p.longitude],15);}openDetails([p],b);};
     load();loadMarkers();
