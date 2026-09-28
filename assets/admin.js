@@ -134,9 +134,9 @@
   }
   function mountGeocoding(form,points,token){
     const panel=document.createElement('section');panel.className='geocoding-controls';panel.setAttribute('aria-label','موقعیت‌یابی نقاط خدماتی');
-    panel.innerHTML='<div class="section-title"><h3>موقعیت‌یابی نشانی‌ها</h3><div class="tapin-row-actions"><button type="button" data-enrich-page><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg><span>تلاش مجدد برای نقاط بدون مختصات این صفحه</span></button><button type="button" data-geocoding-refresh><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg><span>تازه‌سازی وضعیت</span></button><button type="button" data-points-refresh><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span>تازه‌سازی فهرست</span></button></div></div><p data-geocoding-summary role="status">در حال دریافت وضعیت…</p><p class="help">مختصات معتبر تغییر نمی‌کند. نشانی‌های مبهم یا ناسازگار تا زمان بررسی بدون نشانگر می‌مانند.</p><p data-geocoding-message role="status"></p>';
+    panel.innerHTML='<div class="section-title"><h3>موقعیت‌یابی نشانی‌ها</h3><div class="tapin-row-actions"><button type="button" data-enrich-page><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg><span>تلاش مجدد برای نقاط بدون مختصات این صفحه</span></button><button type="button" data-geocoding-refresh><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg><span>تازه‌سازی وضعیت</span></button><button type="button" data-points-refresh><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span>تازه‌سازی فهرست</span></button></div></div><p data-geocoding-message role="status"></p>';
     form.after(panel);
-    const summary=panel.querySelector('[data-geocoding-summary]'),message=panel.querySelector('[data-geocoding-message]');
+    const message=panel.querySelector('[data-geocoding-message]');
     const batch=panel.querySelector('[data-enrich-page]');
     const unresolved=points.filter(p=>!p.has_coordinates).map(p=>Number(p.id));
     batch.disabled=!unresolved.length;
@@ -156,10 +156,8 @@
       try{
         const data=await api('geocoding?ids='+points.map(p=>Number(p.id)).join(','),{signal:controller.signal,cache:'no-store'});
         if(disposed||token!==routeToken)return;
-        const counts=data.counts||{},waiting=(counts.pending||0)+(counts.retry||0)+(counts.processing||0);
-        summary.textContent=(data.configured?'صف موقعیت‌یابی: ':'سرویس موقعیت‌یابی تنظیم نشده؛ صف منتظر تنظیم کلید سرور است. ')+num(waiting)+' در انتظار · '+num(counts.succeeded)+' موفق · '+num((counts.failed||0)+(counts.blocked||0))+' نیازمند بررسی';
         data.items.forEach(job=>{const controls=rowControls.get(Number(job.point_id));if(!controls)return;controls.state.textContent=(labels[job.status]||'بدون مختصات')+' · '+num(job.attempts)+' تلاش'+(reasons[job.last_code]?' · '+reasons[job.last_code]:'');controls.button.disabled=busy||['pending','retry','processing','succeeded'].includes(job.status);});
-      }catch(e){if(e.name!=='AbortError'&&!disposed)summary.textContent='دریافت وضعیت موقعیت‌یابی انجام نشد. از تازه‌سازی وضعیت استفاده کنید.';}
+      }catch(e){if(e.name!=='AbortError'&&!disposed)message.textContent='دریافت وضعیت موقعیت‌یابی انجام نشد. از تازه‌سازی وضعیت استفاده کنید.';}
       finally{loading=false;}
     }
     async function retry(ids){
