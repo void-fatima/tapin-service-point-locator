@@ -16,6 +16,17 @@
   const safeUrl = value => { try { const url = new URL(value, location.href); return /https?:/.test(url.protocol) ? esc(url.href) : ''; } catch { return ''; } };
   const badge = p => `<span class="provider-badge"><span class="provider-symbol" style="--provider:${color(p)}">${p?.logo ? `<img src="${safeUrl(p.logo)}" alt="" loading="lazy">` : '<i></i>'}</span>${esc(p?.name || 'سایر')}</span>`;
   const providerOptions = providers => providers.map(p => `<option value="${Number(p.id)}">${esc(p.name)}${Number(p.is_active) ? '' : ' (غیرفعال)'}</option>`).join('');
+  // Dashboard groups (post / tipax / everything else) carry real provider ids so
+  // every downstream lookup keeps working. "0" is the empty set: the API turns it
+  // into provider_id IN (0), which matches nothing rather than matching everything.
+  const NAMED_SLUGS = ['post', 'tipax'];
+  const groupValue = (key, list) => {
+    const ids = (key === 'other'
+      ? list.filter(p => !NAMED_SLUGS.includes(p.slug))
+      : list.filter(p => p.slug === key)
+    ).map(p => Number(p.id));
+    return ids.length ? ids.join(',') : '0';
+  };
   function exportControl(container,getFilters){
     const section=document.createElement('div');section.className='export-controls';
     section.innerHTML='<button type="button" data-export><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg><span>دریافت خروجی در قالب اکسل</span></button><span role="status" aria-live="polite"></span>';
@@ -94,7 +105,10 @@
     if(admin){
       const tools=container.querySelector('.map-tools');
       const title=document.createElement('button');title.type='button';title.className='filter-title';title.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg><span>فیلترها</span><svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>';title.setAttribute('aria-expanded','true');title.setAttribute('aria-label','نمایش و پنهان کردن فیلترها');title.setAttribute('title','نمایش / پنهان کردن فیلترها');tools.prepend(title);
-      const select=document.createElement('select');select.dataset.providerSelect='';select.setAttribute('aria-label','ارائه‌دهنده');select.setAttribute('autocomplete','off');select.innerHTML='<option value="">همه ارائه‌دهندگان</option>'+providerOptions(providers);tools.querySelector('.provider-tabs').hidden=true;tools.append(select);
+      const select=document.createElement('select');select.dataset.providerSelect='';select.setAttribute('aria-label','ارائه‌دهنده');select.setAttribute('autocomplete','off');
+      select.innerHTML='<option value="">همه ارائه‌دهندگان</option>'+[['post','شرکت ملی پست'],['tipax','تیپاکس'],['other','سایر']]
+        .map(([key,label])=>`<option value="${groupValue(key,providers)}">${esc(label)}</option>`).join('');
+      tools.querySelector('.provider-tabs').hidden=true;tools.append(select);
       tools.append(container.querySelector('.map-selects'),container.querySelector('.locator-search'));
       select.onchange=()=>{selected=select.value;refreshFilters();};
       // Fold the whole filter row behind this trigger. Pending search/provider
@@ -276,8 +290,19 @@
       city.value=[...city.options].some(o=>o.value===oldCity)?oldCity:'';city.disabled=city.options.length===1;
     }
     function updateLegend(){
-      const provider=providers.find(p=>Number(p.id)===Number(selected));
-      container.querySelector('.map-legend').innerHTML=(selected?badge(provider):'<span style="color:#ffbd18">● پست</span><span style="color:#00d59b">● تیپاکس</span><span style="color:#9975ff">● سایر</span>')+'<small>عدد روی نشانگر: تعداد شعب نزدیک</small>';
+      // A group filter can hold several ids (or "0" for an empty one), so resolve
+      // before looking up a single provider to badge.
+      const ids=selected?String(selected).split(',').map(Number).filter(n=>Number.isFinite(n)&&n>0):[];
+      const provider=ids.length===1?providers.find(p=>Number(p.id)===ids[0]):null;
+      let active='';
+      if(selected&&provider)active=badge(provider);
+      else if(selected){
+        const slugs=[...new Set(providers.filter(p=>ids.includes(Number(p.id))).map(p=>p.slug))];
+        const name=!ids.length?'سایر':slugs.every(s=>NAMED_SLUGS.includes(s))
+          ?(slugs.includes('post')&&slugs.includes('tipax')?'پست و تیپاکس':slugs[0]==='post'?'شرکت ملی پست':'تیپاکس'):'سایر';
+        active='<span class="provider-badge"><span class="provider-symbol" style="--provider:#7948ff"><i></i></span>'+esc(name)+'</span>';
+      }
+      container.querySelector('.map-legend').innerHTML=(active||'<span style="color:#ffbd18">● پست</span><span style="color:#00d59b">● تیپاکس</span><span style="color:#9975ff">● سایر</span>')+'<small>عدد روی نشانگر: تعداد شعب نزدیک</small>';
       container.querySelectorAll('[data-provider]').forEach(b=>{const active=b.dataset.provider===selected;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active));});
       provinceLayers.forEach((polygon,name)=>polygon.setStyle({color:name===normalize(province.value)?'#c4f5ff':'#79cfe8',weight:name===normalize(province.value)?1.4:.7,fillOpacity:name===normalize(province.value)?.42:.32}));
     }
