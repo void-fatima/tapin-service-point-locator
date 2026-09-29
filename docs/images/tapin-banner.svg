@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="560" viewBox="0 0 1440 560" role="img" aria-labelledby="title desc">
+<title id="title">Tapin — connect every branch</title>
+<desc id="desc">Dark violet banner with an abstract network of shipping locations. Decorative illustration, not a screenshot or geographic map.</desc>
+<defs>
+<linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0b1020"/><stop offset="1" stop-color="#211740"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="#8b5cf6" stop-opacity=".28"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></radialGradient>
+<pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#b5a2ff" stroke-opacity=".055"/></pattern>
+<g id="pin"><path d="M0 20C-5 13-15 3-15-7a15 15 0 0 1 30 0C15 3 5 13 0 20Z" fill="currentColor"/><circle cy="-7" r="5" fill="#151329"/></g>
+</defs>
+<rect width="1440" height="560" rx="28" fill="url(#bg)"/>
+<rect width="1440" height="560" rx="28" fill="url(#grid)"/>
+<ellipse cx="1130" cy="260" rx="390" ry="340" fill="url(#glow)"/>
+<g font-family="Segoe UI, Arial, sans-serif">
+<rect x="72" y="64" width="235" height="32" rx="16" fill="#a78bfa" fill-opacity=".12" stroke="#a78bfa" stroke-opacity=".25"/>
+<circle cx="91" cy="80" r="4" fill="#7ce3be"/>
+<text x="106" y="85" font-size="11" letter-spacing="1.5" fill="#d5c9fb">WORDPRESS / PERSIAN RTL</text>
+<text x="68" y="211" fill="#fff" font-size="100" font-weight="750" letter-spacing="-5">TAPIN<tspan fill="#a78bfa">.</tspan></text>
+<text x="74" y="260" fill="#e3dcf7" font-size="29" font-weight="500">Connect every branch.</text>
+<text x="74" y="309" fill="#a8abc4" font-size="19">One directory. Every provider. A clearer map.</text>
+<path d="M74 348H614" stroke="#aea0d7" stroke-opacity=".18"/>
+<g font-size="12" font-weight="600" fill="#d9d0ee">
+<rect x="74" y="377" width="157" height="42" rx="12" fill="#ffffff" fill-opacity=".045" stroke="#b4a1e0" stroke-opacity=".16"/><text x="90" y="403">BRANCH MANAGER</text>
+<rect x="243" y="377" width="127" height="42" rx="12" fill="#ffffff" fill-opacity=".045" stroke="#b4a1e0" stroke-opacity=".16"/><text x="268" y="403">CSV / XLSX</text>
+<rect x="382" y="377" width="150" height="42" rx="12" fill="#ffffff" fill-opacity=".045" stroke="#b4a1e0" stroke-opacity=".16"/><text x="401" y="403">PUBLIC LOCATOR</text>
+</g>
+<text x="74" y="495" fill="#7d809c" font-size="12" letter-spacing="2">SERVICE POINT LOCATOR</text>
+<text x="620" y="495" fill="#a99abb" font-size="12">v1.4.0</text>
+</g>
+<g fill="none" stroke="#b5a2ff">
+<rect x="775" y="76" width="583" height="409" rx="26" fill="#0e1223" fill-opacity=".5" stroke-opacity=".2"/>
+<path d="M775 131H1358" stroke-opacity=".12"/>
+<path d="M811 241L936 162L1055 235L1208 159L1330 252M802 353L934 305L1064 373L1203 300L1323 410M899 145L862 260L927 374L892 451M1109 150L1074 259L1139 346L1082 459M1266 146L1237 246L1294 332L1211 459" stroke-opacity=".09" stroke-width="16"/>
+<path d="M866 323L993 226L1122 329L1257 228M993 226L1002 414L1122 329" stroke="#9678e8" stroke-width="2" stroke-dasharray="5 8" opacity=".75"/>
+<circle cx="1122" cy="319" r="57" stroke-opacity=".16"/><circle cx="1122" cy="319" r="81" stroke-opacity=".07"/>
+</g>
+<g font-family="Segoe UI, Arial, sans-serif" font-size="11" fill="#9e96b6" letter-spacing="2"><text x="803" y="109">THE BRANCH NETWORK</text><text x="1124" y="465" font-size="9">CONCEPT ILLUSTRATION</text></g>
+<g fill="#7d729e"><circle cx="1300" cy="105" r="3"/><circle cx="1313" cy="105" r="3"/><circle cx="1326" cy="105" r="3"/></g>
+<g><circle cx="866" cy="321" r="27" fill="#f7c85c" fill-opacity=".09"/><use href="#pin" x="866" y="310" color="#f7c85c"/>
+<circle cx="993" cy="226" r="27" fill="#64d6b3" fill-opacity=".09"/><use href="#pin" x="993" y="215" color="#64d6b3"/>
+<circle cx="1122" cy="329" r="34" fill="#a78bfa" fill-opacity=".12"/><use href="#pin" transform="translate(1122 314) scale(1.45)" color="#b5a2ff"/>
+<circle cx="1257" cy="228" r="27" fill="#64d6b3" fill-opacity=".09"/><use href="#pin" x="1257" y="217" color="#64d6b3"/>
+<circle cx="1002" cy="414" r="23" fill="#a78bfa" fill-opacity=".09"/><use href="#pin" x="1002" y="403" color="#9678e8"/>
+</g>
+</svg>
