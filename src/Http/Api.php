@@ -71,9 +71,17 @@ final class Api {
 	private function filters( $r ): array {
 		$args = array( 'status' => 'any' );
 		foreach ( array( 'provider_id', 'province', 'city', 'search', 'status', 'issue', 'page', 'per_page', 'order' ) as $key ) {
-			if ( null !== $r[$key] && is_scalar( $r[$key] ) ) {
-				$args[$key] = sanitize_text_field( (string) $r[$key] );
+			if ( null === $r[$key] || ! is_scalar( $r[$key] ) ) {
+				continue;
 			}
+			$value = sanitize_text_field( (string) $r[$key] );
+			// A provider group arrives as "3,4"; "0" means an empty group. Both become
+			// IN() lists so provider_id = 0 can never read as "no filter at all".
+			if ( 'provider_id' === $key && '' !== $value && preg_match( '/^\d+(?:,\d+)*$/D', $value ) && ( false !== strpos( $value, ',' ) || '0' === $value ) ) {
+				$args[ $key ] = array_map( 'intval', explode( ',', $value ) );
+				continue;
+			}
+			$args[ $key ] = $value;
 		}
 		if ( in_array( $r['has_coordinates'], array( '0', '1' ), true ) ) {
 			$args['has_coordinates'] = (int) $r['has_coordinates'];
@@ -96,7 +104,8 @@ final class Api {
 			if ( null !== $r[$key] && ! in_array( $r[$key], $allowed, true ) ) { return new \WP_Error( 'export_filter', 'فیلتر خروجی معتبر نیست.', array( 'status' => 400 ) ); }
 		}
 		$id = $r['provider_id'];
-		if ( null !== $id && '' !== $id && ( ! preg_match( '/^[1-9][0-9]*$/D', $id ) || false === filter_var( $id, FILTER_VALIDATE_INT, array( 'options' => array( 'min_range' => 1 ) ) ) ) ) { return new \WP_Error( 'export_filter', 'ارائه‌دهنده خروجی معتبر نیست.', array( 'status' => 400 ) ); }
+		// A single id, an explicit empty set ("0"), or a comma list of ids.
+		if ( null !== $id && '' !== $id && ! preg_match( '/^(?:0|[1-9][0-9]*)(?:,(?:0|[1-9][0-9]*))*$/D', $id ) ) { return new \WP_Error( 'export_filter', 'ارائه‌دهنده خروجی معتبر نیست.', array( 'status' => 400 ) ); }
 		$args = array_intersect_key( $this->filters( $r ), array_flip( array( 'provider_id', 'province', 'city', 'search', 'status', 'issue', 'has_coordinates' ) ) );
 		return \Tapin\ServicePointLocator\Export\ServicePoints::download( $args );
 	}
