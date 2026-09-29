@@ -18,7 +18,7 @@
   const providerOptions = providers => providers.map(p => `<option value="${Number(p.id)}">${esc(p.name)}${Number(p.is_active) ? '' : ' (غیرفعال)'}</option>`).join('');
   function exportControl(container,getFilters){
     const section=document.createElement('div');section.className='export-controls';
-    section.innerHTML='<button type="button" data-export><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg><span>خروجی اکسل</span></button><small>همه نتایج فیلترهای اعمال‌شده، نه فقط صفحه فعلی</small><span role="status" aria-live="polite"></span>';
+    section.innerHTML='<button type="button" data-export><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg><span>دریافت خروجی در قالب اکسل</span></button><span role="status" aria-live="polite"></span>';
     container.append(section);const button=section.querySelector('button'),message=section.querySelector('[role=status]');
     button.onclick=async()=>{
       button.disabled=true;message.textContent='در حال آماده‌سازی خروجی…';
@@ -93,11 +93,21 @@
       <section class="directory-panel" aria-label="فهرست نقاط خدماتی"><div class="map-status" role="status"></div><p class="directory-hint">فهرست شامل همه نتایج فیلترهاست؛ نقشه فقط نقاط دارای مختصات در محدوده دیده‌شده را نشان می‌دهد.</p><div class="map-list" hidden></div><div class="map-actions"><button type="button" data-retry hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span>تلاش دوباره</span></button><button type="button" data-more hidden><span>نمایش نقاط بیشتر</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><button type="button" data-list ${admin?'':'hidden'}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>فهرست قابل دسترس نقاط</span></button></div></section></div>`;
     if(admin){
       const tools=container.querySelector('.map-tools');
-      const title=document.createElement('button');title.type='button';title.className='filter-title';title.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg><span>فیلترها</span>';title.setAttribute('aria-label','اعمال فیلترها');title.setAttribute('title','اعمال فیلترها');tools.prepend(title);
+      const title=document.createElement('button');title.type='button';title.className='filter-title';title.innerHTML='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg><span>فیلترها</span><svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>';title.setAttribute('aria-expanded','true');title.setAttribute('aria-label','نمایش و پنهان کردن فیلترها');title.setAttribute('title','نمایش / پنهان کردن فیلترها');tools.prepend(title);
       const select=document.createElement('select');select.dataset.providerSelect='';select.setAttribute('aria-label','ارائه‌دهنده');select.setAttribute('autocomplete','off');select.innerHTML='<option value="">همه ارائه‌دهندگان</option>'+providerOptions(providers);tools.querySelector('.provider-tabs').hidden=true;tools.append(select);
       tools.append(container.querySelector('.map-selects'),container.querySelector('.locator-search'));
       select.onchange=()=>{selected=select.value;refreshFilters();};
-      title.onclick=()=>{clearTimeout(searchTimer);const s=container.querySelector('.locator-search input[name=search]');if(s)search=s.value.trim();selected=select.value;refreshFilters();};
+      // Fold the whole filter row behind this trigger. Pending search/provider
+      // edits are committed first, but a pure toggle must not reload: a reload
+      // would silently jump pagination back to page 1.
+      title.onclick=()=>{
+        clearTimeout(searchTimer);
+        const s=container.querySelector('.locator-search input[name=search]');
+        const typed=s?s.value.trim():'', provider=select.value;
+        if(typed!==search||provider!==selected){search=typed;selected=provider;refreshFilters();}
+        const folded=tools.classList.toggle('filters-collapsed');
+        title.setAttribute('aria-expanded',String(!folded));
+      };
       const directoryPanel=container.querySelector('.directory-panel');
       const hero=container.closest('.dashboard-hero');
       if(hero&&directoryPanel){hero.after(directoryPanel);directoryPanel.classList.add('panel','dashboard-directory-panel');}
