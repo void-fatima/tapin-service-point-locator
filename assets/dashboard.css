@@ -28,9 +28,12 @@
 /* padding-block only: keeping padding-inline at the row's 12px is what stops
    the trigger's right edge from jumping between the two states. */
 #tapin-admin .dashboard-map .map-tools.filters-collapsed{min-height:0;padding-block:8px;justify-content:flex-start}
-#tapin-admin .map-tools.filters-collapsed>.filter-title{min-width:260px}
+#tapin-admin .filters-collapsed>.filter-title{min-width:260px}
 #tapin-admin .map-tools.filters-collapsed>:not(.filter-title):not([data-retry]){display:none}
-#tapin-admin .map-tools.filters-collapsed .filter-title .chev{transform:rotate(0deg);opacity:1}
+/* Scoped on the id because the field rules carry two ids and outrank a plain
+   class-level collapse selector. */
+#tapin-admin #point-filters.filters-collapsed>:not(.filter-title){display:none!important}
+#tapin-admin .filters-collapsed .filter-title .chev{transform:rotate(0deg);opacity:1}
 #tapin-admin .map-tools>select{flex:1;min-width:0;width:auto}
 #tapin-admin .map-tools .map-selects{display:contents}
 #tapin-admin .map-tools .map-selects label{flex:1;min-width:0;display:flex;margin:0}
