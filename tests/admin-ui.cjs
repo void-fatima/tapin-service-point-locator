@@ -67,14 +67,14 @@ const path = require('path');
     await dialog.locator('[data-close-sheet]').click();
     await expect(dialog).not.toBeVisible();
 
-    // 4. Provider Management Page & Toggle
+    // 4. Provider Management Page
     await page.locator('[data-nav=providers]').click();
     await expect(page.locator('.provider-cards')).toBeVisible({ timeout: 20000 });
     await expect(page.locator('#new-provider')).toBeVisible();
     const firstProviderCard = page.locator('.provider-cards article').first();
     await expect(firstProviderCard).toBeVisible();
     await expect(firstProviderCard.locator('[data-provider-edit]')).toBeVisible();
-    await expect(firstProviderCard.locator('[data-provider-toggle]')).toBeVisible();
+    await expect(firstProviderCard.locator('[data-provider-toggle]')).toHaveCount(0);
 
     // 5. Import Center
     await page.locator('[data-nav=imports]').click();
