@@ -87,7 +87,7 @@
     const detailId='tapin-detail-'+(++widgetSequence);
     container.dataset.view='map';
     container.innerHTML = `<div class="map-tools"><div class="provider-tabs" role="group" aria-label="ارائه‌دهنده"><button type="button" class="selected" aria-pressed="true" data-provider="">همه ارائه‌دهندگان</button>${providers.map(p => `<button type="button" aria-pressed="false" data-provider="${Number(p.id)}">${badge(p)}</button>`).join('')}</div><div class="map-selects"><label><span>استان</span><select data-province autocomplete="off"><option value="">همه استان‌ها</option></select></label><label><span>شهر</span><select data-city autocomplete="off"><option value="">همه شهرها</option></select></label><button type="button" data-reset title="نمایش سراسر ایران" aria-label="نمایش سراسر ایران"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>سراسر ایران</span></button></div></div>
-      <form class="locator-search" role="search" autocomplete="off"><label><span class="sr-only">جستجوی شعبه، شهر، استان یا ارائه‌دهنده</span><input name="search" type="search" autocomplete="off" placeholder="نام شعبه، شهر یا ارائه‌دهنده…"></label><button type="submit" title="جستجو"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg><span>جستجو</span></button><button type="button" data-clear title="پاک کردن فیلترها"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span>پاک کردن فیلترها</span></button></form>
+      <form class="locator-search" role="search" autocomplete="off"><label><span class="sr-only">جستجوی شعبه، شهر، استان یا ارائه‌دهنده</span><input name="search" type="search" autocomplete="off" placeholder="نام شعبه، شهر یا ارائه‌دهنده…"></label><button type="submit" class="${admin?'btn-search':''}" title="جستجو"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg><span>جستجو</span></button><button type="button" data-clear title="پاک کردن فیلترها"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span>پاک کردن فیلترها</span></button></form>
       <div class="locator-view-switch" role="group" aria-label="شیوه نمایش" ${admin?'hidden':''}><button type="button" data-view="map" aria-pressed="true">نقشه</button><button type="button" data-view="list" aria-pressed="false">فهرست نشانی‌ها</button></div>
       <div class="locator-results"><section class="map-viewport" aria-label="نقشه و راهنما"><div class="tapin-map" role="region" aria-label="نقشه نقاط خدماتی؛ با کلیدهای جهت حرکت کنید" tabindex="0"></div><div class="map-legend"></div></section>
       <section class="directory-panel" aria-label="فهرست نقاط خدماتی"><div class="map-status" role="status"></div><p class="directory-hint">فهرست شامل همه نتایج فیلترهاست؛ نقشه فقط نقاط دارای مختصات در محدوده دیده‌شده را نشان می‌دهد.</p><div class="map-list" hidden></div><div class="map-actions"><button type="button" data-retry hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span>تلاش دوباره</span></button><button type="button" data-more hidden><span>نمایش نقاط بیشتر</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><button type="button" data-list ${admin?'':'hidden'}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>فهرست قابل دسترس نقاط</span></button></div></section></div>`;
@@ -108,6 +108,30 @@
         const folded=tools.classList.toggle('filters-collapsed');
         title.setAttribute('aria-expanded',String(!folded));
       };
+      // The field is folded behind its جستجو trigger so the crowded row only
+      // shows buttons. Opening swaps in the short placeholder and lights up the
+      // trigger; searching still travels the form (Enter) or the type debounce.
+      const searchForm=tools.querySelector('.locator-search');
+      const searchField=searchForm.querySelector('input[name=search]');
+      const searchTrigger=searchForm.querySelector('.btn-search');
+      const searchId='tapin-search-'+(++widgetSequence);
+      searchField.id=searchId;searchField.placeholder='نام شعبه';
+      searchForm.classList.remove('search-open');
+      searchTrigger.type='button';
+      searchTrigger.setAttribute('aria-expanded','false');
+      searchTrigger.setAttribute('aria-controls',searchId);
+      const setSearchOpen=open=>{
+        searchForm.classList.toggle('search-open',open);
+        searchTrigger.setAttribute('aria-expanded',String(open));
+        if(open)searchField.focus();
+      };
+      searchTrigger.onclick=()=>{
+        if(!searchForm.classList.contains('search-open')){setSearchOpen(true);return;}
+        searchForm.requestSubmit();
+      };
+      searchField.addEventListener('keydown',e=>{
+        if(e.key==='Escape'){e.preventDefault();setSearchOpen(false);searchTrigger.focus();}
+      });
       const directoryPanel=container.querySelector('.directory-panel');
       const hero=container.closest('.dashboard-hero');
       if(hero&&directoryPanel){hero.after(directoryPanel);directoryPanel.classList.add('panel','dashboard-directory-panel');}

@@ -72,7 +72,7 @@ const points=Array.from({length:23},(_,i)=>({id:i+1,provider_id:1,name:'Branch '
    await pager.locator('.pagination-last').click();
    await expect(panel.locator('tbody tr')).toHaveCount(3);
    await expect(pager.locator('.pagination-next')).toBeDisabled();
-   await page.locator('.locator-search input').fill('missing');
+   await page.locator('.locator-search .btn-search').click();await page.locator('.locator-search input').fill('missing');
    await page.locator('.locator-search').evaluate(el=>el.requestSubmit());
    await expect(panel.locator('.locator-empty')).toBeVisible();
    await page.locator('[data-clear]').click();
