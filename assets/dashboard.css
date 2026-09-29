@@ -11,9 +11,16 @@
 #tapin-admin .tapin-sidebar .brand:hover{background:rgba(255,255,255,.06)}
 #tapin-admin .tapin-sidebar .brand:focus-visible{outline:2px solid #e6c174;outline-offset:-4px}
 #tapin-admin.sidebar-collapsed .tapin-sidebar{flex-basis:72px}
-#tapin-admin.sidebar-collapsed .tapin-sidebar .brand{padding:14px 6px;height:96px}
+#tapin-admin .tapin-sidebar .brand{position:relative;cursor:pointer}
+#tapin-admin .tapin-sidebar .brand .brand-expand-icon{display:none}
+#tapin-admin.sidebar-collapsed .tapin-sidebar .brand{padding:14px 6px;height:96px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 #tapin-admin.sidebar-collapsed .tapin-sidebar .brand img{width:52px}
-#tapin-admin.sidebar-collapsed .tapin-sidebar .brand span,#tapin-admin.sidebar-collapsed .sidebar-foot{display:none}
+#tapin-admin.sidebar-collapsed .tapin-sidebar .brand>span:not(.brand-expand-icon),#tapin-admin.sidebar-collapsed .sidebar-foot{display:none}
+#tapin-admin.sidebar-collapsed .tapin-sidebar .brand:hover img,
+#tapin-admin.sidebar-collapsed .tapin-sidebar .brand:focus-visible img{display:none}
+#tapin-admin.sidebar-collapsed .tapin-sidebar .brand:hover .brand-expand-icon,
+#tapin-admin.sidebar-collapsed .tapin-sidebar .brand:focus-visible .brand-expand-icon{display:flex!important;align-items:center;justify-content:center;width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#1f2845,#12182c);border:1px solid #4f4b7a;color:#ffffff;box-shadow:0 0 14px rgba(117,83,255,0.4);animation:tapin-fade-in .15s ease forwards}
+@keyframes tapin-fade-in{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
 #tapin-admin.sidebar-collapsed .tapin-sidebar nav a{flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:12px 3px;text-align:center;font-size:10px}
 #tapin-admin.sidebar-collapsed .tapin-sidebar nav a>span{display:none}
 #tapin-admin .tapin-header{border-color:#162b49}
