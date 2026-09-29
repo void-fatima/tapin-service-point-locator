@@ -34,3 +34,6 @@ wp-config.php
 *.zip
 *.tar.gz
 artifacts/
+
+# Local test spreadsheets
+*.xlsx

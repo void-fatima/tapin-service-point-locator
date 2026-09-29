@@ -15,16 +15,29 @@
   let providers=[],locations=[],cleanup=()=>{},routeToken=0,activeJob=null,noticeTimer=null;
   const provider=id=>providers.find(p=>Number(p.id)===Number(id));
   const go=hash=>{location.hash=hash;};
-  const dismissNotice=()=>{clearTimeout(noticeTimer);const box=root.querySelector('#tapin-notice');if(box)box.hidden=true;};
+  const formatErrorMessage=msg=>{
+    if(!msg)return 'خطایی در ارتباط با سرور رخ داد.';
+    const str=String(msg).trim();
+    if(/failed to fetch/i.test(str)||/networks*error/i.test(str))return 'خطا در برقراری ارتباط با سرور. لطفاً اتصال اینترنت، آدرس سایت یا تنظیمات سرور را بررسی کنید.';
+    if(/load failed/i.test(str))return 'بارگذاری اطلاعات از سرور با خطا مواجه شد.';
+    if(/unexpected token/i.test(str)||/json/i.test(str))return 'پاسخ نامعتبر از سرور وردپرس دریافت شد.';
+    return str;
+  };
+  const dismissNotice=()=>{clearTimeout(noticeTimer);const box=root.querySelector('#tapin-notice');if(box){box.hidden=true;box.innerHTML='';}};
   const notify=(text,error=false)=>{
     const box=root.querySelector('#tapin-notice');if(!box)return;
     clearTimeout(noticeTimer);
+    const msg=error?formatErrorMessage(text):text;
+    const iconSvg=error
+      ?'<svg class="notice-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+      :'<svg class="notice-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
     box.className='tapin-notice'+(error?' error':'');
-    box.textContent=text;
+    box.innerHTML=`<span class="notice-content">${iconSvg}<span class="notice-text">${esc(msg)}</span></span><button type="button" class="notice-close" aria-label="بستن">×</button>`;
     box.hidden=false;
+    box.querySelector('.notice-close').onclick=e=>{e.stopPropagation();dismissNotice();};
     box.onclick=dismissNotice;
     box.focus();
-    noticeTimer=setTimeout(dismissNotice,5000);
+    noticeTimer=setTimeout(dismissNotice,6000);
   };
   function shell(){
     const isDashboard=(location.hash.slice(1)||'dashboard').split('?')[0]==='dashboard';
@@ -228,7 +241,8 @@
           return;
         }
         const sizeMb=(file.size/(1024*1024)).toFixed(2);
-        fileNameDisplay.innerHTML=`📄 <bdi>${esc(file.name)}</bdi> <small>(${num(sizeMb)} مگابایت)</small>`;
+        const fileSvg='<svg class="file-pill-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>';
+        fileNameDisplay.innerHTML=`${fileSvg}<bdi>${esc(file.name)}</bdi><small>(${num(sizeMb)} مگابایت)</small>`;
         fileNameDisplay.hidden=false;
         browseText.textContent='تغییر فایل انتخابی';
       }else{
@@ -250,7 +264,7 @@
         updateFileDisplay();
       }
     });
-    uploadForm.onsubmit=async e=>{e.preventDefault();const file=fileInput.files?.[0];if(!file||!file.name.toLowerCase().endsWith('.xlsx')){notify('لطفاً یک فایل Excel با پسوند XLSX انتخاب کنید.',true);return;}const button=e.target.querySelector('button[type=submit]');const idle=button.innerHTML;button.disabled=true;button.innerHTML='<span>در حال آماده‌سازی…</span>';try{const job=await api('imports',{method:'POST',body:new FormData(e.target)});go('imports?id='+job.id);}catch(err){notify(err.message,true);}finally{button.disabled=false;button.innerHTML=idle;}};
+    uploadForm.onsubmit=async e=>{e.preventDefault();const file=fileInput.files?.[0];if(!file||!file.name.toLowerCase().endsWith('.xlsx')){notify('لطفاً یک فایل Excel با پسوند XLSX انتخاب کنید.',true);return;}const button=e.target.querySelector('button[type=submit]');const idle=button.innerHTML;button.disabled=true;button.innerHTML='<span>در حال آماده‌سازی…</span>';try{const fd=new FormData();fd.append('file',file);const job=await api('imports',{method:'POST',body:fd});go('imports?id='+job.id);}catch(err){notify(err.message,true);}finally{button.disabled=false;button.innerHTML=idle;}};
     const historySection=document.createElement('section');historySection.className='panel export-history';historySection.innerHTML='<div class="section-title"><h2>تاریخچه خروجی اکسل</h2><button type="button" data-refresh-exports><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg><span>تازه‌سازی</span></button></div><p class="help">۵۰ درخواست اخیر، با نگهداری سه‌ماهه. آماده‌شدن فایل به معنی تأیید ذخیره آن در دستگاه نیست. فایل‌ها روی سرور بایگانی نمی‌شوند.</p><div data-export-history role="status">در حال دریافت تاریخچه…</div>';content().append(historySection);
     const loadExports=async()=>{const button=historySection.querySelector('button'),area=historySection.querySelector('[data-export-history]');button.disabled=true;area.setAttribute('aria-busy','true');try{const events=await api('exports');if(token===routeToken)area.innerHTML=exportTable(events);}catch(e){if(token===routeToken)area.textContent='دریافت تاریخچه خروجی انجام نشد. دوباره تلاش کنید.';}finally{button.disabled=false;area.setAttribute('aria-busy','false');}};
     historySection.querySelector('button').onclick=loadExports;loadExports();

@@ -37,7 +37,9 @@ final class App {
 		wp_enqueue_script( 'tapin-leaflet', TAPIN_PLUGIN_URL . 'assets/vendor/leaflet.js', array(), '1.9.4', true );
 		wp_enqueue_script( 'tapin-locations', TAPIN_PLUGIN_URL . 'assets/iran-locations.js', array(), $version( 'iran-locations.js' ), true );
 		wp_enqueue_script( 'tapin-map', TAPIN_PLUGIN_URL . 'assets/map.js', array( 'tapin-leaflet', 'tapin-locations' ), $version( 'map.js' ), true );
-		wp_localize_script( 'tapin-map', 'TapinConfig', array( 'api' => esc_url_raw( rest_url( 'tapin/v1/' ) ), 'nonce' => $admin ? wp_create_nonce( 'wp_rest' ) : '', 'assets' => TAPIN_PLUGIN_URL . 'assets/', 'adminUrl' => admin_url( 'admin.php?page=tapin-locator' ), 'tiles' => $tiles, 'attribution' => wp_kses_post( apply_filters( 'tapin_tile_attribution', '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' ) ) ) );
+		$api_url = rest_url( 'tapin/v1/' );
+			if ( is_ssl() || ( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) && 'https' === $_SERVER['HTTP_X_FORWARDED_PROTO'] ) ) { $api_url = set_url_scheme( $api_url, 'https' ); }
+			wp_localize_script( 'tapin-map', 'TapinConfig', array( 'api' => esc_url_raw( $api_url ), 'nonce' => $admin ? wp_create_nonce( 'wp_rest' ) : '', 'assets' => TAPIN_PLUGIN_URL . 'assets/', 'adminUrl' => admin_url( 'admin.php?page=tapin-locator' ), 'tiles' => $tiles, 'attribution' => wp_kses_post( apply_filters( 'tapin_tile_attribution', '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' ) ) ) );
 		if ( $admin ) { wp_enqueue_script( 'tapin-admin', TAPIN_PLUGIN_URL . 'assets/admin.js', array( 'tapin-map' ), $version( 'admin.js' ), true ); }
 	}
 }

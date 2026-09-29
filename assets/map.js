@@ -4,12 +4,25 @@
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const num = value => Number(value || 0).toLocaleString('fa-IR');
   async function api(path, options = {}) {
+    let base = TapinConfig.api || '';
+    if (location.protocol === 'https:' && base.startsWith('http://')) {
+      base = 'https://' + base.slice(7);
+    }
     const headers = { ...(TapinConfig.nonce ? {'X-WP-Nonce': TapinConfig.nonce} : {}), ...options.headers };
     if (options.body && !(options.body instanceof FormData)) { headers['Content-Type'] = 'application/json'; options.body = JSON.stringify(options.body); }
-    const response = await fetch(TapinConfig.api + path, {credentials:'same-origin', ...options, headers});
+    let response;
+    try {
+      response = await fetch(base + path, {credentials:'same-origin', ...options, headers});
+    } catch (err) {
+      if (err.name === 'AbortError') throw err;
+      throw new Error('خطا در برقراری ارتباط با سرور. لطفاً اتصال اینترنت یا تنظیمات سرور را بررسی کنید.');
+    }
     let data;
-    try { data = await response.json(); } catch { throw new Error('پاسخ سرور قابل خواندن نیست. اتصال و تنظیمات وردپرس را بررسی کنید.'); }
-    if (!response.ok) throw new Error(data.message || 'ارتباط با سرور ناموفق بود. دوباره تلاش کنید.');
+    try { data = await response.json(); } catch {
+      if (response.status === 413) throw new Error('حجم فایل بیش از حد مجاز سرور است.');
+      throw new Error('پاسخ سرور قابل خواندن نیست. لطفاً مجدداً تلاش کنید.');
+    }
+    if (!response.ok) throw new Error(data.message || ('خطا در انجام عملیات (کد ' + response.status + ').'));
     return data;
   }
   const color = p => /^#[0-9a-f]{6}$/i.test(p?.color) ? p.color : '#b6a4e8';
