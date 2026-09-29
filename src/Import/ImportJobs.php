@@ -38,7 +38,10 @@ final class ImportJobs {
 		$files = $request->get_file_params();
 		$file = $files['file'] ?? null;
 		if ( ! $file || ! is_scalar( $file['error'] ) || UPLOAD_ERR_OK !== (int) $file['error'] || ! is_uploaded_file( $file['tmp_name'] ) ) { return self::error( 'بارگذاری فایل ناموفق است؛ محدودیت حجم سرور را بررسی کنید.' ); }
-		return self::stage( $file['tmp_name'], sanitize_file_name( $file['name'] ) );
+		$name = sanitize_file_name( $file['name'] );
+			$type = strtolower( pathinfo( $name, PATHINFO_EXTENSION ) );
+			if ( 'xlsx' !== $type ) { return self::error( 'فقط فایل‌های Excel با پسوند XLSX پشتیبانی می‌شوند.' ); }
+			return self::stage( $file['tmp_name'], $name );
 	}
 	/** Also available to trusted CLI tests; paths are never accepted through REST. */
 	public static function stage( string $path, string $name ) {

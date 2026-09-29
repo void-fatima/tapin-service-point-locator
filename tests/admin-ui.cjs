@@ -80,8 +80,7 @@ const path = require('path');
     await page.locator('[data-nav=imports]').click();
     await expect(page.locator('.upload-zone')).toBeVisible({ timeout: 20000 });
     await expect(page.locator('.upload-zone input[type=file]')).toBeAttached();
-    await expect(page.locator('.upload-zone input[type=file]')).toHaveAttribute('accept', '.csv,.xlsx');
-    await expect(page.locator('a[download]')).toContainText('دریافت نمونه ستون‌های CSV');
+    await expect(page.locator('.upload-zone input[type=file]')).toHaveAttribute('accept', '.xlsx');
     await expect(page.locator('.import-history')).toBeVisible();
 
     // 6. Mobile Responsiveness check
