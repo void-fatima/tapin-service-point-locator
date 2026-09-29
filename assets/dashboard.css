@@ -22,6 +22,15 @@
 #tapin-admin .header-actions a{padding:12px 22px;border-radius:10px;font-size:16px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;line-height:1;box-sizing:border-box}
 #tapin-admin .header-actions .primary{background:#ffbd18;box-shadow:0 0 14px #ffb90035}
 #tapin-admin .header-actions .text-action{background:linear-gradient(130deg,#242a96,#251061);border:1px solid #7552ff;color:#fff!important}
+#tapin-admin .tapin-notice{cursor:pointer;transition:opacity .2s ease;font-weight:600;display:flex;align-items:center;justify-content:space-between}
+#tapin-admin .tapin-notice:hover{opacity:.9}
+#tapin-admin .panel.error,#tapin-admin .dialog-error,#tapin-admin .tapin-notice.error{background:linear-gradient(135deg,#341624,#220e18)!important;border:1px solid #a8475a!important;color:#ffccd5!important}
+#tapin-admin .panel.error h2{color:#ff9eaf!important;font-size:19px;font-weight:750;margin-bottom:8px}
+#tapin-admin .panel.error p{color:#f5d0d8!important;font-size:13px;line-height:1.7;margin:8px 0 16px}
+#tapin-admin .panel.error button#retry-page{background:#8a2f44;border:1px solid #b84f67;color:#fff!important;font-weight:700;padding:8px 18px;border-radius:7px}
+#tapin-admin .panel.error button#retry-page:hover{background:#a23a53;border-color:#d46982}
+#tapin-admin .dialog-error{color:#f5d0d8!important;line-height:1.7}
+#tapin-admin .export-history{margin-top:20px}
 #tapin-admin #tapin-content{padding:14px}
 #tapin-admin .dashboard-hero{position:relative;direction:ltr;grid-template-columns:minmax(280px,.55fr) minmax(0,1fr);gap:16px;padding-top:100px;align-items:stretch}
 #tapin-admin .dashboard-overview{direction:rtl;min-width:0;display:flex;flex-direction:column;gap:14px}
