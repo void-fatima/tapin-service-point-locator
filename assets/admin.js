@@ -59,6 +59,7 @@
   const {paginationBar}=Tapin;
   function filtersForm(params){
     return `<form id="point-filters" class="filters">
+      <button type="button" class="filter-title" aria-expanded="true" aria-label="نمایش و پنهان کردن فیلترها" title="نمایش / پنهان کردن فیلترها"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg><span>فیلترها</span><svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></button>
       <div class="filter-field search-field">
         <span class="field-icon" aria-hidden="true">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
@@ -95,6 +96,13 @@
     const data=await api('points?'+query);if(token!==routeToken)return;
     content().innerHTML=`<section class="panel"><div class="section-title"><h2>نقاط خدماتی <small>${num(data.total)} نتیجه</small></h2><div class="section-actions"><a href="#points?new=1" class="primary"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>افزودن نقطه</span></a></div></div>${filtersForm(params)}${params.get('issue')==='duplicate'?'<p class="help">کد یکسان یا نام و نشانی یکسان در یک شهر و ارائه‌دهنده، فقط نشانه احتمال تکرار است. پیش از حذف، رکوردها را بررسی کنید.</p>':''}${params.get('issue')==='incomplete'?'<p class="help">رکوردهای فاقد تلفن، نشانی، استان یا شهر.</p>':''}${pointTable(data.items)}${paginationBar(data.page,Math.max(1,data.total_pages),data.total)}</section>`;
     const form=content().querySelector('#point-filters');
+    // Same fold behaviour as the dashboard filter row: the trigger stretches
+    // while folded and the fields collapse behind it.
+    const filterTrigger=form.querySelector('.filter-title');
+    filterTrigger.onclick=()=>{
+      const folded=form.classList.toggle('filters-collapsed');
+      filterTrigger.setAttribute('aria-expanded',String(!folded));
+    };
     Tapin.exportControl(content().querySelector('.section-actions'),()=>query);
     mountGeocoding(form,data.items,token);
     ['provider_id','province','has_coordinates','status','issue'].forEach(key=>{if(params.has(key))form.elements[key].value=params.get(key);});
