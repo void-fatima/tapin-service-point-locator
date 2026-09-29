@@ -18,12 +18,17 @@
 #tapin-admin .filter-title:hover{background:linear-gradient(120deg,#6b46ff,#2d197a);border-color:#9374ff;box-shadow:0 0 18px rgba(117,83,255,0.55);transform:translateY(-1px)}
 #tapin-admin .filter-title:active{transform:translateY(0);box-shadow:0 0 8px rgba(117,83,255,0.3)}
 #tapin-admin .filter-title:focus-visible{outline:2px solid #e6c174;outline-offset:2px}
-/* Foldable filter row: the trigger widens, the rest of the line hides behind it.
-   The retry button is kept out of the fold so an error stays reachable. */
-#tapin-admin .filter-title{min-width:150px;padding:9px 26px;gap:8px}
+/* Foldable filter row: the trigger is compact while open and stretches left
+   once folded. Content packs against the fixed right edge (flex-start in RTL),
+   so the label, icons and chevron never slide — only the left edge grows.
+   The retry button is excluded from the fold so an error stays reachable. */
+#tapin-admin .filter-title{min-width:128px;padding:9px 16px;gap:7px;justify-content:flex-start}
 #tapin-admin .filter-title .chev{flex:0 0 auto;opacity:.85;transition:transform .2s ease,opacity .2s ease;transform:rotate(180deg)}
 #tapin-admin .filter-title:hover .chev{opacity:1}
-#tapin-admin .dashboard-map .map-tools.filters-collapsed{min-height:0;padding:8px;justify-content:flex-start}
+/* padding-block only: keeping padding-inline at the row's 12px is what stops
+   the trigger's right edge from jumping between the two states. */
+#tapin-admin .dashboard-map .map-tools.filters-collapsed{min-height:0;padding-block:8px;justify-content:flex-start}
+#tapin-admin .map-tools.filters-collapsed>.filter-title{min-width:260px}
 #tapin-admin .map-tools.filters-collapsed>:not(.filter-title):not([data-retry]){display:none}
 #tapin-admin .map-tools.filters-collapsed .filter-title .chev{transform:rotate(0deg);opacity:1}
 #tapin-admin .map-tools>select{flex:1;min-width:0;width:auto}
@@ -106,7 +111,9 @@
 
 /* Global icon-button alignment: any control carrying an inline SVG + label.
    Sidebar links are excluded: they keep their own start-aligned icon column. */
-#tapin-admin button:has(>svg):not([hidden]),#tapin-admin a:has(>svg):not([hidden]):not(.tapin-sidebar nav a){display:inline-flex!important;align-items:center;justify-content:center;gap:7px;line-height:1;text-align:center;box-sizing:border-box}
+/* Sidebar links keep their own start-aligned icon column, and the fold trigger
+   keeps its own (non-centred) packing so its label never slides when it resizes. */
+#tapin-admin button:has(>svg):not([hidden]):not(.filter-title),#tapin-admin a:has(>svg):not([hidden]):not(.tapin-sidebar nav a){display:inline-flex!important;align-items:center;justify-content:center;gap:7px;line-height:1;text-align:center;box-sizing:border-box}
 #tapin-admin button:has(>svg)>span,#tapin-admin a:has(>svg)>span{display:inline-flex;align-items:center;line-height:1}
 #tapin-admin button:has(>svg) svg,#tapin-admin a:has(>svg) svg{flex:0 0 auto;display:block;vertical-align:middle}
 /* Title group stacks; action groups stay inline rows. */
