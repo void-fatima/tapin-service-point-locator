@@ -29,6 +29,7 @@ final class ColumnMapper {
 		'latitude'    => array( 'عرض جغرافیایی', 'عرض', 'latitude', 'lat', 'y', 'geo_lat' ),
 		'longitude'   => array( 'طول جغرافیایی', 'طول', 'longitude', 'lng', 'lon', 'x', 'geo_lng' ),
 		'status'      => array( 'وضعیت', 'وضعیت فعالیت', 'status', 'state' ),
+			'coordinates' => array( 'مختصات', 'مختصات جغرافیایی', 'موقعیت جغرافیایی', 'موقعیت مکانی', 'لوکیشن', 'coordinates', 'coords', 'coord', 'lat lng', 'lat long', 'geo' ),
 	);
 
 	/**

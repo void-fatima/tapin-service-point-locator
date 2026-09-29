@@ -212,6 +212,28 @@ final class DataNormalizer {
 			$code = self::to_latin_digits( $code );
 		}
 
+		$lat = $raw['latitude'] ?? null;
+		$lng = $raw['longitude'] ?? null;
+		$coords = $raw['coordinates'] ?? null;
+		if ( ( empty( $lat ) || empty( $lng ) ) && ! empty( $coords ) ) {
+			$coords_clean = self::to_latin_digits( (string) $coords );
+			if ( preg_match( '~(-?\d+(?:\.\d+)?)\s*[,/|;\s]\s*(-?\d+(?:\.\d+)?)\s*~', $coords_clean, $m ) ) {
+				$lat = $m[1]; $lng = $m[2];
+			}
+		} elseif ( ! empty( $lat ) && empty( $lng ) ) {
+			$lat_clean = self::to_latin_digits( (string) $lat );
+			if ( preg_match( '~(-?\d+(?:\.\d+)?)\s*[,/|;\s]\s*(-?\d+(?:\.\d+)?)\s*~', $lat_clean, $m ) ) {
+				$lat = $m[1]; $lng = $m[2];
+			}
+		}
+		$norm_lat = self::normalize_coordinate( $lat );
+		$norm_lng = self::normalize_coordinate( $lng );
+		if ( null !== $norm_lat && null !== $norm_lng && is_finite( $norm_lat ) && is_finite( $norm_lng ) ) {
+			if ( $norm_lat >= 43.0 && $norm_lat <= 65.0 && $norm_lng >= 24.0 && $norm_lng <= 41.0 ) {
+				$temp = $norm_lat; $norm_lat = $norm_lng; $norm_lng = $temp;
+			}
+		}
+
 		return array(
 			'provider_id' => isset( $raw['provider_id'] ) ? (int) $raw['provider_id'] : 0,
 			'code'        => $code,
@@ -224,8 +246,8 @@ final class DataNormalizer {
 			'landline_phone' => self::normalize_phone( $raw['landline_phone'] ?? null ),
 			'source' => self::normalize_empty( $raw['source'] ?? null ),
 			'phone'       => self::normalize_phone( $raw['phone'] ?? null ),
-			'latitude'    => self::normalize_coordinate( $raw['latitude'] ?? null ),
-			'longitude'   => self::normalize_coordinate( $raw['longitude'] ?? null ),
+			'latitude'    => $norm_lat,
+			'longitude'   => $norm_lng,
 			'status'      => self::normalize_status( $raw['status'] ?? 'active' ),
 			'metadata'    => $metadata,
 		);

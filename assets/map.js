@@ -3,16 +3,43 @@
   'use strict';
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const num = value => Number(value || 0).toLocaleString('fa-IR');
-  async function api(path, options = {}) {
+  if (typeof TapinConfig !== 'undefined' && TapinConfig) {
+    if (location.protocol === 'https:') {
+      if (TapinConfig.api && TapinConfig.api.startsWith('http://')) TapinConfig.api = 'https://' + TapinConfig.api.slice(7);
+      if (TapinConfig.assets && TapinConfig.assets.startsWith('http://')) TapinConfig.assets = 'https://' + TapinConfig.assets.slice(7);
+    }
+  }
+  function buildApiUrl(path) {
     let base = TapinConfig.api || '';
     if (location.protocol === 'https:' && base.startsWith('http://')) {
       base = 'https://' + base.slice(7);
     }
+    const url = new URL(base, location.href);
+    const [endpoint, queryStr = ''] = String(path).split('?');
+    if (url.searchParams.has('rest_route')) {
+      const currentRoute = url.searchParams.get('rest_route').replace(/\/+$/, '');
+      const appendRoute = endpoint.replace(/^\/+/, '');
+      url.searchParams.set('rest_route', currentRoute + (appendRoute ? '/' + appendRoute : ''));
+    } else {
+      const currentPath = url.pathname.replace(/\/+$/, '');
+      const appendPath = endpoint.replace(/^\/+/, '');
+      url.pathname = currentPath + (appendPath ? '/' + appendPath : '');
+    }
+    if (queryStr) {
+      const params = new URLSearchParams(queryStr);
+      for (const [k, v] of params.entries()) {
+        url.searchParams.append(k, v);
+      }
+    }
+    return url.toString();
+  }
+  async function api(path, options = {}) {
+    const fullUrl = buildApiUrl(path);
     const headers = { ...(TapinConfig.nonce ? {'X-WP-Nonce': TapinConfig.nonce} : {}), ...options.headers };
     if (options.body && !(options.body instanceof FormData)) { headers['Content-Type'] = 'application/json'; options.body = JSON.stringify(options.body); }
     let response;
     try {
-      response = await fetch(base + path, {credentials:'same-origin', ...options, headers});
+      response = await fetch(fullUrl, {credentials:'same-origin', ...options, headers});
     } catch (err) {
       if (err.name === 'AbortError') throw err;
       throw new Error('خطا در برقراری ارتباط با سرور. لطفاً اتصال اینترنت یا تنظیمات سرور را بررسی کنید.');
@@ -26,7 +53,7 @@
     return data;
   }
   const color = p => /^#[0-9a-f]{6}$/i.test(p?.color) ? p.color : '#b6a4e8';
-  const safeUrl = value => { try { const url = new URL(value, location.href); return /https?:/.test(url.protocol) ? esc(url.href) : ''; } catch { return ''; } };
+  const safeUrl = value => { try { let str = String(value || ''); if (location.protocol === 'https:' && str.startsWith('http://')) str = 'https://' + str.slice(7); const url = new URL(str, location.href); if (location.protocol === 'https:' && url.protocol === 'http:') url.protocol = 'https:'; return /https?:/.test(url.protocol) ? esc(url.href) : ''; } catch { return ''; } };
   const badge = p => `<span class="provider-badge"><span class="provider-symbol" style="--provider:${color(p)}">${p?.logo ? `<img src="${safeUrl(p.logo)}" alt="" loading="lazy">` : '<i></i>'}</span>${esc(p?.name || 'سایر')}</span>`;
   const providerOptions = providers => providers.map(p => `<option value="${Number(p.id)}">${esc(p.name)}${Number(p.is_active) ? '' : ' (غیرفعال)'}</option>`).join('');
   // Dashboard groups (post / tipax / everything else) carry real provider ids so
@@ -49,7 +76,7 @@
       const filters={};const current=new URLSearchParams(getFilters());
       ['provider_id','province','city','search','status','issue','has_coordinates'].forEach(key=>{if(current.has(key))filters[key]=current.get(key);});
       try{
-        const response=await fetch(TapinConfig.api+'exports/points',{method:'POST',credentials:'same-origin',headers:{'X-WP-Nonce':TapinConfig.nonce,'Content-Type':'application/json'},body:JSON.stringify(filters)});
+        const response=await fetch(buildApiUrl('exports/points'),{method:'POST',credentials:'same-origin',headers:{'X-WP-Nonce':TapinConfig.nonce,'Content-Type':'application/json'},body:JSON.stringify(filters)});
         if(!response.ok||!response.headers.get('Content-Type')?.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'))throw Error();
         const blob=await response.blob();if(!blob.size)throw Error();
         const filename=response.headers.get('Content-Disposition')?.match(/filename="(tapin-service-points-\d{4}-\d{2}-\d{2}\.xlsx)"/)?.[1];
@@ -412,7 +439,7 @@
       const params=new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,status:admin?'any':'active',per_page:'500',north:String(Math.min(90,bounds.getNorth())),south:String(Math.max(-90,bounds.getSouth())),east:String(Math.min(180,bounds.getEast())),west:String(Math.max(-180,bounds.getWest())),has_coordinates:'1'});
       if(admin)params.set('map_view','1');
       const points=[];
-      try{await geographyReady;if(geoCancelled||token!==markerGeneration)return;if(!iranGeometry)throw Error('نقشه آماده نیست؛ فهرست نشانی‌ها را ببینید.');let next=1,totalPages=1;do{params.set('page',String(next));const data=await api((admin?'points':'public/points')+'?'+params,{signal:markerController.signal});if(token!==markerGeneration)return;points.push(...data.items.filter(p=>validCoordinates(p)&&iranGeometry.some(f=>insideGeometry(p,f.geometry))));totalPages=data.total_pages;next++;}while(next<=totalPages);drawMarkers(points);markerStatus.textContent=num(points.length)+' نقطه دارای مختصات در محدوده نقشه';}
+      try{await geographyReady;if(geoCancelled||token!==markerGeneration)return;const inIran=p=>{if(!validCoordinates(p))return false;if(iranGeometry&&iranGeometry.length){if(iranGeometry.some(f=>insideGeometry(p,f.geometry)))return true;}const lat=Number(p.latitude),lng=Number(p.longitude);return lat>=24&&lat<=41&&lng>=43&&lng<=65;};let next=1,totalPages=1;do{params.set('page',String(next));const data=await api((admin?'points':'public/points')+'?'+params,{signal:markerController.signal});if(token!==markerGeneration)return;points.push(...data.items.filter(inIran));totalPages=data.total_pages;next++;}while(next<=totalPages);drawMarkers(points);markerStatus.textContent=num(points.length)+' نقطه دارای مختصات در محدوده نقشه';}
       catch(e){if(e.name!=='AbortError'){markerStatus.textContent=e.message;retry.hidden=false;}}
     }
     function scheduleMarkers(){if(geoCancelled)return;layer.clearLayers();markers.clear();clearTimeout(markerTimer);markerController?.abort();markerGeneration++;markerTimer=setTimeout(loadMarkers,180);}

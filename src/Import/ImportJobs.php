@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
 
 /** Private staging, transactional checkpoints, and bounded diagnostic history. */
 final class ImportJobs {
-	public const FIELDS = array( 'name', 'code', 'province', 'city', 'address', 'phone', 'mobile_phone', 'landline_phone', 'source', 'metadata', 'postal_code', 'latitude', 'longitude', 'status' );
+	public const FIELDS = array( 'name', 'code', 'province', 'city', 'address', 'phone', 'mobile_phone', 'landline_phone', 'source', 'metadata', 'postal_code', 'latitude', 'longitude', 'status', 'coordinates' );
 	public static function table(): string { global $wpdb; return $wpdb->prefix . 'tapin_imports'; }
 	private static function error( string $message, int $status = 400 ): \WP_Error { \Tapin\ServicePointLocator\Service\OperationalLog::record( 'import_failed' ); return new \WP_Error( 'import', $message, array( 'status' => $status ) ); }
 	private static function get( int $id ): ?array {

@@ -368,3 +368,6 @@
 #tapin-admin .coordinate-ring::before{content:'';position:absolute;inset:5px;border-radius:50%;background:#0b1425}
 #tapin-admin .coordinate-ring>span{position:relative;font-size:13px;font-weight:800;color:#eaf0ff;font-variant-numeric:tabular-nums}
 #tapin-admin .metric-rail .coverage{margin:0;height:4px;opacity:.7}
+
+#tapin-admin .import-completed-nav{display:flex;align-items:center;gap:14px;margin:18px 0;flex-wrap:wrap}
+#tapin-admin .btn-view-map{padding:10px 22px;border-radius:9px;font-size:14px;font-weight:700}
