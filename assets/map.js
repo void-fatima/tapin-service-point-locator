@@ -260,7 +260,7 @@
     const retry = directoryPanel.querySelector('[data-retry]');
     const listToggle = directoryPanel.querySelector('[data-list]');
     const mapList = directoryPanel.querySelector('.map-list');
-    retry.className='locator-retry';container.querySelector('.locator-search').after(retry);
+    if(!admin){retry.className='locator-retry';container.querySelector('.locator-search')?.after(retry);}else{retry.remove();}
     const province = container.querySelector('[data-province]');
     const city = container.querySelector('[data-city]');
     province.value = '';
@@ -401,7 +401,7 @@
           more.hidden = page >= data.total_pages; more.disabled=false;
         }
         renderDirectory();
-      } catch(e) { if(e.name!=='AbortError') { status.textContent=admin?'دریافت فهرست انجام نشد. دوباره تلاش کنید.':e.message; retry.hidden=false; more.disabled=false; } }
+      } catch(e) { if(e.name!=='AbortError') { status.textContent=admin?'دریافت فهرست انجام نشد.':e.message; if(!admin)retry.hidden=false; more.disabled=false; } }
       finally{if(token===generation){mapList.setAttribute('aria-busy','false');}}
     }
     let markerController, markerTimer, markerGeneration=0;
@@ -440,7 +440,7 @@
       if(admin)params.set('map_view','1');
       const points=[];
       try{await geographyReady;if(geoCancelled||token!==markerGeneration)return;const inIran=p=>{if(!validCoordinates(p))return false;if(iranGeometry&&iranGeometry.length){if(iranGeometry.some(f=>insideGeometry(p,f.geometry)))return true;}const lat=Number(p.latitude),lng=Number(p.longitude);return lat>=24&&lat<=41&&lng>=43&&lng<=65;};let next=1,totalPages=1;do{params.set('page',String(next));const data=await api((admin?'points':'public/points')+'?'+params,{signal:markerController.signal});if(token!==markerGeneration)return;points.push(...data.items.filter(inIran));totalPages=data.total_pages;next++;}while(next<=totalPages);drawMarkers(points);markerStatus.textContent=num(points.length)+' نقطه دارای مختصات در محدوده نقشه';}
-      catch(e){if(e.name!=='AbortError'){markerStatus.textContent=e.message;retry.hidden=false;}}
+      catch(e){if(e.name!=='AbortError'){markerStatus.textContent=e.message;if(!admin)retry.hidden=false;}}
     }
     function scheduleMarkers(){if(geoCancelled)return;layer.clearLayers();markers.clear();clearTimeout(markerTimer);markerController?.abort();markerGeneration++;markerTimer=setTimeout(loadMarkers,180);}
     map.on('moveend',scheduleMarkers);

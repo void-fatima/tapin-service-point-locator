@@ -65,7 +65,8 @@
    the trigger's right edge from jumping between the two states. */
 #tapin-admin .dashboard-map .map-tools.filters-collapsed{min-height:0;padding-block:8px;justify-content:flex-start}
 #tapin-admin .filters-collapsed>.filter-title{min-width:260px}
-#tapin-admin .map-tools.filters-collapsed>:not(.filter-title):not([data-retry]){display:none}
+#tapin-admin .map-tools.filters-collapsed>:not(.filter-title){display:none}
+#tapin-admin [data-retry],#tapin-admin .locator-retry{display:none!important}
 /* Scoped on the id because the field rules carry two ids and outrank a plain
    class-level collapse selector. */
 #tapin-admin #point-filters.filters-collapsed>:not(.filter-title){display:none!important}
