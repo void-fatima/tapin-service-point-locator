@@ -28,6 +28,7 @@ const path = require('path');
     // 2. Service Points Management Table & Filters
     await page.locator('[data-nav=points]').click();
     await expect(page.locator('#tapin-title')).toHaveText('نقاط خدماتی');
+    await expect(page.locator('.header-actions')).toBeHidden();
     const pointsTable = page.locator('#tapin-content table');
     await expect(pointsTable).toBeVisible({ timeout: 20000 });
     await expect(pointsTable.locator('thead')).toContainText('ارائه‌دهنده');
