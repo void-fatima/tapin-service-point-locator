@@ -1,5 +1,6 @@
-/* Approved dashboard: statistics left, map right, shared filters above. */
-#tapin-admin{--bg:#071020;--panel:#0b172b;--line:#233654;--orange:#ffbd18;--green:#00d59b;flex-direction:row-reverse;background:radial-gradient(ellipse at top,#132340,#071020 65%)}
+/* Approved dashboard: statistics left, map right, shared filters above.
+   The root carries dir="rtl", so a plain row puts the sidebar on the right. */
+#tapin-admin{--bg:#071020;--panel:#0b172b;--line:#233654;--orange:#ffbd18;--green:#00d59b;flex-direction:row;background:radial-gradient(ellipse at top,#132340,#071020 65%)}
 #tapin-admin .tapin-sidebar{background:#081324;border-color:#182a44}
 @media(min-width:851px){body.toplevel_page_tapin-locator{overflow:hidden}#tapin-admin{height:calc(100vh - 32px);height:calc(100dvh - 32px);min-height:0;overflow:hidden}#tapin-admin .tapin-sidebar{height:100%;overflow-y:auto;flex-shrink:0}#tapin-admin .tapin-main{height:100%;min-height:0;overflow-y:auto;overscroll-behavior-y:contain}}
 @media(max-width:850px){#tapin-admin .tapin-sidebar{position:sticky;top:var(--wp-admin--admin-bar--height,46px);z-index:1001}}
@@ -29,8 +30,8 @@
 #tapin-admin .map-tools [data-reset]:hover{background:linear-gradient(135deg,#1b396b,#122547);border-color:#4878b5;color:#fff;box-shadow:0 0 10px rgba(43,75,122,0.4);transform:translateY(-1px)}
 #tapin-admin .map-tools [data-reset]:active{transform:translateY(0)}
 #tapin-admin .map-tools [data-reset]:focus-visible{outline:2px solid #e6c174;outline-offset:2px}
-#tapin-admin .map-tools .locator-search{flex:2.2;min-width:260px;padding:0;border:0;display:flex;align-items:center;gap:6px}
-#tapin-admin .map-tools .locator-search label{flex:1;min-width:130px;display:flex;margin:0}
+#tapin-admin .map-tools .locator-search{flex:2.2;min-width:0;padding:0;border:0;display:flex;flex-wrap:nowrap;align-items:center;gap:6px}
+#tapin-admin .map-tools .locator-search label{flex:1 1 auto;min-width:0;display:flex;margin:0}
 #tapin-admin .map-tools .locator-search input{width:100%;border-radius:8px;padding:8px 12px;transition:border-color .15s ease,background-color .15s ease}
 #tapin-admin .map-tools .locator-search input:hover{border-color:#486b9c;background-color:#10223e}
 #tapin-admin .map-tools .locator-search input:focus{border-color:#7553ff;box-shadow:0 0 0 2px rgba(117,83,255,0.25);outline:none}
@@ -95,8 +96,9 @@
 #tapin-admin .directory-table [data-details]{background:linear-gradient(135deg,#1b3966,#132847);border:1px solid #2d558a;color:#d5e5fa;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;transition:all .15s ease}
 #tapin-admin .directory-table [data-details]:hover{background:#234a85;border-color:#467bc4;color:#fff;box-shadow:0 0 8px rgba(45,85,138,0.4)}
 
-/* Global icon-button alignment: any control carrying an inline SVG + label. */
-#tapin-admin button:has(>svg):not([hidden]),#tapin-admin a:has(>svg):not([hidden]){display:inline-flex!important;align-items:center;justify-content:center;gap:7px;line-height:1;text-align:center;box-sizing:border-box}
+/* Global icon-button alignment: any control carrying an inline SVG + label.
+   Sidebar links are excluded: they keep their own start-aligned icon column. */
+#tapin-admin button:has(>svg):not([hidden]),#tapin-admin a:has(>svg):not([hidden]):not(.tapin-sidebar nav a){display:inline-flex!important;align-items:center;justify-content:center;gap:7px;line-height:1;text-align:center;box-sizing:border-box}
 #tapin-admin button:has(>svg)>span,#tapin-admin a:has(>svg)>span{display:inline-flex;align-items:center;line-height:1}
 #tapin-admin button:has(>svg) svg,#tapin-admin a:has(>svg) svg{flex:0 0 auto;display:block;vertical-align:middle}
 /* Title group stacks; action groups stay inline rows. */
