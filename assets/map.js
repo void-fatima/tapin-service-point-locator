@@ -183,7 +183,7 @@
     map.createPane('country-context');map.getPane('country-context').style.zIndex='351';
     fetch(TapinConfig.assets+'neighbor-countries.geojson').then(r=>{if(!r.ok)throw Error();return r.json();}).then(data=>{
       if(geoCancelled)return;
-      L.geoJSON(data,{pane:'country-context',interactive:false,style:{color:'#697283',weight:1,opacity:.4,fill:false}}).addTo(map);
+      L.geoJSON(data,{pane:'country-context',interactive:false,style:{color:'#5c6a80',weight:.8,opacity:.25,fill:false}}).addTo(map);
       data.features.forEach(f=>countryLabels.push(L.marker(f.properties.label,{interactive:false,keyboard:false,icon:L.divIcon({className:'country-label',html:esc(f.properties.name),iconSize:[100,20]})}).addTo(map)));
       declutterCountryLabels();
       map.attributionControl.addAttribution('<a href="https://www.naturalearthdata.com/">Natural Earth</a>');
@@ -201,9 +201,9 @@
       L.polygon([[[-85,-180],[-85,180],[85,180],[85,-180]],...holes],{pane:'boundaries',interactive:false,stroke:false,fillColor:'#08192b',fillOpacity:1,fillRule:'evenodd'}).addTo(map);
       map.getPane('tilePane').style.opacity='1';
       map.createPane('provinces');map.getPane('provinces').style.zIndex='352';
-      L.geoJSON(data,{pane:'provinces',interactive:true,style:feature=>({className:'tapin-province-boundary',color:'#79cfe8',opacity:.55,weight:.7,lineCap:'round',lineJoin:'round',smoothFactor:1.2,fillColor:['#087ac0','#155bd2','#5140c4','#008c9a'][Object.keys(provinceNames).indexOf(feature.properties.shapeName)%4],fillOpacity:.32}),onEachFeature:(feature, polygon)=>{
+      L.geoJSON(data,{pane:'provinces',interactive:true,style:feature=>({className:'tapin-province-boundary',color:'#8fd6ef',opacity:.3,weight:.6,lineCap:'round',lineJoin:'round',smoothFactor:1.8,fillColor:['#087ac0','#155bd2','#5140c4','#008c9a'][Object.keys(provinceNames).indexOf(feature.properties.shapeName)%4],fillOpacity:.14}),onEachFeature:(feature, polygon)=>{
         const name=provinceNames[feature.properties.shapeName];
-        if(name){polygon.on('mouseover',()=>polygon.setStyle({fillOpacity:.4,weight:1.2}));polygon.on('mouseout',()=>{polygon.setStyle({fillOpacity:.22});updateLegend();});polygon.on('add',()=>{const path=polygon.getElement();if(path){path.setAttribute('tabindex','0');path.setAttribute('role','button');path.setAttribute('aria-label',name);path.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();polygon.fire('click');}});}});provinceLayers.set(normalize(name),polygon);polygon.bindTooltip(name,{direction:'center'});polygon.on('click',()=>{
+        if(name){polygon.on('mouseover',()=>polygon.setStyle({fillOpacity:.24,weight:.95}));polygon.on('mouseout',()=>{polygon.setStyle({fillOpacity:.14,weight:.6});updateLegend();});polygon.on('add',()=>{const path=polygon.getElement();if(path){path.setAttribute('tabindex','0');path.setAttribute('role','button');path.setAttribute('aria-label',name);path.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();polygon.fire('click');}});}});provinceLayers.set(normalize(name),polygon);polygon.bindTooltip(name,{direction:'center'});polygon.on('click',()=>{
           const option=[...province.options].find(o=>normalize(o.value)===normalize(name));
           if(!option){province.add(new Option(name,name));}
           province.value=option?option.value:name;province.onchange();
@@ -304,7 +304,7 @@
       }
       container.querySelector('.map-legend').innerHTML=(active||'<span style="color:#ffbd18">● پست</span><span style="color:#00d59b">● تیپاکس</span><span style="color:#9975ff">● سایر</span>')+'<small>عدد روی نشانگر: تعداد شعب نزدیک</small>';
       container.querySelectorAll('[data-provider]').forEach(b=>{const active=b.dataset.provider===selected;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active));});
-      provinceLayers.forEach((polygon,name)=>polygon.setStyle({color:name===normalize(province.value)?'#c4f5ff':'#79cfe8',weight:name===normalize(province.value)?1.4:.7,fillOpacity:name===normalize(province.value)?.42:.32}));
+      provinceLayers.forEach((polygon,name)=>polygon.setStyle({color:name===normalize(province.value)?'#a5e3ff':'#8fd6ef',weight:name===normalize(province.value)?1.1:.6,fillOpacity:name===normalize(province.value)?.3:.14}));
     }
     function setView(view){
       container.dataset.view=view;
@@ -419,7 +419,28 @@
       });
     }
     container.querySelector('.locator-search').onsubmit=e=>{e.preventDefault();clearTimeout(searchTimer);search=new FormData(e.currentTarget).get('search').trim();load();scheduleMarkers();};
-    city.onchange=()=>{load();scheduleMarkers();};
+    // Cities get the same treatment provinces already have. The province layer is
+    // drawn from GeoJSON, cities are not, so their bounds come from the branches
+    // themselves — one coordinates-only request, cancelled if the pick changes.
+    let cityBoundsController, cityBoundsGeneration=0;
+    const zoomToCity=()=>{
+      cityBoundsController?.abort();
+      if(!city.value||geoCancelled)return;
+      const token=++cityBoundsGeneration;
+      const ctrl=cityBoundsController=new AbortController();
+      const params=new URLSearchParams({province:province.value,city:city.value,provider_id:selected,status:admin?'any':'active',has_coordinates:'1',per_page:'500'});
+      api((admin?'points':'public/points')+'?'+params,{signal:ctrl.signal}).then(data=>{
+        if(token!==cityBoundsGeneration||geoCancelled)return;
+        const latLngs=(data.items||[]).filter(validCoordinates).map(p=>[Number(p.latitude),Number(p.longitude)]);
+        if(!latLngs.length)return;
+        map.stop();
+        // A single branch would otherwise fitBounds all the way to max zoom.
+        if(latLngs.length===1){map.setView(latLngs[0],15,{animate:false});return;}
+        const bounds=L.latLngBounds(latLngs);
+        if(bounds.isValid())map.fitBounds(bounds,{animate:false,maxZoom:16});
+      }).catch(()=>{});
+    };
+    city.onchange=()=>{load();scheduleMarkers();zoomToCity();};
     container.querySelector('[data-reset]').onclick=()=>{clearTimeout(searchTimer);search='';const s=container.querySelector('.locator-search input[name=search]');if(s)s.value='';province.value='';city.value='';updateLocations();updateLegend();map.stop();map.fitBounds(iran,{animate:false});load();scheduleMarkers();};
     function clearFilters(){clearTimeout(searchTimer);selected='';if(admin)container.querySelector('[data-provider-select]').value='';search='';province.value='';city.value='';container.querySelector('[name=search]').value='';refreshFilters();map.stop();map.fitBounds(iran,{animate:false});}
     container.querySelector('[data-clear]').onclick=clearFilters;
@@ -448,7 +469,7 @@
     requestAnimationFrame(()=>{if(!geoCancelled)map.invalidateSize();});
     // Refresh newly enriched points without changing filters, viewport, or an open detail.
     const refreshTimer=setInterval(()=>{const detailOpen=drawer.showModal?drawer.open:!drawer.hidden;if(!geoCancelled&&!document.hidden&&!detailOpen&&page===1&&!container.contains(document.activeElement)){load();scheduleMarkers();}},60000);
-    return () => {geoCancelled=true;clearInterval(refreshTimer);detailGeneration++;detailController?.abort();clearTimeout(searchTimer);if(drawer.close&&drawer.open)drawer.close();drawer.remove();if(admin&&directoryPanel&&directoryPanel.parentElement&&directoryPanel.parentElement!==container)directoryPanel.remove();map.off('moveend',scheduleMarkers);map.off('moveend',declutterCountryLabels);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
+    return () => {geoCancelled=true;clearInterval(refreshTimer);detailGeneration++;detailController?.abort();cityBoundsController?.abort();clearTimeout(searchTimer);if(drawer.close&&drawer.open)drawer.close();drawer.remove();if(admin&&directoryPanel&&directoryPanel.parentElement&&directoryPanel.parentElement!==container)directoryPanel.remove();map.off('moveend',scheduleMarkers);map.off('moveend',declutterCountryLabels);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
   }
   window.Tapin = {api,esc,num,badge,providerOptions,mapWidget,color,safeUrl,exportControl,paginationBar};
   document.querySelectorAll('.tapin-public-root').forEach(async root=>{

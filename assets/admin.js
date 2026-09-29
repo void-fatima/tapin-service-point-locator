@@ -14,7 +14,7 @@
   const provider=id=>providers.find(p=>Number(p.id)===Number(id));
   const go=hash=>{location.hash=hash;};
   const notify=(text,error=false)=>{const box=root.querySelector('#tapin-notice');box.className='tapin-notice'+(error?' error':'');box.textContent=text;box.hidden=false;box.focus();};
-  function shell(){root.innerHTML=`<aside class="tapin-sidebar"><a href="#dashboard" class="brand"><img src="${safeUrl(TapinConfig.assets+'brand/tapin.png')}" alt="تاپین"><span>شبکه نقاط خدماتی</span></a><nav aria-label="ناوبری تاپین">${[['dashboard','داشبورد'],['points','نقاط خدماتی'],['imports','ورود فایل‌ها'],['providers','ارائه‌دهندگان'],['settings','راهنما و تنظیمات']].map(([key,title])=>`<a href="#${key}" data-nav="${key}">${icon(key)}${title}</a>`).join('')}</nav><div class="sidebar-foot"><span class="live-dot"></span> مدیریت یکپارچه شبکه <small>Tapin Service Point Locator</small></div></aside><div class="tapin-main"><header class="tapin-header"><div><h1 id="tapin-title">داشبورد تاپین</h1><p>مدیریت و نمایش نقاط خدماتی در سراسر کشور</p></div><div class="header-actions"><a class="text-action" href="#points?new=1"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>افزودن شعبه جدید</span></a><a class="primary" href="#imports"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>افزودن فایل</span></a></div></header><div id="tapin-notice" class="tapin-notice" role="status" tabindex="-1" hidden></div><main id="tapin-content" tabindex="-1"></main><footer class="tapin-footer">تاپین · اطلاعات واقعی، تصمیم‌های دقیق <span>نسخه ۱٫۰</span></footer></div><dialog class="tapin-dialog" aria-labelledby="dialog-title"></dialog>`;}
+  function shell(){root.innerHTML=`<aside class="tapin-sidebar"><a href="#dashboard" class="brand"><img src="${safeUrl(TapinConfig.assets+'brand/tapin.png')}" alt="تاپین"><span>شبکه نقاط خدماتی</span></a><nav aria-label="ناوبری تاپین">${[['dashboard','داشبورد'],['points','نقاط خدماتی'],['imports','ورود فایل‌ها'],['providers','ارائه‌دهندگان'],['settings','راهنما و تنظیمات']].map(([key,title])=>`<a href="#${key}" data-nav="${key}">${icon(key)}${title}</a>`).join('')}</nav><div class="sidebar-foot"><span class="live-dot"></span> مدیریت یکپارچه شبکه <small>Tapin Service Point Locator</small></div><button type="button" class="sidebar-toggle" aria-expanded="true" aria-label="جمع کردن سایدبار" title="جمع کردن سایدبار"><svg class="chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg></button></aside><div class="tapin-main"><header class="tapin-header"><div><h1 id="tapin-title">داشبورد تاپین</h1><p>مدیریت و نمایش نقاط خدماتی در سراسر کشور</p></div><div class="header-actions"><a class="text-action" href="#points?new=1"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>افزودن شعبه جدید</span></a><a class="primary" href="#imports"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>افزودن فایل</span></a></div></header><div id="tapin-notice" class="tapin-notice" role="status" tabindex="-1" hidden></div><main id="tapin-content" tabindex="-1"></main><footer class="tapin-footer">تاپین · اطلاعات واقعی، تصمیم‌های دقیق <span>نسخه ۱٫۰</span></footer></div><dialog class="tapin-dialog" aria-labelledby="dialog-title"></dialog>`;}
   const content=()=>root.querySelector('#tapin-content');
   const empty=(message,action='')=>`<div class="empty">${icon('points')}<p>${message}</p>${action}</div>`;
   const qualityBadge=p=>{
@@ -70,9 +70,6 @@
       <label class="filter-field"><span class="sr-only">ارائه‌دهنده</span><select name="provider_id"><option value="">همه ارائه‌دهندگان</option>${providerOptions(providers)}</select></label>
       <label class="filter-field"><span class="sr-only">استان</span><select name="province"><option value="">همه استان‌ها</option>${[...new Set(locations.map(l=>l.province))].map(p=>`<option>${esc(p)}</option>`).join('')}</select></label>
       <label class="filter-field"><span class="sr-only">شهر</span><select name="city"><option value="">همه شهرها</option></select></label>
-      <label class="filter-field"><span class="sr-only">مختصات</span><select name="has_coordinates"><option value="">همه مختصات</option><option value="1">دارای مختصات</option><option value="0">بدون مختصات</option></select></label>
-      <label class="filter-field"><span class="sr-only">وضعیت</span><select name="status"><option value="any">همه وضعیت‌ها</option><option value="active">فعال</option><option value="inactive">غیرفعال</option></select></label>
-      <label class="filter-field"><span class="sr-only">نیازمند بررسی</span><select name="issue"><option value="">همه اطلاعات</option><option value="duplicate">مشکوک به تکرار</option><option value="incomplete">اطلاعات ناقص</option></select></label>
       <div class="filter-actions">
         <button type="submit" class="primary"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg><span>اعمال فیلتر</span></button>
         <a href="#points" class="btn-clear-filters"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span>پاک کردن</span></a>
@@ -105,12 +102,12 @@
     };
     Tapin.exportControl(content().querySelector('.section-actions'),()=>query);
     mountGeocoding(form,data.items,token);
-    ['provider_id','province','has_coordinates','status','issue'].forEach(key=>{if(params.has(key))form.elements[key].value=params.get(key);});
+    ['provider_id','province'].forEach(key=>{if(params.has(key))form.elements[key].value=params.get(key);});
     const updateCities=()=>{const old=form.elements.city.value;const rows=locations.filter(l=>(!form.elements.province.value||l.province===form.elements.province.value)&&(!form.elements.provider_id.value||Number(l.provider_id)===Number(form.elements.provider_id.value)));const cities=[...new Set(rows.map(l=>l.city).filter(Boolean))];form.elements.city.innerHTML='<option value="">همه شهرها</option>'+cities.map(c=>'<option>'+esc(c)+'</option>').join('');form.elements.city.value=cities.includes(old)?old:'';form.elements.city.disabled=!cities.length;};
     updateCities();if(params.get('city')&&[...form.elements.city.options].some(o=>o.value===params.get('city')))form.elements.city.value=params.get('city');
     const applyFilters=()=>{const values=new URLSearchParams();new FormData(form).forEach((v,k)=>{if(v)values.set(k,v);});values.delete('page');go('points?'+values);};
     form.elements.province.onchange=()=>{updateCities();applyFilters();};form.elements.provider_id.onchange=()=>{updateCities();applyFilters();};
-    ['has_coordinates','status','issue','city'].forEach(key=>{if(form.elements[key])form.elements[key].onchange=applyFilters;});
+    form.elements.city.onchange=applyFilters;
     form.onsubmit=e=>{e.preventDefault();applyFilters();};
     content().querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{if(!b.disabled&&b.dataset.page){query.set('page',b.dataset.page);go('points?'+query);}});
     content().querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>pointViewDialog(data.items.find(p=>p.id===Number(b.dataset.view))));
@@ -277,5 +274,15 @@
       }else await dashboard(token);
     }catch(e){if(token===routeToken){content().innerHTML=`<div class="panel error" role="alert"><h2>دریافت اطلاعات انجام نشد</h2><p>${esc(e.message)}</p><button type="button" id="retry-page">تلاش دوباره</button></div>`;content().querySelector('#retry-page').onclick=refresh;}}
   }
-  shell();window.addEventListener('hashchange',()=>{root.querySelector('dialog').close();refresh();});refresh();
+  shell();
+  const sideToggle=root.querySelector('.sidebar-toggle');
+  sideToggle.onclick=()=>{
+    const collapsed=root.classList.toggle('sidebar-collapsed');
+    sideToggle.setAttribute('aria-expanded',String(!collapsed));
+    const label=collapsed?'نمایش سایدبار':'جمع کردن سایدبار';
+    sideToggle.setAttribute('aria-label',label);sideToggle.title=label;
+    // Leaflet tracks window resize; let the flex transition settle first.
+    setTimeout(()=>window.dispatchEvent(new Event('resize')),320);
+  };
+  window.addEventListener('hashchange',()=>{root.querySelector('dialog').close();refresh();});refresh();
 })();

@@ -4,6 +4,17 @@
 #tapin-admin .tapin-sidebar{background:#081324;border-color:#182a44}
 @media(min-width:851px){body.toplevel_page_tapin-locator{overflow:hidden}#tapin-admin{height:calc(100vh - 32px);height:calc(100dvh - 32px);min-height:0;overflow:hidden}#tapin-admin .tapin-sidebar{height:100%;overflow-y:auto;flex-shrink:0}#tapin-admin .tapin-main{height:100%;min-height:0;overflow-y:auto;overscroll-behavior-y:contain}}
 @media(max-width:850px){#tapin-admin .tapin-sidebar{position:sticky;top:var(--wp-admin--admin-bar--height,46px);z-index:1001}}
+/* Collapsible sidebar: the rail shrinks to an icon column so the workspace widens. */
+#tapin-admin .tapin-sidebar{position:relative;transition:flex-basis .25s ease}
+#tapin-admin .sidebar-toggle{position:absolute;left:0;top:50%;transform:translateY(-50%);width:26px;height:52px;padding:0;border:1px solid #233654;border-right:0;border-radius:13px 0 0 13px;background:#0e1a30;color:#9db4d6;cursor:pointer;z-index:4;transition:background .15s ease,border-color .15s ease,color .15s ease}
+#tapin-admin .sidebar-toggle:hover{background:#16274a;border-color:#3b74bf;color:#dbe9ff}
+#tapin-admin .sidebar-toggle .chev{transform:rotate(180deg);transition:transform .2s ease}
+#tapin-admin.sidebar-collapsed .sidebar-toggle .chev{transform:rotate(0deg)}
+#tapin-admin.sidebar-collapsed .tapin-sidebar{flex-basis:72px}
+#tapin-admin.sidebar-collapsed .tapin-sidebar .brand{padding:14px 6px;height:96px}
+#tapin-admin.sidebar-collapsed .tapin-sidebar .brand img{width:52px}
+#tapin-admin.sidebar-collapsed .tapin-sidebar .brand span,#tapin-admin.sidebar-collapsed .sidebar-foot{display:none}
+#tapin-admin.sidebar-collapsed .tapin-sidebar nav a{flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:12px 3px;text-align:center;font-size:10px}
 #tapin-admin .tapin-header{border-color:#162b49}
 #tapin-admin .header-actions{gap:16px;flex-shrink:0;flex-direction:row}
 #tapin-admin .header-actions a{padding:12px 22px;border-radius:10px;font-size:16px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;line-height:1;box-sizing:border-box}
@@ -285,8 +296,6 @@
   #tapin-admin #point-filters .filter-actions{width:100%}
   #tapin-admin #point-filters .filter-actions button.primary{flex:1}
 }
-#tapin-admin .tapin-province-boundary{filter:drop-shadow(0 0 3px #35bdff40);stroke-linejoin:round;stroke-linecap:round}
-
 /* Center the directory controls independently of the scrollable table. */
 #tapin-admin .dashboard-directory-panel .directory-toggle{justify-content:center;padding:4px 0 22px}
 #tapin-admin .dashboard-directory-panel .directory-toggle [data-list]{margin:0;min-height:48px;padding:12px 24px;gap:10px;border-radius:14px;border:1px solid #526aa1;background:linear-gradient(135deg,#223b68,#20294d);color:#e5eeff;font-size:14px;font-weight:700;box-shadow:0 5px 16px #02081740,inset 0 1px 0 #ffffff12;transition:background .18s ease,border-color .18s ease,box-shadow .18s ease}

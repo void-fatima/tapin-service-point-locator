@@ -43,9 +43,9 @@ const path = require('path');
     await expect(filters.locator('select[name=provider_id]')).toBeVisible();
     await expect(filters.locator('select[name=province]')).toBeVisible();
     await expect(filters.locator('select[name=city]')).toBeVisible();
-    await expect(filters.locator('select[name=has_coordinates]')).toBeVisible();
-    await expect(filters.locator('select[name=status]')).toBeVisible();
-    await expect(filters.locator('select[name=issue]')).toBeVisible();
+    // Coordinate / status / issue filters were dropped to keep the bar on one line.
+    await expect(filters.locator('select[name=has_coordinates],select[name=status],select[name=issue]')).toHaveCount(0);
+    await expect(filters.locator('select')).toHaveCount(3);
 
     // 3. View Detail Sheet (Drawer/Modal)
     const firstRow = page.locator('table tbody tr').first();
