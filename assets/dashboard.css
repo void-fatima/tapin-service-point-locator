@@ -200,25 +200,25 @@
 #tapin-admin .points-management-table th:nth-child(3),#tapin-admin .points-management-table td:nth-child(3),#tapin-admin .points-management-table .cell-province-city{width:10%;white-space:nowrap!important}
 #tapin-admin .points-management-table th:nth-child(4),#tapin-admin .points-management-table td:nth-child(4),#tapin-admin .points-management-table .cell-address-col{width:12%}
 #tapin-admin .points-management-table .cell-address{white-space:normal;overflow-wrap:break-word;word-break:normal;line-height:1.7;color:#b8cfea;font-size:12px;display:block}
-#tapin-admin .points-management-table th:nth-child(5),#tapin-admin .points-management-table td:nth-child(5),#tapin-admin .points-management-table .cell-phone{width:11%;direction:ltr;text-align:center}
+#tapin-admin .points-management-table th:nth-child(5),#tapin-admin .points-management-table td:nth-child(5),#tapin-admin .points-management-table .cell-phone{width:10%;direction:ltr;text-align:center}
 /* Break only at spaces/slashes so a number never splits mid-digit. */
 #tapin-admin .points-management-table .cell-phone bdi{direction:ltr;display:block;font-size:12.5px;font-weight:600;color:#cde0f7;font-variant-numeric:tabular-nums;white-space:normal;overflow-wrap:normal;word-break:keep-all}
-#tapin-admin .points-management-table th:nth-child(6),#tapin-admin .points-management-table td:nth-child(6),#tapin-admin .points-management-table .cell-coords{width:9%;text-align:center}
+#tapin-admin .points-management-table th:nth-child(6),#tapin-admin .points-management-table td:nth-child(6),#tapin-admin .points-management-table .cell-coords{width:8.5%;text-align:center}
 #tapin-admin .points-management-table .coord-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:20px;font-size:10.5px;font-weight:600;white-space:nowrap}
 #tapin-admin .points-management-table .coord-badge.good{background:rgba(0,213,155,0.12);color:#00e5a3;border:1px solid rgba(0,213,155,0.3)}
 #tapin-admin .points-management-table .coord-badge.good .dot{width:7px;height:7px;border-radius:50%;background:#00e5a3;display:inline-block}
 #tapin-admin .points-management-table .coord-badge.bad{background:rgba(255,82,119,0.12);color:#ff6b8b;border:1px solid rgba(255,82,119,0.3)}
 #tapin-admin .points-management-table .coord-badge.bad .dot{width:7px;height:7px;border-radius:50%;background:#ff6b8b;display:inline-block}
-#tapin-admin .points-management-table th:nth-child(7),#tapin-admin .points-management-table td:nth-child(7),#tapin-admin .points-management-table .cell-quality{width:11%;text-align:center}
+#tapin-admin .points-management-table th:nth-child(7),#tapin-admin .points-management-table td:nth-child(7),#tapin-admin .points-management-table .cell-quality{width:10.5%;text-align:center}
 #tapin-admin .points-management-table th:nth-child(8),#tapin-admin .points-management-table td:nth-child(8),#tapin-admin .points-management-table .cell-status{width:8%;text-align:center}
 #tapin-admin .points-management-table .status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:20px;font-size:10.5px;font-weight:600;white-space:nowrap}
 #tapin-admin .points-management-table .status-pill.good{background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.3)}
 #tapin-admin .points-management-table .status-pill.good .status-dot{width:7px;height:7px;border-radius:50%;background:#34d399;display:inline-block}
 #tapin-admin .points-management-table .status-pill.muted{background:rgba(148,150,184,0.1);color:#9496b8;border:1px solid rgba(148,150,184,0.2)}
 #tapin-admin .points-management-table .status-pill.muted .status-dot{width:7px;height:7px;border-radius:50%;background:#6b7280;display:inline-block}
-#tapin-admin .points-management-table th:nth-child(9),#tapin-admin .points-management-table td:nth-child(9),#tapin-admin .points-management-table .cell-actions{width:17%;white-space:nowrap!important;text-align:center}
-#tapin-admin .points-management-table .tapin-row-actions{display:inline-flex;align-items:center;gap:4px;justify-content:center}
-#tapin-admin .points-management-table .tapin-row-actions button{display:inline-flex;align-items:center;gap:4px;padding:5px 7px;border-radius:6px;font-size:10.5px;font-weight:600;cursor:pointer;transition:all .15s ease;border:1px solid #233e66;background:#0d1e38;color:#c4d9f5;white-space:nowrap}
+#tapin-admin .points-management-table th:nth-child(9),#tapin-admin .points-management-table td:nth-child(9),#tapin-admin .points-management-table .cell-actions{width:19%;white-space:nowrap!important;text-align:center}
+#tapin-admin .points-management-table .tapin-row-actions{display:inline-flex;flex-wrap:nowrap;align-items:center;gap:3px;justify-content:center;white-space:nowrap}
+#tapin-admin .points-management-table .tapin-row-actions button{display:inline-flex;align-items:center;gap:3px;padding:5px 6px;border-radius:6px;font-size:10.5px;font-weight:600;cursor:pointer;transition:all .15s ease;border:1px solid #233e66;background:#0d1e38;color:#c4d9f5;white-space:nowrap}
 #tapin-admin .points-management-table .tapin-row-actions button.btn-view:hover{background:#193a6b;border-color:#3b74bf;color:#fff}
 #tapin-admin .points-management-table .tapin-row-actions button.btn-edit{background:#112642;border-color:#274875;color:#ffd666}
 #tapin-admin .points-management-table .tapin-row-actions button.btn-edit:hover{background:#1c3c66;border-color:#e6b800;color:#ffe58f}
