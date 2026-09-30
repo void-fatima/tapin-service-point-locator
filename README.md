@@ -8,7 +8,7 @@
 
 A Persian-first WordPress plugin for shipping providers, branch operations and public discovery.
 
-![Version](https://img.shields.io/badge/version-1.4.1-8b5cf6?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.4.2-8b5cf6?style=flat-square)
 ![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-21759b?style=flat-square&logo=wordpress)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-777bb4?style=flat-square&logo=php&logoColor=white)
 ![Persian RTL](https://img.shields.io/badge/Persian-RTL-10b981?style=flat-square)
@@ -105,7 +105,7 @@ Prefer an uploadable ZIP? Run this from the repository root on Windows:
 powershell -ExecutionPolicy Bypass -File scripts/build.ps1
 ```
 
-Upload `dist/tapin-service-point-locator-1.4.1.zip` through **Plugins → Add New → Upload Plugin**. The packaging script copies runtime files, checks required assets and rejects development/session/config files. It does not run the application test suites.
+Upload `dist/tapin-service-point-locator-1.4.2.zip` through **Plugins → Add New → Upload Plugin**. The packaging script copies runtime files, checks required assets and rejects development/session/config files. It does not run the application test suites.
 
 ### Add data, then publish
 
@@ -132,7 +132,7 @@ Activation seeds default providers, not service points. To explicitly import the
 
 Imports accept up to **100,000 data rows and 64 columns**, subject to host limits. Legacy `.xls`, formulas and multi-sheet selection are unsupported. Keep phone numbers and postal codes as text in the source workbook; the exporter preserves leading zeros and writes formula-like text as text, not executable formulas.
 
-Imports are **browser-driven**, not unattended jobs. Closing the page pauses processing; history lets you resume while staging remains available. The provider must be chosen before processing; a workbook whose source links all point to `tipaxco.com` preselects Tipax and rejects a mismatched provider. **Skip** leaves potential duplicates unchanged. **Update** changes only an unambiguous exact branch-code match within the same provider. Completed rows survive cancellation. See [import limits and retention](docs/OPERATIONS.md#import-details-and-limits).
+Imports are **browser-driven**, not unattended jobs. Closing the page pauses processing; history lets you resume while staging remains available. A `provider` or `ارائه‌دهنده` column assigns each row to a registered provider by its name, slug or numeric ID, so one file can mix providers. An empty, unknown or ambiguous value fails that row. Files without this column still use the provider dropdown; a workbook whose source links all point to `tipaxco.com` preselects Tipax and rejects a mismatched provider. **Skip** leaves potential duplicates unchanged. **Update** changes only an unambiguous exact branch-code match within the same provider. Completed rows survive cancellation. See [import limits and retention](docs/OPERATIONS.md#import-details-and-limits).
 
 Export history records generation outcomes, not proof that a browser saved the file. It retains recent events for three months; generated workbooks are not archived for re-download, and raw search text is not logged.
 
@@ -229,7 +229,7 @@ The session helper creates a short-lived local administrator session and may cre
 
 ## Status & documentation
 
-Current plugin version: **1.4.1**. Historical validation records document their own environments and limitations; they do not imply that tests were rerun for subsequent UI changes or this README update. The media here demonstrates the current interface, not a test result or production deployment.
+Current plugin version: **1.4.2**. Historical validation records document their own environments and limitations; they do not imply that tests were rerun for subsequent UI changes or this README update. The media here demonstrates the current interface, not a test result or production deployment.
 
 | Guide | Contents |
 | :--- | :--- |

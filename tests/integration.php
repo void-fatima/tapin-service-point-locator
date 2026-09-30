@@ -15,7 +15,7 @@ $passed = 0; $failed = 0;
 function check( $condition, $name ) { global $passed, $failed; if ( $condition ) { $passed++; echo "PASS {$name}\n"; } else { $failed++; echo "FAIL {$name}\n"; } }
 $providers = new ProviderRepository(); $points = new ServicePointRepository();
 $provider = $providers->insert( array( 'slug' => 'test-' . wp_generate_password( 10, false ), 'name' => 'آزمایش خودکار', 'is_active' => 1 ) );
-$ids = array(); $jobs = array(); $files = array();
+$ids = array(); $jobs = array(); $files = array(); $other_provider = 0;
 try {
 	$before = $points->summary();
 	$base = array( 'provider_id' => $provider, 'name' => 'شعبه آزمایشی', 'province' => 'تهران', 'city' => 'تهران', 'address' => 'نشانی آزمایشی', 'phone' => '02111111111', 'code' => 'A-1', 'latitude' => 35.7, 'longitude' => 51.4 );
@@ -140,6 +140,23 @@ try {
 	$providers->update( $provider, array( 'is_active' => 0 ) );
 	check( $server->dispatch( $req )->get_data()['total'] === 0, 'inactive provider excluded publicly' );
 	check( $server->dispatch( $directory )->get_data()['total'] === 0, 'inactive provider also excluded from address directory' );
+	$other_provider = $providers->insert( array( 'slug' => 'mixed-' . wp_generate_password( 8, false ), 'name' => 'ارائه‌دهنده آزمایشی دوم', 'is_active' => 1 ) );
+	$mixed_file = tempnam( sys_get_temp_dir(), 'tapin-mixed-' ); $files[] = $mixed_file;
+	$mixed_csv = fopen( $mixed_file, 'wb' );
+	fputcsv( $mixed_csv, array( 'provider', 'code', 'name', 'province', 'city', 'address', 'source' ) );
+	fputcsv( $mixed_csv, array( $providers->get_by_id( $provider )['slug'], 'MIX-A', 'شعبه اول', 'تهران', 'تهران', 'نشانی اول', '' ) );
+	fputcsv( $mixed_csv, array( 'ارائه‌دهنده آزمایشی دوم', 'MIX-B', 'شعبه دوم', 'تهران', 'تهران', 'نشانی دوم', '' ) );
+	fputcsv( $mixed_csv, array( 'ناشناخته', 'MIX-C', 'شعبه سوم', 'تهران', 'تهران', 'نشانی سوم', '' ) );
+	fputcsv( $mixed_csv, array( '', 'MIX-D', 'شعبه چهارم', 'تهران', 'تهران', 'نشانی چهارم', '' ) );
+	fputcsv( $mixed_csv, array( $providers->get_by_id( $provider )['slug'], 'MIX-E', 'شعبه پنجم', 'تهران', 'تهران', 'نشانی پنجم', 'https://tipaxco.com/branches/test' ) );
+	fclose( $mixed_csv );
+	$mixed_job = ImportJobs::stage( $mixed_file, 'mixed.csv' ); $jobs[] = (int) $mixed_job['id'];
+	check( 'provider' === $mixed_job['data']['mapping']['provider'], 'provider column detected from spreadsheet header' );
+	$mixed_start = ImportJobs::start( (int) $mixed_job['id'], array( 'mapping' => $mixed_job['data']['mapping'], 'duplicate_action' => 'skip' ) );
+	check( 'running' === $mixed_start['status'] && 'column' === $mixed_start['data']['provider_mode'], 'mixed import uses provider column without one selected provider' );
+	$mixed_done = ImportJobs::step( (int) $mixed_job['id'] );
+	check( $mixed_done['data']['inserted'] === 2 && $mixed_done['data']['failed'] === 3, 'mixed provider rows and invalid labels counted independently' );
+	check( $points->get_by_code( $provider, 'MIX-A' ) && $points->get_by_code( $other_provider, 'MIX-B' ) && ! $points->get_by_code( $provider, 'MIX-E' ), 'rows saved under their own provider and Tipax source cannot be assigned elsewhere' );
 } finally {
 	global $wpdb;
 	$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . \Tapin\ServicePointLocator\Geocoding\Jobs::table() . ' WHERE point_id IN (SELECT id FROM ' . $points->get_table_name() . ' WHERE provider_id = %d)', $provider ) );
@@ -147,6 +164,11 @@ try {
 	$providers->delete( $provider );
 	foreach ( $jobs as $job_id ) { ImportJobs::cancel( $job_id ); $wpdb->delete( ImportJobs::table(), array( 'id' => $job_id ), array( '%d' ) ); }
 	foreach ( $files as $file ) { wp_delete_file( $file ); }
+	if ( $other_provider ) {
+		$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . \Tapin\ServicePointLocator\Geocoding\Jobs::table() . ' WHERE point_id IN (SELECT id FROM ' . $points->get_table_name() . ' WHERE provider_id = %d)', $other_provider ) );
+		$wpdb->delete( $points->get_table_name(), array( 'provider_id' => $other_provider ), array( '%d' ) );
+		$providers->delete( $other_provider );
+	}
 }
 echo "{$passed} passed, {$failed} failed\n";
 exit( $failed ? 1 : 0 );

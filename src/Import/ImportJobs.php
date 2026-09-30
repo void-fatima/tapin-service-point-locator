@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
 
 /** Private staging, transactional checkpoints, and bounded diagnostic history. */
 final class ImportJobs {
-	public const FIELDS = array( 'name', 'code', 'province', 'city', 'address', 'phone', 'mobile_phone', 'landline_phone', 'source', 'metadata', 'postal_code', 'latitude', 'longitude', 'status', 'coordinates' );
+	public const FIELDS = array( 'provider', 'name', 'code', 'province', 'city', 'address', 'phone', 'mobile_phone', 'landline_phone', 'source', 'metadata', 'postal_code', 'latitude', 'longitude', 'status', 'coordinates' );
 	public static function table(): string { global $wpdb; return $wpdb->prefix . 'tapin_imports'; }
 	private static function error( string $message, int $status = 400 ): \WP_Error { \Tapin\ServicePointLocator\Service\OperationalLog::record( 'import_failed' ); return new \WP_Error( 'import', $message, array( 'status' => $status ) ); }
 	private static function get( int $id ): ?array {
@@ -114,10 +114,6 @@ final class ImportJobs {
 	public static function start( int $id, array $options ) {
 		return self::locked( $id, static function( $job ) use ( $options, $id ) {
 			if ( 'preview' !== $job['status'] ) { return self::error( 'این عملیات قبلاً شروع شده است.', 409 ); }
-			$provider = absint( $options['provider_id'] ?? 0 );
-			$provider_record = ( new ProviderRepository() )->get_by_id( $provider );
-			if ( ! $provider_record ) { return self::error( 'ارائه‌دهنده معتبر انتخاب کنید.' ); }
-			if ( ! empty( $job['data']['provider_hint'] ) && $job['data']['provider_hint'] !== $provider_record['slug'] ) { return self::error( 'منبع همهٔ ردیف‌ها متعلق به تیپاکس است؛ ارائه‌دهندهٔ تیپاکس را انتخاب کنید.' ); }
 			$mapping = $options['mapping'] ?? array();
 			if ( ! is_array( $mapping ) ) { return self::error( 'نگاشت ستون‌ها نامعتبر است.' ); }
 			$used = array();
@@ -130,8 +126,16 @@ final class ImportJobs {
 			}
 			if ( array_diff( array( 'name', 'address' ), $used ) ) { return self::error( 'ستون‌های نام و نشانی را مشخص کنید. استان باید در فایل یا تطبیق معتبر منبع مشخص باشد.' ); }
 			if ( ! in_array( $options['duplicate_action'] ?? '', array( 'skip', 'update' ), true ) ) { return self::error( 'روش برخورد با تکرار را انتخاب کنید.' ); }
+			$per_row_provider = in_array( 'provider', $used, true );
+			$provider = $per_row_provider ? 0 : absint( $options['provider_id'] ?? 0 );
+			if ( ! $per_row_provider ) {
+				$provider_record = ( new ProviderRepository() )->get_by_id( $provider );
+				if ( ! $provider_record ) { return self::error( 'ارائه‌دهنده معتبر انتخاب کنید.' ); }
+				if ( ! empty( $job['data']['provider_hint'] ) && $job['data']['provider_hint'] !== $provider_record['slug'] ) { return self::error( 'منبع همهٔ ردیف‌ها متعلق به تیپاکس است؛ ارائه‌دهندهٔ تیپاکس را انتخاب کنید.' ); }
+			}
 			$job['data']['mapping'] = $mapping;
 			$job['data']['provider_id'] = $provider;
+			$job['data']['provider_mode'] = $per_row_provider ? 'column' : 'selected';
 			$job['data']['duplicate_action'] = $options['duplicate_action'];
 			$job['status'] = 'running';
 			self::save( $job );
@@ -157,15 +161,24 @@ final class ImportJobs {
 			try {
 				$started = microtime( true ); $count = 0;
 				$mapper = new ColumnMapper( $job['data']['mapping'] );
+				$providers = ( new ProviderRepository() )->get_all( false );
+				$provider_ids = array_fill_keys( array_map( static fn( $item ) => (int) $item['id'], $providers ), true );
 				while ( $count < 50 && microtime( true ) - $started < 2 && false !== ( $line = fgets( $handle ) ) ) {
 					$entry = json_decode( $line, true );
 					if ( ! is_array( $entry ) ) { throw new \RuntimeException( 'فایل موقت خراب است.' ); }
 					if ( count( $entry['values'] ) !== count( $job['data']['headers'] ) ) {
 						$outcome = array( 'result' => 'failed', 'messages' => array( 'تعداد ستون‌های ردیف با سربرگ برابر نیست.' ) );
-					} elseif ( ! ( new ProviderRepository() )->get_by_id( $job['data']['provider_id'] ) ) {
-						throw new \RuntimeException( 'ارائه‌دهنده حذف شده است؛ عملیات را لغو کنید.' );
 					} else {
-						$outcome = RowProcessor::process( $mapper->map_row( array_combine( $job['data']['headers'], $entry['values'] ) ), $job['data']['provider_id'], $job['data']['duplicate_action'] );
+						$raw = $mapper->map_row( array_combine( $job['data']['headers'], $entry['values'] ) );
+						$provider = 'column' === ( $job['data']['provider_mode'] ?? 'selected' ) ? self::resolve_provider( (string) ( $raw['provider'] ?? '' ), $providers ) : (int) $job['data']['provider_id'];
+						unset( $raw['provider'] );
+						if ( ! $provider ) {
+							$outcome = array( 'result' => 'failed', 'messages' => array( 'ارائه‌دهندهٔ این ردیف خالی، ناشناخته یا مبهم است؛ نام یا شناسهٔ یک ارائه‌دهندهٔ ثبت‌شده را وارد کنید.' ) );
+						} elseif ( ! isset( $provider_ids[$provider] ) ) {
+							throw new \RuntimeException( 'ارائه‌دهنده حذف شده است؛ عملیات را لغو کنید.' );
+						} else {
+							$outcome = RowProcessor::process( $raw, $provider, $job['data']['duplicate_action'] );
+						}
 					}
 					$job['data'][$outcome['result']]++;
 					$job['data']['processed']++; $count++;
@@ -185,6 +198,20 @@ final class ImportJobs {
 			if ( 'completed' === $job['status'] ) { \Tapin\ServicePointLocator\Service\OperationalLog::record( 'import_completed', array_merge( $job['data'], array( 'job_id' => $id ) ) ); wp_delete_file( $job['data']['path'] ); }
 			return self::get_public( $id );
 		} );
+	}
+	/** Resolve an explicit spreadsheet label without guessing between providers. */
+	private static function resolve_provider( string $value, array $providers ): int {
+		$value = \Tapin\ServicePointLocator\Normalization\DataNormalizer::to_latin_digits( \Tapin\ServicePointLocator\Normalization\DataNormalizer::strtolower( \Tapin\ServicePointLocator\Normalization\DataNormalizer::normalize_persian_text( $value ) ?? '' ) );
+		if ( '' === $value ) { return 0; }
+		$matches = array();
+		foreach ( $providers as $provider ) {
+			$name = \Tapin\ServicePointLocator\Normalization\DataNormalizer::strtolower( \Tapin\ServicePointLocator\Normalization\DataNormalizer::normalize_persian_text( $provider['name'] ) ?? '' );
+			if ( $value === $name || $value === $provider['slug'] || $value === (string) $provider['id'] ) { $matches[] = (int) $provider['id']; }
+		}
+		if ( ! $matches && 'پست' === $value ) {
+			foreach ( $providers as $provider ) { if ( 'post' === $provider['slug'] ) { $matches[] = (int) $provider['id']; } }
+		}
+		return 1 === count( $matches ) ? $matches[0] : 0;
 	}
 	public static function cancel( int $id ) {
 		return self::locked( $id, static function( $job ) use ( $id ) {
