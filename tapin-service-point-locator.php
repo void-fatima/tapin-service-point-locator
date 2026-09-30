@@ -3,7 +3,7 @@
  * Plugin Name:       Tapin Service Point Locator
  * Plugin URI:        https://github.com/void-fatima/tapin-service-point-locator
  * Description:       Persian RTL service-point management, resumable CSV/XLSX imports, a live dashboard, and a public interactive locator for shipping providers.
- * Version:           1.4.4
+ * Version:           1.4.5
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            void-fatima
@@ -15,7 +15,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TAPIN_VERSION', '1.4.4' );
+define( 'TAPIN_VERSION', '1.4.5' );
 define( 'TAPIN_DB_VERSION', 9 );
 define( 'TAPIN_PLUGIN_FILE', __FILE__ );
 define( 'TAPIN_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );

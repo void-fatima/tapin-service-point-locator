@@ -225,6 +225,16 @@
 #tapin-admin #point-filters .filter-actions .btn-clear-filters{background:#101f38;border:1px solid #28446b;color:#a3badc}
 #tapin-admin #point-filters .filter-actions .btn-clear-filters:hover{background:#182e52;border-color:#426ca3;color:#fff;transform:translateY(-1px)}
 
+/* Keep the management filter toolbar on one row on desktop and Surface-sized screens. */
+@media(min-width:901px){
+  #tapin-admin #point-filters.filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
+  #tapin-admin #point-filters>.filter-title{flex:0 0 auto}
+  #tapin-admin #point-filters .search-field{flex:1 0 175px;min-width:175px}
+  #tapin-admin #point-filters .filter-field{flex:1 0 118px;min-width:118px}
+  #tapin-admin #point-filters .coordinate-filter{flex:1.1 0 142px;min-width:142px}
+  #tapin-admin #point-filters .filter-actions{flex:0 0 auto}
+}
+
 /* Points Management Table Column Alignment & Layout (Fixes Image 4) */
 #tapin-admin .points-management-table{overflow-x:auto;width:100%;border-radius:10px;border:1px solid #1a2f4d;background:#091426;box-shadow:inset 0 0 12px rgba(9,20,38,0.5)}
 #tapin-admin .points-management-table table{width:100%;border-collapse:collapse;font-size:13px;min-width:1100px;table-layout:fixed}

@@ -8,7 +8,7 @@
 
 A Persian-first WordPress plugin for shipping providers, branch operations and public discovery.
 
-![Version](https://img.shields.io/badge/version-1.4.4-8b5cf6?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.4.5-8b5cf6?style=flat-square)
 ![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-21759b?style=flat-square&logo=wordpress)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-777bb4?style=flat-square&logo=php&logoColor=white)
 ![Persian RTL](https://img.shields.io/badge/Persian-RTL-10b981?style=flat-square)
@@ -105,7 +105,7 @@ Prefer an uploadable ZIP? Run this from the repository root on Windows:
 powershell -ExecutionPolicy Bypass -File scripts/build.ps1
 ```
 
-Upload `dist/tapin-service-point-locator-1.4.4.zip` through **Plugins → Add New → Upload Plugin**. The packaging script copies runtime files, checks required assets and rejects development/session/config files. It does not run the application test suites.
+Upload `dist/tapin-service-point-locator-1.4.5.zip` through **Plugins → Add New → Upload Plugin**. The packaging script copies runtime files, checks required assets and rejects development/session/config files. It does not run the application test suites.
 
 ### Add data, then publish
 
@@ -229,7 +229,7 @@ The session helper creates a short-lived local administrator session and may cre
 
 ## Status & documentation
 
-Current plugin version: **1.4.4**. Historical validation records document their own environments and limitations; they do not imply that tests were rerun for subsequent UI changes or this README update. The media here demonstrates the current interface, not a test result or production deployment.
+Current plugin version: **1.4.5**. Historical validation records document their own environments and limitations; they do not imply that tests were rerun for subsequent UI changes or this README update. The media here demonstrates the current interface, not a test result or production deployment.
 
 | Guide | Contents |
 | :--- | :--- |
