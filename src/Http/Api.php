@@ -21,6 +21,7 @@ final class Api {
 		$this->route( '/points', 'POST', static fn( $r ) => PointService::save( (array) $r->get_json_params() ) );
 		$this->route( '/points/(?P<id>\d+)', 'POST', static fn( $r ) => PointService::save( (array) $r->get_json_params(), (int) $r['id'] ) );
 		$this->route( '/points/(?P<id>\d+)', 'DELETE', static fn( $r ) => ( new ServicePointRepository() )->delete( (int) $r['id'] ) ? array( 'deleted' => true ) : new \WP_Error( 'not_found', 'رکورد پیدا نشد یا حذف نشد.', array( 'status' => 404 ) ) );
+		$this->route( '/points/reset', 'DELETE', static function() { $deleted = ( new ServicePointRepository() )->delete_all(); return $deleted < 0 ? new \WP_Error( 'reset_failed', 'پاک‌کردن نقاط ناموفق بود.', array( 'status' => 500 ) ) : array( 'deleted_points' => $deleted ); } );
 		$this->route( '/providers', 'GET', static fn() => self::providers() );
 		$this->route( '/providers', 'POST', array( $this, 'save_provider' ) );
 		$this->route( '/providers/(?P<id>\d+)', 'DELETE', array( $this, 'delete_provider' ) );

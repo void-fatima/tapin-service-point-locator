@@ -2,6 +2,7 @@
 namespace Tapin\ServicePointLocator\Import;
 
 use Tapin\ServicePointLocator\Repository\ProviderRepository;
+use Tapin\ServicePointLocator\Database\Schema;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -231,6 +232,18 @@ final class ImportJobs {
 			try {
 				$undo = ImportPointLinks::undo( (int) $job['id'] );
 				if ( 1 !== (int) $wpdb->delete( self::table(), array( 'id' => (int) $job['id'] ), array( '%d' ) ) ) { throw new \RuntimeException( 'حذف سابقه فایل انجام نشد.' ); }
+				$remaining_jobs = (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . self::table() . " WHERE status IN ('completed','cancelled')" );
+				if ( 0 === $remaining_jobs ) {
+					$points_table = Schema::get_service_points_table();
+					$unlinked = (int) $wpdb->get_var( 'SELECT COUNT(*) FROM ' . $points_table . ' p LEFT JOIN ' . ImportPointLinks::table() . ' l ON l.point_id = p.id WHERE l.id IS NULL' );
+					if ( $unlinked > 0 ) {
+						$wpdb->query( 'DELETE g FROM ' . $wpdb->prefix . 'tapin_geocoding_jobs g INNER JOIN ' . $points_table . ' p ON p.id = g.point_id LEFT JOIN ' . ImportPointLinks::table() . ' l ON l.point_id = p.id WHERE l.id IS NULL' );
+						$deleted_legacy = $wpdb->query( 'DELETE p FROM ' . $points_table . ' p LEFT JOIN ' . ImportPointLinks::table() . ' l ON l.point_id = p.id WHERE l.id IS NULL' );
+						if ( false === $deleted_legacy ) { throw new \RuntimeException( 'پاک‌کردن شعب قدیمی بدون سابقه فایل ناموفق بود.' ); }
+						$undo['deleted_points'] += (int) $deleted_legacy;
+						$undo['deleted_legacy_points'] = (int) $deleted_legacy;
+					}
+				}
 				if ( false === $wpdb->query( 'COMMIT' ) ) { throw new \RuntimeException( 'ثبت نهایی حذف فایل انجام نشد.' ); }
 			} catch ( \Throwable $e ) {
 				$wpdb->query( 'ROLLBACK' );

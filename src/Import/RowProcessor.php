@@ -43,6 +43,10 @@ final class RowProcessor {
 				}
 				return array( 'result' => $ok ? 'updated' : 'failed', 'messages' => $ok ? $warnings : array( 'به‌روزرسانی رکورد در پایگاه داده ناموفق بود.' ), 'existing_id' => $match['id'] );
 			}
+			if ( $import_job_id ) {
+				$before = ImportPointLinks::snapshot( (int) $match['id'] );
+				if ( $before ) { ImportPointLinks::record( $import_job_id, (int) $match['id'], 'owned', $before ); }
+			}
 			return array( 'result' => 'skipped', 'messages' => array( 'احتمال تکرار؛ رکورد موجود تغییر نکرد. شناسه: ' . $match['id'] ), 'existing_id' => $match['id'] );
 		}
 		$data = CoordinatePolicy::prepare( $data, null, 'uploaded' );

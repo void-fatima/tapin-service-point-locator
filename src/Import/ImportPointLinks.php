@@ -25,7 +25,7 @@ final class ImportPointLinks {
 		if ( ! $after ) { throw new \RuntimeException( 'ثبت ارتباط رکورد واردشده ناموفق بود.' ); }
 		$before_json = null === $before ? null : wp_json_encode( $before, JSON_UNESCAPED_UNICODE );
 		$after_json = wp_json_encode( $after, JSON_UNESCAPED_UNICODE );
-		$sql = 'INSERT INTO ' . self::table() . ' (job_id, point_id, operation, before_data, after_data) VALUES (%d, %d, %s, %s, %s) ON DUPLICATE KEY UPDATE before_data = IF(operation = \'inserted\', before_data, COALESCE(before_data, VALUES(before_data))), after_data = VALUES(after_data), operation = IF(operation = \'inserted\', \'inserted\', VALUES(operation))';
+		$sql = 'INSERT INTO ' . self::table() . ' (job_id, point_id, operation, before_data, after_data) VALUES (%d, %d, %s, %s, %s) ON DUPLICATE KEY UPDATE after_data = VALUES(after_data)';
 		$result = $wpdb->query( $wpdb->prepare( $sql, $job_id, $point_id, $operation, $before_json, $after_json ) );
 		if ( false === $result ) { throw new \RuntimeException( 'ثبت ارتباط رکورد واردشده ناموفق بود.' ); }
 	}
@@ -41,8 +41,8 @@ final class ImportPointLinks {
 			$next = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$link_table} WHERE point_id = %d AND id > %d ORDER BY id LIMIT 1", (int) $link['point_id'], (int) $link['id'] ), ARRAY_A );
 			$expected = json_decode( $link['after_data'], true );
 			if ( $next && is_array( $expected ) && json_decode( $next['before_data'], true ) === $expected ) {
-				$inherit = 'inserted' === $link['operation']
-					? array( 'operation' => 'inserted', 'before_data' => null )
+				$inherit = in_array( $link['operation'], array( 'inserted', 'owned' ), true )
+					? array( 'operation' => $link['operation'], 'before_data' => $link['before_data'] )
 					: array( 'before_data' => $link['before_data'] );
 				if ( false === $wpdb->update( $link_table, $inherit, array( 'id' => (int) $next['id'] ) ) ) { throw new \RuntimeException( 'حفظ زنجیره تغییرات فایل‌ها انجام نشد.' ); }
 				++$summary['preserved_points'];
@@ -54,7 +54,7 @@ final class ImportPointLinks {
 				++$summary['preserved_points'];
 				continue;
 			}
-			if ( 'inserted' === $link['operation'] ) {
+			if ( in_array( $link['operation'], array( 'inserted', 'owned' ), true ) ) {
 				$geocoding_deleted = $wpdb->delete( $wpdb->prefix . 'tapin_geocoding_jobs', array( 'point_id' => (int) $link['point_id'] ), array( '%d' ) );
 				if ( false === $geocoding_deleted ) { throw new \RuntimeException( 'پاک‌کردن صف موقعیت‌یابی یکی از شعب انجام نشد.' ); }
 				$deleted = $wpdb->delete( $points_table, array( 'id' => (int) $link['point_id'] ), array( '%d' ) );

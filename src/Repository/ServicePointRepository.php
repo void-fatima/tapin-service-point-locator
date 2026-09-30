@@ -138,6 +138,18 @@ class ServicePointRepository {
 		return false !== $deleted && $deleted > 0;
 	}
 
+	/** Clear every service point and its queued geocoding task for an explicit admin reset. */
+	public function delete_all(): int {
+		global $wpdb;
+		$points = $this->get_table_name();
+		$wpdb->query( 'START TRANSACTION' );
+		$wpdb->query( 'DELETE FROM ' . $wpdb->prefix . 'tapin_geocoding_jobs' );
+		$deleted = $wpdb->query( 'DELETE FROM ' . $points );
+		if ( false === $deleted ) { $wpdb->query( 'ROLLBACK' ); return -1; }
+		$wpdb->query( 'COMMIT' );
+		return (int) $deleted;
+	}
+
 	/**
 	 * High-performance batch insertion for bulk imports.
 	 *
