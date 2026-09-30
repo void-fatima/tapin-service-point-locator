@@ -32,6 +32,7 @@ final class Api {
 		$this->route( '/imports/(?P<id>\d+)/start', 'POST', static fn( $r ) => ImportJobs::start( (int) $r['id'], (array) $r->get_json_params() ) );
 		$this->route( '/imports/(?P<id>\d+)/step', 'POST', static fn( $r ) => ImportJobs::step( (int) $r['id'] ) );
 		$this->route( '/imports/(?P<id>\d+)/cancel', 'POST', static fn( $r ) => ImportJobs::cancel( (int) $r['id'] ) );
+		$this->route( '/imports/(?P<id>\d+)', 'DELETE', static fn( $r ) => ImportJobs::delete( (int) $r['id'] ) );
 		$this->route( '/public/points', 'GET', array( $this, 'public_points' ), true );
 		$this->route( '/public/points/(?P<id>\d+)', 'GET', array( $this, 'point_details' ), true );
 		$this->route( '/public/directory', 'GET', fn( $r ) => $this->public_points( $r, true ), true );

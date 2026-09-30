@@ -250,6 +250,10 @@
 #tapin-admin .points-management-table .tapin-row-actions button.btn-edit:hover{background:#1c3c66;border-color:#e6b800;color:#ffe58f}
 #tapin-admin .points-management-table .tapin-row-actions button.danger{background:rgba(220,38,38,0.15);border-color:rgba(220,38,38,0.4);color:#fca5a5}
 #tapin-admin .points-management-table .tapin-row-actions button.danger:hover{background:rgba(220,38,38,0.3);border-color:#ef4444;color:#fff}
+#tapin-admin .history-table .import-delete,#tapin-admin .import-delete-detail{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:6px 11px;border:1px solid rgba(220,75,91,.42);border-radius:8px;background:linear-gradient(135deg,rgba(106,32,47,.32),rgba(58,22,36,.4));color:#ffabb4;font-size:12px;font-weight:700;white-space:nowrap;transition:background .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease}
+#tapin-admin .history-table .import-delete:hover:not(:disabled),#tapin-admin .import-delete-detail:hover:not(:disabled){background:linear-gradient(135deg,rgba(151,43,61,.55),rgba(87,27,44,.65));border-color:#ed6476;color:#fff;box-shadow:0 3px 14px rgba(212,77,104,.18)}
+#tapin-admin .history-table .import-delete:disabled,#tapin-admin .import-delete-detail:disabled{opacity:.45;cursor:not-allowed}
+#tapin-admin .import-history .section-title{margin-bottom:16px}
 
 /* Comprehensive Pagination Bar (Fixes Request) */
 #tapin-admin .pagination{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:24px;padding:16px;background:rgba(10,22,42,0.5);border:1px solid #1a304e;border-radius:12px}

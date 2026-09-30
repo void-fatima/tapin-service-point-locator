@@ -185,6 +185,17 @@ final class ImportJobs {
 			return self::get_public( $id );
 		} );
 	}
+	/** Remove import history and any remaining private staging file. Imported points are retained. */
+	public static function delete( int $id ) {
+		return self::locked( $id, static function( $job ) {
+			global $wpdb;
+			if ( 'running' === $job['status'] ) { return self::error( 'عملیات در حال اجراست؛ ابتدا آن را لغو کنید.', 409 ); }
+			$path = $job['data']['path'] ?? '';
+			if ( 1 !== (int) $wpdb->delete( self::table(), array( 'id' => (int) $job['id'] ), array( '%d' ) ) ) { return self::error( 'حذف سابقه فایل انجام نشد.', 500 ); }
+			if ( is_string( $path ) && '' !== $path ) { wp_delete_file( $path ); }
+			return array( 'deleted' => true );
+		} );
+	}
 	public static function cleanup(): void {
 		global $wpdb;
 		$ids = $wpdb->get_col( 'SELECT id FROM ' . self::table() . " WHERE status IN ('preview','running') AND updated_at < UTC_TIMESTAMP() - INTERVAL 1 DAY LIMIT 100" );
