@@ -58,7 +58,7 @@ final class ImportJobs {
 		if ( ! $temp ) { return self::error( 'پوشه موقت قابل نوشتن نیست.', 500 ); }
 		@chmod( $temp, 0600 );
 		$handle = fopen( $temp, 'wb' );
-		$headers = null; $preview = array(); $total = 0; $bytes = 0; $started = microtime( true );
+		$headers = null; $mapping = array(); $source_index = null; $tipax_sources = 0; $preview = array(); $total = 0; $bytes = 0; $started = microtime( true );
 		try {
 			foreach ( TableReader::rows( $path, $type ) as $row ) {
 				if ( microtime( true ) - $started > 15 ) { throw new \RuntimeException( 'آماده‌سازی بیش از حد طول کشید؛ فایل را به چند CSV کوچک‌تر تقسیم کنید.' ); }
@@ -66,12 +66,19 @@ final class ImportJobs {
 					$row[0] = preg_replace( '/^\xEF\xBB\xBF/', '', $row[0] );
 					$headers = array_map( 'trim', $row );
 					if ( in_array( '', $headers, true ) || count( array_unique( $headers ) ) !== count( $headers ) ) { throw new \RuntimeException( 'ردیف اول باید نام ستون‌های یکتا و غیرخالی داشته باشد.' ); }
+					$mapping = ( new ColumnMapper() )->auto_detect_headers( $headers );
+					$source_header = array_search( 'source', $mapping, true );
+					if ( false !== $source_header ) { $source_index = array_search( $source_header, $headers, true ); }
 					continue;
 				}
 				$total++;
 				if ( $total > 100000 ) { throw new \RuntimeException( 'هر فایل حداکثر ۱۰۰٬۰۰۰ ردیف دارد؛ فایل را تقسیم کنید.' ); }
 				// Excel omits trailing empty cells; CSV column mismatches are reported per row.
 				if ( 'xlsx' === $type && count( $row ) < count( $headers ) ) { $row = array_pad( $row, count( $headers ), '' ); }
+				if ( null !== $source_index ) {
+					$host = strtolower( (string) wp_parse_url( (string) ( $row[$source_index] ?? '' ), PHP_URL_HOST ) );
+					if ( in_array( $host, array( 'tipaxco.com', 'www.tipaxco.com' ), true ) ) { $tipax_sources++; }
+				}
 				$entry = array( 'row' => $total + 1, 'values' => $row );
 				$line = wp_json_encode( $entry, JSON_UNESCAPED_UNICODE ) . "\n";
 				$bytes += strlen( $line );
@@ -81,8 +88,8 @@ final class ImportJobs {
 			}
 			if ( ! $headers || ! $total ) { throw new \RuntimeException( 'فایل فاقد ردیف داده است.' ); }
 			fclose( $handle ); $handle = null;
-			$mapping = ( new ColumnMapper() )->auto_detect_headers( $headers );
 			$data = array( 'path' => $temp, 'headers' => $headers, 'preview' => $preview, 'mapping' => $mapping, 'total' => $total, 'processed' => 0, 'inserted' => 0, 'updated' => 0, 'failed' => 0, 'skipped' => 0, 'warnings' => 0, 'issues' => array(), 'offset' => 0 );
+			if ( $tipax_sources === $total ) { $data['provider_hint'] = 'tipax'; }
 			global $wpdb;
 			$now = current_time( 'mysql', true );
 			$ok = $wpdb->insert( self::table(), array( 'user_id' => get_current_user_id(), 'filename' => $name, 'status' => 'preview', 'data' => wp_json_encode( $data ), 'created_at' => $now, 'updated_at' => $now ) );
@@ -108,7 +115,9 @@ final class ImportJobs {
 		return self::locked( $id, static function( $job ) use ( $options, $id ) {
 			if ( 'preview' !== $job['status'] ) { return self::error( 'این عملیات قبلاً شروع شده است.', 409 ); }
 			$provider = absint( $options['provider_id'] ?? 0 );
-			if ( ! ( new ProviderRepository() )->get_by_id( $provider ) ) { return self::error( 'ارائه‌دهنده معتبر انتخاب کنید.' ); }
+			$provider_record = ( new ProviderRepository() )->get_by_id( $provider );
+			if ( ! $provider_record ) { return self::error( 'ارائه‌دهنده معتبر انتخاب کنید.' ); }
+			if ( ! empty( $job['data']['provider_hint'] ) && $job['data']['provider_hint'] !== $provider_record['slug'] ) { return self::error( 'منبع همهٔ ردیف‌ها متعلق به تیپاکس است؛ ارائه‌دهندهٔ تیپاکس را انتخاب کنید.' ); }
 			$mapping = $options['mapping'] ?? array();
 			if ( ! is_array( $mapping ) ) { return self::error( 'نگاشت ستون‌ها نامعتبر است.' ); }
 			$used = array();

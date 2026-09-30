@@ -14,6 +14,10 @@ final class RowProcessor {
 	public static function process( array $raw, int $provider, string $action ): array {
 		$data = DataNormalizer::normalize_service_point( array_merge( $raw, array( 'provider_id' => $provider ) ) );
 		$provider_record = ( new \Tapin\ServicePointLocator\Repository\ProviderRepository() )->get_by_id( $provider );
+		$source_host = strtolower( (string) wp_parse_url( (string) ( $raw['source'] ?? '' ), PHP_URL_HOST ) );
+		if ( in_array( $source_host, array( 'tipaxco.com', 'www.tipaxco.com' ), true ) && 'tipax' !== ( $provider_record['slug'] ?? '' ) ) {
+			return array( 'result' => 'failed', 'messages' => array( 'لینک منبع این ردیف متعلق به تیپاکس است؛ فایل را با ارائه‌دهندهٔ تیپاکس وارد کنید.' ) );
+		}
 		if ( 'post' === ( $provider_record['slug'] ?? '' ) ) {
 			$data = TapinDirectory::reconcile( $data, TapinDirectory::records() );
 			if ( is_array( $data['metadata'] ) ) {

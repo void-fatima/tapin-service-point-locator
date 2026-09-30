@@ -4,7 +4,7 @@ Tags: locator, shipping, rtl, csv, map
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,6 +32,9 @@ XLSX export: up to 100,000 filtered rows and 64 MiB worksheet XML, with a bounde
 CSV: UTF-8, 50 MiB. XLSX: first sheet, values only, 10 MiB compressed / 32 MiB expanded. 100,000 rows per file. XLS is not supported; convert to XLSX or CSV. Imports require InnoDB and named locks. XLSX requires PHP zip, XMLReader and SimpleXML. Closing the page pauses an import; resume it from history. See README.md for full limits.
 
 == Changelog ==
+= 1.4.1 =
+* Correct Tipax-sourced points previously assigned to Post and prevent future provider mismatches during spreadsheet imports.
+* Improve provider selection and dark-theme select menus in the admin interface.
 = 1.4.0 =
 * Paginated accessible RTL service-point table, filtered server-side XLSX export, and improved import/export history.
 * Preserve inactive provider names in exports and restore empty-directory filter reset.
@@ -45,6 +48,8 @@ CSV: UTF-8, 50 MiB. XLSX: first sheet, values only, 10 MiB compressed / 32 MiB e
 * Persian RTL dashboard, service-point/provider management, resumable CSV/XLSX preview and mapping, public map, validation and integration checks.
 
 == Upgrade Notice ==
+= 1.4.1 =
+Moves existing Post-labeled points with Tipax source URLs to the Tipax provider. Records and coordinates remain intact.
 = 1.4.0 =
 Preserves existing records and schema version 6. Adds filtered XLSX downloads and export activity using existing logs. No automatic geocoding or source scraping occurs during export.
 = 1.3.0 =

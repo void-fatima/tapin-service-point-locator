@@ -135,7 +135,22 @@ CREATE TABLE {$service_points_table} (
 			$columns = $wpdb->get_col( "SHOW COLUMNS FROM {$table}" );
 			if ( array_diff( $required, $columns ?: array() ) ) { return; }
 		}
+		if ( (int) get_option( self::DB_VERSION_OPTION ) < 7 && ! self::repair_tipax_provider( $providers_table, $service_points_table ) ) { return; }
 		update_option( self::DB_VERSION_OPTION, TAPIN_DB_VERSION );
+	}
+
+	/** Correct imports assigned to Post when their source identifies Tipax. */
+	private static function repair_tipax_provider( string $providers_table, string $points_table ): bool {
+		global $wpdb;
+		$post_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$providers_table} WHERE slug = %s", 'post' ) );
+		$tipax_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$providers_table} WHERE slug = %s", 'tipax' ) );
+		if ( ! $post_id || ! $tipax_id ) { return true; }
+		$patterns = array( 'https://tipaxco.com/%', 'https://www.tipaxco.com/%', 'http://tipaxco.com/%', 'http://www.tipaxco.com/%' );
+		$sql = $wpdb->prepare(
+			"UPDATE {$points_table} SET provider_id = %d, updated_at = %s WHERE provider_id = %d AND (source LIKE %s OR source LIKE %s OR source LIKE %s OR source LIKE %s)",
+			$tipax_id, current_time( 'mysql', true ), $post_id, ...$patterns
+		);
+		return false !== $wpdb->query( $sql );
 	}
 
 	/**

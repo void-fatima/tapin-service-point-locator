@@ -207,6 +207,8 @@
 #tapin-admin #point-filters select:hover{border-color:#486b9c;background-color:#10223e}
 #tapin-admin #point-filters select:focus{border-color:#7553ff;box-shadow:0 0 0 2px rgba(117,83,255,0.25);outline:none}
 #tapin-admin #point-filters select option{background:#0d1c35;color:#eeeef7}
+#tapin-admin .tapin-dialog .form-grid select{color:#f0eff8!important;background-color:#141827!important;color-scheme:dark}
+#tapin-admin .tapin-dialog .form-grid select option{color:#f0eff8;background-color:#141827}
 #tapin-admin #point-filters .filter-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
 #tapin-admin #point-filters .filter-actions button,#tapin-admin #point-filters .filter-actions a{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;white-space:nowrap;text-decoration:none;cursor:pointer;box-sizing:border-box;transition:all .15s ease}
 #tapin-admin #point-filters .filter-actions button.primary{background:linear-gradient(135deg,#1d4ed8,#1e3a8a);border:1px solid #3b82f6;color:#fff}
