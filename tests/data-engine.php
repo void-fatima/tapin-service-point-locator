@@ -69,6 +69,6 @@ try {
 	verify_engine( $import->import_csv( TAPIN_PLUGIN_DIR . 'assets/data/tipax-tehran.csv', $tipax )->get_inserted_rows() === 0, 'official Tipax reimport does not duplicate branches' );
 	echo "{$passed} engine checks passed.\n";
 } finally {
-	foreach ( array( 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_logs' ) as $suffix ) { $wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . $suffix ); }
+	foreach ( array( 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_import_points', 'tapin_logs' ) as $suffix ) { $wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . $suffix ); }
 	$wpdb->prefix = $original;
 }

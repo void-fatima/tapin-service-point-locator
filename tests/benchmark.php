@@ -37,6 +37,6 @@ try {
 	$providers->delete( $provider );
 	if ( $job_id ) { ImportJobs::cancel( $job_id ); $wpdb->delete( ImportJobs::table(), array( 'id' => $job_id ), array( '%d' ) ); }
 	wp_delete_file( $file );
-	foreach ( array( 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_logs' ) as $suffix ) { $wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . $suffix ); }
+	foreach ( array( 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_import_points', 'tapin_logs' ) as $suffix ) { $wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . $suffix ); }
 	$wpdb->prefix = $original_prefix;
 }

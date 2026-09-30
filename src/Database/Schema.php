@@ -114,6 +114,18 @@ CREATE TABLE {$service_points_table} (
   PRIMARY KEY  (id),
   KEY status_updated (status, updated_at)
 ) ENGINE=InnoDB {$charset_collate};" );
+		$import_points = $wpdb->prefix . 'tapin_import_points';
+		dbDelta( "CREATE TABLE {$import_points} (
+  id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  job_id bigint(20) unsigned NOT NULL,
+  point_id bigint(20) unsigned NOT NULL,
+  operation varchar(20) NOT NULL,
+  before_data longtext DEFAULT NULL,
+  after_data longtext NOT NULL,
+  PRIMARY KEY  (id),
+  UNIQUE KEY job_point (job_id, point_id),
+  KEY point_id (point_id)
+) ENGINE=InnoDB {$charset_collate};" );
 
 		// Backfill existing rows without inventing coordinates or contact types.
 		$wpdb->query( "UPDATE {$service_points_table} SET data_quality_status = CASE WHEN has_coordinates = 0 THEN 'missing_coordinates' ELSE 'needs_review' END WHERE data_quality_status = 'missing_coordinates' AND has_coordinates = 1" );
@@ -136,6 +148,8 @@ CREATE TABLE {$service_points_table} (
 			if ( array_diff( $required, $columns ?: array() ) ) { return; }
 		}
 		if ( (int) get_option( self::DB_VERSION_OPTION ) < 7 && ! self::repair_tipax_provider( $providers_table, $service_points_table ) ) { return; }
+		$import_point_columns = $wpdb->get_col( "SHOW COLUMNS FROM {$import_points}" );
+		if ( array_diff( array( 'job_id', 'point_id', 'operation', 'before_data', 'after_data' ), $import_point_columns ?: array() ) ) { return; }
 		update_option( self::DB_VERSION_OPTION, TAPIN_DB_VERSION );
 	}
 

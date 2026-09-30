@@ -177,7 +177,7 @@ final class ImportJobs {
 						} elseif ( ! isset( $provider_ids[$provider] ) ) {
 							throw new \RuntimeException( 'ارائه‌دهنده حذف شده است؛ عملیات را لغو کنید.' );
 						} else {
-							$outcome = RowProcessor::process( $raw, $provider, $job['data']['duplicate_action'] );
+							$outcome = RowProcessor::process( $raw, $provider, $job['data']['duplicate_action'], $id );
 						}
 					}
 					$job['data'][$outcome['result']]++;
@@ -221,15 +221,24 @@ final class ImportJobs {
 			return self::get_public( $id );
 		} );
 	}
-	/** Remove import history and any remaining private staging file. Imported points are retained. */
+	/** Remove import history and undo point changes that still match this import. */
 	public static function delete( int $id ) {
 		return self::locked( $id, static function( $job ) {
 			global $wpdb;
 			if ( 'running' === $job['status'] ) { return self::error( 'عملیات در حال اجراست؛ ابتدا آن را لغو کنید.', 409 ); }
 			$path = $job['data']['path'] ?? '';
-			if ( 1 !== (int) $wpdb->delete( self::table(), array( 'id' => (int) $job['id'] ), array( '%d' ) ) ) { return self::error( 'حذف سابقه فایل انجام نشد.', 500 ); }
+			if ( false === $wpdb->query( 'START TRANSACTION' ) ) { return self::error( 'شروع حذف امن فایل ناموفق بود.', 500 ); }
+			try {
+				$undo = ImportPointLinks::undo( (int) $job['id'] );
+				if ( 1 !== (int) $wpdb->delete( self::table(), array( 'id' => (int) $job['id'] ), array( '%d' ) ) ) { throw new \RuntimeException( 'حذف سابقه فایل انجام نشد.' ); }
+				if ( false === $wpdb->query( 'COMMIT' ) ) { throw new \RuntimeException( 'ثبت نهایی حذف فایل انجام نشد.' ); }
+			} catch ( \Throwable $e ) {
+				$wpdb->query( 'ROLLBACK' );
+				return self::error( $e->getMessage(), 500 );
+			}
 			if ( is_string( $path ) && '' !== $path ) { wp_delete_file( $path ); }
-			return array( 'deleted' => true );
+			$undo['untracked_legacy'] = ( ! empty( $job['data']['inserted'] ) || ! empty( $job['data']['updated'] ) ) && 0 === $undo['tracked_points'];
+			return array_merge( array( 'deleted' => true ), $undo );
 		} );
 	}
 	public static function cleanup(): void {

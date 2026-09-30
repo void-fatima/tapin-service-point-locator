@@ -41,8 +41,8 @@ try {
 	$base = array( 'provider_id' => $post, 'name' => 'آزمایش موقعیت', 'province' => 'تهران', 'city' => 'تهران', 'address' => 'خیابان آزادی پلاک 12', 'postal_code' => '1234567890', 'landline_phone' => '02112345678', 'status' => 'active', 'metadata' => array( 'private_import' => 'PRIVATE_SENTINEL' ) );
 	$make = static function( array $extra = array() ) use ( $repo, $base ) { static $seq = 0; $seq++; return $repo->insert( array_replace( $base, array( 'code' => 'P2-' . $seq, 'address' => 'خیابان آزادی پلاک ' . ( 100 + $seq ) ), $extra ) ); };
 	$id = $make(); $snapshot = $repo->get_by_id( $id ); Schema::migrate(); Schema::migrate();
-	queue_check( $repo->get_by_id( $id ) === $snapshot, 'schema 6 migration twice preserves point and private provenance' );
-	queue_check( (int) get_option( Schema::DB_VERSION_OPTION ) === 6, 'schema version is 6' );
+	queue_check( $repo->get_by_id( $id ) === $snapshot, 'schema 8 migration twice preserves point and private provenance' );
+	queue_check( (int) get_option( Schema::DB_VERSION_OPTION ) === 8, 'schema version is 8' );
 	queue_check( count( $providers->get_all() ) === 2, 'repeated activation does not duplicate providers' );
 	queue_check( in_array( 'query_hash', $wpdb->get_col( 'SHOW COLUMNS FROM ' . Jobs::table() ), true ), 'durable queue schema exists' );
 	$enqueue = WriteLock::run( static fn() => Jobs::enqueue( $repo->get_by_id( $id ) ) );
@@ -166,7 +166,7 @@ try {
 	remove_filter( 'tapin_geocoder', $filter ); remove_filter( 'pre_http_request', $block_http ); wp_set_current_user( 0 );
 	// Only this run's explicitly generated plugin tables can be removed.
 	if ( preg_match( '/^' . preg_quote( $original, '/' ) . 'phase2_[a-f0-9]{8}_$/D', $table_prefix ) ) {
-		foreach ( array( 'tapin_geocoding_jobs', 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_logs' ) as $suffix ) { $wpdb->query( 'DROP TABLE IF EXISTS ' . $table_prefix . $suffix ); }
+		foreach ( array( 'tapin_geocoding_jobs', 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_import_points', 'tapin_logs' ) as $suffix ) { $wpdb->query( 'DROP TABLE IF EXISTS ' . $table_prefix . $suffix ); }
 	}
 	$wpdb->prefix = $original;
 	foreach ( $options as $key => $value ) { null === $value ? delete_option( $key ) : update_option( $key, $value ); }

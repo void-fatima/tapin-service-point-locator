@@ -137,7 +137,7 @@
     const locationRows=[...locations,...(window.TapinLocationCatalog||[]).flatMap(p=>p.cities.map(city=>({province:p.province,city})))];
     const detailId='tapin-detail-'+(++widgetSequence);
     container.dataset.view='map';
-    container.innerHTML = `<div class="map-tools"><div class="provider-tabs" role="group" aria-label="ارائه‌دهنده"><button type="button" class="selected" aria-pressed="true" data-provider="">همه ارائه‌دهندگان</button>${providers.map(p => `<button type="button" aria-pressed="false" data-provider="${Number(p.id)}">${badge(p)}</button>`).join('')}</div><div class="map-selects"><label><span>استان</span><select data-province autocomplete="off"><option value="">همه استان‌ها</option></select></label><label><span>شهر</span><select data-city autocomplete="off"><option value="">همه شهرها</option></select></label><button type="button" data-reset title="نمایش سراسر ایران" aria-label="نمایش سراسر ایران"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>سراسر ایران</span></button></div></div>
+    container.innerHTML = `<div class="map-tools"><div class="provider-tabs" role="group" aria-label="ارائه‌دهنده"><button type="button" class="selected" aria-pressed="true" data-provider="">همه ارائه‌دهندگان</button>${providers.map(p => `<button type="button" aria-pressed="false" data-provider="${Number(p.id)}">${badge(p)}</button>`).join('')}</div><div class="map-selects"><label><span>استان</span><select data-province autocomplete="off"><option value="">همه استان‌ها</option></select></label><label><span>شهر</span><select data-city autocomplete="off"><option value="">همه شهرها</option></select></label><label><span>مختصات</span><select data-coordinates autocomplete="off" aria-label="فیلتر نقاط بر اساس مختصات"><option value="">همه نقاط</option><option value="1">دارای مختصات</option><option value="0">بدون مختصات</option></select></label><button type="button" data-reset title="نمایش سراسر ایران" aria-label="نمایش سراسر ایران"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>سراسر ایران</span></button></div></div>
       <form class="locator-search" role="search" autocomplete="off"><label><span class="sr-only">جستجوی شعبه، شهر، استان یا ارائه‌دهنده</span><input name="search" type="search" autocomplete="off" placeholder="نام شعبه، شهر یا ارائه‌دهنده…"></label><button type="submit" class="${admin?'btn-search':''}" title="جستجو"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg><span>جستجو</span></button><button type="button" data-clear title="پاک کردن فیلترها"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span>پاک کردن فیلترها</span></button></form>
       <div class="locator-view-switch" role="group" aria-label="شیوه نمایش" ${admin?'hidden':''}><button type="button" data-view="map" aria-pressed="true">نقشه</button><button type="button" data-view="list" aria-pressed="false">فهرست نشانی‌ها</button></div>
       <div class="locator-results"><section class="map-viewport" aria-label="نقشه و راهنما"><div class="tapin-map" role="region" aria-label="نقشه نقاط خدماتی؛ با کلیدهای جهت حرکت کنید" tabindex="0"></div><div class="map-legend"></div></section>
@@ -263,10 +263,11 @@
     if(!admin){retry.className='locator-retry';container.querySelector('.locator-search')?.after(retry);}else{retry.remove();}
     const province = container.querySelector('[data-province]');
     const city = container.querySelector('[data-city]');
+    const coordinates = container.querySelector('[data-coordinates]');
     province.value = '';
     city.value = '';
     city.innerHTML='<option value="">همه شهرها</option>'+[...new Set(locations.map(l=>l.city))].map(c=>`<option>${esc(c)}</option>`).join('');
-    let selected = '', search = '', page = 1, generation = 0, controller, items = [];
+    let selected = '', coordinateFilter = '', search = '', page = 1, generation = 0, controller, items = [];
     const markers = new Map();
     const drawer=document.createElement(admin?'div':'dialog');drawer.className='tapin-detail';drawer.dir='rtl';drawer.setAttribute('aria-labelledby',detailId);drawer.setAttribute('role','dialog');drawer.setAttribute('aria-modal',String(!admin));
     if(admin)drawer.hidden=true;
@@ -384,6 +385,7 @@
       if(!append){items=[];mapList.innerHTML='';more.hidden=true;}
       status.textContent='در حال دریافت نقاط خدماتی…';mapList.setAttribute('aria-busy','true');more.disabled=true; retry.hidden=true;
       const params = new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,per_page:admin?'10':'50',page:String(admin?requestedPage:append?page+1:1),include_summary:'1',status:'any'});
+      if(coordinateFilter!=='')params.set('has_coordinates',coordinateFilter);
       if(admin)params.set('map_view','1');
       try {
         const data = await api((admin?'points':'public/directory')+'?'+params, {signal:controller.signal});
@@ -434,7 +436,7 @@
     async function loadMarkers(){
       if(geoCancelled)return;
       markerController?.abort();markerController=new AbortController();const token=++markerGeneration;
-      layer.clearLayers();markers.clear();markerStatus.textContent='در حال دریافت نشانگرها…';
+      layer.clearLayers();markers.clear();if(coordinateFilter==='0'){markerStatus.textContent='نقطه‌ای با مختصات برای نمایش روی نقشه نیست؛ نشانی‌ها در فهرست زیر نمایش داده می‌شوند.';return;}markerStatus.textContent='در حال دریافت نشانگرها…';
       const bounds=map.getBounds();
       const params=new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,status:admin?'any':'active',per_page:'500',north:String(Math.min(90,bounds.getNorth())),south:String(Math.max(-90,bounds.getSouth())),east:String(Math.min(180,bounds.getEast())),west:String(Math.max(-180,bounds.getWest())),has_coordinates:'1'});
       if(admin)params.set('map_view','1');
@@ -445,6 +447,7 @@
     function scheduleMarkers(){if(geoCancelled)return;layer.clearLayers();markers.clear();clearTimeout(markerTimer);markerController?.abort();markerGeneration++;markerTimer=setTimeout(loadMarkers,180);}
     map.on('moveend',scheduleMarkers);
     function refreshFilters(){updateLocations();updateLegend();load();scheduleMarkers();}
+    coordinates.onchange=()=>{coordinateFilter=coordinates.value;refreshFilters();};
     container.querySelectorAll('[data-provider]').forEach(button=>button.onclick=()=>{selected=button.dataset.provider;refreshFilters();});
     province.onchange=()=>{city.value='';updateLocations();updateLegend();const polygon=provinceLayers.get(normalize(province.value));map.stop();map.fitBounds(polygon?polygon.getBounds():iran,{animate:false});load();scheduleMarkers();};
     let searchTimer=null;
@@ -465,7 +468,7 @@
     let cityBoundsController, cityBoundsGeneration=0;
     const zoomToCity=()=>{
       cityBoundsController?.abort();
-      if(!city.value||geoCancelled)return;
+      if(!city.value||geoCancelled||coordinateFilter==='0')return;
       const token=++cityBoundsGeneration;
       const ctrl=cityBoundsController=new AbortController();
       const params=new URLSearchParams({province:province.value,city:city.value,provider_id:selected,status:admin?'any':'active',has_coordinates:'1',per_page:'500'});
@@ -482,7 +485,7 @@
     };
     city.onchange=()=>{load();scheduleMarkers();zoomToCity();};
     container.querySelector('[data-reset]').onclick=()=>{clearTimeout(searchTimer);search='';const s=container.querySelector('.locator-search input[name=search]');if(s)s.value='';province.value='';city.value='';updateLocations();updateLegend();map.stop();map.fitBounds(iran,{animate:false});load();scheduleMarkers();};
-    function clearFilters(){clearTimeout(searchTimer);selected='';if(admin)container.querySelector('[data-provider-select]').value='';search='';province.value='';city.value='';container.querySelector('[name=search]').value='';refreshFilters();map.stop();map.fitBounds(iran,{animate:false});}
+    function clearFilters(){clearTimeout(searchTimer);selected='';if(admin)container.querySelector('[data-provider-select]').value='';coordinateFilter='';coordinates.value='';search='';province.value='';city.value='';container.querySelector('[name=search]').value='';refreshFilters();map.stop();map.fitBounds(iran,{animate:false});}
     container.querySelector('[data-clear]').onclick=clearFilters;
     const pagerSlot=document.createElement('div');pagerSlot.className='dashboard-pager';
     if(admin){
@@ -495,7 +498,7 @@
       pagination=document.createElement('div');pagination.className='map-actions directory-pagination';pagination.hidden=mapList.hidden;mapList.after(pagination);pagination.append(pagerSlot,more,status);
       mapList.id=detailId+'-list';pagination.id=detailId+'-pages';listToggle.setAttribute('aria-controls',mapList.id+' '+pagination.id);
     }
-    if(admin)exportControl(directoryPanel,()=>({search,provider_id:selected,province:province.value,city:city.value,status:'any'}));
+    if(admin)exportControl(directoryPanel,()=>({search,provider_id:selected,province:province.value,city:city.value,has_coordinates:coordinateFilter,status:'any'}));
     more.onclick=()=>admin?load(false,page+1):load(true); retry.onclick=()=>{load();loadMarkers();};
     const listIcon='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>';
     listToggle.onclick=()=>{

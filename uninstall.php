@@ -40,6 +40,7 @@ if ( $drop_data ) {
 
 	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}tapin_logs" );
 	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}tapin_geocoding_jobs" );
+	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}tapin_import_points" );
 	delete_option( 'tapin_geocoding_next_request' );
 	delete_option( 'tapin_db_version' );
 	delete_option( 'tapin_settings' );

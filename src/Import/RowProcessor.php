@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /** Shared row pipeline for resumable web imports and synchronous CLI callers. */
 final class RowProcessor {
-	public static function process( array $raw, int $provider, string $action ): array {
+	public static function process( array $raw, int $provider, string $action, int $import_job_id = 0 ): array {
 		$data = DataNormalizer::normalize_service_point( array_merge( $raw, array( 'provider_id' => $provider ) ) );
 		$provider_record = ( new \Tapin\ServicePointLocator\Repository\ProviderRepository() )->get_by_id( $provider );
 		$source_host = strtolower( (string) wp_parse_url( (string) ( $raw['source'] ?? '' ), PHP_URL_HOST ) );
@@ -33,16 +33,24 @@ final class RowProcessor {
 		if ( in_array( $outcome, array( 'conflict', 'probable_match' ), true ) ) { $warnings[] = 'Tapin directory: ' . $outcome . ' — uploaded values preserved; review source evidence.'; }
 		if ( $match ) {
 			if ( 'update' === $action && $match['code_match'] ) {
+				$before = $import_job_id ? ImportPointLinks::snapshot( (int) $match['id'] ) : null;
+				if ( $import_job_id && ! $before ) { throw new \RuntimeException( 'ذخیره نسخه قبلی شعبه ناموفق بود؛ فایل را دوباره تلاش کنید.' ); }
 				$data = CoordinatePolicy::prepare( $data, $repo->get_by_id( $match['id'] ), 'uploaded' );
 				$ok = $repo->update( $match['id'], $data );
-				if ( $ok ) { self::queue( $repo, (int) $match['id'], $warnings ); }
+				if ( $ok ) {
+					self::queue( $repo, (int) $match['id'], $warnings );
+					if ( $import_job_id ) { ImportPointLinks::record( $import_job_id, (int) $match['id'], 'updated', $before ); }
+				}
 				return array( 'result' => $ok ? 'updated' : 'failed', 'messages' => $ok ? $warnings : array( 'به‌روزرسانی رکورد در پایگاه داده ناموفق بود.' ), 'existing_id' => $match['id'] );
 			}
 			return array( 'result' => 'skipped', 'messages' => array( 'احتمال تکرار؛ رکورد موجود تغییر نکرد. شناسه: ' . $match['id'] ), 'existing_id' => $match['id'] );
 		}
 		$data = CoordinatePolicy::prepare( $data, null, 'uploaded' );
 		$id = $repo->insert( $data );
-		if ( $id ) { self::queue( $repo, $id, $warnings ); }
+		if ( $id ) {
+			self::queue( $repo, $id, $warnings );
+			if ( $import_job_id ) { ImportPointLinks::record( $import_job_id, $id, 'inserted', null ); }
+		}
 		return array( 'result' => $id ? 'inserted' : 'failed', 'messages' => $id ? $warnings : array( 'ثبت رکورد در پایگاه داده ناموفق بود.' ) );
 	}
 	private static function queue( ServicePointRepository $repo, int $id, array &$warnings ): void {

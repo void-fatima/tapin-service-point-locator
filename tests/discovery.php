@@ -24,6 +24,6 @@ try {
  discovery_check( $points->query( array( 'public' => true, 'search' => 'discovery-carrier' ) )['total'] === 0, 'provider search respects publication' );
  echo "{$passed} discovery checks passed.\n";
 } finally {
- foreach ( array( 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_logs' ) as $suffix ) { $wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . $suffix ); }
+ foreach ( array( 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_import_points', 'tapin_logs' ) as $suffix ) { $wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . $suffix ); }
  $wpdb->prefix = $original;
 }

@@ -42,7 +42,7 @@ try {
 	if ( is_wp_error( $events ) || count( $events ) !== 1 || $events[0]['context']['rows'] !== 1 ) { throw new RuntimeException( 'Packaged export history failed.' ); }
 	echo "PASS extracted ZIP: real WordPress bootstrap, fresh/repeat activation, deactivation/reactivation, preserved address-only point, shortcode/assets, parsed XLSX and export history.\n";
 } finally {
-	foreach ( array( 'tapin_geocoding_jobs', 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_logs' ) as $suffix ) {
+	foreach ( array( 'tapin_geocoding_jobs', 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_import_points', 'tapin_logs' ) as $suffix ) {
 		$wpdb->query( 'DROP TABLE IF EXISTS ' . $temporary_prefix . $suffix );
 	}
 	$wpdb->prefix = $original_prefix;

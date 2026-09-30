@@ -70,6 +70,6 @@ try {
 	phase_check( 1 === count( array_filter( $repo->locations(), static fn( $r ) => $r['city'] === 'منطقه 1' ) ), 'digit variants do not duplicate dropdown labels' );
 	echo "{$passed} phase 1 checks passed.\n";
 } finally {
-	foreach ( array( 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_logs' ) as $suffix ) { $wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . $suffix ); }
+	foreach ( array( 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_import_points', 'tapin_logs' ) as $suffix ) { $wpdb->query( 'DROP TABLE IF EXISTS ' . $wpdb->prefix . $suffix ); }
 	$wpdb->prefix = $original;
 }

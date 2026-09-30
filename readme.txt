@@ -4,7 +4,7 @@ Tags: locator, shipping, rtl, csv, map
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.2
+Stable tag: 1.4.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,6 +32,9 @@ XLSX export: up to 100,000 filtered rows and 64 MiB worksheet XML, with a bounde
 CSV: UTF-8, 50 MiB. XLSX: first sheet, values only, 10 MiB compressed / 32 MiB expanded. 100,000 rows per file. XLS is not supported; convert to XLSX or CSV. Imports require InnoDB and named locks. XLSX requires PHP zip, XMLReader and SimpleXML. Closing the page pauses an import; resume it from history. See README.md for full limits.
 
 == Changelog ==
+= 1.4.3 =
+* Deleting an import removes points created by that file and restores unchanged points updated by that import.
+* Preserve points changed after the import and report when legacy import history has no point links.
 = 1.4.2 =
 * Read each row's provider from an explicit CSV/XLSX column, including mixed-provider files. Unknown or ambiguous names fail only their own row.
 * Keep the provider dropdown for files without that column and show column-based imports clearly in history.
@@ -51,6 +54,8 @@ CSV: UTF-8, 50 MiB. XLSX: first sheet, values only, 10 MiB compressed / 32 MiB e
 * Persian RTL dashboard, service-point/provider management, resumable CSV/XLSX preview and mapping, public map, validation and integration checks.
 
 == Upgrade Notice ==
+= 1.4.3 =
+Deleting an import now also undoes its tracked point changes. Existing imports created before this update cannot be linked to their rows retroactively.
 = 1.4.2 =
 No schema change. Existing records and imports are preserved; new imports can use a provider column per row.
 = 1.4.1 =

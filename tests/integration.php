@@ -55,6 +55,31 @@ try {
 	$shared_phone = $base; $shared_phone['code'] = 'OTHER-CODE'; $shared_phone['name'] = 'شعبه متفاوت';
 	$shared = \Tapin\ServicePointLocator\Import\RowProcessor::process( $shared_phone, $provider, 'update' );
 	check( $shared['result'] === 'skipped' && $points->get_by_id( $id )['name'] === $base['name'], 'shared phone cannot overwrite different branch' );
+	$delete_file = tempnam( sys_get_temp_dir(), 'tapin-delete-' ); $files[] = $delete_file;
+	file_put_contents( $delete_file, "code,name,province,city,address\nDELETE-1,Temporary branch,Test,Test,Temporary address\n" );
+	$delete_job = ImportJobs::stage( $delete_file, 'delete-test.csv' ); $jobs[] = (int) $delete_job['id'];
+	ImportJobs::start( (int) $delete_job['id'], array( 'provider_id' => $provider, 'mapping' => $delete_job['data']['mapping'], 'duplicate_action' => 'skip' ) );
+	ImportJobs::step( (int) $delete_job['id'] );
+	$delete_result = ImportJobs::delete( (int) $delete_job['id'] );
+	check( ! is_wp_error( $delete_result ) && $delete_result['deleted_points'] === 1 && ! $points->get_by_code( $provider, 'DELETE-1' ), 'deleting an import removes its unchanged new point' );
+	$edited_file = tempnam( sys_get_temp_dir(), 'tapin-edited-' ); $files[] = $edited_file;
+	file_put_contents( $edited_file, "code,name,province,city,address\nEDITED-1,Imported branch,Test,Test,Imported address\n" );
+	$edited_job = ImportJobs::stage( $edited_file, 'edited-test.csv' ); $jobs[] = (int) $edited_job['id'];
+	ImportJobs::start( (int) $edited_job['id'], array( 'provider_id' => $provider, 'mapping' => $edited_job['data']['mapping'], 'duplicate_action' => 'skip' ) );
+	ImportJobs::step( (int) $edited_job['id'] );
+	$edited_point = $points->get_by_code( $provider, 'EDITED-1' );
+	$points->update( (int) $edited_point['id'], array( 'name' => 'Manually edited branch' ) );
+	$edited_result = ImportJobs::delete( (int) $edited_job['id'] );
+	check( ! is_wp_error( $edited_result ) && $edited_result['preserved_points'] === 1 && $points->get_by_code( $provider, 'EDITED-1' )['name'] === 'Manually edited branch', 'deleting an import preserves its subsequently edited point' );
+	$original = $base; $original['code'] = 'RESTORE-1'; $original['name'] = 'Original branch'; $original['address'] = 'Original address';
+	$original_id = $points->insert( $original );
+	$update_file = tempnam( sys_get_temp_dir(), 'tapin-undo-update-' ); $files[] = $update_file;
+	file_put_contents( $update_file, "code,name,province,city,address\nRESTORE-1,Updated branch,تهران,تهران,Updated address\n" );
+	$update_job = ImportJobs::stage( $update_file, 'update-test.csv' ); $jobs[] = (int) $update_job['id'];
+	ImportJobs::start( (int) $update_job['id'], array( 'provider_id' => $provider, 'mapping' => $update_job['data']['mapping'], 'duplicate_action' => 'update' ) );
+	ImportJobs::step( (int) $update_job['id'] );
+	$restore_result = ImportJobs::delete( (int) $update_job['id'] );
+	check( ! is_wp_error( $restore_result ) && $restore_result['restored_points'] === 1 && $points->get_by_id( $original_id )['name'] === 'Original branch', 'deleting an import restores an unchanged updated point' );
 	// At least two requests are needed; checkpoints survive page reloads.
 	$large = tempnam( sys_get_temp_dir(), 'tapin-large-' ); $files[] = $large;
 	$h = fopen( $large, 'wb' ); fputcsv( $h, array( 'code', 'name', 'province', 'city', 'address' ) );
@@ -162,7 +187,7 @@ try {
 	$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . \Tapin\ServicePointLocator\Geocoding\Jobs::table() . ' WHERE point_id IN (SELECT id FROM ' . $points->get_table_name() . ' WHERE provider_id = %d)', $provider ) );
 	$wpdb->delete( $points->get_table_name(), array( 'provider_id' => $provider ), array( '%d' ) );
 	$providers->delete( $provider );
-	foreach ( $jobs as $job_id ) { ImportJobs::cancel( $job_id ); $wpdb->delete( ImportJobs::table(), array( 'id' => $job_id ), array( '%d' ) ); }
+	foreach ( $jobs as $job_id ) { ImportJobs::cancel( $job_id ); $wpdb->delete( \Tapin\ServicePointLocator\Import\ImportPointLinks::table(), array( 'job_id' => $job_id ), array( '%d' ) ); $wpdb->delete( ImportJobs::table(), array( 'id' => $job_id ), array( '%d' ) ); }
 	foreach ( $files as $file ) { wp_delete_file( $file ); }
 	if ( $other_provider ) {
 		$wpdb->query( $wpdb->prepare( 'DELETE FROM ' . \Tapin\ServicePointLocator\Geocoding\Jobs::table() . ' WHERE point_id IN (SELECT id FROM ' . $points->get_table_name() . ' WHERE provider_id = %d)', $other_provider ) );

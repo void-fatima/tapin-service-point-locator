@@ -103,7 +103,7 @@ try {
 	echo 'INFO 505-row workbook generation and validation stage: ' . round( microtime( true ) - $start, 3 ) . "s; peak PHP memory " . round( memory_get_peak_usage( true ) / 1048576, 1 ) . " MiB\n";
 } finally {
 	remove_filter( 'pre_http_request', $http_block ); wp_set_current_user( 0 );
-	if ( preg_match( '/^' . preg_quote( $original, '/' ) . 'phase3_[a-f0-9]{8}_$/D', $prefix ) ) { foreach ( array( 'tapin_geocoding_jobs', 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_logs' ) as $suffix ) { $wpdb->query( 'DROP TABLE IF EXISTS ' . $prefix . $suffix ); } }
+	if ( preg_match( '/^' . preg_quote( $original, '/' ) . 'phase3_[a-f0-9]{8}_$/D', $prefix ) ) { foreach ( array( 'tapin_geocoding_jobs', 'tapin_service_points', 'tapin_providers', 'tapin_imports', 'tapin_import_points', 'tapin_logs' ) as $suffix ) { $wpdb->query( 'DROP TABLE IF EXISTS ' . $prefix . $suffix ); } }
 	$wpdb->prefix = $original; foreach ( $options as $key => $value ) { null === $value ? delete_option( $key ) : update_option( $key, $value ); }
 	p3check( $real_rows === $wpdb->get_results( 'SELECT * FROM ' . Schema::get_service_points_table() . ' ORDER BY id', ARRAY_A ), 'original site records unchanged' );
 }

@@ -209,6 +209,15 @@
 #tapin-admin #point-filters select option{background:#0d1c35;color:#eeeef7}
 #tapin-admin .tapin-dialog .form-grid select{color:#f0eff8!important;background-color:#141827!important;color-scheme:dark}
 #tapin-admin .tapin-dialog .form-grid select option{color:#f0eff8;background-color:#141827}
+#tapin-admin #mapping-form .form-grid select{appearance:none;-webkit-appearance:none;color:#f0eff8!important;background-color:#141827!important;color-scheme:dark;border:1px solid #30466b;border-radius:8px;min-height:42px;padding-inline-start:34px;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23b7c9e8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 12px center;transition:background-color .15s ease,border-color .15s ease,box-shadow .15s ease}
+#tapin-admin #mapping-form .form-grid select:hover{background-color:#1b2943!important;border-color:#6385b7;color:#fff!important}
+#tapin-admin #mapping-form .form-grid select:focus-visible{background-color:#1b2943!important;border-color:#d8a93a;outline:2px solid #e6c174;outline-offset:2px}
+#tapin-admin #mapping-form .form-grid select option{background-color:#141827;color:#f0eff8}
+#tapin-admin #mapping-form .mapping-provider-from-column{display:flex;align-items:center;gap:12px;min-height:70px;margin-top:6px;padding:12px 14px;border:1px solid #355782;border-radius:9px;background:linear-gradient(120deg,#132742,#102037);color:#e5efff}
+#tapin-admin #mapping-form .mapping-provider-from-column[hidden]{display:none}
+#tapin-admin #mapping-form .mapping-provider-from-column .mapping-provider-icon{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:9px;background:#173f51;color:#5de0b3;font-size:18px;font-weight:800}
+#tapin-admin #mapping-form .mapping-provider-from-column strong,#tapin-admin #mapping-form .mapping-provider-from-column small{display:block;line-height:1.5}
+#tapin-admin #mapping-form .mapping-provider-from-column small{margin-top:3px;color:#a9c3e2;font-size:11px}
 #tapin-admin #point-filters .filter-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
 #tapin-admin #point-filters .filter-actions button,#tapin-admin #point-filters .filter-actions a{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;white-space:nowrap;text-decoration:none;cursor:pointer;box-sizing:border-box;transition:all .15s ease}
 #tapin-admin #point-filters .filter-actions button.primary{background:linear-gradient(135deg,#1d4ed8,#1e3a8a);border:1px solid #3b82f6;color:#fff}
@@ -222,8 +231,12 @@
 #tapin-admin .points-management-table th{background:#0f223f;color:#b4cbe8;font-weight:600;padding:13px 9px;white-space:nowrap;border-bottom:2px solid #223e66;text-align:right}
 #tapin-admin .points-management-table td{padding:11px 9px;border-bottom:1px solid #14263f;color:#dbe6f5;vertical-align:middle}
 #tapin-admin .points-management-table tbody tr:hover td{background:rgba(23,49,85,0.45)}
-#tapin-admin .points-management-table th:nth-child(1),#tapin-admin .points-management-table td:nth-child(1){width:9%}
-#tapin-admin .points-management-table th:nth-child(2),#tapin-admin .points-management-table td:nth-child(2){width:13%}
+#tapin-admin .points-management-table th:nth-child(1),#tapin-admin .points-management-table td:nth-child(1){width:6%;text-align:center}
+#tapin-admin .points-management-table th:nth-child(2),#tapin-admin .points-management-table td:nth-child(2){width:16%}
+#tapin-admin .points-management-table .point-provider-icon{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;max-width:100%;border:1px solid transparent;border-radius:8px;cursor:help}
+#tapin-admin .points-management-table .point-provider-icon:hover,#tapin-admin .points-management-table .point-provider-icon:focus-visible{background:#182b49;border-color:#5276ad;outline:none}
+#tapin-admin .points-management-table .point-provider-icon .provider-badge{max-width:32px;gap:0;font-size:0;overflow:hidden}
+#tapin-admin .points-management-table td:nth-child(2) a{display:inline-block;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.65}
 #tapin-admin .points-management-table .point-code{color:#8ba5c9;font-size:11px;font-variant-numeric:tabular-nums;display:block;margin-top:2px}
 #tapin-admin .points-management-table th:nth-child(3),#tapin-admin .points-management-table td:nth-child(3),#tapin-admin .points-management-table .cell-province-city{width:10%;white-space:nowrap!important}
 #tapin-admin .points-management-table th:nth-child(4),#tapin-admin .points-management-table td:nth-child(4),#tapin-admin .points-management-table .cell-address-col{width:12%}
