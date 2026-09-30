@@ -29,7 +29,7 @@ final class ColumnMapper {
 		'phone'       => array( 'تلفن', 'شماره تماس', 'شماره تلفن', 'تلفن تماس', 'موبایل', 'phone', 'tel', 'telephone', 'mobile' ),
 		'latitude'    => array( 'عرض جغرافیایی', 'عرض', 'latitude', 'lat', 'y', 'geo_lat' ),
 		'longitude'   => array( 'طول جغرافیایی', 'طول', 'longitude', 'lng', 'lon', 'x', 'geo_lng' ),
-		'status'      => array( 'وضعیت', 'وضعیت فعالیت', 'status', 'state' ),
+		'status'      => array( 'وضعیت', 'وضعیت فعالیت', 'status' ),
 			'coordinates' => array( 'مختصات', 'مختصات جغرافیایی', 'موقعیت جغرافیایی', 'موقعیت مکانی', 'لوکیشن', 'coordinates', 'coords', 'coord', 'lat lng', 'lat long', 'geo' ),
 	);
 
@@ -70,6 +70,7 @@ final class ColumnMapper {
 
 			// Search synonyms dictionary.
 			foreach ( self::SYNONYMS as $canonical_field => $aliases ) {
+				if ( in_array( $canonical_field, $detected, true ) ) { continue; }
 				foreach ( $aliases as $alias ) {
 					if ( self::clean_header_name( $alias ) === $normalized_header ) {
 						$detected[ $raw_header ] = $canonical_field;

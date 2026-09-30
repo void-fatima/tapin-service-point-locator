@@ -115,7 +115,7 @@ final class ImportJobs {
 	public static function start( int $id, array $options ) {
 		return self::locked( $id, static function( $job ) use ( $options, $id ) {
 			if ( 'preview' !== $job['status'] ) { return self::error( 'این عملیات قبلاً شروع شده است.', 409 ); }
-			$mapping = $options['mapping'] ?? array();
+			$mapping = $job['data']['mapping'] ?? array();
 			if ( ! is_array( $mapping ) ) { return self::error( 'نگاشت ستون‌ها نامعتبر است.' ); }
 			$used = array();
 			foreach ( $mapping as $header => $field ) {
