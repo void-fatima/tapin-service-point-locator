@@ -1,7 +1,9 @@
 # Complete provider marker images
 
-`post.png` comes from the supplied **Amber map pin with blank medallion-1.png**;
-`tipax.png` comes from **Emerald map pin with blank medallion-2.png**.
+`post.png` comes from the supplied amber pin, attached as
+**ChatGPT Image Oct 3, 2026, 01_05_15 PM.png**;
+`tipax.png` comes from the emerald pin, attached as
+**ChatGPT Image Oct 3, 2026, 01_05_10 PM.png**.
 They contain the complete original artwork, without a logo overlay or redrawing.
 
 Only transparent canvas padding was changed, using an unscaled pixel copy.
@@ -19,4 +21,7 @@ to whole source pixels introduces less than 0.1 CSS pixel of difference.
 | Tipax | 1024 × 1536 | 103,131–915,1323 | 1023 × 1534 | +2,+39 |
 
 The admin provider badges still use the separate official logo assets in
-`assets/brand`. Clusters use a separate count circle, never a provider pin.
+`assets/brand`. Single-provider clusters use the same full pin as individual
+points. Mixed Post/Tipax clusters show both pins side by side in an 88 × 72
+box. Counts and provider names appear in the tooltip and accessible label,
+without numeric overlays. Clustering reserves 96 pixels between group anchors.

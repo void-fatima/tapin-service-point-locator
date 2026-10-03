@@ -431,23 +431,29 @@
       layer.clearLayers();markers.clear();
       const groups=new Map();
       const clusters=[];
-      points.forEach(p=>{const xy=map.latLngToContainerPoint([p.latitude,p.longitude]),x=Math.floor(xy.x/64),y=Math.floor(xy.y/64);let match;
-        for(let dx=-1;dx<=1&&!match;dx++)for(let dy=-1;dy<=1&&!match;dy++)match=(groups.get((x+dx)+':'+(y+dy))||[]).find(g=>Math.hypot(g.xy.x-xy.x,g.xy.y-xy.y)<64);
+      // Reserve room for a mixed cluster's two 48px pins (88px combined).
+      const clusterSpacing=96;
+      points.forEach(p=>{const xy=map.latLngToContainerPoint([p.latitude,p.longitude]),x=Math.floor(xy.x/clusterSpacing),y=Math.floor(xy.y/clusterSpacing);let match;
+        for(let dx=-1;dx<=1&&!match;dx++)for(let dy=-1;dy<=1&&!match;dy++)match=(groups.get((x+dx)+':'+(y+dy))||[]).find(g=>Math.hypot(g.xy.x-xy.x,g.xy.y-xy.y)<clusterSpacing);
         if(match)match.points.push(p);else{const group={xy,points:[p]},key=x+':'+y;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(group);clusters.push(group);}
       });
       clusters.forEach(({points:group})=>{
         const p=group[0], provider=group.every(row=>Number(row.provider_id)===Number(p.provider_id))?providers.find(pr=>Number(pr.id)===Number(p.provider_id)):null;
         const isCluster=group.length>1;
-        const knownProvider=!isCluster&&provider&&['post','tipax'].includes(providerSlug(provider));
-        const pinProviderClass=knownProvider?' provider-image-pin '+providerSlug(provider)+'-marker':isCluster?' tapin-cluster':'';
-        const html=isCluster?'<span class="cluster-count">'+num(group.length)+'</span>':knownProvider?
-          '<img class="provider-pin-image" src="'+safeUrl(TapinConfig.assets+'markers/'+providerSlug(provider)+'.png')+'" alt="" draggable="false">':
+        const members=providers.filter(pr=>group.some(row=>Number(row.provider_id)===Number(pr.id)));
+        const brands=['post','tipax'].filter(slug=>members.some(pr=>providerSlug(pr)===slug));
+        const knownProvider=brands.length>0;
+        const pinProviderClass=(knownProvider?' provider-image-pin '+(brands.length===1?brands[0]+'-marker':'mixed-marker'):'')+(isCluster?' tapin-cluster':'');
+        const html=knownProvider?brands.map((slug,index)=>
+          '<img class="provider-pin-image" style="left:'+index*40+'px" src="'+safeUrl(TapinConfig.assets+'markers/'+slug+'.png')+'" alt="" draggable="false">').join(''):
           '<span class="provider-marker-medallion provider-medallion-other">'+providerLogoMarkup(provider,true)+'</span>';
-        const iconSize=knownProvider?[48,72]:isCluster?[40,40]:[34,40],iconAnchor=knownProvider?[24,72]:isCluster?[20,20]:[17,40];
+        const width=48+Math.max(0,brands.length-1)*40;
+        const iconSize=knownProvider?[width,72]:[34,40],iconAnchor=knownProvider?[width/2,72]:[17,40];
+        const clusterLabel=num(group.length)+' شعبه · '+members.map(pr=>pr.name).join('، ');
         const marker=L.marker([p.latitude,p.longitude],{title:isCluster?num(group.length)+' شعبه':p.name,icon:L.divIcon({className:'tapin-pin '+(selected?'provider-pin':'all-pin')+pinProviderClass,html,iconSize,iconAnchor})}).addTo(layer);
         marker.getElement().style.background=/^#[0-9a-f]{6}$/i.test(provider?.marker_color)?provider.marker_color:'#7349ff';marker.getElement().style.borderColor=color(provider);
-        marker.getElement().setAttribute('aria-label',group.length>1?num(group.length)+' شعبه؛ بزرگ‌نمایی یا مشاهده فهرست':p.name+'؛ اطلاعات شعبه');
-        marker.bindTooltip(document.createTextNode(group.length>1?num(group.length)+' شعبه':p.name+(provider?.name?' · '+provider.name:'')),{direction:'top',offset:[0,-30]});
+        marker.getElement().setAttribute('aria-label',isCluster?clusterLabel+'؛ بزرگ‌نمایی یا مشاهده فهرست':p.name+'؛ اطلاعات شعبه');
+        marker.bindTooltip(document.createTextNode(isCluster?clusterLabel:p.name+(provider?.name?' · '+provider.name:'')),{direction:'top',offset:[0,knownProvider?-66:-30]});
         marker.getElement().addEventListener('focus',()=>marker.openTooltip());
         marker.getElement().addEventListener('blur',()=>marker.closeTooltip());
         marker.getElement().addEventListener('keydown',e=>{

@@ -151,8 +151,6 @@
    Eight pixels below the tip preserve the original soft shadow. */
 .tapin-app .tapin-pin.provider-image-pin{overflow:visible;background:transparent!important;border:0!important;border-radius:0;box-shadow:none!important}
 .tapin-app .tapin-pin .provider-pin-image{position:absolute;top:8px;left:0;display:block;width:48px!important;height:72px!important;max-width:none!important;max-height:none!important;object-fit:contain;pointer-events:none}
-.tapin-app .tapin-pin.tapin-cluster{border-radius:50%;background:#303b60!important;border:2px solid #c8c5eb!important;color:#fff;font-weight:800;font-size:14px;box-shadow:0 2px 8px #0008}
-.tapin-app .tapin-cluster .cluster-count{position:static;line-height:1}
 .tapin-app .provider-marker-medallion{position:absolute;top:4px;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;box-shadow:0 1px 4px #0018;z-index:1}
 .tapin-app .provider-medallion-post{background:#fff}
 .tapin-app .provider-medallion-tipax{background:#007d5d}
