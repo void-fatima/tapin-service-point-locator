@@ -232,6 +232,9 @@
 #tapin-admin .coordinate-validation{margin:9px 0 0;padding:9px 11px;border:1px solid #904756;border-radius:7px;background:#301b27;color:#ffccd0;font-size:12px;line-height:1.8}
 #tapin-admin .coordinate-picker :focus-visible{outline:3px solid #f6ce45;outline-offset:3px}
 @media(max-width:700px){#tapin-admin .coordinate-picker{padding:11px}#tapin-admin .coordinate-map{height:270px;min-height:220px}#tapin-admin .coordinate-picker-actions button{flex:1 1 150px}}
+#tapin-admin .location-select-help{display:block;margin-top:5px;color:#9db1d0;font-size:11px;line-height:1.7}
+#tapin-admin .tapin-dialog select[name=province],#tapin-admin .tapin-dialog select[name=city]{width:100%;min-width:0}
+#tapin-admin .tapin-dialog select[name=city]:disabled{opacity:.62;cursor:not-allowed}
 #tapin-admin #point-filters .filter-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
 #tapin-admin #point-filters .filter-actions button,#tapin-admin #point-filters .filter-actions a{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;white-space:nowrap;text-decoration:none;cursor:pointer;box-sizing:border-box;transition:all .15s ease}
 #tapin-admin #point-filters .filter-actions button.primary{background:linear-gradient(135deg,#1d4ed8,#1e3a8a);border:1px solid #3b82f6;color:#fff}

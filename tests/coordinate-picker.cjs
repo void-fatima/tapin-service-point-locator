@@ -97,7 +97,7 @@ const points = [
     await expect(validation).toBeVisible();
     await expect(validation).toContainText('هر دو');
     await dialog.locator('[name=name]').fill('Test branch');
-    await dialog.locator('[name=province]').fill('Tehran');
+    await dialog.locator('[name=province]').selectOption('تهران');
     await dialog.locator('[name=address]').fill('Test address');
     await dialog.locator('button[type=submit]').click();
     await expect(dialog.locator('.dialog-error')).toBeVisible();

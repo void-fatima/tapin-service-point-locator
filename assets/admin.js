@@ -209,7 +209,7 @@
   function confirmDelete(title,fn){modal(title,'<p>این عمل قابل بازگشت نیست.</p><div class="dialog-actions"><button type="submit" class="danger">حذف رکورد</button></div>',fn);}
   function confirmImportDelete(id,filename,detail=false){modal('حذف فایل و شعبه‌های واردشده؟',`<p>با حذف سابقهٔ <bdi>${esc(filename)}</bdi>، شعبه‌هایی که این فایل ایجاد کرده حذف می‌شوند. تغییرات فایل روی شعبه‌هایی که از قبل وجود داشتند، اگر بعداً ویرایش نشده باشند، به اطلاعات قبلی برمی‌گردند.</p><p class="muted">تغییرات بعدی روی شعبه‌های قبلی و شعبه‌هایی که فایل دیگری هم به‌روزرسانی کرده است حفظ می‌شوند.</p><div class="dialog-actions"><button type="button" class="danger" data-confirm-import-delete>حذف فایل و شعبه‌ها</button></div>`,async()=>{});const dialog=root.querySelector('dialog'),button=dialog.querySelector('[data-confirm-import-delete]');button.onclick=async()=>{button.disabled=true;try{const result=await api('imports/'+Number(id),{method:'DELETE'});dialog.close();if(detail)go('imports');else await refresh();if(result.untracked_legacy)notify('سابقه فایل حذف شد، اما این ورودی قدیمی ارتباط ردیف‌ها با فایل را ذخیره نکرده بود و شعبه‌هایش قابل تشخیص نبودند.');else notify('فایل حذف شد؛ '+num(result.deleted_points||0)+' شعبه حذف، '+num(result.restored_points||0)+' شعبه بازگردانده و '+num(result.preserved_points||0)+' شعبه مرتبط یا تغییرکرده حفظ شد.');}catch(error){const box=dialog.querySelector('.dialog-error');box.textContent=error.message;box.hidden=false;button.disabled=false;}};}
   function pointDialog(point={}){
-    modal(point.id?'ویرایش نقطه خدماتی':'افزودن نقطه خدماتی',`<div class="form-grid"><label>ارائه‌دهنده <select name="provider_id" required>${providerOptions(providers)}</select></label>${Object.entries(labels).filter(([key])=>!['status','address','metadata'].includes(key)).map(([key,label])=>`<label>${label}${['name','province'].includes(key)?' *':''}<input name="${key}" value="${esc(point[key]??'')}" ${['name','province'].includes(key)?'required':''} ${['phone','postal_code','code','latitude','longitude'].includes(key)?'dir="ltr"':''} maxlength="${{name:255,province:100,city:100,code:64,phone:64,mobile_phone:64,landline_phone:64,source:500,postal_code:20}[key]||64}"></label>`).join('')}<label>وضعیت<select name="status"><option value="active">فعال</option><option value="inactive">غیرفعال</option></select></label><label class="full">نشانی *<textarea name="address" required maxlength="10000">${esc(point.address||'')}</textarea></label><div class="coordinate-picker full"><div class="coordinate-picker-actions"><button type="button" class="secondary" data-coordinate-picker-toggle aria-expanded="false" aria-controls="coordinate-map-panel">انتخاب روی نقشه</button><button type="button" class="secondary" data-coordinate-clear>پاک کردن مختصات</button></div><p class="help">مختصات اختیاری است. برای نقطهٔ بدون مختصات هر دو مقدار را خالی بگذارید.</p><div id="coordinate-map-panel" class="coordinate-map-panel" hidden><p class="help" id="coordinate-map-instructions">برای ثبت موقعیت روی نقشه کلیک کنید یا نشانگر را بکشید. می‌توانید مختصات را هم در فیلدهای عرض و طول جغرافیایی ویرایش کنید.</p><div class="coordinate-map" role="application" aria-label="انتخاب مختصات نقطهٔ خدماتی روی نقشه"></div><p class="coordinate-map-message" data-coordinate-message role="status" aria-live="polite"></p></div><p class="coordinate-validation" data-coordinate-validation role="alert" hidden></p></div><label class="full">اطلاعات تکمیلی (JSON)<textarea name="metadata" dir="ltr" placeholder="{}">${esc(point.metadata?JSON.stringify(point.metadata,null,2):'')}</textarea></label></div><div class="dialog-actions"><button type="submit" class="primary">ذخیره نقطه خدماتی</button></div>`,async fd=>{
+    modal(point.id?'ویرایش نقطه خدماتی':'افزودن نقطه خدماتی',`<div class="form-grid"><label>ارائه‌دهنده <select name="provider_id" required>${providerOptions(providers)}</select></label>${Object.entries(labels).filter(([key])=>!['status','address','metadata','province','city'].includes(key)).map(([key,label])=>`<label>${label}${['name'].includes(key)?' *':''}<input name="${key}" value="${esc(point[key]??'')}" ${['name'].includes(key)?'required':''} ${['phone','postal_code','code','latitude','longitude'].includes(key)?'dir="ltr"':''} maxlength="${{name:255,province:100,city:100,code:64,phone:64,mobile_phone:64,landline_phone:64,source:500,postal_code:20}[key]||64}"></label>`).join('')}<label>استان *<select name="province" required>${provinceOptions(point.province)}</select></label><label>شهر<select name="city" disabled>${cityOptions(point.province,point.city)}</select><span class="location-select-help" data-city-help role="status">ابتدا استان را انتخاب کنید.</span></label><label>وضعیت<select name="status"><option value="active">فعال</option><option value="inactive">غیرفعال</option></select></label><label class="full">نشانی *<textarea name="address" required maxlength="10000">${esc(point.address||'')}</textarea></label><div class="coordinate-picker full"><div class="coordinate-picker-actions"><button type="button" class="secondary" data-coordinate-picker-toggle aria-expanded="false" aria-controls="coordinate-map-panel">انتخاب روی نقشه</button><button type="button" class="secondary" data-coordinate-clear>پاک کردن مختصات</button></div><p class="help">مختصات اختیاری است. برای نقطهٔ بدون مختصات هر دو مقدار را خالی بگذارید.</p><div id="coordinate-map-panel" class="coordinate-map-panel" hidden><p class="help" id="coordinate-map-instructions">برای ثبت موقعیت روی نقشه کلیک کنید یا نشانگر را بکشید. می‌توانید مختصات را هم در فیلدهای عرض و طول جغرافیایی ویرایش کنید.</p><div class="coordinate-map" role="application" aria-label="انتخاب مختصات نقطهٔ خدماتی روی نقشه"></div><p class="coordinate-map-message" data-coordinate-message role="status" aria-live="polite"></p></div><p class="coordinate-validation" data-coordinate-validation role="alert" hidden></p></div><label class="full">اطلاعات تکمیلی (JSON)<textarea name="metadata" dir="ltr" placeholder="{}">${esc(point.metadata?JSON.stringify(point.metadata,null,2):'')}</textarea></label></div><div class="dialog-actions"><button type="submit" class="primary">ذخیره نقطه خدماتی</button></div>`,async fd=>{
       const coordinateIssue=validateCoordinates(fd.get('latitude'),fd.get('longitude'));
       if(coordinateIssue)throw new Error(coordinateIssue);
       const data=Object.fromEntries(fd);try{data.metadata=data.metadata?JSON.parse(data.metadata):null;}catch{throw new Error('اطلاعات تکمیلی باید JSON معتبر باشد.');}
@@ -217,7 +217,39 @@
       root.querySelector('dialog').close();history.replaceState(null,'','#points');await refresh();notify('نقطه خدماتی ذخیره شد.'+(Object.values(saved.warnings||{}).length?' '+Object.values(saved.warnings).join(' '):''));
     });
     const form=root.querySelector('dialog form');if(point.provider_id)form.elements.provider_id.value=point.provider_id;if(point.status)form.elements.status.value=point.status;
+    setupLocationSelects(form,point);
     setupCoordinatePicker(form);
+  }
+  const locationCatalog=()=>window.TapinLocationCatalog||[];
+  const catalogProvinces=()=>[...new Set([...locationCatalog().map(row=>row.province),...locations.map(row=>row.province)].filter(Boolean))];
+  const catalogCities=province=>[...new Set([...locationCatalog().find(row=>row.province===province)?.cities||[],...locations.filter(row=>row.province===province).map(row=>row.city)].filter(Boolean))];
+  function provinceOptions(current=''){
+    const provinces=catalogProvinces();
+    const legacy=current&&!provinces.includes(current)?`<option value="${esc(current)}" selected data-legacy-location="true">${esc(current)} (مقدار ثبت‌شده؛ خارج از فهرست)</option>`:'';
+    return `<option value="">انتخاب استان</option>${legacy}${provinces.map(province=>`<option value="${esc(province)}"${province===current?' selected':''}>${esc(province)}</option>`).join('')}`;
+  }
+  function cityOptions(province,current=''){
+    const cities=catalogCities(province);
+    const legacy=current&&!cities.includes(current)?`<option value="${esc(current)}" selected data-legacy-location="true">${esc(current)} (مقدار ثبت‌شده؛ خارج از فهرست)</option>`:'';
+    return `<option value="">انتخاب شهر</option>${legacy}${cities.map(city=>`<option value="${esc(city)}"${city===current?' selected':''}>${esc(city)}</option>`).join('')}`;
+  }
+  function setupLocationSelects(form,point){
+    const province=form.elements.province,city=form.elements.city,cityHelp=form.querySelector('[data-city-help]');
+    const refreshCities=(preserveCurrent=true)=>{
+      const previous=preserveCurrent?city.value:'';
+      const cities=catalogCities(province.value);
+      city.innerHTML=cityOptions(province.value,previous);
+      city.disabled=!province.value;
+      city.value=cities.includes(previous)||previous===point.city&&province.value===point.province?previous:'';
+      cityHelp.textContent=province.value?(cities.length?'شهر را از فهرست استان انتخاب کنید.':'برای این استان شهری در فهرست موجود نیست؛ شهر ثبت‌شده حفظ می‌شود.'):'ابتدا استان را انتخاب کنید.';
+    };
+    refreshCities(true);
+    province.addEventListener('change',()=>refreshCities(catalogCities(province.value).includes(city.value)));
+    // A disabled select is omitted from FormData; keep a stored city if its
+    // legacy record has no province so saving unrelated edits cannot erase it.
+    form.addEventListener('formdata',event=>{
+      if(city.disabled&&point.city)event.formData.set('city',point.city);
+    });
   }
   function coordinateNumber(value){
     const normalized=String(value??'').trim().replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))).replace(/[٫٬]/g,'.');
