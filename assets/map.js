@@ -437,13 +437,14 @@
       });
       clusters.forEach(({points:group})=>{
         const p=group[0], provider=group.every(row=>Number(row.provider_id)===Number(p.provider_id))?providers.find(pr=>Number(pr.id)===Number(p.provider_id)):null;
-        const logo=provider?providerLogo(provider):'';
-        const pinProviderClass=provider&&['post','tipax'].includes(providerSlug(provider))?' '+providerSlug(provider)+'-marker':'';
-        const medallion=provider?'<span class="provider-marker-medallion provider-medallion-'+providerSlug(provider)+'">'+providerLogoMarkup(provider,true)+'</span>':'';
-        const html=(provider?medallion:(logo?providerLogoMarkup(provider,true):'<svg width="22" height="26" viewBox="0 0 24 28" aria-hidden="true" focusable="false"><path d="M12 26S3 16 3 10a9 9 0 0 1 18 0c0 6-9 16-9 16Z" fill="white"/><circle cx="12" cy="10" r="4" fill="#7349ff"/></svg>'))+(group.length>1?'<b>'+num(group.length)+'</b>':'');
-        const knownProvider=provider&&['post','tipax'].includes(providerSlug(provider));
-        const iconSize=knownProvider?[44,52]:[34,40],iconAnchor=knownProvider?[22,51]:[17,40];
-        const marker=L.marker([p.latitude,p.longitude],{title:group.length>1?num(group.length)+' شعبه':p.name,icon:L.divIcon({className:'tapin-pin '+(selected?'provider-pin':'all-pin')+pinProviderClass,html,iconSize,iconAnchor})}).addTo(layer);
+        const isCluster=group.length>1;
+        const knownProvider=!isCluster&&provider&&['post','tipax'].includes(providerSlug(provider));
+        const pinProviderClass=knownProvider?' provider-image-pin '+providerSlug(provider)+'-marker':isCluster?' tapin-cluster':'';
+        const html=isCluster?'<span class="cluster-count">'+num(group.length)+'</span>':knownProvider?
+          '<img class="provider-pin-image" src="'+safeUrl(TapinConfig.assets+'markers/'+providerSlug(provider)+'.png')+'" alt="" draggable="false">':
+          '<span class="provider-marker-medallion provider-medallion-other">'+providerLogoMarkup(provider,true)+'</span>';
+        const iconSize=knownProvider?[48,72]:isCluster?[40,40]:[34,40],iconAnchor=knownProvider?[24,72]:isCluster?[20,20]:[17,40];
+        const marker=L.marker([p.latitude,p.longitude],{title:isCluster?num(group.length)+' شعبه':p.name,icon:L.divIcon({className:'tapin-pin '+(selected?'provider-pin':'all-pin')+pinProviderClass,html,iconSize,iconAnchor})}).addTo(layer);
         marker.getElement().style.background=/^#[0-9a-f]{6}$/i.test(provider?.marker_color)?provider.marker_color:'#7349ff';marker.getElement().style.borderColor=color(provider);
         marker.getElement().setAttribute('aria-label',group.length>1?num(group.length)+' شعبه؛ بزرگ‌نمایی یا مشاهده فهرست':p.name+'؛ اطلاعات شعبه');
         marker.bindTooltip(document.createTextNode(group.length>1?num(group.length)+' شعبه':p.name+(provider?.name?' · '+provider.name:'')),{direction:'top',offset:[0,-30]});
