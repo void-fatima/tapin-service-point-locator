@@ -33,6 +33,7 @@ async function setup(page, { publicPage = false, failTipax = false, clusterProvi
       if (endpoint === 'geocoding') return route.fulfill({ json: { items: [], counts: {} } });
       if (endpoint === 'public/filters') return route.fulfill({ json: { providers, locations, summary: { total: fixturePoints.length, located: fixturePoints.length, missing: 0, distribution: providers.map(provider => ({ provider_id: provider.id, total: 1, located: 1 })) } } });
       if (/^public\/points\/\d+$/.test(endpoint)) return route.fulfill({ json: fixturePoints.find(point => point.id === Number(endpoint.split('/').pop())) });
+      if (/^points\/\d+\/details$/.test(endpoint)) return route.fulfill({ json: fixturePoints.find(point => point.id === Number(endpoint.split('/')[1])) });
       if (endpoint === 'public/directory' || endpoint === 'public/points' || endpoint === 'points') {
         const providerIds = (url.searchParams.get('provider_id') || '').split(',').filter(Boolean).map(Number);
         const items = fixturePoints.filter(point => !providerIds.length || providerIds.includes(point.provider_id));
@@ -196,6 +197,20 @@ async function verifyPins(page) {
     await adminPage.goto('http://tapin.test/wp-admin/admin.php?page=tapin-locator#dashboard');
     await verifyPins(adminPage);
     await adminPage.locator('.tapin-map').screenshot({ path: path.join(screenshotDir, 'admin-map.png') });
+    const detailTrigger = adminPage.locator('.post-marker').first();
+    await detailTrigger.click();
+    const detailDialog = adminPage.locator('dialog.tapin-detail');
+    await expect(detailDialog).toBeVisible();
+    const desktopBounds = await detailDialog.boundingBox();
+    expect(Math.abs(desktopBounds.x + desktopBounds.width/2 - 720)).toBeLessThanOrEqual(1);
+    expect(Math.abs(desktopBounds.y + desktopBounds.height/2 - 500)).toBeLessThanOrEqual(1);
+    expect(await detailDialog.evaluate(element => element.contains(document.activeElement))).toBe(true);
+    expect(await detailDialog.evaluate(element => getComputedStyle(element, '::backdrop').backdropFilter)).toContain('blur');
+    await adminPage.keyboard.press('Tab');
+    expect(await detailDialog.evaluate(element => element.contains(document.activeElement))).toBe(true);
+    await adminPage.keyboard.press('Escape');
+    await expect(detailDialog).toBeHidden();
+    await expect(detailTrigger).toBeFocused();
     await adminPage.setViewportSize({ width: 390, height: 844 });
     await adminPage.evaluate(() => {
       const map = window.testMaps[window.testMaps.length - 1];
@@ -204,6 +219,15 @@ async function verifyPins(page) {
     });
     await verifyPins(adminPage);
     await adminPage.locator('.tapin-map').screenshot({ path: path.join(screenshotDir, 'mobile-map.png') });
+    const mobileTrigger = adminPage.locator('.post-marker').first();
+    await mobileTrigger.click();
+    await expect(detailDialog).toBeVisible();
+    const mobileBounds = await detailDialog.boundingBox();
+    expect(Math.abs(mobileBounds.x + mobileBounds.width/2 - 195)).toBeLessThanOrEqual(1);
+    expect(Math.abs(mobileBounds.y + mobileBounds.height/2 - 422)).toBeLessThanOrEqual(1);
+    await detailDialog.locator('[data-close]').click();
+    await expect(detailDialog).toBeHidden();
+    await expect(mobileTrigger).toBeFocused();
     expect(adminErrors).toEqual([]);
     console.log('PASS provider-markers-actions: complete PNG pins, equal size/anchors, Post/Tipax/mixed branded clusters at initial and closer zooms in admin/public maps, address-only exclusion, accessible counts, click-to-zoom, logos/fallback, row actions and delete confirmation.');
   } finally {

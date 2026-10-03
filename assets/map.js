@@ -288,8 +288,7 @@
     city.innerHTML='<option value="">همه شهرها</option>'+[...new Set(locations.map(l=>l.city))].map(c=>`<option>${esc(c)}</option>`).join('');
     let selected = '', coordinateFilter = '', search = '', page = 1, generation = 0, controller, items = [];
     const markers = new Map();
-    const drawer=document.createElement(admin?'div':'dialog');drawer.className='tapin-detail';drawer.dir='rtl';drawer.setAttribute('aria-labelledby',detailId);drawer.setAttribute('role','dialog');drawer.setAttribute('aria-modal',String(!admin));
-    if(admin)drawer.hidden=true;
+    const drawer=document.createElement('dialog');drawer.className='tapin-detail';drawer.dir='rtl';drawer.setAttribute('aria-labelledby',detailId);drawer.setAttribute('role','dialog');drawer.setAttribute('aria-modal','true');
     drawer.innerHTML=`<header><h2 id="${detailId}">اطلاعات نقطه خدماتی</h2><button type="button" data-close aria-label="بستن اطلاعات شعبه">×</button></header><div class="detail-body"></div>`;
     container.append(drawer);
     let detailOpener=null,detailController,detailGeneration=0;
