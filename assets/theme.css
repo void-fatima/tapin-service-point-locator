@@ -1,0 +1,224 @@
+/* The default remains the established dark palette. Light mode is opt-in. */
+.tapin-app .theme-choice {
+	width: min(100%, 360px);
+	margin: 14px auto 28px;
+	text-align: center;
+}
+
+.tapin-app .theme-choice label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 700;
+}
+
+.tapin-app .theme-choice p {
+	margin-top: 8px;
+	font-size: 12px;
+	color: var(--muted);
+}
+
+.tapin-app[data-theme-mode="light"] {
+	--bg: #f3f6fb;
+	--panel: #ffffff;
+	--line: #d7e0ec;
+	--text: #1e293b;
+	--muted: #64748b;
+	color-scheme: light;
+	color: #26354b;
+	background: #f3f6fb;
+}
+
+.tapin-app[data-theme-mode="light"] * {
+	color: #26354b !important;
+}
+
+.tapin-app[data-theme-mode="light"] :is(
+	.tapin-sidebar, .tapin-main, .tapin-header, .tapin-footer, .panel,
+	.dashboard-overview, .provider-overview, .metric-rail, .metric-total,
+	.coordinate-card, .distribution, .dashboard-directory-panel, .guide,
+	.filters, .filter-bar, .filter-actions, .map-panel, .map-tools, .map-status,
+	.map-actions, .tapin-dialog, .tapin-detail, .detail-body, .sheet-section,
+	.provider-cards article, .upload-zone, .import-stepper, .step-num,
+	.pagination, .points-management-table, .history-table, .table-scroll,
+	.job-counts > div, .map-list, .map-legend, .provider-tabs button.selected,
+	.issue-list a, .distribution-items > a, .empty, .loading, .form-grid input,
+	.form-grid select, .form-grid textarea, input, select, textarea, th, td,
+	button:not(.primary):not(.btn-upload-submit), code, .leaflet-tooltip,
+	.leaflet-popup-content-wrapper, .leaflet-popup-tip, .leaflet-bar a,
+	.leaflet-control-attribution, .leaflet-control-scale-line
+) {
+	background-color: #ffffff !important;
+	border-color: #d7e0ec !important;
+	box-shadow: none;
+}
+
+.tapin-app[data-theme-mode="light"] button:not(.primary):not(.btn-upload-submit) {
+	background-image: none !important;
+}
+
+.tapin-app[data-theme-mode="light"] .tapin-sidebar,
+.tapin-app[data-theme-mode="light"] .tapin-main,
+.tapin-app[data-theme-mode="light"] .tapin-header,
+.tapin-app[data-theme-mode="light"] .tapin-footer,
+.tapin-app[data-theme-mode="light"] .panel,
+.tapin-app[data-theme-mode="light"] .tapin-dialog,
+.tapin-app[data-theme-mode="light"] .tapin-detail,
+.tapin-app[data-theme-mode="light"] .provider-cards article,
+.tapin-app[data-theme-mode="light"] .points-management-table,
+.tapin-app[data-theme-mode="light"] .history-table,
+.tapin-app[data-theme-mode="light"] .table-scroll,
+.tapin-app[data-theme-mode="light"] .dashboard-directory-panel,
+.tapin-app[data-theme-mode="light"] .metric-rail,
+.tapin-app[data-theme-mode="light"] .metric-total,
+.tapin-app[data-theme-mode="light"] .coordinate-card,
+.tapin-app[data-theme-mode="light"] .map-panel,
+.tapin-app[data-theme-mode="light"] .upload-zone,
+.tapin-app[data-theme-mode="light"] .pagination,
+.tapin-app[data-theme-mode="light"] .filters,
+.tapin-app[data-theme-mode="light"] .filter-bar,
+.tapin-app[data-theme-mode="light"] .issue-list a,
+.tapin-app[data-theme-mode="light"] .dashboard-overview,
+.tapin-app[data-theme-mode="light"] .provider-overview,
+.tapin-app[data-theme-mode="light"] .distribution,
+.tapin-app[data-theme-mode="light"] .guide,
+.tapin-app[data-theme-mode="light"] .map-tools,
+.tapin-app[data-theme-mode="light"] .map-status,
+.tapin-app[data-theme-mode="light"] .map-actions,
+.tapin-app[data-theme-mode="light"] .job-counts > div,
+.tapin-app[data-theme-mode="light"] .step-num,
+.tapin-app[data-theme-mode="light"] .pagination,
+.tapin-app[data-theme-mode="light"] .map-list,
+.tapin-app[data-theme-mode="light"] .leaflet-tooltip,
+.tapin-app[data-theme-mode="light"] .leaflet-popup-content-wrapper,
+.tapin-app[data-theme-mode="light"] .leaflet-popup-tip,
+.tapin-app[data-theme-mode="light"] .leaflet-bar a,
+.tapin-app[data-theme-mode="light"] .leaflet-control-attribution,
+.tapin-app[data-theme-mode="light"] .leaflet-control-scale-line {
+	background: #ffffff !important;
+	border-color: #d7e0ec !important;
+}
+
+.tapin-app[data-theme-mode="light"] .tapin-sidebar nav a,
+.tapin-app[data-theme-mode="light"] .sidebar-foot,
+.tapin-app[data-theme-mode="light"] .tapin-header p,
+.tapin-app[data-theme-mode="light"] .tapin-footer,
+.tapin-app[data-theme-mode="light"] .guide p,
+.tapin-app[data-theme-mode="light"] .help,
+.tapin-app[data-theme-mode="light"] .muted,
+.tapin-app[data-theme-mode="light"] .step-item,
+.tapin-app[data-theme-mode="light"] .step-sep,
+.tapin-app[data-theme-mode="light"] .section-subtitle,
+.tapin-app[data-theme-mode="light"] .pagination-info,
+.tapin-app[data-theme-mode="light"] .map-status,
+.tapin-app[data-theme-mode="light"] .map-legend,
+.tapin-app[data-theme-mode="light"] .marker-status,
+.tapin-app[data-theme-mode="light"] .directory-hint,
+.tapin-app[data-theme-mode="light"] .location-select-help,
+.tapin-app[data-theme-mode="light"] .upload-subtitle,
+.tapin-app[data-theme-mode="light"] .upload-note,
+.tapin-app[data-theme-mode="light"] .spec-pill,
+.tapin-app[data-theme-mode="light"] .step-label {
+	color: #52637a !important;
+}
+
+.tapin-app[data-theme-mode="light"] a,
+.tapin-app[data-theme-mode="light"] .tapin-sidebar nav a,
+.tapin-app[data-theme-mode="light"] .text-action,
+.tapin-app[data-theme-mode="light"] .tapin-public a {
+	color: #245ea8 !important;
+}
+
+.tapin-app[data-theme-mode="light"] .good,
+.tapin-app[data-theme-mode="light"] .status-pill.good,
+.tapin-app[data-theme-mode="light"] .coord-badge.good,
+.tapin-app[data-theme-mode="light"] .step-item.active {
+	color: #087a5a !important;
+}
+
+.tapin-app[data-theme-mode="light"] .bad,
+.tapin-app[data-theme-mode="light"] .danger,
+.tapin-app[data-theme-mode="light"] .status-pill.bad,
+.tapin-app[data-theme-mode="light"] .coord-badge.bad {
+	color: #b4233d !important;
+}
+
+.tapin-app[data-theme-mode="light"] .warning,
+.tapin-app[data-theme-mode="light"] .badge.warning,
+.tapin-app[data-theme-mode="light"] .quality-badge.warning,
+.tapin-app[data-theme-mode="light"] .primary,
+.tapin-app[data-theme-mode="light"] .btn-upload-submit,
+.tapin-app[data-theme-mode="light"] .tapin-sidebar nav a.active,
+.tapin-app[data-theme-mode="light"] .provider-tabs button.selected {
+	color: #332307 !important;
+}
+
+.tapin-app[data-theme-mode="light"] .warning,
+.tapin-app[data-theme-mode="light"] .badge.warning,
+.tapin-app[data-theme-mode="light"] .quality-badge.warning {
+	background: #fff4d6 !important;
+	border-color: #ead08b !important;
+}
+
+.tapin-app[data-theme-mode="light"] .coord-badge.good,
+.tapin-app[data-theme-mode="light"] .status-pill.good {
+	background: #e7f7ef !important;
+	border-color: #a8ddbf !important;
+}
+
+.tapin-app[data-theme-mode="light"] .coord-badge.bad,
+.tapin-app[data-theme-mode="light"] .status-pill.muted {
+	background: #f1f4f8 !important;
+	border-color: #d7e0ec !important;
+}
+
+.tapin-app[data-theme-mode="light"] .tapin-sidebar nav a.active {
+	background: #fff4d8 !important;
+}
+
+.tapin-app[data-theme-mode="light"] .tapin-notice:not(.error),
+.tapin-app[data-theme-mode="light"] .selected-file-name {
+	background: #e9f8f0 !important;
+	border-color: #a6dec0 !important;
+}
+
+.tapin-app[data-theme-mode="light"] .tapin-notice.error,
+.tapin-app[data-theme-mode="light"] .dialog-error,
+.tapin-app[data-theme-mode="light"] .panel.error,
+.tapin-app[data-theme-mode="light"] .coordinate-validation {
+	background: #fff0f1 !important;
+	border-color: #f2b8c0 !important;
+	color: #9f2037 !important;
+}
+
+.tapin-app[data-theme-mode="light"] .leaflet-tile-pane {
+	filter: none !important;
+}
+
+.tapin-app[data-theme-mode="light"] .tapin-map {
+	background: #e7edf4 !important;
+}
+
+.tapin-app[data-theme-mode="light"] .leaflet-popup-content-wrapper,
+.tapin-app[data-theme-mode="light"] .leaflet-popup-tip,
+.tapin-app[data-theme-mode="light"] .leaflet-tooltip {
+	color: #26354b !important;
+}
+
+.tapin-app[data-theme-mode="light"] .tapin-dialog::backdrop,
+.tapin-app[data-theme-mode="light"] dialog.tapin-detail::backdrop {
+	background: #18233888;
+}
+
+.tapin-app[data-theme-mode="light"] .tapin-detail header {
+	background: #f8fafc !important;
+	border-color: #d7e0ec !important;
+}
+
+.tapin-app[data-theme-mode="light"] .point-provider-icon,
+.tapin-app[data-theme-mode="light"] .provider-symbol,
+.tapin-app[data-theme-mode="light"] .provider-marker-medallion,
+.tapin-app[data-theme-mode="light"] .provider-logo,
+.tapin-app[data-theme-mode="light"] .provider-pin-image {
+	filter: none !important;
+}
+

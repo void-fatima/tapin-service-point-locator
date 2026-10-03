@@ -135,6 +135,14 @@
 .tapin-app .sheet-meta{background:#0d101c;padding:12px;border-radius:6px;border:1px solid #222740;max-height:180px;overflow:auto;font-size:11px;color:#c4b5fd}
 .tapin-app .sheet-actions{display:flex;gap:10px;justify-content:flex-end}
 .tapin-app .provider-card{display:flex;flex-direction:column;justify-content:space-between;min-height:140px;transition:border-color .15s ease}
+.tapin-app .providers-management .provider-section-title{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center}
+.tapin-app .providers-management .provider-section-title>div{grid-column:2;grid-row:1;text-align:center}
+.tapin-app .providers-management .provider-section-title>#new-provider{grid-column:3;grid-row:1;justify-self:end}
+.tapin-app .providers-management>.help{text-align:center}
+.tapin-app .providers-management .provider-cards{display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch}
+.tapin-app .providers-management .provider-card{flex:0 1 280px;width:min(280px,100%);text-align:center}
+.tapin-app .providers-management .provider-card-head,.tapin-app .providers-management .provider-card-actions{justify-content:center}
+.tapin-app .providers-management .provider-card>p{text-align:center}
 .tapin-app .provider-card-head{display:flex;justify-content:space-between;align-items:center}
 .tapin-app .provider-card-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
 .tapin-app .provider-card-actions button{font-size:11px;padding:4px 10px;min-height:30px}
@@ -164,3 +172,5 @@
 .tapin-app .provider-medallion-post .provider-logo-fallback{background:#fff;color:#183e82}
 .tapin-app .provider-medallion-other .provider-logo-fallback{background:#eef2fa;color:#263b50}
 .tapin-app .provider-marker-medallion .provider-logo-fallback{width:25px;height:25px;font-size:17px}
+.tapin-app .guide{width:min(100%,900px);margin-inline:auto;text-align:center}
+.tapin-app .guide h2,.tapin-app .guide h3,.tapin-app .guide p{text-align:center}

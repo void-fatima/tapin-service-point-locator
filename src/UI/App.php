@@ -34,9 +34,11 @@ final class App {
 		wp_enqueue_style( 'tapin-leaflet', TAPIN_PLUGIN_URL . 'assets/vendor/leaflet.css', array(), '1.9.4' );
 		wp_enqueue_style( 'tapin-app', TAPIN_PLUGIN_URL . 'assets/app.css', array( 'tapin-leaflet' ), $version( 'app.css' ) );
 		if ( $admin ) { wp_enqueue_style( 'tapin-dashboard', TAPIN_PLUGIN_URL . 'assets/dashboard.css', array( 'tapin-app' ), $version( 'dashboard.css' ) ); }
+		wp_enqueue_style( 'tapin-theme', TAPIN_PLUGIN_URL . 'assets/theme.css', array( $admin ? 'tapin-dashboard' : 'tapin-app' ), $version( 'theme.css' ) );
 		wp_enqueue_script( 'tapin-leaflet', TAPIN_PLUGIN_URL . 'assets/vendor/leaflet.js', array(), '1.9.4', true );
 		wp_enqueue_script( 'tapin-locations', TAPIN_PLUGIN_URL . 'assets/iran-locations.js', array(), $version( 'iran-locations.js' ), true );
-		wp_enqueue_script( 'tapin-map', TAPIN_PLUGIN_URL . 'assets/map.js', array( 'tapin-leaflet', 'tapin-locations' ), $version( 'map.js' ), true );
+		wp_enqueue_script( 'tapin-theme', TAPIN_PLUGIN_URL . 'assets/theme.js', array(), $version( 'theme.js' ), true );
+		wp_enqueue_script( 'tapin-map', TAPIN_PLUGIN_URL . 'assets/map.js', array( 'tapin-leaflet', 'tapin-locations', 'tapin-theme' ), $version( 'map.js' ), true );
 		$is_https = is_ssl() || ( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) && 'https' === $_SERVER['HTTP_X_FORWARDED_PROTO'] );
 		$api_url = rest_url( 'tapin/v1/' );
 		$assets_url = TAPIN_PLUGIN_URL . 'assets/';
