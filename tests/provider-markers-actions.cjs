@@ -204,6 +204,8 @@ async function verifyPins(page) {
     const desktopBounds = await detailDialog.boundingBox();
     expect(Math.abs(desktopBounds.x + desktopBounds.width/2 - 720)).toBeLessThanOrEqual(1);
     expect(Math.abs(desktopBounds.y + desktopBounds.height/2 - 500)).toBeLessThanOrEqual(1);
+    expect(await detailDialog.locator('header h2').evaluate(element => getComputedStyle(element).textAlign)).toBe('center');
+    expect(await detailDialog.locator('.detail-body').evaluate(element => getComputedStyle(element).textAlign)).toBe('center');
     expect(await detailDialog.evaluate(element => element.contains(document.activeElement))).toBe(true);
     expect(await detailDialog.evaluate(element => getComputedStyle(element, '::backdrop').backdropFilter)).toContain('blur');
     await adminPage.keyboard.press('Tab');
