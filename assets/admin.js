@@ -116,8 +116,9 @@
     const body=`<div class="point-view-sheet"><div class="sheet-hero">${badge(prov)}<div class="sheet-title-group"><h3>${esc(point.name)}</h3><p><bdi>${esc(point.code||'بدون کد شعبه')}</bdi> · <span class="${point.status==='active'?'good':'muted'}">${point.status==='active'?'● فعال':'○ غیرفعال'}</span></p></div></div><div class="sheet-grid"><div class="sheet-section"><h4>اطلاعات مکانی</h4><div class="kv"><span>استان:</span><b>${esc(point.province)}</b></div><div class="kv"><span>شهر:</span><b>${esc(point.city)}</b></div><div class="kv"><span>نشانی:</span><p class="sheet-address">${esc(point.address)}</p></div>${point.postal_code?`<div class="kv"><span>کد پستی:</span><bdi>${esc(point.postal_code)}</bdi></div>`:''}<div class="kv"><span>مختصات:</span><bdi class="${valid?'good':'bad'}">${coordsText}</bdi></div><div class="kv"><span>کیفیت داده:</span><span>${qualityBadge(point)}</span></div>${point.source?`<div class="kv"><span>منبع داده:</span><bdi class="sheet-source">${esc(point.source)}</bdi></div>`:''}</div><div class="sheet-section"><h4>راه‌های ارتباطی</h4>${phones.length?phones.map(([lbl,val])=>`<div class="kv"><span>${lbl}:</span><a href="tel:${esc(String(val).replace(/[^0-9+]/g,''))}"><bdi>${esc(val)}</bdi></a></div>`).join(''):'<p class="muted">شماره تلفنی ثبت نشده است.</p>'}</div>${point.metadata&&typeof point.metadata==='object'&&Object.keys(point.metadata).length?`<div class="sheet-section full"><h4>اطلاعات تکمیلی (JSON)</h4><pre class="sheet-meta" dir="ltr"><code>${esc(JSON.stringify(point.metadata,null,2))}</code></pre></div>`:''}</div><div class="dialog-actions sheet-actions"><button type="button" class="primary" data-switch-edit="${point.id}">ویرایش این نقطه</button> <button type="button" data-close-sheet>بستن</button></div></div>`;
     modal('مشاهده نقطه خدماتی',body,async()=>{});
     const dialog=root.querySelector('dialog');
-    dialog.querySelector('[data-switch-edit]')?.addEventListener('click',()=>{dialog.close();pointDialog(point);});
+    dialog.querySelector('[data-switch-edit]')?.addEventListener('click',()=>{dialog.addEventListener('close',()=>pointDialog(point),{once:true});dialog.close();});
     dialog.querySelector('[data-close-sheet]')?.addEventListener('click',()=>dialog.close());
+    dialog.querySelector('[data-close-sheet]')?.focus({preventScroll:true});
   }
   async function pointsPage(params,token){
     const query=new URLSearchParams(params);query.delete('edit');query.delete('new');query.delete('view');query.set('per_page','20');query.set('order','DESC');
@@ -201,7 +202,7 @@
     if(dialog.open)dialog.close();
     dialog.innerHTML=`<form method="dialog"><div class="section-title"><h2 id="dialog-title">${title}</h2><button type="button" class="close-dialog" aria-label="بستن">×</button></div><div class="dialog-error" role="alert" hidden></div>${body}</form>`;
     dialog.querySelector('.close-dialog').onclick=()=>dialog.close();
-    dialog.onclose=()=>previous?.focus();
+    dialog.onclose=()=>{if(previous?.isConnected)previous.focus({preventScroll:true});};
     dialog.querySelector('form').onsubmit=async e=>{e.preventDefault();const submit=e.submitter;if(submit)submit.disabled=true;const error=dialog.querySelector('.dialog-error');error.hidden=true;try{await onSubmit(new FormData(e.target));if(dialog.open)dialog.close();}catch(err){error.textContent=err.message;error.hidden=false;error.scrollIntoView({block:'nearest'});}finally{if(submit)submit.disabled=false;}};
     dialog.showModal();
   }

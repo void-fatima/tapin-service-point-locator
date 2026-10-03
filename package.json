@@ -4,6 +4,7 @@
   "scripts": {
     "test:browser": "node tests/browser.cjs",
     "test:admin": "node tests/admin-ui.cjs",
+    "test:dialog": "node tests/dialog-position.cjs",
     "test:public": "node tests/public-ux.cjs",
     "test:map": "node tests/map-engine.cjs",
     "test:source": "node tests/source-map.cjs",
