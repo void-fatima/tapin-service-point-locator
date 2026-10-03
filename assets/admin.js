@@ -209,12 +209,80 @@
   function confirmDelete(title,fn){modal(title,'<p>این عمل قابل بازگشت نیست.</p><div class="dialog-actions"><button type="submit" class="danger">حذف رکورد</button></div>',fn);}
   function confirmImportDelete(id,filename,detail=false){modal('حذف فایل و شعبه‌های واردشده؟',`<p>با حذف سابقهٔ <bdi>${esc(filename)}</bdi>، شعبه‌هایی که این فایل ایجاد کرده حذف می‌شوند. تغییرات فایل روی شعبه‌هایی که از قبل وجود داشتند، اگر بعداً ویرایش نشده باشند، به اطلاعات قبلی برمی‌گردند.</p><p class="muted">تغییرات بعدی روی شعبه‌های قبلی و شعبه‌هایی که فایل دیگری هم به‌روزرسانی کرده است حفظ می‌شوند.</p><div class="dialog-actions"><button type="button" class="danger" data-confirm-import-delete>حذف فایل و شعبه‌ها</button></div>`,async()=>{});const dialog=root.querySelector('dialog'),button=dialog.querySelector('[data-confirm-import-delete]');button.onclick=async()=>{button.disabled=true;try{const result=await api('imports/'+Number(id),{method:'DELETE'});dialog.close();if(detail)go('imports');else await refresh();if(result.untracked_legacy)notify('سابقه فایل حذف شد، اما این ورودی قدیمی ارتباط ردیف‌ها با فایل را ذخیره نکرده بود و شعبه‌هایش قابل تشخیص نبودند.');else notify('فایل حذف شد؛ '+num(result.deleted_points||0)+' شعبه حذف، '+num(result.restored_points||0)+' شعبه بازگردانده و '+num(result.preserved_points||0)+' شعبه مرتبط یا تغییرکرده حفظ شد.');}catch(error){const box=dialog.querySelector('.dialog-error');box.textContent=error.message;box.hidden=false;button.disabled=false;}};}
   function pointDialog(point={}){
-    modal(point.id?'ویرایش نقطه خدماتی':'افزودن نقطه خدماتی',`<div class="form-grid"><label>ارائه‌دهنده <select name="provider_id" required>${providerOptions(providers)}</select></label>${Object.entries(labels).filter(([key])=>!['status','address','metadata'].includes(key)).map(([key,label])=>`<label>${label}${['name','province'].includes(key)?' *':''}<input name="${key}" value="${esc(point[key]??'')}" ${['name','province'].includes(key)?'required':''} ${['phone','postal_code','code','latitude','longitude'].includes(key)?'dir="ltr"':''} maxlength="${{name:255,province:100,city:100,code:64,phone:64,mobile_phone:64,landline_phone:64,source:500,postal_code:20}[key]||64}"></label>`).join('')}<label>وضعیت<select name="status"><option value="active">فعال</option><option value="inactive">غیرفعال</option></select></label><label class="full">نشانی *<textarea name="address" required maxlength="10000">${esc(point.address||'')}</textarea></label><p class="help full">مختصات اختیاری است. هر دو را خالی بگذارید تا نقطه با وضعیت «بدون مختصات» ذخیره شود؛ این نقاط روی نقشه نمایش داده نمی‌شوند.</p><label class="full">اطلاعات تکمیلی (JSON)<textarea name="metadata" dir="ltr" placeholder="{}">${esc(point.metadata?JSON.stringify(point.metadata,null,2):'')}</textarea></label></div><div class="dialog-actions"><button type="submit" class="primary">ذخیره نقطه خدماتی</button></div>`,async fd=>{
+    modal(point.id?'ویرایش نقطه خدماتی':'افزودن نقطه خدماتی',`<div class="form-grid"><label>ارائه‌دهنده <select name="provider_id" required>${providerOptions(providers)}</select></label>${Object.entries(labels).filter(([key])=>!['status','address','metadata'].includes(key)).map(([key,label])=>`<label>${label}${['name','province'].includes(key)?' *':''}<input name="${key}" value="${esc(point[key]??'')}" ${['name','province'].includes(key)?'required':''} ${['phone','postal_code','code','latitude','longitude'].includes(key)?'dir="ltr"':''} maxlength="${{name:255,province:100,city:100,code:64,phone:64,mobile_phone:64,landline_phone:64,source:500,postal_code:20}[key]||64}"></label>`).join('')}<label>وضعیت<select name="status"><option value="active">فعال</option><option value="inactive">غیرفعال</option></select></label><label class="full">نشانی *<textarea name="address" required maxlength="10000">${esc(point.address||'')}</textarea></label><div class="coordinate-picker full"><div class="coordinate-picker-actions"><button type="button" class="secondary" data-coordinate-picker-toggle aria-expanded="false" aria-controls="coordinate-map-panel">انتخاب روی نقشه</button><button type="button" class="secondary" data-coordinate-clear>پاک کردن مختصات</button></div><p class="help">مختصات اختیاری است. برای نقطهٔ بدون مختصات هر دو مقدار را خالی بگذارید.</p><div id="coordinate-map-panel" class="coordinate-map-panel" hidden><p class="help" id="coordinate-map-instructions">برای ثبت موقعیت روی نقشه کلیک کنید یا نشانگر را بکشید. می‌توانید مختصات را هم در فیلدهای عرض و طول جغرافیایی ویرایش کنید.</p><div class="coordinate-map" role="application" aria-label="انتخاب مختصات نقطهٔ خدماتی روی نقشه"></div><p class="coordinate-map-message" data-coordinate-message role="status" aria-live="polite"></p></div><p class="coordinate-validation" data-coordinate-validation role="alert" hidden></p></div><label class="full">اطلاعات تکمیلی (JSON)<textarea name="metadata" dir="ltr" placeholder="{}">${esc(point.metadata?JSON.stringify(point.metadata,null,2):'')}</textarea></label></div><div class="dialog-actions"><button type="submit" class="primary">ذخیره نقطه خدماتی</button></div>`,async fd=>{
+      const coordinateIssue=validateCoordinates(fd.get('latitude'),fd.get('longitude'));
+      if(coordinateIssue)throw new Error(coordinateIssue);
       const data=Object.fromEntries(fd);try{data.metadata=data.metadata?JSON.parse(data.metadata):null;}catch{throw new Error('اطلاعات تکمیلی باید JSON معتبر باشد.');}
       const saved=await api('points'+(point.id?'/'+point.id:''),{method:'POST',body:data});
       root.querySelector('dialog').close();history.replaceState(null,'','#points');await refresh();notify('نقطه خدماتی ذخیره شد.'+(Object.values(saved.warnings||{}).length?' '+Object.values(saved.warnings).join(' '):''));
     });
     const form=root.querySelector('dialog form');if(point.provider_id)form.elements.provider_id.value=point.provider_id;if(point.status)form.elements.status.value=point.status;
+    setupCoordinatePicker(form);
+  }
+  function coordinateNumber(value){
+    const normalized=String(value??'').trim().replace(/[۰-۹]/g,d=>String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d))).replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))).replace(/[٫٬]/g,'.');
+    if(!normalized)return null;
+    if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(normalized))return NaN;
+    const number=Number(normalized);return Number.isFinite(number)?number:NaN;
+  }
+  function validateCoordinates(latitude,longitude){
+    const latText=String(latitude??'').trim(),lngText=String(longitude??'').trim();
+    if(!latText&&!lngText)return '';
+    if(!latText||!lngText)return 'برای ثبت موقعیت، عرض و طول جغرافیایی را هر دو وارد کنید یا هر دو را خالی بگذارید.';
+    const lat=coordinateNumber(latText),lng=coordinateNumber(lngText);
+    if(!Number.isFinite(lat)||!Number.isFinite(lng))return 'مختصات باید عدد معتبر باشند.';
+    if(lat < -90||lat > 90||lng < -180||lng > 180)return 'عرض جغرافیایی باید بین ۹۰- و ۹۰ و طول جغرافیایی بین ۱۸۰- و ۱۸۰ باشد.';
+    return '';
+  }
+  function setupCoordinatePicker(form){
+    const dialog=form.closest('dialog'),latitude=form.elements.latitude,longitude=form.elements.longitude;
+    const toggle=form.querySelector('[data-coordinate-picker-toggle]'),clear=form.querySelector('[data-coordinate-clear]');
+    const panel=form.querySelector('#coordinate-map-panel'),host=form.querySelector('.coordinate-map');
+    const validation=form.querySelector('[data-coordinate-validation]'),message=form.querySelector('[data-coordinate-message]');
+    const initialLat=coordinateNumber(latitude.value),initialLng=coordinateNumber(longitude.value);
+    const initialValid=Number.isFinite(initialLat)&&Number.isFinite(initialLng)&&initialLat>=-90&&initialLat<=90&&initialLng>=-180&&initialLng<=180;
+    let map=null,marker=null;
+    const pair=()=>{
+      const error=validateCoordinates(latitude.value,longitude.value);
+      if(error)return {error,valid:false};
+      if(!String(latitude.value).trim())return {valid:false,empty:true};
+      return {valid:true,lat:coordinateNumber(latitude.value),lng:coordinateNumber(longitude.value)};
+    };
+    const syncMarker=()=>{
+      const current=pair();
+      validation.textContent=current.error||'';validation.hidden=!current.error;
+      if(!map)return;
+      if(current.valid){
+        const latlng=[current.lat,current.lng];
+        if(marker)marker.setLatLng(latlng);else {marker=L.marker(latlng,{draggable:true,keyboard:true,title:'موقعیت انتخاب‌شده'}).addTo(map);marker.on('dragend',event=>writeCoordinates(event.target.getLatLng()));map.setView(latlng,Math.max(map.getZoom(),13));}
+        if(message)message.textContent=`موقعیت انتخاب شد: ${current.lat}، ${current.lng}`;
+      }else{
+        if(marker){map.removeLayer(marker);marker=null;}
+        if(current.empty&&message)message.textContent='هنوز موقعیتی انتخاب نشده است.';
+      }
+    };
+    const writeCoordinates=latlng=>{
+      latitude.value=latlng.lat.toFixed(6);longitude.value=latlng.lng.toFixed(6);
+      latitude.dispatchEvent(new Event('input',{bubbles:true}));longitude.dispatchEvent(new Event('input',{bubbles:true}));syncMarker();
+    };
+    const openPicker=()=>{
+      if(!map){
+        map=L.map(host,{scrollWheelZoom:false,keyboard:true,zoomControl:true,attributionControl:true}).setView(initialValid?[initialLat,initialLng]:[32,53],initialValid?13:5);
+        L.tileLayer(TapinConfig.tiles,{attribution:TapinConfig.attribution,maxZoom:19}).addTo(map);
+        map.on('click',event=>writeCoordinates(event.latlng));
+        syncMarker();
+      }
+      requestAnimationFrame(()=>map.invalidateSize({pan:false}));
+      setTimeout(()=>map?.invalidateSize({pan:false}),100);
+    };
+    toggle.onclick=()=>{
+      const opening=panel.hidden;panel.hidden=!opening;toggle.setAttribute('aria-expanded',String(opening));
+      if(opening)openPicker();
+    };
+    clear.onclick=()=>{latitude.value='';longitude.value='';latitude.dispatchEvent(new Event('input',{bubbles:true}));longitude.dispatchEvent(new Event('input',{bubbles:true}));syncMarker();latitude.focus();};
+    latitude.addEventListener('input',syncMarker);longitude.addEventListener('input',syncMarker);
+    form.addEventListener('submit',event=>{const issue=validateCoordinates(latitude.value,longitude.value);validation.textContent=issue;validation.hidden=!issue;if(issue){event.preventDefault();latitude.focus();}} ,true);
+    dialog.addEventListener('close',()=>map?.remove(),{once:true});
   }
   async function providersPage(){
     content().innerHTML=`<section class="panel"><div class="section-title"><div><h2>ارائه‌دهندگان خدمات</h2><span class="step-label">${num(providers.length)} ارائه‌دهنده</span></div><button type="button" class="primary" id="new-provider"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>ارائه‌دهنده جدید</span></button></div><p class="help">حذف ارائه‌دهنده دارای نقطه خدماتی امکان‌پذیر نیست.</p><div class="provider-cards">${providers.map(p=>`<article style="--provider:${color(p)}" class="provider-card"><div class="provider-card-head">${badge(p)}</div><p><bdi>${esc(p.slug)}</bdi></p><div class="provider-card-actions"><button type="button" data-provider-edit="${p.id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg><span>ویرایش</span></button> <button type="button" class="danger" data-provider-delete="${p.id}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span>حذف</span></button></div></article>`).join('')}</div></section>`;

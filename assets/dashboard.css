@@ -218,6 +218,20 @@
 #tapin-admin #mapping-form .mapping-provider-from-column .mapping-provider-icon{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:9px;background:#173f51;color:#5de0b3;font-size:18px;font-weight:800}
 #tapin-admin #mapping-form .mapping-provider-from-column strong,#tapin-admin #mapping-form .mapping-provider-from-column small{display:block;line-height:1.5}
 #tapin-admin #mapping-form .mapping-provider-from-column small{margin-top:3px;color:#a9c3e2;font-size:11px}
+
+/* Stage 3 admin coordinate picker. */
+#tapin-admin .coordinate-picker{min-width:0;padding:14px;border:1px solid #263b5b;border-radius:10px;background:linear-gradient(135deg,#101d33,#0c1729)}
+#tapin-admin .coordinate-picker-actions{display:flex;align-items:center;flex-wrap:wrap;gap:9px}
+#tapin-admin .coordinate-picker-actions button{min-height:40px}
+#tapin-admin .coordinate-picker .help{margin:8px 0!important}
+#tapin-admin .coordinate-map-panel{min-width:0}
+#tapin-admin .coordinate-map{height:320px;min-height:240px;width:100%;overflow:hidden;border:1px solid #344c70;border-radius:9px;background:#0a1a2a;z-index:0}
+#tapin-admin .coordinate-map-panel .leaflet-container{font-family:inherit;direction:ltr}
+#tapin-admin .coordinate-map-panel .leaflet-marker-icon.leaflet-interactive{pointer-events:auto}
+#tapin-admin .coordinate-map-message{min-height:1.5em;margin:7px 0 0;color:#b9cce7;font-size:12px;line-height:1.7}
+#tapin-admin .coordinate-validation{margin:9px 0 0;padding:9px 11px;border:1px solid #904756;border-radius:7px;background:#301b27;color:#ffccd0;font-size:12px;line-height:1.8}
+#tapin-admin .coordinate-picker :focus-visible{outline:3px solid #f6ce45;outline-offset:3px}
+@media(max-width:700px){#tapin-admin .coordinate-picker{padding:11px}#tapin-admin .coordinate-map{height:270px;min-height:220px}#tapin-admin .coordinate-picker-actions button{flex:1 1 150px}}
 #tapin-admin #point-filters .filter-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
 #tapin-admin #point-filters .filter-actions button,#tapin-admin #point-filters .filter-actions a{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;white-space:nowrap;text-decoration:none;cursor:pointer;box-sizing:border-box;transition:all .15s ease}
 #tapin-admin #point-filters .filter-actions button.primary{background:linear-gradient(135deg,#1d4ed8,#1e3a8a);border:1px solid #3b82f6;color:#fff}
