@@ -146,3 +146,24 @@
 .tapin-app .directions-btn:hover{background:#2a334d;border-color:var(--orange)}
 @media(max-width:700px){.tapin-app .sheet-grid{grid-template-columns:1fr}.tapin-app .tapin-row-actions{flex-direction:column;align-items:stretch}}
 @media(max-width:700px){.tapin-app .tapin-dialog{width:calc(100vw - 24px);max-width:calc(100vw - 24px);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);padding:16px}.tapin-app .sheet-title-group{min-width:0;overflow-wrap:anywhere}.tapin-app .sheet-section .kv>:last-child{min-width:0;overflow-wrap:anywhere}.tapin-app .sheet-actions{flex-wrap:wrap}}
+
+/* Verified carrier pins use bundled artwork inside a clear, contrasting medallion. */
+.tapin-app .tapin-pin.post-marker,.tapin-app .tapin-pin.tipax-marker{position:relative;overflow:visible;background:transparent!important;border:0!important;border-radius:0;box-shadow:none!important;color:#17233a}
+.tapin-app .tapin-pin.post-marker::before,.tapin-app .tapin-pin.tipax-marker::before,.tapin-app .tapin-pin.post-marker::after,.tapin-app .tapin-pin.tipax-marker::after{content:"";position:absolute;clip-path:polygon(50% 100%,4% 43%,1% 34%,0 25%,3% 15%,10% 7%,21% 2%,34% 0,66% 0,79% 2%,90% 7%,97% 15%,100% 25%,99% 34%,96% 43%)}
+.tapin-app .tapin-pin.post-marker::before,.tapin-app .tapin-pin.tipax-marker::before{inset:0;filter:drop-shadow(0 3px 5px #000a)}
+.tapin-app .tapin-pin.post-marker::after,.tapin-app .tapin-pin.tipax-marker::after{inset:1.5px 1.5px 3px}
+.tapin-app .tapin-pin.post-marker::before{background:#ffe17a}
+.tapin-app .tapin-pin.post-marker::after{background:#ffbd18}
+.tapin-app .tapin-pin.tipax-marker::before{background:#71f0c5}
+.tapin-app .tapin-pin.tipax-marker::after{background:#00ba88}
+.tapin-app .provider-marker-medallion{position:absolute;top:4px;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;box-shadow:0 1px 4px #0018;z-index:1}
+.tapin-app .provider-medallion-post{background:#fff}
+.tapin-app .provider-medallion-tipax{background:#007d5d}
+.tapin-app .provider-medallion-other{background:#fff}
+.tapin-app .tapin-pin .provider-marker-logo{width:auto!important;height:auto!important;max-width:27px!important;max-height:22px!important;object-fit:contain;flex:none}
+.tapin-app .provider-symbol .provider-logo{width:auto;height:auto;max-width:28px;max-height:22px;object-fit:contain}
+.tapin-app .provider-symbol .provider-logo-fallback,.tapin-app .provider-marker-medallion .provider-logo-fallback{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#eef2fa;color:#183e82;font-size:16px;font-weight:850;line-height:1}
+.tapin-app .provider-medallion-tipax .provider-logo-fallback{background:#007d5d;color:#fff}
+.tapin-app .provider-medallion-post .provider-logo-fallback{background:#fff;color:#183e82}
+.tapin-app .provider-medallion-other .provider-logo-fallback{background:#eef2fa;color:#263b50}
+.tapin-app .provider-marker-medallion .provider-logo-fallback{width:25px;height:25px;font-size:17px}

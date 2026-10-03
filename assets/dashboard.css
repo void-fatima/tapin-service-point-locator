@@ -418,3 +418,12 @@
 
 #tapin-admin .import-completed-nav{display:flex;align-items:center;gap:14px;margin:18px 0;flex-wrap:wrap}
 #tapin-admin .btn-view-map{padding:10px 22px;border-radius:9px;font-size:14px;font-weight:700}
+
+/* Compact, accessible icon-only service-point actions. */
+#tapin-admin .points-management-table .cell-actions{width:11%;min-width:104px}
+#tapin-admin .points-management-table .tapin-row-actions{flex-direction:row;align-items:center;gap:4px}
+#tapin-admin .points-management-table .tapin-row-actions button{position:relative;display:inline-grid;place-items:center;flex:0 0 32px;width:32px;height:32px;min-height:32px;padding:0;border-radius:8px}
+#tapin-admin .points-management-table .tapin-row-actions button svg{width:15px;height:15px;flex:none}
+#tapin-admin .points-management-table .tapin-row-actions button::after{content:attr(data-tooltip);position:absolute;inset:auto 50% calc(100% + 8px) auto;transform:translateX(50%) translateY(3px);z-index:500;pointer-events:none;opacity:0;white-space:nowrap;padding:4px 9px;border:1px solid #465574;border-radius:6px;background:#111b2c;color:#f2f5fc;font-family:inherit;font-size:11px;line-height:1.6;box-shadow:0 5px 16px #0008;transition:opacity .12s ease,transform .12s ease}
+#tapin-admin .points-management-table .tapin-row-actions button:hover::after,#tapin-admin .points-management-table .tapin-row-actions button:focus-visible::after{opacity:1;transform:translateX(50%) translateY(0)}
+#tapin-admin .points-management-table .tapin-row-actions button:focus-visible{outline:2px solid #ffcf58;outline-offset:2px;z-index:2}
