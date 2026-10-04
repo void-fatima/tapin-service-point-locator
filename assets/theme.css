@@ -11,6 +11,33 @@
 	font-weight: 700;
 }
 
+.tapin-app .theme-choice select {
+	appearance: none;
+	width: min(100%, 300px);
+	min-height: 44px;
+	padding: 8px 14px 8px 38px;
+	border: 1px solid #66758b;
+	border-radius: 9px;
+	background-color: #192235;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23e2e8f0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: left 14px center;
+	color: #f8fafc;
+	color-scheme: dark;
+	font: inherit;
+	cursor: pointer;
+}
+
+.tapin-app .theme-choice select option {
+	background: #192235;
+	color: #f8fafc;
+}
+
+.tapin-app .theme-choice select:focus-visible {
+	outline: 3px solid #f0bd4f;
+	outline-offset: 2px;
+}
+
 .tapin-app .theme-choice p {
 	margin-top: 8px;
 	font-size: 12px;
@@ -198,6 +225,19 @@
 	background: #e7edf4 !important;
 }
 
+.tapin-app[data-theme-mode="light"] .theme-choice select {
+	background-color: #fff !important;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+	border-color: #94a3b8 !important;
+	color: #1e293b !important;
+	color-scheme: light;
+}
+
+.tapin-app[data-theme-mode="light"] .theme-choice select option {
+	background: #fff;
+	color: #1e293b;
+}
+
 .tapin-app[data-theme-mode="light"] .leaflet-popup-content-wrapper,
 .tapin-app[data-theme-mode="light"] .leaflet-popup-tip,
 .tapin-app[data-theme-mode="light"] .leaflet-tooltip {
@@ -220,5 +260,303 @@
 .tapin-app[data-theme-mode="light"] .provider-logo,
 .tapin-app[data-theme-mode="light"] .provider-pin-image {
 	filter: none !important;
+}
+
+/* The dashboard has older, ID-scoped dark rules. Give those surfaces a
+   deliberate light palette instead of relying on the generic component reset. */
+#tapin-admin[data-theme-mode="light"] {
+	--bg: #f1f5f9;
+	--panel: #fff;
+	--line: #c8d2df;
+	--text: #1e293b;
+	--muted: #52637a;
+	color-scheme: light;
+	color: #1e293b;
+	background: #f1f5f9 !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .tapin-sidebar,
+#tapin-admin[data-theme-mode="light"] .tapin-main,
+#tapin-admin[data-theme-mode="light"] .tapin-header,
+#tapin-admin[data-theme-mode="light"] .tapin-footer,
+#tapin-admin[data-theme-mode="light"] .panel,
+#tapin-admin[data-theme-mode="light"] .dashboard-overview,
+#tapin-admin[data-theme-mode="light"] .dashboard-map .map-tools,
+#tapin-admin[data-theme-mode="light"] .dashboard-map .map-status,
+#tapin-admin[data-theme-mode="light"] .dashboard-map .map-actions,
+#tapin-admin[data-theme-mode="light"] .dashboard-directory-panel .pagination,
+#tapin-admin[data-theme-mode="light"] .dashboard-directory-panel .export-controls,
+#tapin-admin[data-theme-mode="light"] .metric-total,
+#tapin-admin[data-theme-mode="light"] .coordinate-totals > div,
+#tapin-admin[data-theme-mode="light"] .provider-overview .provider-summary-item,
+#tapin-admin[data-theme-mode="light"] .issue-list a,
+#tapin-admin[data-theme-mode="light"] .distribution,
+#tapin-admin[data-theme-mode="light"] .metric-rail .coordinate-card,
+#tapin-admin[data-theme-mode="light"] .dashboard-directory-panel,
+#tapin-admin[data-theme-mode="light"] .metric-rail,
+#tapin-admin[data-theme-mode="light"] .provider-overview,
+#tapin-admin[data-theme-mode="light"] .dashboard-map .map-viewport,
+#tapin-admin[data-theme-mode="light"] .provider-cards article,
+#tapin-admin[data-theme-mode="light"] .tapin-dialog,
+#tapin-admin[data-theme-mode="light"] .tapin-detail {
+	background: #fff !important;
+	border-color: #c8d2df !important;
+	box-shadow: 0 2px 8px #1e293b0a !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .tapin-sidebar {
+	border-inline-start: 1px solid #c8d2df !important;
+}
+
+#tapin-admin[data-theme-mode="light"] :is(
+	.tapin-header h1, .tapin-header h2, .panel h2, .panel h3,
+	.tapin-sidebar .brand, .tapin-sidebar nav a, .sidebar-foot,
+	.metric-rail .eyebrow, .metric-rail h2, .provider-overview h2,
+	.provider-overview strong, .coordinate-totals, .coordinate-totals span,
+	.coordinate-copy > span, .coordinate-ring > span,
+	.section-title, .section-title h2, .section-title h3, .guide,
+	.guide p, .guide h2, .guide h3, .help, .filter-title,
+	.points-management-table td, .points-management-table td a,
+	.points-management-table .cell-phone bdi,
+	.directory-table td, .directory-table td a, .directory-table caption,
+	.directory-table tbody th[scope="row"], .history-table td,
+	.history-table th[scope="row"], .job-counts, .job-counts b,
+	.provider-card, .provider-card p, .pagination-btn, .pagination-num,
+	.dashboard-directory-panel .page-indicator, .export-controls small,
+	.location-select-help, .upload-title, .upload-subtitle strong
+) {
+	color: #1e293b !important;
+}
+
+#tapin-admin[data-theme-mode="light"] :is(
+	.tapin-header p, .tapin-footer, .sidebar-foot small, .guide .theme-choice p,
+	.section-subtitle, .pagination-info, .pagination-info *,
+	.points-management-table .point-code, .points-management-table .cell-address,
+	.dashboard-directory-panel .map-status, .directory-table .directory-address,
+	.export-controls small, .upload-subtitle, .upload-note, .step-label,
+	.provider-overview small, .metric-note, .coordinate-totals .muted
+) {
+	color: #52637a !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .tapin-sidebar nav a.active {
+	background: #fff2cc !important;
+	color: #6b4700 !important;
+	border-color: #e9c66c !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .tapin-sidebar nav a:hover:not(.active) {
+	background: #f1f5f9 !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .header-actions .text-action,
+#tapin-admin[data-theme-mode="light"] .dashboard-map .filter-title,
+#tapin-admin[data-theme-mode="light"] .dashboard-map .map-tools .btn-search,
+#tapin-admin[data-theme-mode="light"] .dashboard-map .map-tools [data-reset] {
+	background: #e8eff8 !important;
+	border-color: #b7c7da !important;
+	color: #23456e !important;
+	box-shadow: none !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .provider-tabs button.selected {
+	background: #dceafb !important;
+	border-color: #91afd2 !important;
+	color: #173f6f !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .provider-logo,
+#tapin-admin[data-theme-mode="light"] .provider-logo-fallback {
+	color: #fff !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .metric-rail .coordinate-card {
+	background: #f8fafc !important;
+	border-color: #c8d2df !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .coordinate-ring::before {
+	background: #fff !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .distribution-items > a {
+	border-color: #c8d2df !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .distribution-bar,
+#tapin-admin[data-theme-mode="light"] .coverage {
+	background: #e2e8f0 !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .issue-list a {
+	background: #f8fafc !important;
+	border-color: #c8d2df !important;
+	color: #334155 !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .issue-list a:before {
+	color: #64748b !important;
+}
+
+#tapin-admin[data-theme-mode="light"] :is(.coord-badge.good, .status-pill.good) {
+	background: #e7f7ef !important;
+	border-color: #a8ddbf !important;
+	color: #087a5a !important;
+}
+
+#tapin-admin[data-theme-mode="light"] :is(.coord-badge.bad, .status-pill.bad) {
+	background: #fff0f1 !important;
+	border-color: #f2b8c0 !important;
+	color: #b4233d !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .status-pill.muted {
+	background: #f1f4f8 !important;
+	border-color: #d0d8e2 !important;
+	color: #52637a !important;
+}
+
+#tapin-admin[data-theme-mode="light"] :is(
+	.tapin-notice.error, .panel.error, .dialog-error, .coordinate-validation
+) {
+	background: #fff0f1 !important;
+	border-color: #f2b8c0 !important;
+	color: #9f2037 !important;
+}
+
+#tapin-admin[data-theme-mode="light"] :is(input, select, textarea) {
+	background-color: #fff !important;
+	border-color: #aebccc !important;
+	color: #1e293b !important;
+	color-scheme: light;
+}
+
+#tapin-admin[data-theme-mode="light"] :is(input, select, textarea)::placeholder {
+	color: #64748b !important;
+	opacity: 1;
+}
+
+#tapin-admin[data-theme-mode="light"] option {
+	background: #fff !important;
+	color: #1e293b !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .tapin-dialog .form-grid select,
+#tapin-admin[data-theme-mode="light"] #mapping-form .form-grid select {
+	background-color: #fff !important;
+	color: #1e293b !important;
+	color-scheme: light;
+}
+
+#tapin-admin[data-theme-mode="light"] :is(
+	.points-management-table, .history-table, .directory-table,
+	.points-management-table table, .history-table table, .directory-table table
+) {
+	background: #fff !important;
+	border-color: #c3cedb !important;
+	box-shadow: none !important;
+}
+
+#tapin-admin[data-theme-mode="light"] :is(
+	.points-management-table th, .history-table th, .directory-table th
+) {
+	background: #edf2f7 !important;
+	border-color: #c3cedb !important;
+	color: #334155 !important;
+}
+
+#tapin-admin[data-theme-mode="light"] :is(
+	.points-management-table td, .history-table td, .directory-table td,
+	.directory-table tbody th[scope="row"]
+) {
+	background: #fff !important;
+	border-color: #d5dde7 !important;
+	color: #1e293b !important;
+}
+
+#tapin-admin[data-theme-mode="light"] :is(
+	.points-management-table tbody tr:hover td,
+	.history-table tbody tr:hover td,
+	.directory-table tbody tr:hover td,
+	.directory-table tbody tr:hover th
+) {
+	background: #f1f5f9 !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .directory-table caption {
+	background: #f8fafc !important;
+	border-color: #c3cedb !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .points-management-table .tapin-row-actions button,
+#tapin-admin[data-theme-mode="light"] .directory-table [data-details],
+#tapin-admin[data-theme-mode="light"] .dashboard-directory-panel .map-actions button:not([data-list]),
+#tapin-admin[data-theme-mode="light"] .dashboard-directory-panel .dashboard-pager .pagination-btn,
+#tapin-admin[data-theme-mode="light"] .dashboard-directory-panel .dashboard-pager .pagination-num:not(.active),
+#tapin-admin[data-theme-mode="light"] .dashboard-directory-panel .directory-toggle [data-list] {
+	background: #f8fafc !important;
+	border-color: #b9c5d3 !important;
+	color: #334155 !important;
+	box-shadow: none !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .points-management-table .tapin-row-actions button.btn-edit {
+	background: #fff7dd !important;
+	border-color: #e9c66c !important;
+	color: #805500 !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .points-management-table .tapin-row-actions button.danger {
+	background: #fff1f2 !important;
+	border-color: #e9a8b1 !important;
+	color: #a51d34 !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .dashboard-directory-panel .dashboard-pager .pagination-num.active {
+	background: #245db4 !important;
+	border-color: #245db4 !important;
+	color: #fff !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .dashboard-directory-panel .map-viewport,
+#tapin-admin[data-theme-mode="light"] .dashboard-map .tapin-map,
+#tapin-admin[data-theme-mode="light"] .map-panel,
+#tapin-admin[data-theme-mode="light"] .tapin-map {
+	background: #eaf0f6 !important;
+	border-color: #c3cedb !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .leaflet-tile-pane {
+	filter: none !important;
+}
+
+.tapin-app[data-theme-mode="light"] .leaflet-boundaries-pane path {
+	fill: #eaf0f6 !important;
+}
+
+.tapin-app[data-theme-mode="light"] .leaflet-country-context-pane path {
+	stroke: #64748b !important;
+	stroke-opacity: .42 !important;
+}
+
+.tapin-app[data-theme-mode="light"] .country-label {
+	color: #475569 !important;
+	text-shadow: 0 0 3px #fff, 0 1px 2px #fff !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .leaflet-bar {
+	border-color: #aebccc !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .leaflet-control-attribution,
+#tapin-admin[data-theme-mode="light"] .leaflet-control-scale-line {
+	background: #fffffff0 !important;
+	border-color: #c3cedb !important;
+	color: #475569 !important;
+	text-shadow: none !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .leaflet-control-attribution a {
+	color: #245ea8 !important;
 }
 

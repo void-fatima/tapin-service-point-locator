@@ -238,7 +238,6 @@
       });
     }
     map.on('moveend',declutterCountryLabels);
-    map.getPane('tilePane').style.filter='invert(1) hue-rotate(185deg) brightness(.6) saturate(.35)';
     map.createPane('country-context');map.getPane('country-context').style.zIndex='351';
     fetch(TapinConfig.assets+'neighbor-countries.geojson').then(r=>{if(!r.ok)throw Error();return r.json();}).then(data=>{
       if(geoCancelled)return;
