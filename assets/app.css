@@ -157,10 +157,13 @@
 @media(max-width:700px){.tapin-app .sheet-grid{grid-template-columns:1fr}.tapin-app .tapin-row-actions{flex-direction:column;align-items:stretch}}
 @media(max-width:700px){.tapin-app .tapin-dialog{width:calc(100vw - 24px);max-width:calc(100vw - 24px);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);padding:16px}.tapin-app .sheet-title-group{min-width:0;overflow-wrap:anywhere}.tapin-app .sheet-section .kv>:last-child{min-width:0;overflow-wrap:anywhere}.tapin-app .sheet-actions{flex-wrap:wrap}}
 
-/* Complete supplied PNGs: shared box/scale, with the artwork tip at the anchor.
-   Eight pixels below the tip preserve the original soft shadow. */
+/* Complete supplied PNGs use a shared box; map.js offsets each artwork so its tip
+   stays on the geographic anchor while retaining the original soft shadow. */
 .tapin-app .tapin-pin.provider-image-pin{overflow:visible;background:transparent!important;border:0!important;border-radius:0;box-shadow:none!important}
-.tapin-app .tapin-pin .provider-pin-image{position:absolute;top:8px;left:0;display:block;width:48px!important;height:72px!important;max-width:none!important;max-height:none!important;object-fit:contain;pointer-events:none}
+.tapin-app .tapin-pin .provider-pin-image{position:absolute;top:0;left:0;display:block;width:48px!important;height:72px!important;max-width:none!important;max-height:none!important;object-fit:contain;pointer-events:none}
+.tapin-app .map-legend{direction:rtl;justify-content:flex-start}
+.tapin-app .map-legend-item{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.tapin-app .map-legend-item img{display:block;width:16px!important;height:24px!important;max-width:none!important;max-height:none!important;object-fit:contain}
 .tapin-app .provider-marker-medallion{position:absolute;top:4px;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;box-shadow:0 1px 4px #0018;z-index:1}
 .tapin-app .provider-medallion-post{background:#fff}
 .tapin-app .provider-medallion-tipax{background:#007d5d}

@@ -24,7 +24,7 @@ const fs=require('fs');
   await expect(page.locator('.locator-search input')).toHaveValue('');await expect(page.locator('[data-provider=""]')).toHaveAttribute('aria-pressed','true');
   await page.locator('[data-province]').selectOption('تهران');await expect(page.locator('.marker-status')).toContainText('۲۳۰');
   await expect.poll(()=>requests.some(p=>p.get('province')==='تهران'&&Number(p.get('north'))-Number(p.get('south'))<5)).toBeTruthy();
-  await page.locator('[data-provider="2"]').click();await expect(page.locator('.provider-pin img').first()).toHaveAttribute('src',/tipax\.svg/);
+  await page.locator('[data-provider="2"]').click();await expect(page.locator('.provider-pin img').first()).toHaveAttribute('src',/markers\/tipax\.png/);
   await page.screenshot({path:out+'/tipax-province.png',fullPage:true});
   await page.locator('[data-provider="1"]').click();await page.locator('[data-province]').selectOption('سمنان');await expect(page.locator('.branch-card')).toHaveCount(10);
   await expect(page.locator('.tapin-pin')).toHaveCount(0);await expect(page.locator('[data-point]')).toHaveCount(0);
@@ -45,7 +45,7 @@ const fs=require('fs');
 
   const mock=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});mock.on('pageerror',e=>errors.push(e.message));
   const assets=session.url+'/wp-content/plugins/tapin-service-point-locator/assets/';
-  const providers=[{id:1,name:'پست',is_active:1,logo:assets+'brand/post.png'},{id:2,name:'تیپاکس',is_active:1,logo:assets+'brand/tipax.svg'},{id:3,name:'Neutral fixture',is_active:1,logo:''}];
+  const providers=[{id:1,slug:'post',name:'پست',is_active:1,logo:assets+'brand/post.png'},{id:2,slug:'tipax',name:'تیپاکس',is_active:1,logo:assets+'brand/tipax.svg'},{id:3,slug:'other',name:'Neutral fixture',is_active:1,logo:''}];
   const base={province:'تهران',city:'تهران',address:'Synthetic test only',latitude:35.7,longitude:51.4,has_coordinates:true};
   const rows=providers.map(p=>({...base,id:p.id,provider_id:p.id,name:'Fixture '+p.id}));
   rows.push({...base,id:4,provider_id:1,name:'Foreign fixture',latitude:48.8,longitude:2.3},{...base,id:5,provider_id:1,name:'Invalid fixture',latitude:'bad'},{...base,id:6,provider_id:1,name:'Address fixture',latitude:null,longitude:null,has_coordinates:false});

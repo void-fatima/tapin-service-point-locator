@@ -159,7 +159,7 @@
     container.innerHTML = `<div class="map-tools"><div class="provider-tabs" role="group" aria-label="ارائه‌دهنده"><button type="button" class="selected" aria-pressed="true" data-provider="">همه ارائه‌دهندگان</button>${providers.map(p => `<button type="button" aria-pressed="false" data-provider="${Number(p.id)}">${badge(p)}</button>`).join('')}</div><div class="map-selects"><label><span>استان</span><select data-province autocomplete="off"><option value="">همه استان‌ها</option></select></label><label><span>شهر</span><select data-city autocomplete="off"><option value="">همه شهرها</option></select></label><label><span>مختصات</span><select data-coordinates autocomplete="off" aria-label="فیلتر نقاط بر اساس مختصات"><option value="">همه نقاط</option><option value="1">دارای مختصات</option><option value="0">بدون مختصات</option></select></label><button type="button" data-reset title="نمایش سراسر ایران" aria-label="نمایش سراسر ایران"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>سراسر ایران</span></button></div></div>
       <form class="locator-search" role="search" autocomplete="off"><label><span class="sr-only">جستجوی شعبه، شهر، استان یا ارائه‌دهنده</span><input name="search" type="search" autocomplete="off" placeholder="نام شعبه، شهر یا ارائه‌دهنده…"></label><button type="submit" class="${admin?'btn-search':''}" title="جستجو"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg><span>جستجو</span></button><button type="button" data-clear title="پاک کردن فیلترها"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span>پاک کردن فیلترها</span></button></form>
       <div class="locator-view-switch" role="group" aria-label="شیوه نمایش" ${admin?'hidden':''}><button type="button" data-view="map" aria-pressed="true">نقشه</button><button type="button" data-view="list" aria-pressed="false">فهرست نشانی‌ها</button></div>
-      <div class="locator-results"><section class="map-viewport" aria-label="نقشه و راهنما"><div class="tapin-map" role="region" aria-label="نقشه نقاط خدماتی؛ با کلیدهای جهت حرکت کنید" tabindex="0"></div><div class="map-legend"></div></section>
+      <div class="locator-results"><section class="map-viewport" aria-label="نقشه و راهنما"><div class="tapin-map" role="region" aria-label="نقشه نقاط خدماتی؛ با کلیدهای جهت حرکت کنید" tabindex="0"></div><div class="map-legend" dir="rtl" role="group" aria-label="راهنمای ارائه‌دهندگان"></div></section>
       <section class="directory-panel" aria-label="فهرست نقاط خدماتی"><div class="map-status" role="status"></div><p class="directory-hint">فهرست شامل همه نتایج فیلترهاست؛ نقشه فقط نقاط دارای مختصات در محدوده دیده‌شده را نشان می‌دهد.</p><div class="map-list" hidden></div><div class="map-actions"><button type="button" data-retry hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg><span>تلاش دوباره</span></button><button type="button" data-more hidden><span>نمایش نقاط بیشتر</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button><button type="button" data-list ${admin?'':'hidden'}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span>فهرست قابل دسترس نقاط</span></button></div></section></div>`;
     if(admin){
       const tools=container.querySelector('.map-tools');
@@ -349,19 +349,7 @@
       city.value=[...city.options].some(o=>o.value===oldCity)?oldCity:'';city.disabled=city.options.length===1;
     }
     function updateLegend(){
-      // A group filter can hold several ids (or "0" for an empty one), so resolve
-      // before looking up a single provider to badge.
-      const ids=selected?String(selected).split(',').map(Number).filter(n=>Number.isFinite(n)&&n>0):[];
-      const provider=ids.length===1?providers.find(p=>Number(p.id)===ids[0]):null;
-      let active='';
-      if(selected&&provider)active=badge(provider);
-      else if(selected){
-        const slugs=[...new Set(providers.filter(p=>ids.includes(Number(p.id))).map(p=>p.slug))];
-        const name=!ids.length?'سایر':slugs.every(s=>NAMED_SLUGS.includes(s))
-          ?(slugs.includes('post')&&slugs.includes('tipax')?'پست و تیپاکس':slugs[0]==='post'?'شرکت ملی پست':'تیپاکس'):'سایر';
-        active='<span class="provider-badge"><span class="provider-symbol" style="--provider:#7948ff"><i></i></span>'+esc(name)+'</span>';
-      }
-      container.querySelector('.map-legend').innerHTML=(active||'<span style="color:#ffbd18">● پست</span><span style="color:#00d59b">● تیپاکس</span><span style="color:#9975ff">● سایر</span>')+'<small>عدد روی نشانگر: تعداد شعب نزدیک</small>';
+      container.querySelector('.map-legend').innerHTML='<span class="map-legend-item"><img src="'+safeUrl(TapinConfig.assets+'markers/post.png')+'" alt=""><span>پست</span></span><span class="map-legend-item"><img src="'+safeUrl(TapinConfig.assets+'markers/tipax.png')+'" alt=""><span>تیپاکس</span></span><span class="map-legend-item"><img src="'+safeUrl(TapinConfig.assets+'markers/other.png')+'" alt=""><span>سایر</span></span>';
       container.querySelectorAll('[data-provider]').forEach(b=>{const active=b.dataset.provider===selected;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active));});
       provinceLayers.forEach((polygon,name)=>polygon.setStyle({color:name===normalize(province.value)?'#a5e3ff':'#8fd6ef',weight:name===normalize(province.value)?1.1:.6,fillOpacity:name===normalize(province.value)?.3:.14}));
     }
@@ -430,29 +418,32 @@
       layer.clearLayers();markers.clear();
       const groups=new Map();
       const clusters=[];
-      // Reserve room for a mixed cluster's two 48px pins (88px combined).
-      const clusterSpacing=96;
+      // Reserve room for up to three branded pins in a cluster.
+      const clusterSpacing=136;
       points.forEach(p=>{const xy=map.latLngToContainerPoint([p.latitude,p.longitude]),x=Math.floor(xy.x/clusterSpacing),y=Math.floor(xy.y/clusterSpacing);let match;
         for(let dx=-1;dx<=1&&!match;dx++)for(let dy=-1;dy<=1&&!match;dy++)match=(groups.get((x+dx)+':'+(y+dy))||[]).find(g=>Math.hypot(g.xy.x-xy.x,g.xy.y-xy.y)<clusterSpacing);
         if(match)match.points.push(p);else{const group={xy,points:[p]},key=x+':'+y;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(group);clusters.push(group);}
       });
       clusters.forEach(({points:group})=>{
-        const p=group[0], provider=group.every(row=>Number(row.provider_id)===Number(p.provider_id))?providers.find(pr=>Number(pr.id)===Number(p.provider_id)):null;
+        const p=group[0];
         const isCluster=group.length>1;
-        const members=providers.filter(pr=>group.some(row=>Number(row.provider_id)===Number(pr.id)));
-        const brands=['post','tipax'].filter(slug=>members.some(pr=>providerSlug(pr)===slug));
-        const knownProvider=brands.length>0;
-        const pinProviderClass=(knownProvider?' provider-image-pin '+(brands.length===1?brands[0]+'-marker':'mixed-marker'):'')+(isCluster?' tapin-cluster':'');
-        const html=knownProvider?brands.map((slug,index)=>
-          '<img class="provider-pin-image" style="left:'+index*40+'px" src="'+safeUrl(TapinConfig.assets+'markers/'+slug+'.png')+'" alt="" draggable="false">').join(''):
-          '<span class="provider-marker-medallion provider-medallion-other">'+providerLogoMarkup(provider,true)+'</span>';
+        const providerById=new Map(providers.map(pr=>[Number(pr.id),pr]));
+        const categoryFor=row=>{const slug=providerSlug(providerById.get(Number(row.provider_id)));return NAMED_SLUGS.includes(slug)?slug:'other';};
+        const counts={post:0,tipax:0,other:0};
+        group.forEach(row=>counts[categoryFor(row)]++);
+        const brands=['post','tipax','other'].filter(slug=>counts[slug]>0);
+        const pinProviderClass=' provider-image-pin '+(brands.length===1?brands[0]+'-marker':'mixed-marker')+(isCluster?' tapin-cluster':'');
         const width=48+Math.max(0,brands.length-1)*40;
-        const iconSize=knownProvider?[width,72]:[34,40],iconAnchor=knownProvider?[width/2,72]:[17,40];
-        const clusterLabel=num(group.length)+' شعبه · '+members.map(pr=>pr.name).join('، ');
+        const tipOffsets={post:'11.71875',tipax:'9.984375',other:'9.890625'};
+        const html=brands.map((slug,index)=>
+          '<img class="provider-pin-image" style="left:'+index*40+'px;top:'+tipOffsets[slug]+'px" src="'+safeUrl(TapinConfig.assets+'markers/'+slug+'.png')+'" alt="" draggable="false">').join('');
+        const iconSize=[width,72],iconAnchor=[width/2,72];
+        const clusterComposition=[['post','پست'],['tipax','تیپاکس'],['other','سایر']].filter(([slug])=>counts[slug]).map(([slug,label])=>num(counts[slug])+' '+label).join('، ');
+        const clusterLabel=isCluster?num(group.length)+' شعبه: '+clusterComposition:p.name;
+        const members=[...new Set(group.map(row=>providerById.get(Number(row.provider_id))?.name).filter(Boolean))];
         const marker=L.marker([p.latitude,p.longitude],{title:isCluster?num(group.length)+' شعبه':p.name,icon:L.divIcon({className:'tapin-pin '+(selected?'provider-pin':'all-pin')+pinProviderClass,html,iconSize,iconAnchor})}).addTo(layer);
-        marker.getElement().style.background=/^#[0-9a-f]{6}$/i.test(provider?.marker_color)?provider.marker_color:'#7349ff';marker.getElement().style.borderColor=color(provider);
-        marker.getElement().setAttribute('aria-label',isCluster?clusterLabel+'؛ بزرگ‌نمایی یا مشاهده فهرست':p.name+'؛ اطلاعات شعبه');
-        marker.bindTooltip(document.createTextNode(isCluster?clusterLabel:p.name+(provider?.name?' · '+provider.name:'')),{direction:'top',offset:[0,knownProvider?-66:-30]});
+        marker.getElement().setAttribute('aria-label',isCluster?clusterLabel+' ('+members.join('، ')+')؛ بزرگ‌نمایی یا مشاهده فهرست':p.name+'؛ '+(providerById.get(Number(p.provider_id))?.name||'سایر')+'؛ اطلاعات شعبه');
+        marker.bindTooltip(document.createTextNode(isCluster?clusterLabel+' ('+members.join('، ')+')':p.name+(providerById.get(Number(p.provider_id))?.name?' · '+providerById.get(Number(p.provider_id)).name:'')),{direction:'top',offset:[0,-66]});
         marker.getElement().addEventListener('focus',()=>marker.openTooltip());
         marker.getElement().addEventListener('blur',()=>marker.closeTooltip());
         marker.getElement().addEventListener('keydown',e=>{

@@ -25,8 +25,10 @@ pages through all matching results in 500-row batches. Nearby points are grouped
 in screen cells to bound rendered marker elements. Group counts expand on zoom;
 co-located points remain accessible through their group popup and address list.
 
-All-provider pins are yellow; filtered Post and Tipax pins use existing official
-assets; other providers use their configured logo or a neutral parcel symbol.
+Post, Tipax, and other-provider markers use their matching transparent pin
+artwork at every zoom level. Screen-cell clusters show each represented pin
+type and expose the total and provider composition in their tooltip and
+accessible label. The RTL map legend uses the same three marker images.
 Province selection fits the province geometry, including provinces with no data.
 Foreign raster labels are masked outside Iran; country labels are placed separately.
 Street tiles appear only after local boundary geometry loads. Geometry failure

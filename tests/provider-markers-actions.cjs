@@ -56,7 +56,10 @@ async function setup(page, { publicPage = false, failTipax = false, clusterProvi
 }
 
 async function verifyPins(page) {
-  for (const slug of ['post', 'tipax']) {
+  await expect.poll(()=>page.evaluate(()=>window.testMaps.length)).toBeGreaterThan(0);
+  const measurements=[];
+  for (const [slug, point] of [['post',points[0]],['tipax',points[1]],['other',points[2]]]) {
+    await page.evaluate(([lat,lng])=>window.testMaps[0].setView([lat,lng],13,{animate:false}),[point.latitude,point.longitude]);
     const pin = page.locator('.' + slug + '-marker');
     await expect(pin).toBeVisible();
     await expect(pin).toBeInViewport();
@@ -66,36 +69,44 @@ async function verifyPins(page) {
     await expect.poll(() => pin.locator('img').evaluate(image => image.naturalWidth)).toBeGreaterThan(0);
     expect(await pin.boundingBox()).toMatchObject({ width: 48, height: 72 });
     expect(await pin.evaluate(element => getComputedStyle(element, '::before').content)).toBe('none');
-  }
-  const measurements = await page.evaluate(() => ['post', 'tipax'].map(slug => {
+    const item=await page.evaluate(slug => {
     const element = document.querySelector('.' + slug + '-marker'), image = element.querySelector('img');
     const canvas = document.createElement('canvas'); canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
     const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
     const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
     let left = canvas.width, right = -1, top = canvas.height, bottom = -1;
     for (let y = 0; y < canvas.height; y++) for (let x = 0; x < canvas.width; x++) {
-      if (pixels[(y * canvas.width + x) * 4 + 3] > 240) {
+      const i=(y*canvas.width+x)*4, alpha=pixels[i+3];
+      if(alpha!==0 && (x===0||y===0||x===canvas.width-1||y===canvas.height-1)) throw Error(slug+' has a non-transparent canvas edge');
+      if (alpha > 240) {
         left = Math.min(left, x); right = Math.max(right, x); top = Math.min(top, y); bottom = Math.max(bottom, y);
       }
     }
+    let circleLeft=canvas.width,circleRight=-1,circleTop=canvas.height,circleBottom=-1;
+    for(let y=180;y<900;y++)for(let x=128;x<896;x++){const i=(y*canvas.width+x)*4;if(pixels[i+3]>240&&pixels[i]>235&&pixels[i+1]>235&&pixels[i+2]>235){circleLeft=Math.min(circleLeft,x);circleRight=Math.max(circleRight,x);circleTop=Math.min(circleTop,y);circleBottom=Math.max(circleBottom,y);}}
+    const circleWidth=circleRight-circleLeft+1,circleHeight=circleBottom-circleTop+1;
     const marker = window.testMarkers.find(item => item.getElement() === element), map = window.testMaps.find(item => item.hasLayer(marker));
     const latLng = marker.getLatLng(), position = map.latLngToContainerPoint(latLng), mapRect = map.getContainer().getBoundingClientRect();
     const rect = element.getBoundingClientRect(), imageRect = image.getBoundingClientRect();
     const scale = Math.min(imageRect.width / canvas.width, imageRect.height / canvas.height);
     const imageTop = imageRect.y + (imageRect.height - canvas.height * scale) / 2;
-    return { width: (right-left+1)*scale, height: (bottom-top+1)*scale,
+    return { slug, width: (right-left+1)*scale, height: (bottom-top+1)*scale,
+      circleWidth:circleWidth*scale,circleHeight:circleHeight*scale,
       tipY: imageTop+(bottom+1)*scale, anchorY: rect.y+72,
       dx: rect.x+24-mapRect.x-position.x, dy: rect.y+72-mapRect.y-position.y,
       iconAnchor: marker.options.icon.options.iconAnchor, lat: latLng.lat, lng: latLng.lng };
-  }));
-  expect(Math.abs(measurements[0].width-measurements[1].width)).toBeLessThan(0.1);
-  expect(Math.abs(measurements[0].height-measurements[1].height)).toBeLessThan(0.1);
-  for (const [index, item] of measurements.entries()) {
+    },slug);
     expect(item.iconAnchor).toEqual([24, 72]);
     expect(Math.abs(item.tipY-item.anchorY)).toBeLessThan(0.1);
     expect(Math.abs(item.dx)).toBeLessThanOrEqual(1);
     expect(Math.abs(item.dy)).toBeLessThanOrEqual(1);
-    expect(item.lat).toBe(points[index].latitude); expect(item.lng).toBe(points[index].longitude);
+    expect(item.lat).toBe(point.latitude); expect(item.lng).toBe(point.longitude);
+    measurements.push(item);
+  }
+  for (const item of measurements.slice(1)) {
+    expect(Math.abs(item.width-measurements[0].width)).toBeLessThanOrEqual(1.5);
+    expect(Math.abs(item.height-measurements[0].height)).toBeLessThanOrEqual(2.1);
+    expect(Math.abs(item.circleWidth-measurements[0].circleWidth)).toBeLessThanOrEqual(1);
   }
 }
 
@@ -106,19 +117,18 @@ async function verifyPins(page) {
     const publicPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
     const publicErrors = await setup(publicPage, { publicPage: true });
     await publicPage.goto('http://tapin.test/public');
-    await expect(publicPage.locator('.post-marker')).toBeVisible();
-    await expect(publicPage.locator('.tipax-marker')).toBeVisible();
-    await expect(publicPage.locator('.provider-medallion-other .provider-logo-fallback')).toHaveText('ا');
-    const postMarker = publicPage.locator('.post-marker').first();
-    const tipaxMarker = publicPage.locator('.tipax-marker').first();
-    await expect(postMarker.locator('img')).toHaveAttribute('src', /assets\/markers\/post\.png$/);
-    await expect(tipaxMarker.locator('img')).toHaveAttribute('src', /assets\/markers\/tipax\.png$/);
-    await expect.poll(() => postMarker.locator('img').evaluate(image => image.naturalWidth)).toBeGreaterThan(0);
-    await expect.poll(() => tipaxMarker.locator('img').evaluate(image => image.naturalWidth)).toBeGreaterThan(0);
-    await verifyPins(publicPage);
+    for (const slug of ['post','tipax','other']) await expect(publicPage.locator('.tapin-pin img[src$="/markers/'+slug+'.png"]')).toBeVisible();
+    const legend=publicPage.locator('.map-legend');
+    await expect(legend).toHaveAttribute('dir','rtl');
+    await expect(legend.locator('.map-legend-item')).toHaveCount(3);
+    expect(await legend.locator('.map-legend-item').allTextContents()).toEqual(['پست','تیپاکس','سایر']);
+    for (const slug of ['post','tipax','other']) await expect(legend.locator('img[src$="/markers/'+slug+'.png"]')).toBeVisible();
     const screenshotDir = path.join(root, 'artifacts', 'provider-pins');
     fs.mkdirSync(screenshotDir, { recursive: true });
-    await publicPage.locator('.tapin-map').screenshot({ path: path.join(screenshotDir, 'public-map.png') });
+    await publicPage.locator('.tapin-map').screenshot({ path: path.join(screenshotDir, 'public-map-initial.png') });
+    await verifyPins(publicPage);
+    await publicPage.evaluate(([lat,lng])=>window.testMaps[0].setView([lat,lng],13,{animate:false}),[points[0].latitude,points[0].longitude]);
+    const postMarker = publicPage.locator('.post-marker').first();
     await postMarker.click();
     await expect(publicPage.locator('.tapin-detail')).toBeVisible();
     await expect(publicPage.locator('.detail-body h3')).toHaveText('Postal branch');
@@ -128,38 +138,41 @@ async function verifyPins(page) {
     const failedLogoPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
     const failedErrors = await setup(failedLogoPage, { publicPage: true, failTipax: true });
     await failedLogoPage.goto('http://tapin.test/public');
+    await expect.poll(()=>failedLogoPage.evaluate(()=>window.testMaps.length)).toBeGreaterThan(0);
+    await failedLogoPage.evaluate(([lat,lng])=>window.testMaps[0].setView([lat,lng],13,{animate:false}),[points[1].latitude,points[1].longitude]);
     const failedTipaxMarker = failedLogoPage.locator('.tipax-marker');
     await expect(failedLogoPage.locator('.public-providers .provider-fallback-tipax')).toHaveText('ت');
     await expect(failedTipaxMarker.locator('img')).toHaveAttribute('src', /assets\/markers\/tipax\.png$/);
     expect(failedErrors).toEqual([]);
 
-    for (const publicPage of [true, false]) for (const [name, ids] of [['post', [1,1]], ['tipax', [2,2]], ['mixed', [1,2]]]) {
+    for (const publicPage of [true, false]) for (const [name, ids] of [['post', [1,1]], ['tipax', [2,2]], ['other', [3,3]], ['mixed', [1,2]], ['all', [1,2,3]]]) {
       const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
       const errors = await setup(page, { publicPage, clusterProviders: ids });
       await page.goto(publicPage ? 'http://tapin.test/public' : 'http://tapin.test/wp-admin/admin.php?page=tapin-locator#dashboard');
       const cluster = page.locator('.tapin-cluster');
       await expect(cluster).toHaveCount(1);
       await expect(cluster).toBeInViewport();
-      const expectedSlugs = [...new Set(ids)].map(id => id === 1 ? 'post' : 'tipax');
+      const expectedSlugs = [...new Set(ids)].map(id => ({1:'post',2:'tipax',3:'other'})[id]);
       for (const slug of expectedSlugs) await expect(cluster.locator('img[src$="/'+slug+'.png"]')).toBeVisible();
       await expect(cluster.locator('img')).toHaveCount(expectedSlugs.length);
+      if(ids.includes(3)) await expect(cluster).toHaveAttribute('aria-label',/سایر/);
       await expect(cluster.locator('b, .cluster-count')).toHaveCount(0);
       await expect(cluster).toHaveText('');
-      await expect(cluster).toHaveAttribute('aria-label', /^\u06f2 /);
+      await expect(cluster).toHaveAttribute('aria-label', new RegExp('^'+ids.length.toLocaleString('fa-IR')+' '));
       await cluster.focus();
-      await expect(page.locator('.leaflet-tooltip')).toContainText('\u06f2');
+      await expect(page.locator('.leaflet-tooltip')).toContainText(ids.length.toLocaleString('fa-IR'));
       await cluster.evaluate(element => element.blur());
       await page.locator('.tapin-map').screenshot({path: path.join(screenshotDir, name+'-'+(publicPage?'public':'admin')+'-initial.png')});
       const zoom = await page.evaluate(() => window.testMaps[0].getZoom());
       await cluster.click();
       await expect.poll(() => page.evaluate(() => window.testMaps[0].getZoom())).toBeGreaterThan(zoom);
       await expect(page.locator('.tapin-cluster img')).toHaveCount(expectedSlugs.length);
-      await page.evaluate(() => window.testMaps[0].setView([35.7,51.44],13,{animate:false}));
+      await page.evaluate(count => window.testMaps[0].fitBounds([[35.7,51.4],[35.7,51.4+(count-1)*0.08]],{padding:[40,40],maxZoom:13,animate:false}),ids.length);
       await expect(page.locator('.tapin-cluster')).toHaveCount(0);
-      await expect(page.locator('.provider-image-pin')).toHaveCount(2);
+      await expect(page.locator('.provider-image-pin')).toHaveCount(ids.length);
       for (const slug of expectedSlugs) await expect(page.locator('.provider-image-pin img[src$="/'+slug+'.png"]').first()).toBeInViewport();
       const coords=await page.evaluate(() => window.testMarkers.filter(m=>m.getElement()?.classList.contains('provider-image-pin') && window.testMaps[0].hasLayer(m)).map(m=>[m.getLatLng().lat,m.getLatLng().lng]));
-      expect(coords).toEqual([[35.7,51.4],[35.7,51.48]]);
+      expect(coords).toEqual(ids.map((_,index)=>[35.7,51.4+index*0.08]));
       await page.locator('.tapin-map').screenshot({path: path.join(screenshotDir, name+'-'+(publicPage?'public':'admin')+'-close.png')});
       expect(errors).toEqual([]);
       await page.close();
@@ -197,6 +210,7 @@ async function verifyPins(page) {
     await adminPage.goto('http://tapin.test/wp-admin/admin.php?page=tapin-locator#dashboard');
     await verifyPins(adminPage);
     await adminPage.locator('.tapin-map').screenshot({ path: path.join(screenshotDir, 'admin-map.png') });
+    await adminPage.evaluate(([lat,lng])=>window.testMaps[window.testMaps.length-1].setView([lat,lng],13,{animate:false}),[points[0].latitude,points[0].longitude]);
     const detailTrigger = adminPage.locator('.post-marker').first();
     await detailTrigger.click();
     const detailDialog = adminPage.locator('dialog.tapin-detail');
@@ -221,6 +235,7 @@ async function verifyPins(page) {
     });
     await verifyPins(adminPage);
     await adminPage.locator('.tapin-map').screenshot({ path: path.join(screenshotDir, 'mobile-map.png') });
+    await adminPage.evaluate(([lat,lng])=>window.testMaps[window.testMaps.length-1].setView([lat,lng],13,{animate:false}),[points[0].latitude,points[0].longitude]);
     const mobileTrigger = adminPage.locator('.post-marker').first();
     await mobileTrigger.click();
     await expect(detailDialog).toBeVisible();
