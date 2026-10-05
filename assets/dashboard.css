@@ -405,8 +405,11 @@
 #tapin-admin .metric-rail .coordinate-totals{gap:10px;flex-wrap:wrap}
 #tapin-admin .metric-rail .coordinate-card{direction:ltr;--accent:#00d5a0;flex:1 1 170px;min-width:0;box-sizing:border-box;display:flex;flex-direction:row;align-items:center;gap:9px;padding:12px 10px;border-color:#203451;background:linear-gradient(135deg,#0c1b2b,#090f1d);border-radius:12px}
 #tapin-admin .metric-rail .coordinate-card.bad{--accent:#ff4269}
-#tapin-admin .coordinate-icon{display:grid;place-items:center;flex:0 0 40px;height:46px;border-radius:10px;background:#00d5a01c;color:var(--accent);box-shadow:inset 0 0 18px #00d5a00d}
-#tapin-admin .bad .coordinate-icon{background:#ff426922;box-shadow:inset 0 0 18px #ff426910}
+#tapin-admin .coordinate-icon{--pin-color:var(--accent);display:grid;place-items:center;flex:0 0 40px;height:46px;border-radius:10px;background:#00d5a01c;color:var(--pin-color);box-shadow:inset 0 0 18px #00d5a00d;background:color-mix(in srgb,var(--pin-color) 12%,transparent);box-shadow:inset 0 0 18px color-mix(in srgb,var(--pin-color) 5%,transparent)}
+#tapin-admin .coordinate-card.bad .coordinate-icon{background:#ff426922;box-shadow:inset 0 0 18px #ff426910;background:color-mix(in srgb,var(--pin-color) 12%,transparent);box-shadow:inset 0 0 18px color-mix(in srgb,var(--pin-color) 5%,transparent)}
+#tapin-admin .coordinate-icon svg path{fill:var(--pin-color)}
+#tapin-admin[data-theme-mode="light"] .coordinate-card:not(.bad) .coordinate-icon{--pin-color:#08745b}
+#tapin-admin[data-theme-mode="light"] .coordinate-card.bad .coordinate-icon{--pin-color:#bd263d}
 #tapin-admin .coordinate-icon svg{width:23px;height:29px}
 #tapin-admin .coordinate-copy{direction:rtl;text-align:left;display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
 #tapin-admin .coordinate-copy b{font-size:23px;color:var(--accent)}
