@@ -636,6 +636,18 @@
 	color: #1e293b !important;
 }
 
+#tapin-admin[data-theme-mode="light"] .dashboard-directory-panel .directory-table td:nth-child(8) .badge.good {
+	background: #e7f7ef !important;
+	border-color: #a8ddbf !important;
+	color: #087a5a !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .dashboard-directory-panel .directory-table td:nth-child(8) .badge.muted {
+	background: #fff0f1 !important;
+	border-color: #f2b8c0 !important;
+	color: #b4233d !important;
+}
+
 #tapin-admin[data-theme-mode="light"] :is(
 	.points-management-table tbody tr:hover td,
 	.history-table tbody tr:hover td,
