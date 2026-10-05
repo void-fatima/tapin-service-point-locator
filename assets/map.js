@@ -261,14 +261,14 @@
       map.createPane('provinces');map.getPane('provinces').style.zIndex='352';
       L.geoJSON(data,{pane:'provinces',interactive:true,style:feature=>({className:'tapin-province-boundary',color:'#8fd6ef',opacity:.3,weight:.6,lineCap:'round',lineJoin:'round',smoothFactor:1.8,fillColor:['#087ac0','#155bd2','#5140c4','#008c9a'][Object.keys(provinceNames).indexOf(feature.properties.shapeName)%4],fillOpacity:.14}),onEachFeature:(feature, polygon)=>{
         const name=provinceNames[feature.properties.shapeName];
-        if(name){polygon.on('mouseover',()=>polygon.setStyle({fillOpacity:.24,weight:.95}));polygon.on('mouseout',()=>{polygon.setStyle({fillOpacity:.14,weight:.6});updateLegend();});polygon.on('add',()=>{const path=polygon.getElement();if(path){path.setAttribute('tabindex','0');path.setAttribute('role','button');path.setAttribute('aria-label',name);path.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();polygon.fire('click');}});}});provinceLayers.set(normalize(name),polygon);polygon.bindTooltip(name,{direction:'center'});polygon.on('click',()=>{
+        if(name){polygon.on('mouseover',()=>polygon.setStyle({fillOpacity:.24,weight:.95}));polygon.on('mouseout',()=>{polygon.setStyle({fillOpacity:.14,weight:.6});updateLegend();});polygon.on('add',()=>{const path=polygon.getElement();if(path){path.setAttribute('tabindex','0');path.setAttribute('role','button');path.setAttribute('aria-label',name);path.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();polygon.fire('click');}});}});const key=normalize(name);if(!provinceLayers.has(key))provinceLayers.set(key,L.featureGroup());provinceLayers.get(key).addLayer(polygon);polygon.bindTooltip(name,{direction:'center'});polygon.on('click',()=>{
           const option=[...province.options].find(o=>normalize(o.value)===normalize(name));
           if(!option){province.add(new Option(name,name));}
           province.value=option?option.value:name;province.onchange();
         });}
       }}).addTo(map);
       map.attributionControl.addAttribution('<a href="https://www.geoboundaries.org/">geoBoundaries</a> / OSM');
-      if(province.value)map.fitBounds(provinceLayers.get(normalize(province.value))?.getBounds()||iran);
+      if(province.value)zoomToProvince();
       updateLegend();if(items.length)renderDirectory();
     }}).catch(()=>{if(!geoCancelled){const note=document.createElement('p');note.className='tile-warning';note.setAttribute('role','alert');note.textContent='مرز استان‌ها بارگذاری نشد؛ فهرست نشانی‌ها در دسترس است. برای بازیابی نقشه صفحه را تازه کنید.';container.append(note);}});
     const layer = L.layerGroup().addTo(map);
@@ -282,6 +282,10 @@
     const province = container.querySelector('[data-province]');
     const city = container.querySelector('[data-city]');
     const coordinates = container.querySelector('[data-coordinates]');
+    function zoomToProvince(){
+      const bounds=provinceLayers.get(normalize(province.value))?.getBounds();
+      map.fitBounds(bounds?.isValid()?bounds:iran,{animate:false,padding:[12,12]});
+    }
     province.value = '';
     city.value = '';
     city.innerHTML='<option value="">همه شهرها</option>'+[...new Set(locations.map(l=>l.city))].map(c=>`<option>${esc(c)}</option>`).join('');
@@ -355,7 +359,7 @@
     function setView(view){
       container.dataset.view=view;
       container.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===view)));
-      if(view==='map')requestAnimationFrame(()=>{if(!geoCancelled)map.invalidateSize();});
+      if(view==='map')requestAnimationFrame(()=>{if(!geoCancelled){map.invalidateSize({pan:false});if(province.value)zoomToProvince();}});
     }
     container.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
     const details = p => {
@@ -474,7 +478,7 @@
     function refreshFilters(){updateLocations();updateLegend();load();scheduleMarkers();}
     coordinates.onchange=()=>{coordinateFilter=coordinates.value;refreshFilters();};
     container.querySelectorAll('[data-provider]').forEach(button=>button.onclick=()=>{selected=button.dataset.provider;refreshFilters();});
-    province.onchange=()=>{city.value='';updateLocations();updateLegend();const polygon=provinceLayers.get(normalize(province.value));map.stop();map.fitBounds(polygon?polygon.getBounds():iran,{animate:false});load();scheduleMarkers();};
+    province.onchange=()=>{city.value='';updateLocations();updateLegend();map.stop();zoomToProvince();load();scheduleMarkers();};
     let searchTimer=null;
     const searchInput=container.querySelector('.locator-search input[name=search]');
     if(searchInput){
