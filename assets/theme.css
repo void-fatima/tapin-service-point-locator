@@ -155,6 +155,22 @@
 	color: #245ea8 !important;
 }
 
+.tapin-app[data-theme-mode="light"] .tapin-detail .directions-btn {
+	background: #e8eff8 !important;
+	border-color: #b7c7da !important;
+	color: #23456e !important;
+}
+
+.tapin-app[data-theme-mode="light"] .tapin-detail .directions-btn:hover {
+	background: #dceafb !important;
+	border-color: #91afd2 !important;
+}
+
+.tapin-app[data-theme-mode="light"] .tapin-detail .directions-btn:focus-visible {
+	outline: 3px solid #245ea8;
+	outline-offset: 3px;
+}
+
 .tapin-app[data-theme-mode="light"] .good,
 .tapin-app[data-theme-mode="light"] .status-pill.good,
 .tapin-app[data-theme-mode="light"] .coord-badge.good,
