@@ -390,6 +390,137 @@
 	box-shadow: none !important;
 }
 
+#tapin-admin[data-theme-mode="light"] #point-filters.filters {
+	flex-wrap: wrap;
+	overflow: visible;
+	gap: 8px;
+	padding: 12px;
+	background: #fff !important;
+	border-color: #d7e0ec !important;
+	box-shadow: none !important;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters .filter-title {
+	min-height: 46px;
+	background: #e8eff8 !important;
+	border-color: #b7c7da !important;
+	color: #23456e !important;
+	box-shadow: none !important;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters .filter-title * {
+	color: #23456e !important;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters .filter-title:hover {
+	background: #dceafb !important;
+	border-color: #91afd2 !important;
+	color: #173f6f !important;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters .filter-title:hover * {
+	color: #173f6f !important;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters .filter-field {
+	min-width: 0;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters .search-field .field-icon {
+	color: #52637a !important;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters .search-field input,
+#tapin-admin[data-theme-mode="light"] #point-filters select {
+	min-height: 46px;
+	background-color: #fff !important;
+	border-color: #b7c7da !important;
+	border-radius: 8px;
+	color: #26354b !important;
+	font-size: 12px;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters .search-field input::placeholder {
+	color: #64748b !important;
+	opacity: 1;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters select {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2352637a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters select option {
+	background: #fff;
+	color: #26354b;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters .search-field input:hover,
+#tapin-admin[data-theme-mode="light"] #point-filters select:hover {
+	background-color: #f8fafc !important;
+	border-color: #91afd2 !important;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters .search-field input:focus,
+#tapin-admin[data-theme-mode="light"] #point-filters select:focus {
+	background-color: #fff !important;
+	border-color: #245ea8 !important;
+	box-shadow: 0 0 0 2px rgba(36, 94, 168, .16) !important;
+	outline: none;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters .filter-actions button,
+#tapin-admin[data-theme-mode="light"] #point-filters .filter-actions a {
+	min-height: 46px;
+	background: #e8eff8 !important;
+	border-color: #b7c7da !important;
+	color: #23456e !important;
+	box-shadow: none !important;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters .filter-actions button *,
+#tapin-admin[data-theme-mode="light"] #point-filters .filter-actions a * {
+	color: #23456e !important;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters .filter-actions button:hover,
+#tapin-admin[data-theme-mode="light"] #point-filters .filter-actions a:hover {
+	background: #dceafb !important;
+	border-color: #91afd2 !important;
+	color: #173f6f !important;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters .filter-actions button:hover *,
+#tapin-admin[data-theme-mode="light"] #point-filters .filter-actions a:hover * {
+	color: #173f6f !important;
+}
+
+#tapin-admin[data-theme-mode="light"] #point-filters :is(.filter-title, .filter-actions button, .filter-actions a):focus-visible {
+	outline: 2px solid #245ea8;
+	outline-offset: 2px;
+}
+
+@media (min-width: 901px) {
+	#tapin-admin[data-theme-mode="light"] #point-filters.filters {
+		flex-wrap: wrap;
+		overflow: visible;
+	}
+
+	#tapin-admin[data-theme-mode="light"] #point-filters .search-field {
+		flex: 1 1 190px;
+		min-width: 175px;
+	}
+
+	#tapin-admin[data-theme-mode="light"] #point-filters .filter-field {
+		flex: 1 1 125px;
+		min-width: 118px;
+	}
+
+	#tapin-admin[data-theme-mode="light"] #point-filters .coordinate-filter {
+		flex: 1.1 1 140px;
+		min-width: 130px;
+	}
+}
+
 #tapin-admin[data-theme-mode="light"] .provider-tabs button.selected {
 	background: #dceafb !important;
 	border-color: #91afd2 !important;
