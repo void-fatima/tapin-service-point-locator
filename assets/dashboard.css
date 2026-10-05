@@ -68,7 +68,7 @@
 /* Keep the Dashboard trigger in the same slot and at the same toolbar height
    while its controls are folded. */
 #tapin-admin .dashboard-map .map-tools.filters-collapsed{padding-block:12px}
-#tapin-admin .dashboard-map .map-tools.filters-collapsed>.filter-title{min-width:128px}
+#tapin-admin .dashboard-map .map-tools.filters-collapsed>.filter-title{min-width:260px}
 #tapin-admin .map-tools.filters-collapsed>:not(.filter-title){display:none}
 #tapin-admin [data-retry],#tapin-admin .locator-retry{display:none!important}
 /* Scoped on the id because the field rules carry two ids and outrank a plain
@@ -368,7 +368,7 @@
 @media(max-width:1200px){#tapin-admin .dashboard-hero{padding-top:165px;grid-template-columns:minmax(240px,.6fr) minmax(0,1fr)}#tapin-admin .dashboard-map .map-tools{flex-wrap:wrap;min-height:auto}#tapin-admin .map-tools .locator-search{flex-basis:100%}#tapin-admin .eyebrow{font-size:15px}#tapin-admin .header-actions a{font-size:13px;padding:10px}}
 @media(min-width:1201px){#tapin-admin .dashboard-map .map-tools.filters-collapsed{min-height:78px}}
 @media(max-width:850px){#tapin-admin{flex-direction:column}#tapin-admin .dashboard-hero{display:flex;flex-direction:column;padding-top:0}#tapin-admin .dashboard-map{width:100%;order:0}#tapin-admin .dashboard-overview{width:100%;order:1;grid-template-columns:1fr 1fr}#tapin-admin .dashboard-map .map-tools{position:static}#tapin-admin .dashboard-directory-panel{margin-top:14px;padding:14px}#tapin-admin .tapin-header{height:auto;flex-wrap:wrap}#tapin-admin .header-actions{flex-wrap:wrap}}
-@media(max-width:550px){#tapin-admin .dashboard-overview{grid-template-columns:1fr}#tapin-admin .dashboard-map .map-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}#tapin-admin .filter-title{grid-column:1/-1}#tapin-admin .map-tools>select{width:100%}#tapin-admin .map-tools [data-reset]{grid-column:1/-1}#tapin-admin .map-tools .locator-search{grid-column:1/-1;flex-wrap:wrap}#tapin-admin .map-tools .locator-search label{flex-basis:100%}#tapin-admin .map-tools .locator-search button{flex:1}#tapin-admin .dashboard-map .tapin-map{height:390px}#tapin-admin .dashboard-directory-panel .export-controls{flex-direction:column;align-items:flex-start;gap:8px}}
+@media(max-width:550px){#tapin-admin .dashboard-overview{grid-template-columns:1fr}#tapin-admin .dashboard-map .map-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}#tapin-admin .dashboard-map .map-tools.filters-collapsed{display:flex;flex-wrap:nowrap}#tapin-admin .filter-title{grid-column:1/-1}#tapin-admin .map-tools>select{width:100%}#tapin-admin .map-tools [data-reset]{grid-column:1/-1}#tapin-admin .map-tools .locator-search{grid-column:1/-1;flex-wrap:wrap}#tapin-admin .map-tools .locator-search label{flex-basis:100%}#tapin-admin .map-tools .locator-search button{flex:1}#tapin-admin .dashboard-map .tapin-map{height:390px}#tapin-admin .dashboard-directory-panel .export-controls{flex-direction:column;align-items:flex-start;gap:8px}}
 
 /* Narrow screens: let the section toolbar and filter strip stack gracefully. */
 @media(max-width:1200px){
