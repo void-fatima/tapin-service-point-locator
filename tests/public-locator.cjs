@@ -65,6 +65,12 @@ async function setup(page) {
     const surface=await page.locator('.tapin-public').evaluate(el=>({bg:getComputedStyle(el).backgroundColor,overflow:el.scrollWidth>el.clientWidth+1}));
     expect(surface.bg).toBe(mode==='light'?'rgb(243, 246, 251)':'rgb(11, 14, 25)');
     expect(surface.overflow).toBe(false);
+    const summarySurface=await page.locator('.provider-summary-item').first().evaluate(el=>getComputedStyle(el).backgroundColor);
+    expect(summarySurface).toBe(mode==='light'?'rgb(255, 255, 255)':'rgb(21, 25, 40)');
+    // The fixture tile server returns 204, so its visible warning also tests theme contrast.
+    await expect(page.locator('.tile-warning')).toBeVisible();
+    const warning=await page.locator('.tile-warning').evaluate(el=>({bg:getComputedStyle(el).backgroundColor,color:getComputedStyle(el).color}));
+    if(mode==='light')expect(warning).toEqual({bg:'rgb(255, 244, 216)',color:'rgb(121, 81, 18)'});
     const map=await page.locator('.tapin-map').boundingBox();
     expect(map.x).toBeGreaterThanOrEqual(0);
     expect(map.x+map.width).toBeLessThanOrEqual(width);

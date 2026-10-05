@@ -55,6 +55,18 @@
 	background: #f3f6fb;
 }
 
+/* Public summary/map surfaces must follow the same active preference as controls. */
+.tapin-app.tapin-public[data-theme-mode="light"] .public-content .provider-summary-item,
+.tapin-app.tapin-public[data-theme-mode="light"] .public-content .map-viewport {
+	background: var(--panel);
+	border-color: var(--line);
+}
+
+.tapin-app.tapin-public[data-theme-mode="light"] .tile-warning {
+	background: #fff4d8;
+	color: #795112 !important;
+}
+
 .tapin-app[data-theme-mode="light"] * {
 	color: #26354b !important;
 }
