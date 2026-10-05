@@ -94,6 +94,8 @@ body.tapin-locator-page{margin:0;padding:0;width:100%;max-width:none}
 .tapin-app.tapin-public .public-content{padding:22px 24px}
 .tapin-app.tapin-public .public-content .dashboard-hero{grid-template-columns:minmax(265px,.37fr) minmax(0,1fr);gap:22px}
 .tapin-app.tapin-public .public-content .dashboard-overview{display:flex;flex-direction:column;gap:16px;min-width:0}
+.tapin-app.tapin-public .public-content .dashboard-overview[hidden]{display:none}
+.tapin-app.tapin-public .public-content .dashboard-hero.public-overview-empty{grid-template-columns:minmax(0,1fr)}
 .tapin-app.tapin-public .public-content .metric-rail{padding:20px;text-align:center}
 .tapin-app.tapin-public .public-content .metric-total{display:flex;align-items:center;justify-content:center;gap:10px}
 .tapin-app.tapin-public .public-content .hero-number{font-size:clamp(48px,5vw,76px);letter-spacing:-2px}

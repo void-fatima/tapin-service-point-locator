@@ -10,7 +10,7 @@ const points = [
   {id:3, provider_id:2, name:'Address only', province:'بوشهر', city:'بوشهر', address:'Fixture', has_coordinates:false, latitude:null, longitude:null},
 ];
 
-async function setup(page) {
+async function setup(page, {summary=true} = {}) {
   const requests = [], errors = [], navigations = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('framenavigated', frame => {if (frame === page.mainFrame()) navigations.push(frame.url());});
@@ -24,7 +24,7 @@ async function setup(page) {
       if (endpoint === 'public/directory' || endpoint === 'public/points') {
         let items = points.filter(p=>(!query.get('provider_id') || query.get('provider_id').split(',').includes(String(p.provider_id))) && (!query.get('search') || p.name.toLowerCase().includes(query.get('search').toLowerCase())));
         if (query.has('north')) items=items.filter(p=>p.has_coordinates && p.latitude<=Number(query.get('north')) && p.latitude>=Number(query.get('south')) && p.longitude<=Number(query.get('east')) && p.longitude>=Number(query.get('west')));
-        return route.fulfill({json:{items, total:items.length, page:1, total_pages:1, summary:{total:items.length, located:items.filter(p=>p.has_coordinates).length, missing:items.filter(p=>!p.has_coordinates).length, distribution:providers.map(pr=>({provider_id:pr.id,total:items.filter(p=>p.provider_id===pr.id).length}))}}});
+        return route.fulfill({json:{items, total:items.length, page:1, total_pages:1, summary:summary?{total:items.length, located:items.filter(p=>p.has_coordinates).length, missing:items.filter(p=>!p.has_coordinates).length, distribution:providers.map(pr=>({provider_id:pr.id,total:items.filter(p=>p.provider_id===pr.id).length}))}:null}});
       }
       throw Error('Unexpected API request: '+endpoint);
     }
@@ -42,7 +42,7 @@ async function setup(page) {
 }
 
 (async()=>{
-  const browser = await chromium.launch();
+  const browser = await chromium.launch(process.env.TAPIN_CHROME_PATH?{executablePath:process.env.TAPIN_CHROME_PATH}:{});
   try {
     fs.mkdirSync(path.join(root,'artifacts/public-locator'),{recursive:true});
     for (const width of [1440,390]) for (const mode of ['light','dark']) {
@@ -115,6 +115,23 @@ async function setup(page) {
     expect(errors).toEqual([]);
     console.log(`PASS public locator ${mode} ${width}px: full viewport, saved theme, no periodic refresh/navigation, filter/search/reset, close zoom and stable details.`);
     await page.close();
+    }
+    for(const width of [1363,390]) {
+      const page=await browser.newPage({viewport:{width,height:900}});
+      const {errors}=await setup(page,{summary:false});
+      await page.goto('http://locator.test/?page_id=22');
+      await expect(page.locator('.branch-card')).toHaveCount(3);
+      await expect(page.locator('.dashboard-overview')).toBeHidden();
+      await expect(page.locator('.public-metric')).toBeEmpty();
+      await expect(page.locator('.public-providers')).toBeEmpty();
+      const hero=await page.locator('.dashboard-hero').boundingBox();
+      const panel=await page.locator('.dashboard-map').boundingBox();
+      expect(panel.x).toBeCloseTo(hero.x,0);
+      expect(panel.width).toBeCloseTo(hero.width,0);
+      expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBe(width);
+      await page.screenshot({path:path.join(root,`artifacts/public-locator/no-summary-${width}.png`),fullPage:true});
+      expect(errors).toEqual([]);
+      await page.close();
     }
     for(const url of ['http://locator.test/?page_id=99','http://locator.test/?page_id=22&layout=embedded']) {
       const page=await browser.newPage({viewport:{width:1440,height:900}});
