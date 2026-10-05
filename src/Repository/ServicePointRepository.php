@@ -295,7 +295,7 @@ class ServicePointRepository {
 			$providers = Schema::get_providers_table();
 			$where_clauses[] = "status = 'active' AND provider_id IN (SELECT id FROM {$providers} WHERE is_active = 1)";
 			if ( empty( $params['directory'] ) ) {
-				$where_clauses[] = 'has_coordinates = 1 AND latitude BETWEEN -90 AND 90 AND longitude BETWEEN -180 AND 180';
+				$where_clauses[] = 'latitude BETWEEN -90 AND 90 AND longitude BETWEEN -180 AND 180';
 			}
 		}
 		if ( ( $params['issue'] ?? '' ) === 'incomplete' ) {
@@ -334,8 +334,15 @@ class ServicePointRepository {
 
 		// Coordinates availability filter.
 		if ( null !== $params['has_coordinates'] ) {
-			$where_clauses[] = 'has_coordinates = %d';
-			$where_values[]  = $params['has_coordinates'] ? 1 : 0;
+			if ( ! empty( $params['public'] ) ) {
+				// Stored coordinates are authoritative, including records with a stale availability flag.
+				$where_clauses[] = $params['has_coordinates']
+					? '(latitude BETWEEN -90 AND 90 AND longitude BETWEEN -180 AND 180)'
+					: '(latitude IS NULL OR longitude IS NULL OR latitude NOT BETWEEN -90 AND 90 OR longitude NOT BETWEEN -180 AND 180)';
+			} else {
+				$where_clauses[] = 'has_coordinates = %d';
+				$where_values[]  = $params['has_coordinates'] ? 1 : 0;
+			}
 		}
 
 		// Status filter ('any' ignores status).
@@ -351,7 +358,7 @@ class ServicePointRepository {
 			$east  = (float) ( $params['bounds']['east'] ?? 0 );
 			$west  = (float) ( $params['bounds']['west'] ?? 0 );
 
-			$where_clauses[] = 'has_coordinates = 1 AND latitude BETWEEN %f AND %f AND longitude BETWEEN %f AND %f';
+			$where_clauses[] = ( empty( $params['public'] ) ? 'has_coordinates = 1 AND ' : '' ) . 'latitude BETWEEN %f AND %f AND longitude BETWEEN %f AND %f';
 			$where_values[]  = min( $south, $north );
 			$where_values[]  = max( $south, $north );
 			$where_values[]  = min( $west, $east );

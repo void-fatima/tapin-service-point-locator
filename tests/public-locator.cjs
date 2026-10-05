@@ -23,8 +23,10 @@ async function setup(page, {summary=true} = {}) {
       if (/^public\/points\/\d+$/.test(endpoint)) return route.fulfill({json:points.find(p=>p.id===Number(endpoint.split('/').pop()))});
       if (endpoint === 'public/directory' || endpoint === 'public/points') {
         let items = points.filter(p=>(!query.get('provider_id') || query.get('provider_id').split(',').includes(String(p.provider_id))) && (!query.get('search') || p.name.toLowerCase().includes(query.get('search').toLowerCase())));
+        if(query.has('has_coordinates'))items=items.filter(p=>Number(p.has_coordinates)===Number(query.get('has_coordinates')));
         if (query.has('north')) items=items.filter(p=>p.has_coordinates && p.latitude<=Number(query.get('north')) && p.latitude>=Number(query.get('south')) && p.longitude<=Number(query.get('east')) && p.longitude>=Number(query.get('west')));
-        return route.fulfill({json:{items, total:items.length, page:1, total_pages:1, summary:summary?{total:items.length, located:items.filter(p=>p.has_coordinates).length, missing:items.filter(p=>!p.has_coordinates).length, distribution:providers.map(pr=>({provider_id:pr.id,total:items.filter(p=>p.provider_id===pr.id).length}))}:null}});
+        const showSummary=typeof summary==='function'?summary():summary;
+        return route.fulfill({json:{items, total:items.length, page:1, total_pages:1, summary:showSummary?{total:items.length, located:items.filter(p=>p.has_coordinates).length, missing:items.filter(p=>!p.has_coordinates).length, distribution:providers.map(pr=>({provider_id:pr.id,total:items.filter(p=>p.provider_id===pr.id).length}))}:null}});
       }
       throw Error('Unexpected API request: '+endpoint);
     }
@@ -84,6 +86,21 @@ async function setup(page, {summary=true} = {}) {
     expect(requests.length).toBeGreaterThan(initial);
     await page.locator('[data-clear]').click();
     await expect(page.locator('.branch-card')).toHaveCount(3);
+    await page.locator('[data-coordinates]').selectOption('0');
+    await expect(page.locator('.branch-card')).toHaveCount(1);
+    await expect(page.locator('.branch-card')).toContainText('Address only');
+    await expect(page.locator('.map-status')).toContainText('نمایش ۱ از ۱');
+    await page.clock.runFor(1000);
+    await expect(page.locator('.provider-pin-image')).toHaveCount(0);
+    await page.screenshot({path:path.join(root,`artifacts/public-locator/without-coordinates-${mode}-${width}.png`),fullPage:true});
+    await page.locator('[data-coordinates]').selectOption('1');
+    await expect(page.locator('.branch-card')).toHaveCount(2);
+    await expect(page.locator('.map-status')).toContainText('نمایش ۲ از ۲');
+    await expect(page.locator('.coordinate-note')).toHaveCount(0);
+    await page.screenshot({path:path.join(root,`artifacts/public-locator/with-coordinates-${mode}-${width}.png`),fullPage:true});
+    await page.locator('[data-clear]').click();
+    await expect(page.locator('[data-coordinates]')).toHaveValue('');
+    await expect(page.locator('.branch-card')).toHaveCount(3);
     await page.locator('.locator-search input').fill('Tehran');
     await page.locator('.locator-search').evaluate(form=>form.requestSubmit());
     await expect(page.locator('.branch-card')).toHaveCount(1);
@@ -116,9 +133,11 @@ async function setup(page, {summary=true} = {}) {
     console.log(`PASS public locator ${mode} ${width}px: full viewport, saved theme, no periodic refresh/navigation, filter/search/reset, close zoom and stable details.`);
     await page.close();
     }
-    for(const width of [1363,390]) {
+    for(const width of [1363,390]) for(const mode of ['light','dark']) {
       const page=await browser.newPage({viewport:{width,height:900}});
-      const {errors}=await setup(page,{summary:false});
+      await page.addInitScript(mode=>localStorage.setItem('tapin-color-scheme',mode),mode);
+      let showSummary=false;
+      const {errors}=await setup(page,{summary:()=>showSummary});
       await page.goto('http://locator.test/?page_id=22');
       await expect(page.locator('.branch-card')).toHaveCount(3);
       await expect(page.locator('.dashboard-overview')).toBeHidden();
@@ -129,10 +148,22 @@ async function setup(page, {summary=true} = {}) {
       expect(panel.x).toBeCloseTo(hero.x,0);
       expect(panel.width).toBeCloseTo(hero.width,0);
       expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBe(width);
-      await page.screenshot({path:path.join(root,`artifacts/public-locator/no-summary-${width}.png`),fullPage:true});
+      await page.screenshot({path:path.join(root,`artifacts/public-locator/no-summary-${mode}-${width}.png`),fullPage:true});
+      showSummary=true;
+      await page.locator('[data-provider="1"]').click();
+      await expect(page.locator('.dashboard-overview')).toBeVisible();
+      await expect(page.locator('.hero-number')).toHaveText('۱');
+      showSummary=false;
+      await page.locator('[data-clear]').click();
+      await expect(page.locator('.branch-card')).toHaveCount(3);
+      await expect(page.locator('.dashboard-overview')).toBeHidden();
+      await expect(page.locator('.public-metric')).toBeEmpty();
+      const mapSize=await page.locator('.tapin-map').boundingBox();
+      expect(await page.evaluate(()=>window.testMaps[0].getSize().x)).toBeCloseTo(mapSize.width,0);
       expect(errors).toEqual([]);
       await page.close();
     }
+    console.log('PASS empty/missing public overview: no reserved space, valid summary retained, absent summary clears stale content and map resizes in both themes at desktop/mobile widths.');
     for(const url of ['http://locator.test/?page_id=99','http://locator.test/?page_id=22&layout=embedded']) {
       const page=await browser.newPage({viewport:{width:1440,height:900}});
       const {errors}=await setup(page);

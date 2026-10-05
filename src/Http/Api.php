@@ -133,6 +133,7 @@ final class Api {
 		if ( ! $point || ( $public && ( 'active' !== $point['status'] || empty( $provider['is_active'] ) ) ) ) {
 			return new \WP_Error( 'not_found', 'نقطه خدماتی در دسترس نیست.', array( 'status' => 404 ) );
 		}
+		if ( $public ) { $point['has_coordinates'] = \Tapin\ServicePointLocator\Geocoding\CoordinatePolicy::valid( $point ); }
 		return self::public_fields( $point );
 	}
 
@@ -141,10 +142,14 @@ final class Api {
 		$args['status'] = 'active';
 		$args['public'] = true;
 		$args['directory'] = $directory;
-		$args['has_coordinates'] = $directory ? null : 1;
+		// Directory requests retain the selected availability filter; markers are always located.
+		if ( ! $directory ) { $args['has_coordinates'] = 1; }
 		unset( $args['issue'] );
 		$result = ( new ServicePointRepository() )->query( $args );
-		$result['items'] = array_map( array( self::class, 'public_fields' ), $result['items'] );
+		$result['items'] = array_map( static function( $point ) {
+			$point['has_coordinates'] = \Tapin\ServicePointLocator\Geocoding\CoordinatePolicy::valid( $point );
+			return self::public_fields( $point );
+		}, $result['items'] );
 		return $result;
 	}
 
