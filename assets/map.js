@@ -423,9 +423,15 @@
         for(let dx=-1;dx<=1&&!match;dx++)for(let dy=-1;dy<=1&&!match;dy++)match=(groups.get((x+dx)+':'+(y+dy))||[]).find(g=>Math.hypot(g.xy.x-xy.x,g.xy.y-xy.y)<clusterSpacing);
         if(match)match.points.push(p);else{const group={xy,points:[p]},key=x+':'+y;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(group);clusters.push(group);}
       });
+      const clusterPosition=group=>{
+        let x=0,y=0;
+        group.forEach(point=>{const projected=map.latLngToContainerPoint([point.latitude,point.longitude]);x+=projected.x;y+=projected.y;});
+        return map.containerPointToLatLng([x/group.length,y/group.length]);
+      };
       clusters.forEach(({points:group})=>{
         const p=group[0];
         const isCluster=group.length>1;
+        const position=isCluster?clusterPosition(group):[p.latitude,p.longitude];
         const providerById=new Map(providers.map(pr=>[Number(pr.id),pr]));
         const categoryFor=row=>{const slug=providerSlug(providerById.get(Number(row.provider_id)));return NAMED_SLUGS.includes(slug)?slug:'other';};
         const counts={post:0,tipax:0,other:0};
@@ -440,7 +446,7 @@
         const clusterComposition=[['post','پست'],['tipax','تیپاکس'],['other','سایر']].filter(([slug])=>counts[slug]).map(([slug,label])=>num(counts[slug])+' '+label).join('، ');
         const clusterLabel=isCluster?num(group.length)+' شعبه: '+clusterComposition:p.name;
         const members=[...new Set(group.map(row=>providerById.get(Number(row.provider_id))?.name).filter(Boolean))];
-        const marker=L.marker([p.latitude,p.longitude],{title:isCluster?num(group.length)+' شعبه':p.name,icon:L.divIcon({className:'tapin-pin '+(selected?'provider-pin':'all-pin')+pinProviderClass,html,iconSize,iconAnchor})}).addTo(layer);
+        const marker=L.marker(position,{title:isCluster?num(group.length)+' شعبه':p.name,icon:L.divIcon({className:'tapin-pin '+(selected?'provider-pin':'all-pin')+pinProviderClass,html,iconSize,iconAnchor})}).addTo(layer);
         marker.getElement().setAttribute('aria-label',isCluster?clusterLabel+' ('+members.join('، ')+')؛ بزرگ‌نمایی یا مشاهده فهرست':p.name+'؛ '+(providerById.get(Number(p.provider_id))?.name||'سایر')+'؛ اطلاعات شعبه');
         marker.bindTooltip(document.createTextNode(isCluster?clusterLabel+' ('+members.join('، ')+')':p.name+(providerById.get(Number(p.provider_id))?.name?' · '+providerById.get(Number(p.provider_id)).name:'')),{direction:'top',offset:[0,-66]});
         marker.getElement().addEventListener('focus',()=>marker.openTooltip());
