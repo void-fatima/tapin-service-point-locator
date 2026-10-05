@@ -300,6 +300,15 @@
 #tapin-admin .history-table .import-delete:hover:not(:disabled),#tapin-admin .import-delete-detail:hover:not(:disabled){background:linear-gradient(135deg,rgba(151,43,61,.55),rgba(87,27,44,.65));border-color:#ed6476;color:#fff;box-shadow:0 3px 14px rgba(212,77,104,.18)}
 #tapin-admin .history-table .import-delete:disabled,#tapin-admin .import-delete-detail:disabled{opacity:.45;cursor:not-allowed}
 #tapin-admin .import-history .section-title{margin-bottom:16px}
+#tapin-admin .import-history .history-table table{width:100%;min-width:1120px;table-layout:auto}
+#tapin-admin .import-history .history-table th,#tapin-admin .import-history .history-table td{overflow-wrap:normal;word-break:normal}
+#tapin-admin .import-history .history-table td:nth-child(n+4):nth-child(-n+9){white-space:nowrap}
+#tapin-admin .import-history .history-table :is(th,td):nth-child(2){min-width:132px}
+#tapin-admin .import-history .history-table :is(th,td):nth-child(3){min-width:120px}
+#tapin-admin .import-history .history-table :is(th,td):nth-child(4){min-width:122px}
+#tapin-admin .import-history .history-table :is(th,td):nth-child(5){min-width:96px}
+#tapin-admin .import-history .history-table :is(th,td):nth-child(n+6):nth-child(-n+9){min-width:76px}
+#tapin-admin .import-history .history-table :is(th,td):nth-child(10){min-width:96px}
 
 /* Comprehensive Pagination Bar (Fixes Request) */
 #tapin-admin .pagination{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:24px;padding:16px;background:rgba(10,22,42,0.5);border:1px solid #1a304e;border-radius:12px}
