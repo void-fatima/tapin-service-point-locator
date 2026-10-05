@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
+const theme = process.env.TAPIN_TEST_THEME || 'dark';
 const providers = [{ id: 1, slug: 'fixture', name: 'Fixture provider', is_active: 1, logo: '' }];
 const locations = [{ provider_id: 1, province: 'تهران', city: 'تهران' }];
 const points = [
@@ -21,6 +22,7 @@ const savedPayloads = [];
   const browser = await chromium.launch({ headless: true, ...(installedBrowser ? { executablePath: installedBrowser } : {}) });
   try {
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await page.addInitScript(theme => localStorage.setItem('tapin-color-scheme',theme), theme);
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.route('**/*', async route => {
@@ -47,7 +49,7 @@ const savedPayloads = [];
       if (url.pathname.startsWith('/tiles/')) return route.fulfill({ status: 204 });
       return route.fulfill({
         contentType: 'text/html; charset=utf-8',
-        body: '<!doctype html><html><head><link rel="stylesheet" href="/assets/vendor/leaflet.css"><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/dashboard.css"></head><body class="toplevel_page_tapin-locator"><div id="tapin-admin" class="tapin-app" dir="rtl"></div><script>window.TapinConfig={api:"/api/",assets:"/assets/",tiles:"/tiles/{z}/{x}/{y}",attribution:"Fixture tiles",nonce:"fixture"};</script><script src="/assets/vendor/leaflet.js"></script><script src="/assets/iran-locations.js"></script><script src="/assets/map.js"></script><script src="/assets/admin.js"></script></body></html>',
+        body: '<!doctype html><html><head><link rel="stylesheet" href="/assets/vendor/leaflet.css"><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/dashboard.css"><link rel="stylesheet" href="/assets/theme.css"></head><body class="toplevel_page_tapin-locator"><div id="tapin-admin" class="tapin-app" dir="rtl"></div><script>window.TapinConfig={api:"/api/",assets:"/assets/",tiles:"/tiles/{z}/{x}/{y}",attribution:"Fixture tiles",nonce:"fixture"};</script><script src="/assets/vendor/leaflet.js"></script><script src="/assets/iran-locations.js"></script><script src="/assets/theme.js"></script><script src="/assets/map.js"></script><script src="/assets/admin.js"></script></body></html>',
       });
     });
 
@@ -55,6 +57,7 @@ const savedPayloads = [];
     await page.goto(`${baseUrl}#points?new=1`);
     const dialog = page.locator('dialog.tapin-dialog');
     await expect(dialog).toBeVisible();
+    await expect(page.locator('#tapin-admin')).toHaveAttribute('data-theme-mode',theme);
     const province = dialog.locator('[name=province]');
     const city = dialog.locator('[name=city]');
     await expect(city).toBeDisabled();

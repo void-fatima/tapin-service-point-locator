@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
+const theme = process.env.TAPIN_TEST_THEME || 'dark';
 const providers = [
   { id: 1, slug: 'post', name: 'شرکت ملی پست', marker_color: '#ffbd18', color: '#ffbd18', logo: 'https://invalid.example/wrong-post.svg', is_active: 1 },
   { id: 2, slug: 'tipax', name: 'تیپاکس', marker_color: '#00ba88', color: '#00ba88', logo: '', is_active: 1 },
@@ -21,6 +22,7 @@ async function setup(page, { publicPage = false, failTipax = false, clusterProvi
     ...clusterProviders.map((providerId, index) => ({ ...points[0], id: index+10, provider_id: providerId, name: 'Cluster branch '+index, longitude: 51.4+index*0.08 })),
     {...points[0], id: 99, provider_id: 2, name: 'Address only', has_coordinates: false, latitude: null, longitude: null},
   ] : points;
+  await page.addInitScript(theme => localStorage.setItem('tapin-color-scheme',theme), theme);
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => { if (message.type() === 'error' && !/tile|net::ERR_ABORTED|responded with a status of 404/i.test(message.text())) errors.push(message.text()); });
@@ -50,7 +52,7 @@ async function setup(page, { publicPage = false, failTipax = false, clusterProvi
     }
     if (url.pathname.startsWith('/tiles/')) return route.fulfill({ status: 204 });
     const appRoot = publicPage ? '<div class="tapin-app tapin-public"><div class="tapin-public-root"></div></div>' : '<div id="tapin-admin" class="tapin-app" dir="rtl"></div>';
-    return route.fulfill({ contentType: 'text/html; charset=utf-8', body: `<!doctype html><html><head><link rel="stylesheet" href="/assets/vendor/leaflet.css"><link rel="stylesheet" href="/assets/app.css">${publicPage ? '' : '<link rel="stylesheet" href="/assets/dashboard.css">'}</head><body class="toplevel_page_tapin-locator">${appRoot}<script>window.TapinConfig={api:'/api/',assets:'/assets/',tiles:'/tiles/{z}/{x}/{y}',attribution:'Fixture tiles',nonce:'fixture'};</script><script src="/assets/vendor/leaflet.js"></script><script>window.testMaps=[];window.testMarkers=[];L.Map.addInitHook(function(){window.testMaps.push(this)});L.Marker.addInitHook(function(){window.testMarkers.push(this)});</script><script src="/assets/iran-locations.js"></script><script src="/assets/map.js"></script>${publicPage ? '' : '<script src="/assets/admin.js"></script>'}</body></html>` });
+    return route.fulfill({ contentType: 'text/html; charset=utf-8', body: `<!doctype html><html><head><link rel="stylesheet" href="/assets/vendor/leaflet.css"><link rel="stylesheet" href="/assets/app.css">${publicPage ? '' : '<link rel="stylesheet" href="/assets/dashboard.css">'}<link rel="stylesheet" href="/assets/theme.css"></head><body class="toplevel_page_tapin-locator">${appRoot}<script>window.TapinConfig={api:'/api/',assets:'/assets/',tiles:'/tiles/{z}/{x}/{y}',attribution:'Fixture tiles',nonce:'fixture'};</script><script src="/assets/vendor/leaflet.js"></script><script>window.testMaps=[];window.testMarkers=[];L.Map.addInitHook(function(){window.testMaps.push(this)});L.Marker.addInitHook(function(){window.testMarkers.push(this)});</script><script src="/assets/iran-locations.js"></script><script src="/assets/theme.js"></script><script src="/assets/map.js"></script>${publicPage ? '' : '<script src="/assets/admin.js"></script>'}</body></html>` });
   });
   return errors;
 }
@@ -123,7 +125,7 @@ async function verifyPins(page) {
     await expect(legend.locator('.map-legend-item')).toHaveCount(3);
     expect(await legend.locator('.map-legend-item').allTextContents()).toEqual(['پست','تیپاکس','سایر']);
     for (const slug of ['post','tipax','other']) await expect(legend.locator('img[src$="/markers/'+slug+'.png"]')).toBeVisible();
-    const screenshotDir = path.join(root, 'artifacts', 'provider-pins');
+    const screenshotDir = path.join(root, 'artifacts', 'provider-pins', theme);
     fs.mkdirSync(screenshotDir, { recursive: true });
     await publicPage.locator('.tapin-map').screenshot({ path: path.join(screenshotDir, 'public-map-initial.png') });
     await verifyPins(publicPage);
@@ -183,6 +185,10 @@ async function verifyPins(page) {
     await adminPage.goto('http://tapin.test/wp-admin/admin.php?page=tapin-locator#points');
     const firstRow = adminPage.locator('.points-management-table tbody tr').first();
     await expect(firstRow).toBeVisible();
+    await expect(adminPage.locator('#tapin-admin')).toHaveAttribute('data-theme-mode',theme);
+    for(const image of await adminPage.locator('.point-provider-icon img').all()) {
+      await expect.poll(()=>image.evaluate(el=>el.naturalWidth)).toBeGreaterThan(0);
+    }
     await expect(firstRow.locator('.point-provider-icon img')).toHaveAttribute('src', /assets\/brand\/post\.png$/);
     await expect(adminPage.locator('.point-provider-icon img[src$="/assets/brand/tipax.svg"]')).toHaveCount(1);
     await expect(adminPage.locator('.point-provider-icon .provider-logo-fallback')).toHaveCount(1);

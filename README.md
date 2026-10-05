@@ -227,6 +227,8 @@ try {
 
 `npm run test:all` runs the six browser suites listed in [package.json](package.json); it is **not** every repository check. Phase 2/3 browser suites are invoked separately above, and the HTTP workbook check follows Phase 3's download. Further targeted PHP suites include `geocoding.php`, `geocoding-integration.php`, `phase1.php` and `phase3.php`. See the [operations guide](docs/OPERATIONS.md#development-and-verification) and [validation record](docs/PHASE3-VALIDATION.md) for scope and prerequisites.
 
+The session-independent `admin-location-selectors.cjs`, `dialog-position.cjs`, and `provider-markers-actions.cjs` checks accept `TAPIN_TEST_THEME=dark` or `light`. `node tests/public-locator.cjs` checks public layout, saved/system themes, controls, and absence of periodic refreshes with network fixtures. With `TAPIN_WP_ROOT` pointing to installed WordPress files, `php tests/public-page.php` checks the real shortcode parser and page-template selection without database access; these checks do not replace verification against a running WordPress page.
+
 The session helper creates a short-lived local administrator session and may create a shortcode review page. Keep its file private and always run cleanup. Test screenshots and other local artifacts belong in ignored `artifacts/`.
 
 ## Status & documentation
