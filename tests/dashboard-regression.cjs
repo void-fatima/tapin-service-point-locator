@@ -20,6 +20,7 @@ const points=Array.from({length:23},(_,i)=>({id:i+1,provider_id:1,name:'Branch '
     if(endpoint==='locations')return route.fulfill({json:locations});
     if(endpoint==='public/filters')return route.fulfill({json:{providers,locations}});
     if(endpoint==='geocoding')return route.fulfill({json:{items:[],counts:{}}});
+    if(endpoint==='dashboard')return route.fulfill({json:{summary:{total:points.length}}});
     if(['imports','exports'].includes(endpoint))return route.fulfill({json:[]});
     if(/points\/\d+$/.test(endpoint))return route.fulfill({json:points.find(p=>p.id===Number(endpoint.split('/').pop()))});
     if(['points','public/points','public/directory'].includes(endpoint)){
@@ -60,7 +61,7 @@ const points=Array.from({length:23},(_,i)=>({id:i+1,provider_id:1,name:'Branch '
    await expect(panel.locator('tbody tr')).toHaveCount(10);
    await expect(page.locator('.hero-number')).toHaveText('۲۳');
    await expect(page.locator('[data-retry]')).toBeHidden();
-   await expect(page.locator('.tapin-pin svg').first()).toBeAttached();
+   await expect(page.locator('.tapin-pin .provider-pin-image').first()).toBeAttached();
    await expect(page.locator('.tapin-province-boundary').first()).toBeAttached();
    await pager.locator('.pagination-next').click();
    await expect(panel.locator('tbody tr').first()).toContainText('Branch 11');
@@ -92,7 +93,7 @@ const points=Array.from({length:23},(_,i)=>({id:i+1,provider_id:1,name:'Branch '
   await page.goto('http://dashboard.test/public');
   await expect(page.locator('[data-province] option')).toHaveCount(32);
   await expect(page.locator('.branch-card')).toHaveCount(23);
-  await expect(page.locator('.tapin-pin').first()).toBeAttached();
+  await expect(page.locator('.tapin-pin .provider-pin-image').first()).toBeAttached();
   expect(errors).toEqual([]);
   console.log('PASS: dashboard startup, numbered pagination, collapse synchronization, filters, routes, sidebar scrolling, mobile and public locator; no JavaScript runtime errors.');
  }finally{await browser.close();}
