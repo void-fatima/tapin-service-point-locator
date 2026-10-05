@@ -171,6 +171,21 @@
 	outline-offset: 3px;
 }
 
+#tapin-admin[data-theme-mode="light"] #upload-form .btn-browse,
+#tapin-admin[data-theme-mode="light"] #upload-form .btn-browse * {
+	color: #fff !important;
+}
+
+#tapin-admin[data-theme-mode="light"] #upload-form .spec-pill {
+	background: #f1f4f8 !important;
+	border-color: var(--line) !important;
+	color: #52637a !important;
+}
+
+#tapin-admin[data-theme-mode="light"] #upload-form .spec-pill b {
+	color: #26354b !important;
+}
+
 .tapin-app[data-theme-mode="light"] .good,
 .tapin-app[data-theme-mode="light"] .status-pill.good,
 .tapin-app[data-theme-mode="light"] .coord-badge.good,
