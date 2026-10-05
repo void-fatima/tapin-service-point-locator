@@ -165,7 +165,7 @@
     const controller=new AbortController();
     points.filter(p=>!p.has_coordinates).forEach(point=>{
       const actions=content().querySelector('[data-view="'+Number(point.id)+'"]')?.parentElement;if(!actions)return;
-      const button=document.createElement('button');button.type='button';button.textContent='یافتن موقعیت';button.setAttribute('aria-label','یافتن موقعیت '+point.name);
+      const button=document.createElement('button');button.type='button';button.className='btn-geocode';button.setAttribute('aria-label','یافتن موقعیت');button.setAttribute('data-tooltip','یافتن موقعیت');button.title='یافتن موقعیت';button.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2"/></svg>';
       const state=document.createElement('small');state.className='geocoding-row-status';state.textContent='بدون مختصات';
       actions.append(button);actions.parentElement.append(state);rowControls.set(Number(point.id),{button,state});
       button.onclick=()=>retry([Number(point.id)]);
