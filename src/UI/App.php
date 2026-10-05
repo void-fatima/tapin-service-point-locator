@@ -13,14 +13,29 @@ final class App {
 			global $post;
 			if ( $post instanceof \WP_Post && has_shortcode( $post->post_content, 'tapin_service_points' ) ) { $this->assets( false ); }
 		} );
+		add_filter( 'template_include', array( $this, 'public_page_template' ), 99 );
 		add_shortcode( 'tapin_service_points', function() {
 			$this->assets( false );
 			// Template/widget shortcodes may render after wp_head; print their styles once.
 			ob_start();
-			if ( ! wp_style_is( 'tapin-app', 'done' ) ) { wp_print_styles( array( 'tapin-leaflet', 'tapin-app' ) ); }
+			if ( ! wp_style_is( 'tapin-theme', 'done' ) ) { wp_print_styles( array( 'tapin-leaflet', 'tapin-app', 'tapin-theme' ) ); }
 			$styles = ob_get_clean();
 			return $styles . '<div class="tapin-app tapin-public alignwide" dir="rtl" lang="fa"><div class="tapin-public-root"><p role="status">در حال بارگذاری نقشه…</p></div><noscript>برای استفاده از نقشه، جاوااسکریپت مرورگر را فعال کنید.</noscript></div>';
 		} );
+	}
+	public function public_page_template( string $template ): string {
+		if ( is_admin() || ! is_page() ) { return $template; }
+		$post = get_queried_object();
+		if ( ! $post instanceof \WP_Post || post_password_required( $post ) ) { return $template; }
+		preg_match_all( '/' . get_shortcode_regex( array( 'tapin_service_points' ) ) . '/s', $post->post_content, $matches, PREG_SET_ORDER );
+		foreach ( $matches as $match ) {
+			// Escaped shortcodes and explicitly embedded locators retain the theme shell.
+			if ( '[' === $match[1] && ']' === $match[6] ) { continue; }
+			$attributes = shortcode_parse_atts( $match[3] );
+			if ( 'embedded' === ( $attributes['layout'] ?? 'fullscreen' ) ) { continue; }
+			return TAPIN_PLUGIN_DIR . 'src/UI/public-page.php';
+		}
+		return $template;
 	}
 	public function admin(): void {
 		if ( ! current_user_can( 'manage_options' ) ) { return; }

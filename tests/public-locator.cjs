@@ -33,7 +33,10 @@ async function setup(page) {
       return route.fulfill({body:fs.readFileSync(path.join(root,file)),contentType:({'.css':'text/css','.js':'application/javascript; charset=utf-8','.geojson':'application/json','.svg':'image/svg+xml','.png':'image/png','.woff2':'font/woff2'})[extension] || 'application/octet-stream'});
     }
     if (url.pathname.startsWith('/tiles/')) return route.fulfill({status:204});
-    return route.fulfill({contentType:'text/html; charset=utf-8',body:'<!doctype html><html><head><link rel="stylesheet" href="/assets/vendor/leaflet.css"><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/theme.css"></head><body><div class="tapin-app tapin-public" dir="rtl"><div class="tapin-public-root"></div></div><script>window.TapinConfig={api:"/api/",assets:"/assets/",tiles:"/tiles/{z}/{x}/{y}"};</script><script src="/assets/vendor/leaflet.js"></script><script>window.testMaps=[];L.Map.addInitHook(function(){window.testMaps.push(this)});</script><script src="/assets/iran-locations.js"></script><script src="/assets/theme.js"></script><script src="/assets/map.js"></script></body></html>'});
+    const unrelated = url.searchParams.get('page_id') === '99', embedded = url.searchParams.get('layout') === 'embedded';
+    const app = '<div class="tapin-app tapin-public alignwide" dir="rtl"><div class="tapin-public-root"></div></div>';
+    const shell = unrelated || embedded ? '<header class="fixture-theme-content">Theme navigation</header><div class="fixture-theme-content">'+(unrelated?'Unrelated page':app)+'</div>' : '<div class="tapin-locator-page-content">'+app+'</div>';
+    return route.fulfill({contentType:'text/html; charset=utf-8',body:'<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><style>body{margin:8px;padding:12px}.fixture-theme-content{max-width:700px;margin:auto}</style><link rel="stylesheet" href="/assets/vendor/leaflet.css"><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/theme.css"></head><body class="'+(unrelated||embedded?'':'tapin-locator-page')+'">'+shell+'<script>window.TapinConfig={api:"/api/",assets:"/assets/",tiles:"/tiles/{z}/{x}/{y}"};</script><script src="/assets/vendor/leaflet.js"></script><script>window.testMaps=[];L.Map.addInitHook(function(){window.testMaps.push(this)});</script><script src="/assets/iran-locations.js"></script><script src="/assets/theme.js"></script><script src="/assets/map.js"></script></body></html>'});
   });
   return {requests, errors, navigations};
 }
@@ -41,13 +44,31 @@ async function setup(page) {
 (async()=>{
   const browser = await chromium.launch();
   try {
-    const page = await browser.newPage({viewport:{width:1440,height:900}});
+    fs.mkdirSync(path.join(root,'artifacts/public-locator'),{recursive:true});
+    for (const width of [1440,390]) for (const mode of ['light','dark']) {
+    const page = await browser.newPage({viewport:{width,height:900}});
+    await page.addInitScript(mode=>localStorage.setItem('tapin-color-scheme',mode),mode);
     await page.clock.install();
     const {requests,errors,navigations}=await setup(page);
     await page.goto('http://locator.test/?page_id=22');
     await expect(page.locator('.branch-card')).toHaveCount(3);
     await page.clock.runFor(1000);
-    await expect(page.locator('.provider-image-pin')).toHaveCount(2);
+    const visiblePointCount=await page.evaluate(points=>points.filter(p=>p.has_coordinates && window.testMaps[0].getBounds().contains([p.latitude,p.longitude])).length,points);
+    expect(visiblePointCount).toBeGreaterThan(0);
+    // These two providers may share a cluster at the narrow country zoom.
+    await expect(page.locator('.provider-pin-image')).toHaveCount(visiblePointCount);
+    await expect(page.locator('.tapin-public')).toHaveAttribute('data-theme-mode',mode);
+    const app=await page.locator('.tapin-public').boundingBox();
+    expect(app.x).toBe(0);
+    expect(app.width).toBe(width);
+    expect(app.height).toBeGreaterThanOrEqual(900);
+    const surface=await page.locator('.tapin-public').evaluate(el=>({bg:getComputedStyle(el).backgroundColor,overflow:el.scrollWidth>el.clientWidth+1}));
+    expect(surface.bg).toBe(mode==='light'?'rgb(243, 246, 251)':'rgb(11, 14, 25)');
+    expect(surface.overflow).toBe(false);
+    const map=await page.locator('.tapin-map').boundingBox();
+    expect(map.x).toBeGreaterThanOrEqual(0);
+    expect(map.x+map.width).toBeLessThanOrEqual(width);
+    await page.screenshot({path:path.join(root,`artifacts/public-locator/${mode}-${width}.png`),fullPage:true});
     const initial=requests.length;
     await page.clock.fastForward(180000);
     await page.waitForTimeout(100);
@@ -57,6 +78,15 @@ async function setup(page) {
     expect(requests.length).toBeGreaterThan(initial);
     await page.locator('[data-clear]').click();
     await expect(page.locator('.branch-card')).toHaveCount(3);
+    await page.locator('.locator-search input').fill('Tehran');
+    await page.locator('.locator-search').evaluate(form=>form.requestSubmit());
+    await expect(page.locator('.branch-card')).toHaveCount(1);
+    await page.locator('[data-clear]').click();
+    await expect(page.locator('.branch-card')).toHaveCount(3);
+    await page.evaluate(()=>window.testMaps[0].setView([35.7,51.4],14,{animate:false}));
+    await page.clock.runFor(1000);
+    await expect(page.locator('.post-marker')).toHaveCount(1);
+    const center=await page.evaluate(()=>({lat:window.testMaps[0].getCenter().lat,lng:window.testMaps[0].getCenter().lng}));
     await page.locator('.branch-card').first().locator('[data-details]').click();
     await expect(page.locator('.tapin-detail')).toBeVisible();
     await page.clock.runFor(1000);
@@ -67,8 +97,33 @@ async function setup(page) {
     expect(requests.length).toBe(detailRequests);
     await page.keyboard.press('Escape');
     await expect(page.locator('.tapin-detail')).toBeHidden();
+    expect(await page.evaluate(()=>({lat:window.testMaps[0].getCenter().lat,lng:window.testMaps[0].getCenter().lng}))).toEqual(center);
+    if(width===1440 && mode==='light') {
+      await page.evaluate(()=>window.TapinTheme.set('system'));
+      await page.emulateMedia({colorScheme:'light'});
+      await expect(page.locator('.tapin-public')).toHaveAttribute('data-theme-mode','light');
+      await page.emulateMedia({colorScheme:'dark'});
+      await expect(page.locator('.tapin-public')).toHaveAttribute('data-theme-mode','dark');
+    }
     expect(navigations).toHaveLength(1);
     expect(errors).toEqual([]);
-    console.log('PASS public locator: no periodic data refresh or navigation; provider/reset actions update data, open details stay intact.');
+    console.log(`PASS public locator ${mode} ${width}px: full viewport, saved theme, no periodic refresh/navigation, filter/search/reset, close zoom and stable details.`);
+    await page.close();
+    }
+    for(const url of ['http://locator.test/?page_id=99','http://locator.test/?page_id=22&layout=embedded']) {
+      const page=await browser.newPage({viewport:{width:1440,height:900}});
+      const {errors}=await setup(page);
+      await page.goto(url);
+      expect((await page.locator('.fixture-theme-content').first().boundingBox()).width).toBe(700);
+      await expect(page.locator('body')).not.toHaveClass(/tapin-locator-page/);
+      expect(await page.locator('body').evaluate(el=>getComputedStyle(el).margin)).toBe('8px');
+      if(url.includes('embedded')) {
+        await expect(page.locator('.branch-card')).toHaveCount(3);
+        expect((await page.locator('.tapin-public').boundingBox()).width).toBe(700);
+      } else await expect(page.locator('.tapin-app')).toHaveCount(0);
+      expect(errors).toEqual([]);
+      await page.close();
+    }
+    console.log('PASS embedded and unrelated page theme shells retain their width and margins.');
   } finally {await browser.close();}
 })().catch(error=>{console.error(error);process.exit(1);});

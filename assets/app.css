@@ -1,4 +1,12 @@
 @font-face{font-family:TapinVazir;src:url(fonts/Vazirmatn.woff2) format('woff2');font-weight:100 900;font-style:normal;font-display:swap}
+/* Only the shortcode's dedicated page shell bypasses theme content widths. */
+body.tapin-locator-page{margin:0;padding:0;width:100%;max-width:none}
+.tapin-locator-page .tapin-locator-page-content{margin:0;padding:0;width:100%;max-width:none}
+.tapin-locator-page .tapin-app.tapin-public{margin:0;width:100%;max-width:none;min-height:calc(100vh - var(--wp-admin--admin-bar--height,0px));min-height:calc(100dvh - var(--wp-admin--admin-bar--height,0px))}
+.tapin-locator-page .tapin-public-root{min-height:inherit;display:flex;flex-direction:column}
+.tapin-locator-page .tapin-public .public-content{flex:1;display:flex;flex-direction:column}
+.tapin-locator-page .tapin-public .dashboard-hero{flex:1}
+@media(min-width:701px){.tapin-locator-page .tapin-public .dashboard-map{display:flex;flex-direction:column}.tapin-locator-page .tapin-public .dashboard-map .locator-results{flex:1;display:flex}.tapin-locator-page .tapin-public .dashboard-map .map-viewport{flex:1;display:flex;flex-direction:column;min-width:0}.tapin-locator-page .tapin-public .public-content .dashboard-map .tapin-map{flex:1;height:auto;min-height:430px}}
 .tapin-app{--bg:#0b0e19;--panel:#111522;--line:#272d44;--text:#f0eff8;--muted:#b5b6cf;--orange:#ffb32c;--purple:#b996ff;--green:#66e09d;--red:#ff727d;font-family:TapinVazir,Tahoma,sans-serif;font-size:14px;line-height:1.8;color:var(--text);background:radial-gradient(ellipse at 50% 0%,#17192c 0,transparent 50%),var(--bg);text-align:right;color-scheme:dark;box-sizing:border-box}
 .tapin-app *,.tapin-app *:before,.tapin-app *:after{box-sizing:border-box}
 #tapin-admin{display:flex;min-height:calc(100vh - 32px);margin:0 0 0 -20px}

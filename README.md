@@ -118,6 +118,8 @@ Upload `dist/tapin-service-point-locator-1.4.7.zip` through **Plugins → Add Ne
 [tapin_service_points]
 ```
 
+On a WordPress page, this shortcode uses a full-viewport locator shell without the theme's sidebar or content-width limits. Other pages and the admin panel retain their existing templates. Use `[tapin_service_points layout="embedded"]` to keep the locator inside the normal page theme. Both layouts follow the existing `tapin-color-scheme` preference; public data updates after locator actions, without a periodic refresh.
+
 Activation seeds default providers, not service points. To explicitly import the bundled postal/Tipax reference snapshots, review their [provenance and limitations](docs/DATA-SOURCES.md), then run `wp tapin import-reference` from the WordPress site if WP-CLI is available. These snapshots are not a continuously synchronized national directory.
 
 ## Spreadsheet workflow
