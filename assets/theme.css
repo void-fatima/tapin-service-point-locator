@@ -623,6 +623,12 @@
 	border-color: #c8d2df !important;
 }
 
+/* The overview pins share a dark center in SVG markup; use the light surface here. */
+#tapin-admin[data-theme-mode="light"] .metric-rail .metric-total h2 svg circle,
+#tapin-admin[data-theme-mode="light"] .metric-rail .coordinate-icon svg circle {
+	fill: var(--panel);
+}
+
 #tapin-admin[data-theme-mode="light"] .coordinate-ring::before {
 	background: #fff !important;
 }
