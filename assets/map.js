@@ -302,7 +302,7 @@
     let selected = '', coordinateFilter = '', search = '', page = 1, generation = 0, controller, items = [];
     const markers = new Map();
     const drawer=document.createElement('dialog');drawer.className='tapin-detail';drawer.dir='rtl';drawer.setAttribute('aria-labelledby',detailId);drawer.setAttribute('role','dialog');drawer.setAttribute('aria-modal','true');
-    drawer.innerHTML=`<header><h2 id="${detailId}">اطلاعات نقطه خدماتی</h2><button type="button" data-close aria-label="بستن اطلاعات شعبه">×</button></header><div class="detail-body"></div>`;
+    drawer.innerHTML=`<header><h2 id="${detailId}">اطلاعات نقطه خدماتی</h2><button type="button" data-close aria-label="بستن اطلاعات شعبه"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header><div class="detail-body"></div>`;
     container.append(drawer);
     let detailOpener=null,detailController,detailGeneration=0;
     const restoreDetailFocus=()=>{if(detailOpener?.isConnected&&detailOpener.getClientRects().length)detailOpener.focus();else (container.querySelector('[data-provider-select]')||container.querySelector('[data-provider].selected')||container.querySelector('.tapin-map'))?.focus();};
@@ -321,8 +321,21 @@
     function renderDetails(points){
       drawer.querySelector('.detail-body').innerHTML=points.map(p=>{
         const hasCoords=validCoordinates(p);
-        const navUrl=hasCoords?`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(p.latitude+','+p.longitude)}`:'';
-        return `<article class="tapin-popup">${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}<h3>${esc(p.name)}</h3>${p.province||p.city?'<p class="detail-location">'+[p.province,p.city].filter(Boolean).map(esc).join('، ')+'</p>':''}${details(p)}${!hasCoords?'<p class="coordinate-note">موقعیت روی نقشه هنوز در دسترس نیست · نشانی متنی</p>':`<div class="drawer-actions"><a class="directions-btn" href="${navUrl}" target="_blank" rel="noopener noreferrer">مسیریابی روی نقشه ↗</a></div>`}</article>`;
+        let navigation='';
+        if(hasCoords){
+          const lat=Number(p.latitude),lng=Number(p.longitude);
+          // Neshan's web route requires decimal coordinates; keep the stored
+          // numeric precision, including integer coordinates and small fractions.
+          const decimal=value=>value.toLocaleString('en-US',{useGrouping:false,minimumFractionDigits:1,maximumFractionDigits:20});
+          const routes=[
+            {key:'neshan',name:'نشان',url:`https://neshan.org/maps/routing/car/destination/${decimal(lat)},${decimal(lng)}`},
+            {key:'google',name:'گوگل‌مپ',url:`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(lat+','+lng)}`},
+            // Balad's destination parameter uses longitude first.
+            {key:'balad',name:'بلد',url:`https://balad.ir/directions/driving?destination=${encodeURIComponent(lng+','+lat)}`}
+          ];
+          navigation=`<section class="detail-routing" aria-labelledby="${detailId}-routing-${Number(p.id)}"><h4 id="${detailId}-routing-${Number(p.id)}">مسیریابی به شعبه</h4><p class="detail-routing-hint">مسیریاب دلخواهتان را انتخاب کنید</p><div class="detail-route-options">${routes.map(route=>`<a class="directions-btn detail-route-option" data-route-provider="${route.key}" href="${esc(route.url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc('مسیریابی با '+route.name+' به '+p.name+'؛ باز شدن در پنجرهٔ جدید')}"><span class="detail-route-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21 3-7 18-4-7-7-4 18-7Z"/><path d="m10 14 5-5"/></svg></span><span>${route.name}</span></a>`).join('')}</div></section>`;
+        }
+        return `<article class="detail-branch"><div class="detail-identity">${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}<h3>${esc(p.name)}</h3>${p.province||p.city?'<p class="detail-location">'+[p.province,p.city].filter(Boolean).map(esc).join('، ')+'</p>':''}</div>${details(p,true)}${!hasCoords?'<p class="coordinate-note">موقعیت روی نقشه هنوز در دسترس نیست · نشانی متنی</p>':navigation}</article>`;
       }).join('');
     }
     async function openDetails(points,opener=document.activeElement){
@@ -372,15 +385,18 @@
       if(view==='map')requestAnimationFrame(()=>{if(!geoCancelled){map.invalidateSize({pan:false});if(province.value)zoomToProvince();}});
     }
     container.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
-    const details = p => {
+    const details = (p,structured=false) => {
       const contacts=[['تلفن همراه',p.mobile_phone],['تلفن ثابت',p.landline_phone],['تلفن',p.phone]].filter(([,value])=>value).flatMap(([label,value])=>String(value).split(/\s*[/;|]\s*/).map(part=>[label,part]));
-      return (p.address?'<p>'+esc(p.address)+'</p>':'')+(p.postal_code?'<p>کد پستی: <bdi>'+esc(p.postal_code)+'</bdi></p>':'')+contacts.map(([label,value])=>{
+      const field=(label,value)=>structured?'<div class="detail-field"><dt>'+label+'</dt><dd>'+value+'</dd></div>':'<p>'+label+': '+value+'</p>';
+      const contactFields=(p.postal_code?field('کد پستی','<bdi>'+esc(p.postal_code)+'</bdi>'):'')+contacts.map(([label,value])=>{
         const normalized=String(value).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
         // Keep extension notes visible without appending them to the telephone number.
         const main=normalized.match(/^\s*(\+?[0-9][0-9\s().-]{5,})/);
         const dial=main?main[1].replace(/[^+0-9]/g,''):'';
-        return '<p>'+label+': '+(dial?'<a aria-label="'+esc('تماس با '+p.name+'، '+label)+'" href="tel:'+esc(dial)+'"><bdi>'+esc(value)+'</bdi></a>':'<bdi>'+esc(value)+'</bdi>')+'</p>';
+        return field(label,dial?'<a aria-label="'+esc('تماس با '+p.name+'، '+label)+'" href="tel:'+esc(dial)+'"><bdi>'+esc(value)+'</bdi></a>':'<bdi>'+esc(value)+'</bdi>');
       }).join('');
+      const address=p.address?(structured?'<section class="detail-address" aria-label="نشانی شعبه"><h4>نشانی شعبه</h4><p>'+esc(p.address)+'</p></section>':'<p>'+esc(p.address)+'</p>'):'';
+      return address+(structured&&contactFields?'<dl class="detail-contact-grid">'+contactFields+'</dl>':contactFields);
     };
     updateLocations();
     updateLegend();

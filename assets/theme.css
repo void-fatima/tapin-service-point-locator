@@ -183,6 +183,33 @@
 	outline-offset: 3px;
 }
 
+/* Branch detail hierarchy and route choices; keep the rest of the light UI intact. */
+.tapin-app[data-theme-mode="light"] .tapin-detail :is(.detail-location, .detail-routing-hint, .detail-address h4, .detail-field dt) {
+	color: var(--muted) !important;
+}
+
+.tapin-app[data-theme-mode="light"] .tapin-detail .detail-route-option {
+	background: var(--bg) !important;
+	border-color: var(--line) !important;
+	color: var(--text) !important;
+}
+
+.tapin-app[data-theme-mode="light"] .tapin-detail .detail-route-icon,
+.tapin-app[data-theme-mode="light"] .tapin-detail .detail-route-icon * {
+	color: #245ea8 !important;
+}
+
+.tapin-app[data-theme-mode="light"] .tapin-detail .detail-route-option:hover,
+.tapin-app[data-theme-mode="light"] .tapin-detail .detail-route-option:active {
+	background: #e8eff8 !important;
+	border-color: #91afd2 !important;
+	box-shadow: 0 0 0 1px #91afd2;
+}
+
+.tapin-app[data-theme-mode="light"] .tapin-detail .detail-route-option:active {
+	box-shadow: inset 0 0 0 1px #91afd2;
+}
+
 #tapin-admin[data-theme-mode="light"] #upload-form .btn-browse,
 #tapin-admin[data-theme-mode="light"] #upload-form .btn-browse * {
 	color: #fff !important;
