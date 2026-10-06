@@ -69,7 +69,7 @@ async function verifyPins(page) {
     await expect(pin.locator('img')).toHaveAttribute('src', new RegExp('/assets/markers/' + slug + '\\.png$'));
     await expect(pin.locator('b, .cluster-count, svg, .provider-marker-medallion')).toHaveCount(0);
     await expect.poll(() => pin.locator('img').evaluate(image => image.naturalWidth)).toBeGreaterThan(0);
-    expect(await pin.boundingBox()).toMatchObject({ width: 48, height: 72 });
+    expect(await pin.boundingBox()).toMatchObject({ width: 40, height: 60 });
     expect(await pin.evaluate(element => getComputedStyle(element, '::before').content)).toBe('none');
     const item=await page.evaluate(slug => {
     const element = document.querySelector('.' + slug + '-marker'), image = element.querySelector('img');
@@ -94,11 +94,11 @@ async function verifyPins(page) {
     const imageTop = imageRect.y + (imageRect.height - canvas.height * scale) / 2;
     return { slug, width: (right-left+1)*scale, height: (bottom-top+1)*scale,
       circleWidth:circleWidth*scale,circleHeight:circleHeight*scale,
-      tipY: imageTop+(bottom+1)*scale, anchorY: rect.y+72,
-      dx: rect.x+24-mapRect.x-position.x, dy: rect.y+72-mapRect.y-position.y,
+      tipY: imageTop+(bottom+1)*scale, anchorY: rect.y+60,
+      dx: rect.x+20-mapRect.x-position.x, dy: rect.y+60-mapRect.y-position.y,
       iconAnchor: marker.options.icon.options.iconAnchor, lat: latLng.lat, lng: latLng.lng };
     },slug);
-    expect(item.iconAnchor).toEqual([24, 72]);
+    expect(item.iconAnchor).toEqual([20, 60]);
     expect(Math.abs(item.tipY-item.anchorY)).toBeLessThan(0.1);
     expect(Math.abs(item.dx)).toBeLessThanOrEqual(1);
     expect(Math.abs(item.dy)).toBeLessThanOrEqual(1);
@@ -158,8 +158,8 @@ async function verifyPins(page) {
       for (const slug of expectedSlugs) await expect(cluster.locator('img[src$="/'+slug+'.png"]')).toBeVisible();
       await expect(cluster.locator('img')).toHaveCount(expectedSlugs.length);
       if(ids.includes(3)) await expect(cluster).toHaveAttribute('aria-label',/سایر/);
-      await expect(cluster.locator('b, .cluster-count')).toHaveCount(0);
-      await expect(cluster).toHaveText('');
+      await expect(cluster.locator('.cluster-count')).toHaveText(ids.length.toLocaleString('fa-IR'));
+      await expect(cluster).toHaveText(ids.length.toLocaleString('fa-IR'));
       await expect(cluster).toHaveAttribute('aria-label', new RegExp('^'+ids.length.toLocaleString('fa-IR')+' '));
       await cluster.focus();
       await expect(page.locator('.leaflet-tooltip')).toContainText(ids.length.toLocaleString('fa-IR'));

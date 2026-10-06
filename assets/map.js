@@ -211,8 +211,15 @@
     }
     const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const map = L.map(container.querySelector('.tapin-map'), {preferCanvas:false, scrollWheelZoom:false, zoomControl:false, zoomSnap:0.1, minZoom:3, maxZoom:19,zoomAnimation:false,fadeAnimation:!reducedMotion,markerZoomAnimation:!reducedMotion});
-    const iran = [[24.6,43.5],[40.2,63.5]];
-    map.fitBounds(iran, {padding:[12,12]});
+    let iran=L.latLngBounds([[24.6,43.5],[40.2,63.5]]);
+    const countryPadding=L.point(28,48);
+    let countryFrame;
+    const fitIran=()=>{map.fitBounds(iran,{animate:false,padding:countryPadding});countryFrame={center:map.getCenter(),zoom:map.getZoom()};};
+    fitIran();
+    // Refit only an untouched country frame when its viewport changes. A user
+    // who has panned or zoomed retains their current map interaction.
+    const resizeCountry=()=>{if(countryFrame&&Math.abs(map.getZoom()-countryFrame.zoom)<.01&&map.project(map.getCenter()).distanceTo(map.project(countryFrame.center))<2)fitIran();};
+    map.on('resize',resizeCountry);
     L.control.zoom({position:admin?'topright':'bottomleft',zoomInTitle:'بزرگ‌نمایی',zoomOutTitle:'کوچک‌نمایی'}).addTo(map);
     L.control.scale({imperial:false,position:'bottomleft'}).addTo(map);
     const tile = L.tileLayer(TapinConfig.tiles, {attribution:TapinConfig.attribution,maxZoom:19}).addTo(map);
@@ -250,6 +257,9 @@
     let iranGeometry=null;
     const geographyReady=fetch(TapinConfig.assets+'iran-provinces.geojson').then(r=>{if(!r.ok)throw Error();return r.json();}).then(data=>{if(data && !geoCancelled) {
       iranGeometry=data.features;
+      // Use every province component (including islands and the northern strip),
+      // rather than a manually chosen rectangle, for the country-wide frame.
+      iran=L.geoJSON(data).getBounds();
       const holes=[];
       data.features.forEach(feature=>{
         const polygons=feature.geometry.type==='MultiPolygon'?feature.geometry.coordinates:[feature.geometry.coordinates];
@@ -268,7 +278,7 @@
         });}
       }}).addTo(map);
       map.attributionControl.addAttribution('<a href="https://www.geoboundaries.org/">geoBoundaries</a> / OSM');
-      if(province.value)zoomToProvince();
+      if(province.value)zoomToProvince();else fitIran();
       updateLegend();if(items.length)renderDirectory();
     }}).catch(()=>{if(!geoCancelled){const note=document.createElement('p');note.className='tile-warning';note.setAttribute('role','alert');note.textContent='مرز استان‌ها بارگذاری نشد؛ فهرست نشانی‌ها در دسترس است. برای بازیابی نقشه صفحه را تازه کنید.';container.append(note);}});
     const layer = L.layerGroup().addTo(map);
@@ -284,7 +294,7 @@
     const coordinates = container.querySelector('[data-coordinates]');
     function zoomToProvince(){
       const bounds=provinceLayers.get(normalize(province.value))?.getBounds();
-      map.fitBounds(bounds?.isValid()?bounds:iran,{animate:false,padding:[12,12]});
+      if(bounds?.isValid())map.fitBounds(bounds,{animate:false,padding:[12,12]});else fitIran();
     }
     province.value = '';
     city.value = '';
@@ -426,38 +436,71 @@
       layer.clearLayers();markers.clear();
       const groups=new Map();
       const clusters=[];
-      // Reserve room for up to three branded pins in a cluster.
-      const clusterSpacing=136;
-      points.forEach(p=>{const xy=map.latLngToContainerPoint([p.latitude,p.longitude]),x=Math.floor(xy.x/clusterSpacing),y=Math.floor(xy.y/clusterSpacing);let match;
-        for(let dx=-1;dx<=1&&!match;dx++)for(let dy=-1;dy<=1&&!match;dy++)match=(groups.get((x+dx)+':'+(y+dy))||[]).find(g=>Math.hypot(g.xy.x-xy.x,g.xy.y-xy.y)<clusterSpacing);
-        if(match)match.points.push(p);else{const group={xy,points:[p]},key=x+':'+y;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(group);clusters.push(group);}
+      const countryView=iranGeometry?.length&&map.getZoom()<=map.getBoundsZoom(iran,false,countryPadding.multiplyBy(2))+.1;
+      const provinceFor=p=>iranGeometry?.find(f=>normalize(provinceNames[f.properties.shapeName]||'')===normalize(p.province||'')&&insideGeometry(p,f.geometry))||iranGeometry?.find(f=>insideGeometry(p,f.geometry));
+      // Keep even small neighboring provinces represented at country scale.
+      // Geometry, not the record's province label, determines the marker group.
+      const clusterSpacing=100;
+      points.forEach(p=>{const feature=provinceFor(p),provinceKey=feature?.properties.shapeName||'',xy=map.latLngToContainerPoint([p.latitude,p.longitude]);
+        if(countryView){
+          let group=groups.get(provinceKey);
+          if(!group){group={points:[],provinceKey};groups.set(provinceKey,group);clusters.push(group);}
+          group.points.push(p);return;
+        }
+        const x=Math.floor(xy.x/clusterSpacing),y=Math.floor(xy.y/clusterSpacing);let match;
+        for(let dx=-1;dx<=1&&!match;dx++)for(let dy=-1;dy<=1&&!match;dy++)match=(groups.get(provinceKey+':'+(x+dx)+':'+(y+dy))||[]).find(g=>Math.hypot(g.xy.x-xy.x,g.xy.y-xy.y)<clusterSpacing);
+        if(match)match.points.push(p);else{const group={xy,points:[p],provinceKey},key=provinceKey+':'+x+':'+y;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(group);clusters.push(group);}
       });
-      const clusterPosition=group=>{
+      const clusterPosition=(group,provinceKey)=>{
         let x=0,y=0;
         group.forEach(point=>{const projected=map.latLngToContainerPoint([point.latitude,point.longitude]);x+=projected.x;y+=projected.y;});
-        return map.containerPointToLatLng([x/group.length,y/group.length]);
+        const center=L.point(x/group.length,y/group.length),position=map.containerPointToLatLng(center);
+        const withinProvince=iranGeometry?.some(f=>f.properties.shapeName===provinceKey&&insideGeometry({latitude:position.lat,longitude:position.lng},f.geometry));
+        if(!countryView&&(!iranGeometry?.length||withinProvince))return position;
+        // A real member nearest the projected center stays on land, including
+        // concave coastal provinces and groups spread over separate islands.
+        const representative=group.reduce((best,p)=>map.latLngToContainerPoint([p.latitude,p.longitude]).distanceTo(center)<map.latLngToContainerPoint([best.latitude,best.longitude]).distanceTo(center)?p:best);
+        return [representative.latitude,representative.longitude];
       };
-      clusters.forEach(({points:group})=>{
-        const p=group[0];
-        const isCluster=group.length>1;
-        const position=isCluster?clusterPosition(group):[p.latitude,p.longitude];
-        const providerById=new Map(providers.map(pr=>[Number(pr.id),pr]));
-        const categoryFor=row=>{const slug=providerSlug(providerById.get(Number(row.provider_id)));return NAMED_SLUGS.includes(slug)?slug:'other';};
-        const counts={post:0,tipax:0,other:0};
-        group.forEach(row=>counts[categoryFor(row)]++);
+      const providerById=new Map(providers.map(pr=>[Number(pr.id),pr]));
+      const categoryFor=row=>{const slug=providerSlug(providerById.get(Number(row.provider_id)));return NAMED_SLUGS.includes(slug)?slug:'other';};
+      const positioned=clusters.map(cluster=>{
+        const group=cluster.points,counts={post:0,tipax:0,other:0};group.forEach(row=>counts[categoryFor(row)]++);
         const brands=['post','tipax','other'].filter(slug=>counts[slug]>0);
-        const pinProviderClass=' provider-image-pin '+(brands.length===1?brands[0]+'-marker':'mixed-marker')+(isCluster?' tapin-cluster':'');
-        const width=48+Math.max(0,brands.length-1)*40;
-        const tipOffsets={post:'11.71875',tipax:'9.984375',other:'9.890625'};
-        const html=brands.map((slug,index)=>
-          '<img class="provider-pin-image" style="left:'+index*40+'px;top:'+tipOffsets[slug]+'px" src="'+safeUrl(TapinConfig.assets+'markers/'+slug+'.png')+'" alt="" draggable="false">').join('');
-        const iconSize=[width,72],iconAnchor=[width/2,72];
+        const position=countryView||group.length>1?clusterPosition(group,cluster.provinceKey):[group[0].latitude,group[0].longitude];
+        return {...cluster,counts,brands,position,xy:map.latLngToContainerPoint(position)};
+      });
+      if(countryView)positioned.forEach(group=>{
+        const width=24+(group.brands.length-1)*28;
+        const overlaps=positioned.filter(other=>other!==group&&Math.abs(group.xy.x-other.xy.x)<(width+24+(other.brands.length-1)*28)/2&&Math.abs(group.xy.y-other.xy.y)<36);
+        if(overlaps.length)group.compactSize=Math.max(4,Math.min(20,...overlaps.map(other=>group.xy.distanceTo(other.xy)-2)));
+      });
+      positioned.forEach(({points:group,provinceKey,position,counts,brands,compactSize})=>{
+        const p=group[0];
+        const isCluster=countryView||group.length>1;
+        const pinProviderClass=' provider-image-pin '+(brands.length===1?brands[0]+'-marker':'mixed-marker')+(isCluster?' tapin-cluster':'')+(countryView?' province-aggregate':'')+(compactSize?' province-compact':'');
+        const imageWidth=countryView?24:isCluster?28:40,height=imageWidth*1.5,step=imageWidth+4;
+        const width=imageWidth+Math.max(0,brands.length-1)*step;
+        const tipOffsets={post:11.71875,tipax:9.984375,other:9.890625};
+        let html=brands.map((slug,index)=>
+          '<img class="provider-pin-image" style="left:'+index*step+'px;top:'+(tipOffsets[slug]*imageWidth/48)+'px" src="'+safeUrl(TapinConfig.assets+'markers/'+slug+'.png')+'" alt="" draggable="false">').join('')+(isCluster?'<span class="cluster-count" aria-hidden="true">'+num(group.length)+'</span>':'');
+        let iconSize=[width,height],iconAnchor=[width/2,height];
+        if(compactSize){
+          // Tiny adjacent provinces cannot fit full logos at country scale.
+          // Color segments preserve every provider category without moving the
+          // geographic anchor; the existing tooltip exposes names and counts.
+          const palette={post:'#ffbd18',tipax:'#00ba88',other:'#dc3448'};let start=0;
+          const stops=brands.map(slug=>{const end=start+counts[slug]/group.length*100,stop=palette[slug]+' '+start+'% '+end+'%';start=end;return stop;});
+          html='<span class="province-composition" style="background:conic-gradient('+stops.join(',')+')" aria-hidden="true"></span><span class="cluster-count"'+(compactSize<20||group.length>99?' hidden':'')+' aria-hidden="true">'+num(group.length)+'</span>';
+          iconSize=[compactSize,compactSize];iconAnchor=[compactSize/2,compactSize/2];
+        }
         const clusterComposition=[['post','پست'],['tipax','تیپاکس'],['other','سایر']].filter(([slug])=>counts[slug]).map(([slug,label])=>num(counts[slug])+' '+label).join('، ');
-        const clusterLabel=isCluster?num(group.length)+' شعبه: '+clusterComposition:p.name;
+        const clusterLabel=isCluster?num(group.length)+' شعبه: '+clusterComposition+(countryView?' · تجمیع استانی '+(provinceNames[provinceKey]||provinceKey):''):p.name;
         const members=[...new Set(group.map(row=>providerById.get(Number(row.provider_id))?.name).filter(Boolean))];
         const marker=L.marker(position,{title:isCluster?num(group.length)+' شعبه':p.name,icon:L.divIcon({className:'tapin-pin '+(selected?'provider-pin':'all-pin')+pinProviderClass,html,iconSize,iconAnchor})}).addTo(layer);
         marker.getElement().setAttribute('aria-label',isCluster?clusterLabel+' ('+members.join('، ')+')؛ بزرگ‌نمایی یا مشاهده فهرست':p.name+'؛ '+(providerById.get(Number(p.provider_id))?.name||'سایر')+'؛ اطلاعات شعبه');
-        marker.bindTooltip(document.createTextNode(isCluster?clusterLabel+' ('+members.join('، ')+')':p.name+(providerById.get(Number(p.provider_id))?.name?' · '+providerById.get(Number(p.provider_id)).name:'')),{direction:'top',offset:[0,-66]});
+        if(countryView)marker.getElement().dataset.markerProvince=provinceNames[provinceKey]||provinceKey;
+        marker.bindTooltip(document.createTextNode(isCluster?clusterLabel+' ('+members.join('، ')+')':p.name+(providerById.get(Number(p.provider_id))?.name?' · '+providerById.get(Number(p.provider_id)).name:'')),{direction:'top',offset:[0,-height+6]});
         marker.getElement().addEventListener('focus',()=>marker.openTooltip());
         marker.getElement().addEventListener('blur',()=>marker.closeTooltip());
         marker.getElement().addEventListener('keydown',e=>{
@@ -471,11 +514,12 @@
       if(geoCancelled)return;
       markerController?.abort();markerController=new AbortController();const token=++markerGeneration;
       layer.clearLayers();markers.clear();if(coordinateFilter==='0'){markerStatus.textContent='نقطه‌ای با مختصات برای نمایش روی نقشه نیست؛ نشانی‌ها در فهرست زیر نمایش داده می‌شوند.';return;}markerStatus.textContent='در حال دریافت نشانگرها…';
+      const points=[];
+      try{await geographyReady;if(geoCancelled||token!==markerGeneration)return;
       const bounds=map.getBounds();
       const params=new URLSearchParams({search,provider_id:selected,province:province.value,city:city.value,status:admin?'any':'active',per_page:'500',north:String(Math.min(90,bounds.getNorth())),south:String(Math.max(-90,bounds.getSouth())),east:String(Math.min(180,bounds.getEast())),west:String(Math.max(-180,bounds.getWest())),has_coordinates:'1'});
       if(admin)params.set('map_view','1');
-      const points=[];
-      try{await geographyReady;if(geoCancelled||token!==markerGeneration)return;const inIran=p=>{if(!validCoordinates(p))return false;if(iranGeometry&&iranGeometry.length){if(iranGeometry.some(f=>insideGeometry(p,f.geometry)))return true;}const lat=Number(p.latitude),lng=Number(p.longitude);return lat>=24&&lat<=41&&lng>=43&&lng<=65;};let next=1,totalPages=1;do{params.set('page',String(next));const data=await api((admin?'points':'public/points')+'?'+params,{signal:markerController.signal});if(token!==markerGeneration)return;points.push(...data.items.filter(inIran));totalPages=data.total_pages;next++;}while(next<=totalPages);drawMarkers(points);markerStatus.textContent=num(points.length)+' نقطه دارای مختصات در محدوده نقشه';}
+      const inIran=p=>{if(!validCoordinates(p))return false;if(iranGeometry?.length)return iranGeometry.some(f=>insideGeometry(p,f.geometry));const lat=Number(p.latitude),lng=Number(p.longitude);return lat>=24&&lat<=41&&lng>=43&&lng<=65;};let next=1,totalPages=1;do{params.set('page',String(next));const data=await api((admin?'points':'public/points')+'?'+params,{signal:markerController.signal});if(token!==markerGeneration)return;points.push(...data.items.filter(inIran));totalPages=data.total_pages;next++;}while(next<=totalPages);drawMarkers(points);markerStatus.textContent=num(points.length)+' نقطه دارای مختصات در محدوده نقشه';}
       catch(e){if(e.name!=='AbortError'){markerStatus.textContent=e.message;if(!admin)retry.hidden=false;}}
     }
     function scheduleMarkers(){if(geoCancelled)return;layer.clearLayers();markers.clear();clearTimeout(markerTimer);markerController?.abort();markerGeneration++;markerTimer=setTimeout(loadMarkers,180);}
@@ -518,8 +562,8 @@
       }).catch(()=>{});
     };
     city.onchange=()=>{load();scheduleMarkers();zoomToCity();};
-    container.querySelector('[data-reset]').onclick=()=>{clearTimeout(searchTimer);search='';const s=container.querySelector('.locator-search input[name=search]');if(s)s.value='';province.value='';city.value='';updateLocations();updateLegend();map.stop();map.fitBounds(iran,{animate:false});load();scheduleMarkers();};
-    function clearFilters(){clearTimeout(searchTimer);selected='';if(admin)container.querySelector('[data-provider-select]').value='';coordinateFilter='';coordinates.value='';search='';province.value='';city.value='';container.querySelector('[name=search]').value='';refreshFilters();map.stop();map.fitBounds(iran,{animate:false});}
+    container.querySelector('[data-reset]').onclick=()=>{clearTimeout(searchTimer);search='';const s=container.querySelector('.locator-search input[name=search]');if(s)s.value='';province.value='';city.value='';updateLocations();updateLegend();map.stop();fitIran();load();scheduleMarkers();};
+    function clearFilters(){clearTimeout(searchTimer);selected='';if(admin)container.querySelector('[data-provider-select]').value='';coordinateFilter='';coordinates.value='';search='';province.value='';city.value='';container.querySelector('[name=search]').value='';refreshFilters();map.stop();fitIran();}
     container.querySelector('[data-clear]').onclick=clearFilters;
     const pagerSlot=document.createElement('div');pagerSlot.className='dashboard-pager';
     if(admin){
@@ -580,7 +624,7 @@
     // Admin enrichment can refresh in the background; public discovery updates
     // only after filter, search, retry, pagination, or viewport actions.
     const refreshTimer=admin?setInterval(()=>{const detailOpen=drawer.showModal?drawer.open:!drawer.hidden;if(!geoCancelled&&!document.hidden&&!detailOpen&&page===1&&!container.contains(document.activeElement)){load();scheduleMarkers();}},60000):null;
-    return () => {geoCancelled=true;listAnimation?.cancel();listMotion?.removeEventListener('change',settleReducedMotion);clearInterval(refreshTimer);detailGeneration++;detailController?.abort();cityBoundsController?.abort();clearTimeout(searchTimer);if(drawer.close&&drawer.open)drawer.close();drawer.remove();if(admin&&directoryPanel&&directoryPanel.parentElement&&directoryPanel.parentElement!==container)directoryPanel.remove();map.off('moveend',scheduleMarkers);map.off('moveend',declutterCountryLabels);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
+    return () => {geoCancelled=true;listAnimation?.cancel();listMotion?.removeEventListener('change',settleReducedMotion);clearInterval(refreshTimer);detailGeneration++;detailController?.abort();cityBoundsController?.abort();clearTimeout(searchTimer);if(drawer.close&&drawer.open)drawer.close();drawer.remove();if(admin&&directoryPanel&&directoryPanel.parentElement&&directoryPanel.parentElement!==container)directoryPanel.remove();map.off('resize',resizeCountry);map.off('moveend',scheduleMarkers);map.off('moveend',declutterCountryLabels);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
   }
   window.Tapin = {api,esc,num,badge,providerOptions,mapWidget,color,safeUrl,providerLogoMarkup,exportControl,paginationBar};
   document.querySelectorAll('.tapin-public-root').forEach(async root=>{

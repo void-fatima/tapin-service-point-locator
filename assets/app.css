@@ -170,7 +170,13 @@ body.tapin-locator-page{margin:0;padding:0;width:100%;max-width:none}
 /* Complete supplied PNGs use a shared box; map.js offsets each artwork so its tip
    stays on the geographic anchor while retaining the original soft shadow. */
 .tapin-app .tapin-pin.provider-image-pin{overflow:visible;background:transparent!important;border:0!important;border-radius:0;box-shadow:none!important}
-.tapin-app .tapin-pin .provider-pin-image{position:absolute;top:0;left:0;display:block;width:48px!important;height:72px!important;max-width:none!important;max-height:none!important;object-fit:contain;pointer-events:none}
+.tapin-app .tapin-pin .provider-pin-image{position:absolute;top:0;left:0;display:block;width:40px!important;height:60px!important;max-width:none!important;max-height:none!important;object-fit:contain;pointer-events:none}
+.tapin-app .tapin-cluster .provider-pin-image{width:28px!important;height:42px!important}
+.tapin-app .tapin-cluster .cluster-count{position:absolute;bottom:0;left:50%;transform:translateX(-50%);min-width:20px;padding:0 4px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);font-size:10px;font-weight:800;line-height:15px;text-align:center;white-space:nowrap;pointer-events:none}
+.tapin-app .province-aggregate .provider-pin-image{width:24px!important;height:36px!important}
+.tapin-app .province-aggregate .cluster-count{min-width:12px;padding:0 2px;font-size:9px;line-height:12px}
+.tapin-app .province-compact .province-composition{position:absolute;inset:0;border:1px solid var(--panel);border-radius:50%;box-shadow:0 0 0 1px var(--text);pointer-events:none}
+.tapin-app .province-compact .cluster-count{inset:3px;min-width:0;padding:0;transform:none;border:0;border-radius:50%;font-size:8px;line-height:14px}
 .tapin-app .map-legend{direction:rtl;justify-content:flex-start}
 .tapin-app .map-legend-item{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .tapin-app .map-legend-item img{display:block;width:16px!important;height:24px!important;max-width:none!important;max-height:none!important;object-fit:contain}
