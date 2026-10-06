@@ -178,7 +178,6 @@ body.tapin-locator-page{margin:0;padding:0;width:100%;max-width:none}
 .tapin-app .tapin-pin.branch-pin{background:transparent!important;border:0!important;border-radius:0;box-shadow:none!important;overflow:visible}
 .tapin-app .branch-pin .provider-pin-image{position:absolute;left:0;display:block;width:40px!important;height:60px!important;max-width:none!important;max-height:none!important;object-fit:contain;pointer-events:none}
 .tapin-app .marker-leader{stroke:var(--text);fill:none;pointer-events:none}
-.tapin-app .marker-anchor{stroke:var(--text);fill:var(--panel);fill-opacity:1;pointer-events:none}
 .tapin-app .map-legend{direction:rtl;justify-content:flex-start}
 .tapin-app .map-legend-item{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .tapin-app .map-legend-item img{display:block;width:16px!important;height:24px!important;max-width:none!important;max-height:none!important;object-fit:contain}

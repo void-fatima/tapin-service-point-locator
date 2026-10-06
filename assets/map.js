@@ -596,7 +596,6 @@
         if(badgeOffset.x||badgeOffset.y){
           const labelPosition=map.containerPointToLatLng(map.latLngToContainerPoint(position).add(badgeOffset));
           L.polyline([position,labelPosition],{className:'marker-leader',interactive:false,weight:1,opacity:.55}).addTo(layer);
-          L.circleMarker(position,{className:'marker-anchor',interactive:false,radius:2,weight:1}).addTo(layer);
         }
         if(isCluster){
           const palette={post:'#ffbd18',tipax:'#00ba88',other:'#dc3448'};let start=0;
