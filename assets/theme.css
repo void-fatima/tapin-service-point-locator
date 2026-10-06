@@ -198,6 +198,37 @@
 	color: #26354b !important;
 }
 
+/* Return to import history: retain the compact control's existing geometry. */
+#tapin-admin[data-theme-mode="light"] .section-title a.import-all-files {
+	background: var(--panel);
+	border-color: var(--line);
+	color: var(--text) !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .section-title a.import-all-files * {
+	color: inherit !important;
+}
+
+#tapin-admin[data-theme-mode="light"] .section-title a.import-all-files:hover {
+	background: var(--bg);
+	border-color: var(--muted);
+}
+
+#tapin-admin[data-theme-mode="light"] .section-title a.import-all-files:active {
+	background: var(--line);
+}
+
+#tapin-admin[data-theme-mode="light"] .section-title a.import-all-files:focus-visible {
+	outline: 2px solid #245ea8;
+	outline-offset: 2px;
+}
+
+#tapin-admin[data-theme-mode="light"] .section-title a.import-all-files[aria-disabled="true"] {
+	background: var(--bg);
+	border-color: var(--line);
+	color: var(--muted) !important;
+}
+
 .tapin-app[data-theme-mode="light"] .good,
 .tapin-app[data-theme-mode="light"] .status-pill.good,
 .tapin-app[data-theme-mode="light"] .coord-badge.good,
