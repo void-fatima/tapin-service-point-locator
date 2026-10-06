@@ -177,6 +177,15 @@ body.tapin-locator-page{margin:0;padding:0;width:100%;max-width:none}
 .tapin-app .province-aggregate .cluster-count{min-width:12px;padding:0 2px;font-size:9px;line-height:12px}
 .tapin-app .province-compact .province-composition{position:absolute;inset:0;border:1px solid var(--panel);border-radius:50%;box-shadow:0 0 0 1px var(--text);pointer-events:none}
 .tapin-app .province-compact .cluster-count{inset:3px;min-width:0;padding:0;transform:none;border:0;border-radius:50%;font-size:8px;line-height:14px}
+/* Public map: one fixed-size chart or provider logo, with counts in tooltips. */
+.tapin-app.tapin-public .tapin-pin.public-map-badge{background:transparent!important;border:0!important;border-radius:50%;box-shadow:none!important;overflow:visible}
+.tapin-public .public-map-badge .public-marker-chart,.tapin-public .public-map-badge .public-marker-logo{position:absolute;inset:0;display:grid;place-items:center;border:1.5px solid var(--text);border-radius:50%;box-shadow:0 0 0 1px var(--panel);overflow:hidden;pointer-events:none}
+.tapin-public .public-map-badge .public-marker-logo{background:#fff}
+.tapin-public .public-map-badge .public-provider-emblem{position:absolute;left:-9.5px;top:-10.8px;width:36px!important;height:54px!important;max-width:none!important;max-height:none!important;object-fit:contain}
+.tapin-public .public-map-badge .provider-marker-logo{max-width:18px!important;max-height:18px!important}
+.tapin-public .public-map-badge .provider-logo-fallback{width:18px;height:18px;font-size:14px;line-height:18px;text-align:center}
+.tapin-public .public-marker-leader{stroke:var(--text);fill:none;pointer-events:none}
+.tapin-public .public-marker-anchor{stroke:var(--text);fill:var(--panel);fill-opacity:1;pointer-events:none}
 .tapin-app .map-legend{direction:rtl;justify-content:flex-start}
 .tapin-app .map-legend-item{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .tapin-app .map-legend-item img{display:block;width:16px!important;height:24px!important;max-width:none!important;max-height:none!important;object-fit:contain}

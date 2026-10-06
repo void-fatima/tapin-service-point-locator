@@ -464,21 +464,119 @@
       };
       const providerById=new Map(providers.map(pr=>[Number(pr.id),pr]));
       const categoryFor=row=>{const slug=providerSlug(providerById.get(Number(row.provider_id)));return NAMED_SLUGS.includes(slug)?slug:'other';};
-      const positioned=clusters.map(cluster=>{
+      const publicBadgeSize=20;
+      const positionCluster=cluster=>{
         const group=cluster.points,counts={post:0,tipax:0,other:0};group.forEach(row=>counts[categoryFor(row)]++);
         const brands=['post','tipax','other'].filter(slug=>counts[slug]>0);
         const position=countryView||group.length>1?clusterPosition(group,cluster.provinceKey):[group[0].latitude,group[0].longitude];
         return {...cluster,counts,brands,position,xy:map.latLngToContainerPoint(position)};
-      });
-      if(countryView)positioned.forEach(group=>{
+      };
+      const positioned=clusters.map(positionCluster);
+      if(!positioned.length)return;
+      if(!admin){
+        // Keep provincial groups separate. Only the badge's screen layout moves;
+        // a leader marks the unchanged geographic anchor when space is tight.
+        const radius=publicBadgeSize/2+3,size=map.getSize();
+        let landPixels;
+        if(iranGeometry?.length){
+          const mask=document.createElement('canvas');mask.width=Math.ceil(size.x);mask.height=Math.ceil(size.y);
+          const ctx=mask.getContext('2d');ctx.fillStyle=ctx.strokeStyle='#fff';ctx.lineWidth=1.5;
+          iranGeometry.forEach(feature=>{
+            ctx.beginPath();
+            const polygons=feature.geometry.type==='MultiPolygon'?feature.geometry.coordinates:[feature.geometry.coordinates];
+            polygons.forEach(rings=>rings.forEach(ring=>{ring.forEach(([lng,lat],i)=>{const p=map.latLngToContainerPoint([lat,lng]);if(i)ctx.lineTo(p.x,p.y);else ctx.moveTo(p.x,p.y);});ctx.closePath();}));
+            // Close subpixel seams between province polygons. The disk's
+            // extra margin still keeps its visible edge inside the coastline.
+            ctx.fill('evenodd');ctx.stroke();
+          });
+          landPixels=ctx.getImageData(0,0,mask.width,mask.height).data;
+        }
+        const circleOnLand=xy=>{
+          if(!landPixels)return true;
+          // Check the whole disk against the union, preserving internal province
+          // borders while rejecting narrow coastal inlets and exterior space.
+          for(let y=Math.floor(xy.y-radius);y<=Math.ceil(xy.y+radius);y++)for(let x=Math.floor(xy.x-radius);x<=Math.ceil(xy.x+radius);x++){
+            if(Math.hypot(x+.5-xy.x,y+.5-xy.y)<=radius&&landPixels[(y*Math.ceil(size.x)+x)*4+3]<250)return false;
+          }
+          return true;
+        };
+        const fitsLand=xy=>xy.x>=radius&&xy.y>=radius&&xy.x<=size.x-radius&&xy.y<=size.y-radius&&circleOnLand(xy);
+        const layouts=positioned.map(group=>{
+          const candidates=[];
+          if(fitsLand(group.xy))candidates.push(group.xy);
+          for(let distance=16;distance<=160;distance+=16)for(let angle=0;angle<16;angle++){
+            const candidate=L.point(group.xy.x+distance*Math.cos(angle*Math.PI/8),group.xy.y+distance*Math.sin(angle*Math.PI/8));
+            if(fitsLand(candidate))candidates.push(candidate);
+          }
+          return {group,candidates};
+        });
+        // Coastal groups have fewer feasible positions. Place them first and
+        // rearrange nearby badges when a dense province has no free position.
+        const assignments=new Map(),byGroup=new Map(layouts.map(layout=>[layout.group,layout]));let attempts=0;
+        const place=(layout,locked=new Set(),depth=0)=>{
+          const nextLocked=new Set(locked);nextLocked.add(layout.group);
+          for(const center of layout.candidates){
+            if(++attempts>8000)return false;
+            const conflicts=[...assignments].filter(([group,p])=>group!==layout.group&&p.distanceTo(center)<publicBadgeSize+3).map(([group])=>group);
+            if(!conflicts.length){assignments.set(layout.group,center);return true;}
+            if(depth>=5||conflicts.some(group=>nextLocked.has(group)))continue;
+            const previous=new Map(assignments);assignments.set(layout.group,center);conflicts.forEach(group=>assignments.delete(group));
+            if(conflicts.every(group=>place(byGroup.get(group),nextLocked,depth+1)))return true;
+            assignments.clear();previous.forEach((p,group)=>assignments.set(group,p));
+          }
+          return false;
+        };
+        let crowded=false;
+        layouts.sort((a,b)=>a.candidates.length-b.candidates.length).forEach(layout=>{attempts=0;if(!place(layout))crowded=true;});
+        if(crowded){
+          // A regular inland lattice guarantees separation even when every
+          // province is populated on mobile. Choose the least displacement
+          // assignment; geographic anchors and province groups stay intact.
+          const spacing=publicBadgeSize+3,rowSpacing=spacing*Math.sqrt(3)/2;
+          let slots=[];
+          for(const dx of [0,spacing/4,spacing/2,spacing*3/4])for(const dy of [0,rowSpacing/4,rowSpacing/2,rowSpacing*3/4]){
+            const candidates=[];
+            for(let y=radius+dy,row=0;y<=size.y-radius;y+=rowSpacing,row++)for(let x=radius+dx+(row%2)*spacing/2;x<=size.x-radius;x+=spacing){const p=L.point(x,y);if(fitsLand(p))candidates.push(p);}
+            if(candidates.length>slots.length)slots=candidates;
+          }
+          if(slots.length>=positioned.length){
+            // Rectangular minimum-cost matching (rows = badges, columns =
+            // non-overlapping slots). Potentials keep each augmenting path
+            // cheap without exponential layout retries.
+            const n=positioned.length,m=slots.length,u=Array(n+1).fill(0),v=Array(m+1).fill(0),owner=Array(m+1).fill(0),way=Array(m+1).fill(0);
+            for(let i=1;i<=n;i++){
+              owner[0]=i;let j0=0;
+              const best=Array(m+1).fill(Infinity),used=Array(m+1).fill(false);
+              do{
+                used[j0]=true;const i0=owner[j0];let delta=Infinity,j1=0;
+                for(let j=1;j<=m;j++)if(!used[j]){
+                  const cost=positioned[i0-1].xy.distanceTo(slots[j-1])**2-u[i0]-v[j];
+                  if(cost<best[j]){best[j]=cost;way[j]=j0;}
+                  if(best[j]<delta){delta=best[j];j1=j;}
+                }
+                for(let j=0;j<=m;j++){if(used[j]){u[owner[j]]+=delta;v[j]-=delta;}else best[j]-=delta;}
+                j0=j1;
+              }while(owner[j0]);
+              do{const j1=way[j0];owner[j0]=owner[j1];j0=j1;}while(j0);
+            }
+            assignments.clear();
+            for(let j=1;j<=m;j++)if(owner[j])assignments.set(positioned[owner[j]-1],slots[j-1]);
+          }
+        }
+        // An exceptionally small container may have fewer inland slots than
+        // badges; retain every geographic marker rather than dropping records.
+        positioned.forEach(group=>{if(!assignments.has(group))assignments.set(group,group.xy);});
+        positioned.forEach(group=>{group.badgeOffset=assignments.get(group).subtract(group.xy);});
+      }
+      if(admin&&countryView)positioned.forEach(group=>{
         const width=24+(group.brands.length-1)*28;
         const overlaps=positioned.filter(other=>other!==group&&Math.abs(group.xy.x-other.xy.x)<(width+24+(other.brands.length-1)*28)/2&&Math.abs(group.xy.y-other.xy.y)<36);
         if(overlaps.length)group.compactSize=Math.max(4,Math.min(20,...overlaps.map(other=>group.xy.distanceTo(other.xy)-2)));
       });
-      positioned.forEach(({points:group,provinceKey,position,counts,brands,compactSize})=>{
+      positioned.forEach(({points:group,provinceKey,position,counts,brands,compactSize,badgeOffset})=>{
         const p=group[0];
         const isCluster=countryView||group.length>1;
-        const pinProviderClass=' provider-image-pin '+(brands.length===1?brands[0]+'-marker':'mixed-marker')+(isCluster?' tapin-cluster':'')+(countryView?' province-aggregate':'')+(compactSize?' province-compact':'');
+        let pinProviderClass=' provider-image-pin '+(brands.length===1?brands[0]+'-marker':'mixed-marker')+(isCluster?' tapin-cluster':'')+(countryView?' province-aggregate':'')+(compactSize?' province-compact':'');
         const imageWidth=countryView?24:isCluster?28:40,height=imageWidth*1.5,step=imageWidth+4;
         const width=imageWidth+Math.max(0,brands.length-1)*step;
         const tipOffsets={post:11.71875,tipax:9.984375,other:9.890625};
@@ -494,13 +592,31 @@
           html='<span class="province-composition" style="background:conic-gradient('+stops.join(',')+')" aria-hidden="true"></span><span class="cluster-count"'+(compactSize<20||group.length>99?' hidden':'')+' aria-hidden="true">'+num(group.length)+'</span>';
           iconSize=[compactSize,compactSize];iconAnchor=[compactSize/2,compactSize/2];
         }
+        if(!admin){
+          pinProviderClass=' public-map-badge '+(brands.length===1?brands[0]+'-marker ':'mixed-marker ')+(isCluster?'tapin-cluster ':'')+(countryView?'province-aggregate ':'')+(selected?'public-logo-marker':'public-chart-marker');
+          iconSize=[publicBadgeSize,publicBadgeSize];iconAnchor=[publicBadgeSize/2-badgeOffset.x,publicBadgeSize/2-badgeOffset.y];
+          if(badgeOffset.x||badgeOffset.y){
+            const labelPosition=map.containerPointToLatLng(map.latLngToContainerPoint(position).add(badgeOffset));
+            L.polyline([position,labelPosition],{className:'public-marker-leader',interactive:false,weight:1,opacity:.55}).addTo(layer);
+            L.circleMarker(position,{className:'public-marker-anchor',interactive:false,radius:2,weight:1}).addTo(layer);
+          }
+          if(selected){
+            const pr=providerById.get(Number(selected))||providerById.get(Number(p.provider_id)),slug=providerSlug(pr);
+            const emblem=NAMED_SLUGS.includes(slug)?'<img class="provider-logo public-provider-emblem" data-provider-slug="'+slug+'" data-provider-fallback="'+esc(providerFallbackText(pr))+'" src="'+safeUrl(TapinConfig.assets+'markers/'+slug+'.png')+'" alt="" draggable="false">':providerLogoMarkup(pr,true);
+            html='<span class="public-marker-logo" data-provider-slug="'+slug+'" aria-hidden="true">'+emblem+'</span>';
+          }else{
+            const palette={post:'#ffbd18',tipax:'#00ba88',other:'#dc3448'};let start=0;
+            const stops=brands.map(slug=>{const end=start+counts[slug]/group.length*100,stop=palette[slug]+' '+start+'% '+end+'%';start=end;return stop;});
+            html='<span class="public-marker-chart" style="background:conic-gradient('+stops.join(',')+')" aria-hidden="true"></span>';
+          }
+        }
         const clusterComposition=[['post','پست'],['tipax','تیپاکس'],['other','سایر']].filter(([slug])=>counts[slug]).map(([slug,label])=>num(counts[slug])+' '+label).join('، ');
-        const clusterLabel=isCluster?num(group.length)+' شعبه: '+clusterComposition+(countryView?' · تجمیع استانی '+(provinceNames[provinceKey]||provinceKey):''):p.name;
+        const clusterLabel=isCluster||!admin?num(group.length)+' شعبه: '+clusterComposition+(countryView?' · تجمیع استانی '+(provinceNames[provinceKey]||provinceKey):''):p.name;
         const members=[...new Set(group.map(row=>providerById.get(Number(row.provider_id))?.name).filter(Boolean))];
         const marker=L.marker(position,{title:isCluster?num(group.length)+' شعبه':p.name,icon:L.divIcon({className:'tapin-pin '+(selected?'provider-pin':'all-pin')+pinProviderClass,html,iconSize,iconAnchor})}).addTo(layer);
-        marker.getElement().setAttribute('aria-label',isCluster?clusterLabel+' ('+members.join('، ')+')؛ بزرگ‌نمایی یا مشاهده فهرست':p.name+'؛ '+(providerById.get(Number(p.provider_id))?.name||'سایر')+'؛ اطلاعات شعبه');
+        marker.getElement().setAttribute('aria-label',isCluster?clusterLabel+' ('+members.join('، ')+')؛ بزرگ‌نمایی یا مشاهده فهرست':p.name+'؛ '+(providerById.get(Number(p.provider_id))?.name||'سایر')+'؛ اطلاعات شعبه'+(!admin?' · '+clusterLabel:''));
         if(countryView)marker.getElement().dataset.markerProvince=provinceNames[provinceKey]||provinceKey;
-        marker.bindTooltip(document.createTextNode(isCluster?clusterLabel+' ('+members.join('، ')+')':p.name+(providerById.get(Number(p.provider_id))?.name?' · '+providerById.get(Number(p.provider_id)).name:'')),{direction:'top',offset:[0,-height+6]});
+        marker.bindTooltip(document.createTextNode(isCluster?clusterLabel+' ('+members.join('، ')+')':p.name+(providerById.get(Number(p.provider_id))?.name?' · '+providerById.get(Number(p.provider_id)).name:'')+(!admin?' · '+clusterLabel:'')),{direction:'top',offset:admin?[0,-height+6]:[badgeOffset.x,badgeOffset.y-publicBadgeSize/2-4]});
         marker.getElement().addEventListener('focus',()=>marker.openTooltip());
         marker.getElement().addEventListener('blur',()=>marker.closeTooltip());
         marker.getElement().addEventListener('keydown',e=>{
