@@ -46,7 +46,9 @@ try {
 	check( 'running' === $started['status'], 'mapping starts import' );
 	$done = ImportJobs::step( (int) $job['id'] );
 	check( ! is_wp_error( $done ) && 'completed' === $done['status'], 'import checkpoint commits' );
-	check( $done['data']['inserted'] === 1 && $done['data']['skipped'] === 1 && $done['data']['failed'] === 2, 'exact row outcome accounting' );
+	check( $done['data']['inserted'] === 2 && $done['data']['skipped'] === 1 && $done['data']['failed'] === 1, 'invalid imported coordinates retain the address; column mismatches still fail' );
+	$invalid_coordinates = $points->get_by_code( $provider, 'C-3' );
+	check( $invalid_coordinates && ! $invalid_coordinates['has_coordinates'] && $invalid_coordinates['metadata']['invalid_import_coordinates'] === array( 'latitude' => 'bad', 'longitude' => 'bad' ), 'invalid source coordinates are preserved without a fabricated marker' );
 	check( ImportJobs::step( (int) $job['id'] )['data']['processed'] === 4, 'repeated completed request is idempotent' );
 	check( ! isset( $done['data']['path'] ), 'private path never exposed' );
 	$match = $points->get_by_code( $provider, 'B-2' );

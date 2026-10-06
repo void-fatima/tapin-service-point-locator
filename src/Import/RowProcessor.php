@@ -25,10 +25,22 @@ final class RowProcessor {
 			}
 		}
 		$validation = ServicePointValidator::validate( $data );
+		$coordinate_warnings = array();
+		$coordinate_errors = array_intersect_key( $validation->get_errors(), array_flip( array( 'coordinates', 'latitude', 'longitude' ) ) );
+		if ( $coordinate_errors ) {
+			// Invalid uploaded coordinates must not prevent a valid address from
+			// joining the directory. Preserve the source values; never guess a fix.
+			if ( null === $data['metadata'] || is_array( $data['metadata'] ) ) {
+				$data['metadata']['invalid_import_coordinates'] = array_intersect_key( $raw, array_flip( array( 'latitude', 'longitude', 'coordinates' ) ) );
+			}
+			$data['latitude'] = null; $data['longitude'] = null;
+			$coordinate_warnings = array_merge( array_values( $coordinate_errors ), array( 'مختصات نامعتبر فایل استفاده نشد؛ مقدار اصلی در اطلاعات تکمیلی نگهداری شد. نشانی بدون مختصات جدید وارد می‌شود.' ) );
+			$validation = ServicePointValidator::validate( $data );
+		}
 		if ( ! $validation->is_valid() ) { return array( 'result' => 'failed', 'messages' => array_values( $validation->get_errors() ) ); }
 		$repo = new ServicePointRepository();
 		$match = ( new DuplicateDetector( $provider ) )->find_existing( $data );
-		$warnings = array_values( $validation->get_warnings() );
+		$warnings = array_merge( array_values( $validation->get_warnings() ), $coordinate_warnings );
 		$outcome = $data['metadata']['tapin_reconciliation']['result'] ?? null;
 		if ( in_array( $outcome, array( 'conflict', 'probable_match' ), true ) ) { $warnings[] = 'Tapin directory: ' . $outcome . ' — uploaded values preserved; review source evidence.'; }
 		if ( $match ) {

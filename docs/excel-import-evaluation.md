@@ -6,6 +6,8 @@ CSV and XLSX use the same ColumnMapper, DataNormalizer, ServicePointValidator, D
 
 The aliases `عنوان نمایندگی` and `عنوان سرویس دهنده` identify branch name and provider; `آدرس`, `استان` and `شهر` retain their existing mappings. Preview labels each detected field and identifies an unmapped required name/address column before starting. A missing province column has its own source-reconciliation notice rather than a generic missing-column error.
 
+Blank coordinate pairs remain optional. A malformed, partial or out-of-range uploaded pair produces a warning and an address-only new record, with the exact original fields retained in `metadata.invalid_import_coordinates`. Existing valid coordinates are preserved by the existing update policy. Missing required name/province/address data still fails row validation. Admin form validation remains strict for invalid coordinate input.
+
 When a provider column exists, preview counts its labels across the entire file and offers an explicit configured-provider choice for each label. Exact names, slugs, IDs and the existing `پست` alias remain supported. An unknown label such as `قطار بار` is never assigned to another provider automatically. The global selection applies only when the file has no mapped provider column. Older API clients that leave an unknown label unmapped receive a named row failure in the report.
 
 Focused local coverage: `php tests/mixed-provider-import.php` requires ZipArchive/XMLReader/SimpleXML and runs the real reader/import pipeline with an in-memory database double. `node tests/mixed-provider-preview.cjs` exercises actual admin assets with network fixtures in both themes at desktop/mobile widths. Neither is a WordPress/MySQL installation or live import test.

@@ -22,7 +22,7 @@ class WP_Error {
 	public function get_error_message() { return $this->message; }
 }
 class ImportFixtureDb {
-	public $prefix = 'fixture_', $insert_id = 0, $tables = array();
+	public $prefix = 'fixture_', $insert_id = 0, $tables = array(), $duplicate_id = 0;
 	public function prepare( $sql, ...$args ) {
 		return preg_replace_callback( '/%[ds]/', static function( $match ) use ( &$args ) { $value = array_shift( $args ); return '%d' === $match[0] ? (string) (int) $value : "'" . str_replace( "'", "''", (string) $value ) . "'"; }, $sql );
 	}
@@ -31,7 +31,7 @@ class ImportFixtureDb {
 	public function get_row( $sql, $mode = null ) { if ( preg_match( '/FROM (\w+) WHERE id = (\d+)/', $sql, $match ) ) { return $this->tables[$match[1]][(int) $match[2]] ?? null; } return null; }
 	public function get_results( $sql, $mode = null ) { return strpos( $sql, 'fixture_tapin_providers' ) !== false ? array_values( $this->tables['fixture_tapin_providers'] ) : array(); }
 	public function get_var( $sql ) { if ( strpos( $sql, 'GET_LOCK' ) !== false || strpos( $sql, 'RELEASE_LOCK' ) !== false ) { return 1; } return strpos( $sql, 'SELECT ENGINE' ) !== false ? 'InnoDB' : null; }
-	public function get_col( $sql ) { return array(); }
+	public function get_col( $sql ) { return $this->duplicate_id && strpos( $sql, 'SELECT id FROM fixture_tapin_service_points' ) !== false && strpos( $sql, 'code =' ) !== false ? array( $this->duplicate_id ) : array(); }
 	public function query( $sql ) { return 1; }
 }
 require TAPIN_PLUGIN_DIR . 'src/Autoloader.php';
@@ -40,6 +40,7 @@ use Tapin\ServicePointLocator\Import\ColumnMapper;
 use Tapin\ServicePointLocator\Import\ImportJobs;
 use Tapin\ServicePointLocator\Import\ImportManager;
 use Tapin\ServicePointLocator\Import\ProviderResolver;
+use Tapin\ServicePointLocator\Import\RowProcessor;
 use Tapin\ServicePointLocator\Import\TableReader;
 use Tapin\ServicePointLocator\Geocoding\CoordinatePolicy;
 
@@ -66,6 +67,7 @@ try {
 	verify( ( new ColumnMapper() )->auto_detect_headers( array( ' عنوان  نمايندگي ', 'عنوان سرویس‌دهنده', 'ارائه‌دهنده', 'name', 'address' ) )[' عنوان  نمايندگي '] === 'name', 'Arabic variants and repeated spaces normalize' );
 	verify( ProviderResolver::resolve( 'پست', $providers ) === 22 && ProviderResolver::resolve( 'تيپاكس', $providers ) === 11, 'existing Post alias and normalized Tipax label remain supported' );
 	verify( ProviderResolver::resolve( 'قطار بار', array_slice( $providers, 0, 2 ) ) === 0, 'unconfigured rail provider never becomes Post or Tipax' );
+	verify( ProviderResolver::resolve( '', $providers, array( '' => 22 ) ) === 0, 'blank per-row provider cannot use a global or explicit fallback' );
 	$ambiguous = $providers; $ambiguous[] = array( 'id' => 44, 'slug' => 'second-rail', 'name' => 'قطار بار' );
 	verify( ProviderResolver::resolve( 'قطار بار', $ambiguous ) === 0, 'ambiguous provider name fails closed' );
 	// Minimal inline-string XLSX built only for this isolated regression.
@@ -111,6 +113,18 @@ try {
 	$before = count( $wpdb->tables['fixture_tapin_service_points'] );
 	$result = ( new ImportManager() )->import_csv( __DIR__ . '/fixtures/mixed-provider-schema.csv', 22 );
 	verify( $result->get_inserted_rows() === 6 && array_count_values( array_column( array_slice( array_values( $wpdb->tables['fixture_tapin_service_points'] ), $before ), 'provider_id' ) ) === array( 11 => 3, 22 => 2, 33 => 1 ), 'CLI compatibility import also honors the mapped provider column' );
+	foreach ( array( array( '354548.3', '511833.3' ), array( '27.210874660000002', '667846717' ), array( '35.7', '' ), array( 'bad', '51.4' ) ) as $pair ) {
+		$raw = array( 'name' => 'مختصات نامعتبر آزمایشی', 'province' => 'تهران', 'city' => 'تهران', 'address' => 'نشانی معتبر آزمایشی', 'latitude' => $pair[0], 'longitude' => $pair[1], 'metadata' => array( 'preserved' => 'fixture' ) );
+		$outcome = RowProcessor::process( $raw, 11, 'skip' ); $stored = end( $wpdb->tables['fixture_tapin_service_points'] ); $metadata = json_decode( $stored['metadata'], true );
+		verify( 'inserted' === $outcome['result'] && null === $stored['latitude'] && null === $stored['longitude'] && ! $stored['has_coordinates'], 'invalid or partial imported pair remains an address-only record' );
+		verify( $metadata['invalid_import_coordinates'] === array( 'latitude' => $pair[0], 'longitude' => $pair[1] ) && $metadata['preserved'] === 'fixture' && ! empty( $outcome['messages'] ), 'exact invalid coordinate source and unrelated metadata are retained with warnings' );
+	}
+	$outcome = RowProcessor::process( array( 'name' => 'نشانی خالی', 'province' => 'تهران', 'latitude' => 'bad', 'longitude' => 'bad' ), 11, 'skip' );
+	verify( 'failed' === $outcome['result'] && strpos( implode( ' ', $outcome['messages'] ), 'نشانی' ) !== false, 'coordinate handling does not bypass genuinely missing required row data' );
+	$existing = $wpdb->tables['fixture_tapin_service_points'][1]; $wpdb->duplicate_id = 1;
+	$outcome = RowProcessor::process( array( 'code' => 'EXACT-UPDATE', 'name' => 'به‌روزرسانی آزمایشی', 'province' => 'تهران', 'city' => 'تهران', 'address' => 'نشانی به‌روز', 'latitude' => 'bad', 'longitude' => 'bad' ), 11, 'update' );
+	$updated = $wpdb->tables['fixture_tapin_service_points'][1];
+	verify( 'updated' === $outcome['result'] && $updated['latitude'] === $existing['latitude'] && $updated['longitude'] === $existing['longitude'] && $updated['has_coordinates'], 'invalid upload cannot erase existing valid coordinates during an exact-code update' );
 	echo "$passed mixed-provider checks passed (isolated database double).\n";
 } finally {
 	foreach ( $wpdb->tables['fixture_tapin_imports'] ?? array() as $job ) { $data = json_decode( $job['data'], true ); wp_delete_file( $data['path'] ); }
