@@ -194,11 +194,6 @@
 	color: var(--text) !important;
 }
 
-.tapin-app[data-theme-mode="light"] .tapin-detail .detail-route-icon,
-.tapin-app[data-theme-mode="light"] .tapin-detail .detail-route-icon * {
-	color: #245ea8 !important;
-}
-
 .tapin-app[data-theme-mode="light"] .tapin-detail .detail-route-option:hover,
 .tapin-app[data-theme-mode="light"] .tapin-detail .detail-route-option:active {
 	background: #e8eff8 !important;

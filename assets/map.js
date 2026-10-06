@@ -328,12 +328,12 @@
           // numeric precision, including integer coordinates and small fractions.
           const decimal=value=>value.toLocaleString('en-US',{useGrouping:false,minimumFractionDigits:1,maximumFractionDigits:20});
           const routes=[
-            {key:'neshan',name:'نشان',url:`https://neshan.org/maps/routing/car/destination/${decimal(lat)},${decimal(lng)}`},
-            {key:'google',name:'گوگل‌مپ',url:`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(lat+','+lng)}`},
+            {key:'neshan',name:'نشان',logo:'routing-neshan.png',url:`https://neshan.org/maps/routing/car/destination/${decimal(lat)},${decimal(lng)}`},
+            {key:'google',name:'گوگل‌مپ',logo:'routing-google-maps.png',url:`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(lat+','+lng)}`},
             // Balad's destination parameter uses longitude first.
-            {key:'balad',name:'بلد',url:`https://balad.ir/directions/driving?destination=${encodeURIComponent(lng+','+lat)}`}
+            {key:'balad',name:'بلد',logo:'routing-balad.png',url:`https://balad.ir/directions/driving?destination=${encodeURIComponent(lng+','+lat)}`}
           ];
-          navigation=`<section class="detail-routing" aria-labelledby="${detailId}-routing-${Number(p.id)}"><h4 id="${detailId}-routing-${Number(p.id)}">مسیریابی به شعبه</h4><p class="detail-routing-hint">مسیریاب دلخواهتان را انتخاب کنید</p><div class="detail-route-options">${routes.map(route=>`<a class="directions-btn detail-route-option" data-route-provider="${route.key}" href="${esc(route.url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc('مسیریابی با '+route.name+' به '+p.name+'؛ باز شدن در پنجرهٔ جدید')}"><span class="detail-route-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m21 3-7 18-4-7-7-4 18-7Z"/><path d="m10 14 5-5"/></svg></span><span>${route.name}</span></a>`).join('')}</div></section>`;
+          navigation=`<section class="detail-routing" aria-labelledby="${detailId}-routing-${Number(p.id)}"><h4 id="${detailId}-routing-${Number(p.id)}">مسیریابی به شعبه</h4><p class="detail-routing-hint">مسیریاب دلخواهتان را انتخاب کنید</p><div class="detail-route-options">${routes.map(route=>`<a class="directions-btn detail-route-option" data-route-provider="${route.key}" href="${esc(route.url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc('مسیریابی با '+route.name+' به '+p.name+'؛ باز شدن در پنجرهٔ جدید')}"><span class="detail-route-icon" aria-hidden="true"><img class="detail-route-logo" src="${safeUrl(TapinConfig.assets+'brand/'+route.logo)}" width="28" height="28" alt="" decoding="async"></span><span>${route.name}</span></a>`).join('')}</div></section>`;
         }
         return `<article class="detail-branch"><div class="detail-identity">${badge(providers.find(pr=>Number(pr.id)===Number(p.provider_id)))}<h3>${esc(p.name)}</h3>${p.province||p.city?'<p class="detail-location">'+[p.province,p.city].filter(Boolean).map(esc).join('، ')+'</p>':''}</div>${details(p,true)}${!hasCoords?'<p class="coordinate-note">موقعیت روی نقشه هنوز در دسترس نیست · نشانی متنی</p>':navigation}</article>`;
       }).join('');
