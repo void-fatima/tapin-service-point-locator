@@ -526,20 +526,53 @@
       mapList.after(pagerSlot);
       more.hidden=true;
     }
-    let pagination;
+    let pagination,listPanel,listAnimation;
+    let listExpanded=!mapList.hidden;
+    const listMotion=admin?window.matchMedia('(prefers-reduced-motion: reduce)'):null;
     if(admin){
       const toggleRow=document.createElement('div');toggleRow.className='map-actions directory-toggle';mapList.before(toggleRow);toggleRow.append(listToggle);
       pagination=document.createElement('div');pagination.className='map-actions directory-pagination';pagination.hidden=mapList.hidden;mapList.after(pagination);pagination.append(pagerSlot,more,status);
       mapList.id=detailId+'-list';pagination.id=detailId+'-pages';listToggle.setAttribute('aria-controls',mapList.id+' '+pagination.id);
+      listPanel=document.createElement('div');listPanel.className='directory-list-panel';mapList.before(listPanel);listPanel.append(mapList,pagination);
     }
     if(admin)exportControl(directoryPanel,()=>({search,provider_id:selected,province:province.value,city:city.value,has_coordinates:coordinateFilter,status:'any'}));
     more.onclick=()=>admin?load(false,page+1):load(true); retry.onclick=()=>{load();loadMarkers();};
     const listIcon='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>';
+    if(admin)listToggle.innerHTML=listIcon+'<span class="directory-toggle-label"><span class="directory-toggle-width" aria-hidden="true">نمایش فهرست نقاط</span><span data-list-label>بستن فهرست نقاط</span></span>';
+    const finishListToggle=()=>{
+      listAnimation?.cancel();listAnimation=null;
+      listPanel.classList.remove('is-animating');
+      listPanel.hidden=mapList.hidden=pagination.hidden=!listExpanded;
+    };
+    const settleReducedMotion=()=>{if(listMotion.matches&&listAnimation)finishListToggle();};
+    listMotion?.addEventListener('change',settleReducedMotion);
     listToggle.onclick=()=>{
+      if(admin){
+        // Capture the current frame before cancelling, so a rapid reversal
+        // continues from the visible height rather than snapping to an endpoint.
+        const fromHeight=listPanel.getBoundingClientRect().height;
+        const fromOpacity=listPanel.hidden?0:Number(getComputedStyle(listPanel).opacity);
+        listAnimation?.cancel();listAnimation=null;
+        listExpanded=!listExpanded;
+        if(!listExpanded&&listPanel.contains(document.activeElement))listToggle.focus({preventScroll:true});
+        listPanel.inert=!listExpanded;
+        listPanel.setAttribute('aria-hidden',String(!listExpanded));
+        listToggle.setAttribute('aria-expanded',String(listExpanded));
+        listToggle.querySelector('[data-list-label]').textContent=listExpanded?'بستن فهرست نقاط':'نمایش فهرست نقاط';
+        listPanel.hidden=mapList.hidden=pagination.hidden=false;
+        if(listMotion.matches||!listPanel.animate){finishListToggle();return;}
+        const toHeight=listExpanded?listPanel.getBoundingClientRect().height:0;
+        listPanel.classList.add('is-animating');
+        const animation=listPanel.animate([
+          {height:fromHeight+'px',opacity:fromOpacity},
+          {height:toHeight+'px',opacity:listExpanded?1:0}
+        ],{duration:260,easing:'cubic-bezier(.25,.1,.25,1)',fill:'both'});
+        listAnimation=animation;
+        animation.finished.then(()=>{if(listAnimation===animation)finishListToggle();},()=>{});
+        return;
+      }
       mapList.hidden=!mapList.hidden;
-      if(admin)pagination.hidden=mapList.hidden;
       listToggle.setAttribute('aria-expanded',String(!mapList.hidden));
-      if(admin)listToggle.innerHTML=listIcon+'<span>'+(mapList.hidden?'نمایش فهرست نقاط':'بستن فهرست نقاط')+'</span>';
     };
     mapList.onclick=e=>{if(e.target.closest('[data-empty-clear]')){clearFilters();return;}const b=e.target.closest('[data-point],[data-details]');if(!b)return;const p=items.find(x=>Number(x.id)===Number(b.dataset.point||b.dataset.details));if(!p)return;if(b.dataset.point&&validCoordinates(p)&&iranGeometry?.some(f=>insideGeometry(p,f.geometry))){setView('map');map.setView([p.latitude,p.longitude],15);}openDetails([p],b);};
     load();loadMarkers();
@@ -547,7 +580,7 @@
     // Admin enrichment can refresh in the background; public discovery updates
     // only after filter, search, retry, pagination, or viewport actions.
     const refreshTimer=admin?setInterval(()=>{const detailOpen=drawer.showModal?drawer.open:!drawer.hidden;if(!geoCancelled&&!document.hidden&&!detailOpen&&page===1&&!container.contains(document.activeElement)){load();scheduleMarkers();}},60000):null;
-    return () => {geoCancelled=true;clearInterval(refreshTimer);detailGeneration++;detailController?.abort();cityBoundsController?.abort();clearTimeout(searchTimer);if(drawer.close&&drawer.open)drawer.close();drawer.remove();if(admin&&directoryPanel&&directoryPanel.parentElement&&directoryPanel.parentElement!==container)directoryPanel.remove();map.off('moveend',scheduleMarkers);map.off('moveend',declutterCountryLabels);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
+    return () => {geoCancelled=true;listAnimation?.cancel();listMotion?.removeEventListener('change',settleReducedMotion);clearInterval(refreshTimer);detailGeneration++;detailController?.abort();cityBoundsController?.abort();clearTimeout(searchTimer);if(drawer.close&&drawer.open)drawer.close();drawer.remove();if(admin&&directoryPanel&&directoryPanel.parentElement&&directoryPanel.parentElement!==container)directoryPanel.remove();map.off('moveend',scheduleMarkers);map.off('moveend',declutterCountryLabels);clearTimeout(markerTimer);markerController?.abort();controller?.abort();map.remove();};
   }
   window.Tapin = {api,esc,num,badge,providerOptions,mapWidget,color,safeUrl,providerLogoMarkup,exportControl,paginationBar};
   document.querySelectorAll('.tapin-public-root').forEach(async root=>{

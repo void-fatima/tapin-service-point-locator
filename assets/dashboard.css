@@ -387,6 +387,10 @@
 #tapin-admin .dashboard-directory-panel .directory-toggle{justify-content:center;padding:4px 0 22px}
 #tapin-admin .dashboard-directory-panel .directory-toggle [data-list]{margin:0;min-height:48px;padding:12px 24px;gap:10px;border-radius:14px;border:1px solid #526aa1;background:linear-gradient(135deg,#223b68,#20294d);color:#e5eeff;font-size:14px;font-weight:700;box-shadow:0 5px 16px #02081740,inset 0 1px 0 #ffffff12;transition:background .18s ease,border-color .18s ease,box-shadow .18s ease}
 #tapin-admin .dashboard-directory-panel .directory-toggle [data-list]>svg{width:18px;height:18px;color:#ffcf58}
+#tapin-admin .dashboard-directory-panel .directory-toggle [data-list]>.directory-toggle-label{display:inline-grid}
+#tapin-admin .directory-toggle-label>span{grid-area:1 / 1}
+#tapin-admin .directory-toggle-width{visibility:hidden}
+#tapin-admin .dashboard-directory-panel .directory-list-panel.is-animating{overflow:hidden}
 #tapin-admin .dashboard-directory-panel .directory-toggle [data-list]::after{content:'';width:7px;height:7px;border-right:2px solid #a9bfe5;border-bottom:2px solid #a9bfe5;transform:rotate(45deg);margin-inline-start:8px;margin-top:-4px}
 #tapin-admin .dashboard-directory-panel .directory-toggle [data-list][aria-expanded=true]::after{transform:rotate(225deg);margin-top:4px}
 #tapin-admin .dashboard-directory-panel .directory-toggle [data-list]:hover{background:linear-gradient(135deg,#2b4c82,#303965);border-color:#849ed1;box-shadow:0 6px 20px #02081755,inset 0 1px 0 #ffffff18;transform:none}
