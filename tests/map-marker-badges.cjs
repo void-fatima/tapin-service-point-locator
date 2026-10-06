@@ -1,9 +1,12 @@
-/* Public badge regression with real assets/geometry and isolated network fixtures.
-   Run: node tests/public-marker-badges.cjs. No WordPress records are changed. */
+/* Shared ADMIN DASHBOARD/public marker regression with actual runtime assets.
+   Run: node tests/map-marker-badges.cjs. API data/tiles are isolated fixtures,
+   not a WordPress installation. TAPIN_PACKAGE_ROOT also tests extracted ZIPs. */
 const { chromium, expect } = require('@playwright/test');
 const fs = require('fs'), path = require('path');
+const crypto = require('crypto');
 const root = path.resolve(__dirname, '..');
-const geometry = JSON.parse(fs.readFileSync(path.join(root, 'assets/iran-provinces.geojson'), 'utf8'));
+const assetRoot = process.env.TAPIN_PACKAGE_ROOT || root;
+const geometry = JSON.parse(fs.readFileSync(path.join(assetRoot, 'assets/iran-provinces.geojson'), 'utf8'));
 const providers = [{id:1,slug:'post',name:'پست',is_active:1},{id:2,slug:'tipax',name:'تیپاکس',is_active:1},{id:3,slug:'cargo',name:'قطار بار',logo:'/fixture/cargo.svg',is_active:1}];
 const definitions = [
   ...[1,1,1,2,2,3].map((provider,i)=>['اصفهان',32.65+i*.002,51.67+i*.03,provider]),
@@ -20,7 +23,7 @@ function contains(p,f){
   const inRing=ring=>{let inside=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const [x,y]=ring[i],[u,v]=ring[j];if((y>p.latitude)!==(v>p.latitude)&&p.longitude<(u-x)*(p.latitude-y)/(v-y)+x)inside=!inside;}return inside;};
   return (f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[f.geometry.coordinates]).some(r=>inRing(r[0])&&!r.slice(1).some(inRing));
 }
-const artifacts = path.join(root,'artifacts/public-marker-badges');
+const artifacts = path.join(root,'artifacts/map-marker-badges'+(assetRoot!==root?'-package':''));
 const palette = {1:'#ffbd18',2:'#00ba88',3:'#dc3448'};
 const digits = text => Number(text.replace(/[۰-۹]/g,ch=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(ch)));
 
@@ -31,8 +34,13 @@ const digits = text => Number(text.replace(/[۰-۹]/g,ch=>'۰۱۲۳۴۵۶۷۸۹'
   const browser=await chromium.launch({headless:true,...(fs.existsSync(chrome)?{executablePath:chrome}:{})});
   const evidence=[];
   try{
-    for(const width of [1440,390])for(const theme of ['dark','light']){
+    const surfaces=process.env.TAPIN_TEST_SURFACE==='admin'?[true]:process.env.TAPIN_TEST_SURFACE==='public'?[false]:[true,false];
+    for(const admin of surfaces)for(const width of [1440,390])for(const theme of ['dark','light']){
       const page=await browser.newPage({viewport:{width,height:1000}}),errors=[];
+      const prefix=admin?'admin':'public',assetResponses=[];
+      page.on('response',response=>{
+        if(/\/assets\/(map\.js|admin\.js|app\.css)$/.test(new URL(response.url()).pathname))assetResponses.push((async()=>({url:response.url(),hash:crypto.createHash('sha256').update(await response.body()).digest('hex')}))());
+      });
       let fixtureRows=rows;
       page.on('pageerror',e=>errors.push(e.message));
       await page.addInitScript(theme=>localStorage.setItem('tapin-color-scheme',theme),theme);
@@ -40,39 +48,50 @@ const digits = text => Number(text.replace(/[۰-۹]/g,ch=>'۰۱۲۳۴۵۶۷۸۹'
         const url=new URL(route.request().url()),q=url.searchParams;
         if(url.pathname.startsWith('/api/')){
           const endpoint=url.pathname.slice(5);
+          if(endpoint==='providers')return route.fulfill({json:providers});
+          if(endpoint==='locations')return route.fulfill({json:points.map(p=>({province:p.province,city:p.city,provider_id:p.provider_id}))});
           if(endpoint==='public/filters')return route.fulfill({json:{providers,locations:points.map(p=>({province:p.province,city:p.city,provider_id:p.provider_id}))}});
-          if(/^public\/points\/\d+$/.test(endpoint))return route.fulfill({json:fixtureRows.find(p=>p.id===Number(endpoint.split('/').pop()))});
+          if(/^(public\/points\/\d+|points\/\d+\/details)$/.test(endpoint))return route.fulfill({json:fixtureRows.find(p=>p.id===Number(endpoint.match(/\d+/)[0]))});
           let selected=fixtureRows.filter(p=>!q.get('provider_id')||p.provider_id===Number(q.get('provider_id')));
           if(q.get('has_coordinates')==='1')selected=selected.filter(p=>p.has_coordinates&&p.latitude>=Number(q.get('south')||-90)&&p.latitude<=Number(q.get('north')||90)&&p.longitude>=Number(q.get('west')||-180)&&p.longitude<=Number(q.get('east')||180));
-          return route.fulfill({json:{items:selected,total:selected.length,page:1,total_pages:1}});
+          const summary={total:selected.length,located:selected.filter(p=>p.has_coordinates).length,missing:selected.filter(p=>!p.has_coordinates).length,distribution:providers.map(p=>({provider_id:p.id,total:selected.filter(row=>row.provider_id===p.id).length}))};
+          return route.fulfill({json:{items:selected,total:selected.length,page:1,total_pages:1,summary}});
         }
         if(url.pathname==='/fixture/cargo.svg')return route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><rect width="32" height="32" fill="#30579a"/><path d="M8 8h16v16H8z" fill="white"/></svg>'});
-        if(url.pathname.startsWith('/assets/'))return route.fulfill({body:fs.readFileSync(path.join(root,url.pathname.slice(1))),contentType:({'.js':'application/javascript; charset=utf-8','.css':'text/css','.geojson':'application/json','.png':'image/png','.svg':'image/svg+xml','.woff2':'font/woff2'})[path.extname(url.pathname)]||'application/octet-stream'});
+        if(url.pathname.startsWith('/assets/'))return route.fulfill({body:fs.readFileSync(path.join(assetRoot,url.pathname.slice(1))),contentType:({'.js':'application/javascript; charset=utf-8','.css':'text/css','.geojson':'application/json','.png':'image/png','.svg':'image/svg+xml','.woff2':'font/woff2'})[path.extname(url.pathname)]||'application/octet-stream'});
         if(url.pathname.startsWith('/tiles/'))return route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"></svg>'});
-        return route.fulfill({contentType:'text/html; charset=utf-8',body:'<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/assets/vendor/leaflet.css"><link rel="stylesheet" href="/assets/app.css"><link rel="stylesheet" href="/assets/theme.css"></head><body class="tapin-locator-page"><div class="tapin-app tapin-public" dir="rtl"><div class="tapin-public-root"></div></div><script>window.TapinConfig={api:"/api/",assets:"/assets/",tiles:"/tiles/{z}/{x}/{y}"};</script><script src="/assets/vendor/leaflet.js"></script><script>window.testMaps=[];window.testMarkers=[];L.Map.addInitHook(function(){window.testMaps.push(this)});L.Marker.addInitHook(function(){window.testMarkers.push(this)});</script><script src="/assets/iran-locations.js"></script><script src="/assets/theme.js"></script><script src="/assets/map.js"></script></body></html>'});
+        return route.fulfill({contentType:'text/html; charset=utf-8',body:`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/assets/vendor/leaflet.css"><link rel="stylesheet" href="/assets/app.css">${admin?'<link rel="stylesheet" href="/assets/dashboard.css">':''}<link rel="stylesheet" href="/assets/theme.css"></head><body class="${admin?'toplevel_page_tapin-locator':'tapin-locator-page'}">${admin?'<div id="tapin-admin" class="tapin-app" dir="rtl"></div>':'<div class="tapin-app tapin-public" dir="rtl"><div class="tapin-public-root"></div></div>'}<script>window.TapinConfig={api:"/api/",assets:"/assets/",tiles:"/tiles/{z}/{x}/{y}"};</script><script src="/assets/vendor/leaflet.js"></script><script>window.testMaps=[];window.testMarkers=[];L.Map.addInitHook(function(){window.testMaps.push(this)});L.Marker.addInitHook(function(){window.testMarkers.push(this)});</script><script src="/assets/iran-locations.js"></script><script src="/assets/theme.js"></script><script src="/assets/map.js"></script>${admin?'<script src="/assets/admin.js"></script>':''}</body></html>`});
       });
-      await page.goto('http://badges.test/?page_id=22');
+      const pageUrl='http://badges.test/'+(admin?'wp-admin/admin.php?page=tapin-locator#dashboard':'?page_id=22');
+      await page.goto(pageUrl);
       await expect(page.locator('.marker-status')).toContainText(points.length.toLocaleString('fa-IR'));
+      if(admin)await expect(page.locator('#tapin-admin .dashboard-hero .map-panel')).toBeVisible();
+      const loadedAssets=await Promise.all(assetResponses);
+      expect(loadedAssets.length).toBe(admin?3:2);
+      for(const asset of loadedAssets){const relative=new URL(asset.url).pathname.slice(1);expect(asset.hash).toBe(crypto.createHash('sha256').update(fs.readFileSync(path.join(root,relative))).digest('hex'));}
+      evidence.push({page:prefix,width,theme,loadedAssets});
       const frame=await page.evaluate(()=>({center:window.testMaps[0].getCenter(),zoom:window.testMaps[0].getZoom()}));
       const snapshot=()=>page.evaluate(()=>{
         const map=window.testMaps[0],box=map.getContainer().getBoundingClientRect();
-        return window.testMarkers.filter(m=>map.hasLayer(m)&&m.getElement()?.classList.contains('public-map-badge')).map(m=>{
-          const el=m.getElement(),rect=el.getBoundingClientRect(),chart=el.querySelector('.public-marker-chart'),logo=el.querySelector('.public-marker-logo');
+        return window.testMarkers.filter(m=>map.hasLayer(m)&&m.getElement()?.classList.contains('map-badge')).map(m=>{
+          const el=m.getElement(),rect=el.getBoundingClientRect(),chart=el.querySelector('.marker-chart'),logo=el.querySelector('.marker-logo');
           const center=L.point(rect.x+rect.width/2-box.x,rect.y+rect.height/2-box.y),radius=11;
           return {position:m.getLatLng(),province:el.dataset.markerProvince,label:el.getAttribute('aria-label'),tooltip:m.getTooltip().getContent().textContent,text:el.textContent,chart:chart?.getAttribute('style'),logo:logo?.dataset.providerSlug,images:[...el.querySelectorAll('img')].map(i=>i.getAttribute('src')),size:m.options.icon.options.iconSize,border:getComputedStyle(chart||logo).border,center:{x:center.x,y:center.y},edge:Array.from({length:8},(_,i)=>map.containerPointToLatLng([center.x+radius*Math.cos(i*Math.PI/4),center.y+radius*Math.sin(i*Math.PI/4)]))};
         });
       });
       const verify=async(mode,zoom,expected)=>{
         await expect(page.locator('.marker-status')).toContainText(expected.length.toLocaleString('fa-IR'));
-        await expect(page.locator('.public-map-badge')).toHaveCount(zoom==='country'?new Set(expected.map(p=>p.province)).size:1);
+        await expect(page.locator('.map-badge')).toHaveCount(zoom==='country'?new Set(expected.map(p=>p.province)).size:1);
         const markers=await snapshot();
-        await expect(page.locator('.public-map-badge .cluster-count,.public-map-badge b')).toHaveCount(0);
+        // Fail on old structures, even if CSS hides their text or images.
+        await expect(page.locator('.tapin-pin .cluster-count,.provider-image-pin,.provider-pin-image,.province-compact,.province-composition,.tapin-pin b')).toHaveCount(0);
+        await expect(page.locator('.tapin-pin')).toHaveCount(markers.length);
         for(const marker of markers){
           expect(marker.size).toEqual([20,20]);expect(marker.text).toBe('');
           expect(geometry.features.some(f=>contains({latitude:marker.position.lat,longitude:marker.position.lng},f))).toBe(true);
           for(const edge of marker.edge)if(!geometry.features.some(f=>contains({latitude:edge.lat,longitude:edge.lng},f))){
             await page.locator('.tapin-map').screenshot({path:path.join(artifacts,'failed-layout.png')});
-            fs.writeFileSync(path.join(artifacts,'failed-layout.json'),JSON.stringify(await page.evaluate(()=>({size:window.testMaps[0].getSize(),markers:window.testMarkers.filter(m=>window.testMaps[0].hasLayer(m)&&m.getElement()?.classList.contains('public-map-badge')).map(m=>({label:m.getElement().getAttribute('aria-label'),anchor:m.options.icon.options.iconAnchor,style:m.getElement().getAttribute('style'),position:m.getLatLng()}))})),null,2));
+            fs.writeFileSync(path.join(artifacts,'failed-layout.json'),JSON.stringify(await page.evaluate(()=>({size:window.testMaps[0].getSize(),markers:window.testMarkers.filter(m=>window.testMaps[0].hasLayer(m)&&m.getElement()?.classList.contains('map-badge')).map(m=>({label:m.getElement().getAttribute('aria-label'),anchor:m.options.icon.options.iconAnchor,style:m.getElement().getAttribute('style'),position:m.getLatLng()}))})),null,2));
             throw Error('Badge edge outside Iran: '+JSON.stringify({width,theme,mode,zoom,marker,edge}));
           }
           const members=zoom==='country'?expected.filter(p=>p.province===marker.province):expected;
@@ -86,29 +105,32 @@ const digits = text => Number(text.replace(/[۰-۹]/g,ch=>'۰۱۲۳۴۵۶۷۸۹'
         }
         for(let i=0;i<markers.length;i++)for(let j=i+1;j<markers.length;j++)expect(Math.hypot(markers[i].center.x-markers[j].center.x,markers[i].center.y-markers[j].center.y)).toBeGreaterThanOrEqual(22);
         expect(new Set(markers.map(m=>m.border)).size).toBe(1);
-        for(const image of await page.locator('.public-map-badge img').all())await expect.poll(()=>image.evaluate(i=>i.naturalWidth)).toBeGreaterThan(0);
-        const marker=page.locator('.public-map-badge').first();await marker.focus();await expect(page.locator('.leaflet-tooltip')).toContainText('شعبه');await marker.evaluate(el=>el.blur());
-        await page.locator('.tapin-map').screenshot({path:path.join(artifacts,`${theme}-${width}-${mode||'all'}-${zoom}.png`)});
-        evidence.push({width,theme,provider:mode||'all',zoom,markers});
+        for(const image of await page.locator('.map-badge img').all())await expect.poll(()=>image.evaluate(i=>i.naturalWidth)).toBeGreaterThan(0);
+        const marker=page.locator('.map-badge').first();await marker.focus();await expect(page.locator('.leaflet-tooltip-top')).toContainText('شعبه');await marker.evaluate(el=>el.blur());
+        await page.locator('.tapin-map').screenshot({path:path.join(artifacts,`${prefix}-${theme}-${width}-${mode||'all'}-${zoom}.png`)});
+        if(admin&&mode===''&&zoom==='country')await page.screenshot({path:path.join(artifacts,`${prefix}-${theme}-${width}-all-dashboard.png`),fullPage:true});
+        evidence.push({page:prefix,width,theme,provider:mode||'all',zoom,markers});
       };
       for(const mode of ['','1','2','3']){
         await page.evaluate(frame=>window.testMaps[0].setView(frame.center,frame.zoom,{animate:false}),frame);
-        await page.locator(`[data-provider="${mode}"]`).click();
+        if(admin)await page.locator('[data-provider-select]').selectOption(mode);else await page.locator(`[data-provider="${mode}"]`).click();
         const matching=points.filter(p=>!mode||p.provider_id===Number(mode));
         await verify(mode,'country',matching);
         await page.evaluate(()=>window.testMaps[0].setView([32.65,51.74],9,{animate:false}));
         await verify(mode,'intermediate',matching.filter(p=>p.province==='اصفهان'));
         if(mode===''){
-          const z=await page.evaluate(()=>window.testMaps[0].getZoom());await page.locator('.public-map-badge').press('Enter');await expect.poll(()=>page.evaluate(()=>window.testMaps[0].getZoom())).toBeGreaterThan(z);
+          const z=await page.evaluate(()=>window.testMaps[0].getZoom());await page.locator('.map-badge').press('Enter');await expect.poll(()=>page.evaluate(()=>window.testMaps[0].getZoom())).toBeGreaterThan(z);
         }
         const detail=matching.find(p=>p.province==='اصفهان');
         await page.evaluate(p=>window.testMaps[0].setView([p.latitude,p.longitude],16,{animate:false}),detail);
         await verify(mode,'detailed',[detail]);
         const active=(await snapshot())[0];expect(active.position.lat).toBe(detail.latitude);expect(active.position.lng).toBe(detail.longitude);
-        await page.locator('.public-map-badge').click();await expect(page.locator('.detail-body h3')).toHaveText(detail.name);await page.keyboard.press('Escape');
+        await page.locator('.map-badge').click();await expect(page.locator('.detail-body h3')).toHaveText(detail.name);await page.keyboard.press('Escape');
       }
-      await page.locator('[data-clear]').click();await expect(page.locator('.branch-card')).toHaveCount(rows.length);
-      const address=page.locator('.branch-card').filter({hasText:'Address only'});await expect(address.locator('[data-point]')).toHaveCount(0);
+      await page.locator('[data-clear]').click();
+      await verify('','country',points);
+      if(admin){await expect(page.locator('[data-provider-select]')).toHaveValue('');await expect(page.locator('.directory-table')).toContainText('Address only');}
+      else{await expect(page.locator('.branch-card')).toHaveCount(rows.length);const address=page.locator('.branch-card').filter({hasText:'Address only'});await expect(address.locator('[data-point]')).toHaveCount(0);}
       if(theme==='dark')for(const stressWidth of width===390?[390,320]:[width]){
         // One synthetic record per real province exercises dense country layout.
         // Interior fixture coordinates are derived only for this network test.
@@ -127,7 +149,7 @@ const digits = text => Number(text.replace(/[۰-۹]/g,ch=>'۰۱۲۳۴۵۶۷۸۹'
           return {...points[0],...point,id:200+i,province:feature.properties.shapeName,provider_id:i%3+1};
         });
         await page.setViewportSize({width:stressWidth,height:1000});
-        await page.goto('http://badges.test/stress');
+        await page.goto(admin?'http://badges.test/wp-admin/admin.php?page=tapin-locator&stress='+stressWidth+'#dashboard':pageUrl+'&stress='+stressWidth);
         await expect(page.locator('.marker-status')).toContainText(fixtureRows.length.toLocaleString('fa-IR'));
         await expect(page.locator('.province-aggregate')).toHaveCount(features.length);
         const markers=await snapshot();
@@ -137,12 +159,13 @@ const digits = text => Number(text.replace(/[۰-۹]/g,ch=>'۰۱۲۳۴۵۶۷۸۹'
           throw Error('All-province badge edge outside Iran: '+JSON.stringify({width:stressWidth,marker:m,edge:e}));
         }
         for(let i=0;i<markers.length;i++)for(let j=i+1;j<markers.length;j++)expect(Math.hypot(markers[i].center.x-markers[j].center.x,markers[i].center.y-markers[j].center.y)).toBeGreaterThanOrEqual(22);
-        await page.locator('.tapin-map').screenshot({path:path.join(artifacts,`all-provinces-${stressWidth}.png`)});
-        evidence.push({width:stressWidth,theme,provider:'all',zoom:'country-all-provinces',markers});
+        await expect(page.locator('.tapin-pin .cluster-count,.provider-image-pin,.provider-pin-image,.province-compact,.province-composition')).toHaveCount(0);
+        await page.locator('.tapin-map').screenshot({path:path.join(artifacts,`${prefix}-all-provinces-${stressWidth}.png`)});
+        evidence.push({page:prefix,width:stressWidth,theme,provider:'all',zoom:'country-all-provinces',markers});
       }
       expect(errors).toEqual([]);await page.close();
     }
-    fs.writeFileSync(path.join(artifacts,'results.json'),JSON.stringify(evidence,null,2));
-    console.log('PASS public-marker-badges: fixed circular charts/proportions, no numbers, selected-provider-only logos, separate provincial groups, collision-free in-Iran badge layout, exact tooltips, click/keyboard, stored coordinates and directory preservation at three zoom levels in desktop/mobile dark/light.');
+    fs.writeFileSync(path.join(artifacts,'results'+(process.env.TAPIN_TEST_SURFACE?'-'+process.env.TAPIN_TEST_SURFACE:'')+'.json'),JSON.stringify(evidence,null,2));
+    console.log('PASS map-marker-badges: actual admin dashboard and public renderer/assets SHA256, uniform pies/proportions with no old numbered/paired-pin structures, provider-only logos, reset, separate province groups, inland collision-free badges, exact tooltips, keyboard/click and stored coordinates; three zooms, desktop/mobile light/dark. Network fixtures, not real WordPress.');
   }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

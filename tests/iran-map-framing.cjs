@@ -80,7 +80,7 @@ const artifacts = path.join(root, 'artifacts', 'iran-map-framing');
       await page.goto('http://tapin.test/' + (admin ? 'wp-admin/admin.php?page=tapin-locator#dashboard' : 'public'));
       await expect(page.locator('.marker-status')).toContainText(points.length.toLocaleString('fa-IR'));
       const expectedProvinces = [...new Set(points.map(p => geometry.features.find(f => contains(p, f)).properties.shapeName))];
-      const getMarkers = () => page.evaluate(() => window.testMarkers.filter(m => window.testMaps[0].hasLayer(m) && m.getElement()?.classList.contains('tapin-pin')).map(m => ({ lat: m.getLatLng().lat, lng: m.getLatLng().lng, province: m.getElement().dataset.markerProvince, composition: m.getElement().querySelector('.province-composition,.public-marker-chart')?.style.background, label: m.getElement().getAttribute('aria-label'), count: m.getElement().querySelector('.cluster-count')?.textContent || m.getElement().getAttribute('aria-label').match(/^(\S+) شعبه/)?.[1], size: m.options.icon.options.iconSize, anchor: m.options.icon.options.iconAnchor, images: [...m.getElement().querySelectorAll('img')].map(img => ({ source: img.getAttribute('src'), loaded: img.complete && img.naturalWidth > 0, left: img.offsetLeft, width: img.clientWidth })) })));
+      const getMarkers = () => page.evaluate(() => window.testMarkers.filter(m => window.testMaps[0].hasLayer(m) && m.getElement()?.classList.contains('tapin-pin')).map(m => ({ lat: m.getLatLng().lat, lng: m.getLatLng().lng, province: m.getElement().dataset.markerProvince, composition: m.getElement().querySelector('.province-composition,.marker-chart')?.style.background, label: m.getElement().getAttribute('aria-label'), count: m.getElement().querySelector('.cluster-count')?.textContent || m.getElement().getAttribute('aria-label').match(/^(\S+) شعبه/)?.[1], size: m.options.icon.options.iconSize, anchor: m.options.icon.options.iconAnchor, images: [...m.getElement().querySelectorAll('img')].map(img => ({ source: img.getAttribute('src'), loaded: img.complete && img.naturalWidth > 0, left: img.offsetLeft, width: img.clientWidth })) })));
       const country = await getMarkers();
       expect(country.length).toBe(expectedProvinces.length);
       const represented = [];
@@ -101,10 +101,8 @@ const artifacts = path.join(root, 'artifacts', 'iran-map-framing');
         for (let i = 1; i < marker.images.length; i++) expect(marker.images[i].left).toBeGreaterThanOrEqual(marker.images[i - 1].left + marker.images[i - 1].width);
       }
       expect(represented.sort()).toEqual(expectedProvinces.sort());
-      if(!admin){
-        await expect(page.locator('.tapin-pin .cluster-count')).toHaveCount(0);
-        for(const marker of country) expect(marker.size).toEqual([20,20]);
-      }
+      await expect(page.locator('.cluster-count,.provider-pin-image,.province-composition,.province-compact')).toHaveCount(0);
+      for(const marker of country) expect(marker.size).toEqual([20,20]);
       await expect(page.locator('.province-aggregate[data-marker-province="خراسان شمالی"]')).toHaveCount(0);
       for (const marker of await page.locator('.province-aggregate').all()) await expect(marker).toBeInViewport();
       for (const image of await page.locator('.province-aggregate img').all()) await expect.poll(() => image.evaluate(el => el.naturalWidth)).toBeGreaterThan(0);
@@ -117,7 +115,7 @@ const artifacts = path.join(root, 'artifacts', 'iran-map-framing');
         const logoBounds = new Map(), boxes = [];
         for (const marker of document.querySelectorAll('.province-aggregate')) {
           const name = marker.dataset.markerProvince;
-          const circle = marker.querySelector('.province-composition,.public-marker-chart');
+          const circle = marker.querySelector('.province-composition,.marker-chart');
           if (circle) boxes.push({ name, round: true, ...circle.getBoundingClientRect().toJSON() });
           for (const image of marker.querySelectorAll('img')) {
             if (!logoBounds.has(image.src)) {
@@ -182,8 +180,7 @@ const artifacts = path.join(root, 'artifacts', 'iran-map-framing');
       await expect(page.locator('.tapin-pin:not(.tapin-cluster)')).toHaveCount(1);
       const detailed = await getMarkers();
       expect(detailed[0].lat).toBe(points[3].latitude); expect(detailed[0].lng).toBe(points[3].longitude);
-      expect(detailed[0].size).toEqual(admin ? [40, 60] : [20, 20]);
-      if(admin)expect(detailed[0].anchor).toEqual([20, 60]);
+      expect(detailed[0].size).toEqual([20,20]);
       await page.locator('.tapin-pin').click(); await expect(page.locator('.tapin-detail')).toBeVisible();
       await expect(page.locator('.detail-body h3')).toHaveText(points[3].name); await page.keyboard.press('Escape');
       await page.locator('.tapin-map').screenshot({ path: path.join(artifacts, prefix + '-detailed.png') });

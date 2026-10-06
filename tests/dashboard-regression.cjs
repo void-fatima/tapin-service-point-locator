@@ -61,7 +61,8 @@ const points=Array.from({length:23},(_,i)=>({id:i+1,provider_id:1,name:'Branch '
    await expect(panel.locator('tbody tr')).toHaveCount(10);
    await expect(page.locator('.hero-number')).toHaveText('۲۳');
    await expect(page.locator('[data-retry]')).toBeHidden();
-   await expect(page.locator('.tapin-pin .provider-pin-image').first()).toBeAttached();
+   await expect(page.locator('.tapin-pin .marker-chart').first()).toBeAttached();
+   await expect(page.locator('.cluster-count,.provider-pin-image,.province-composition')).toHaveCount(0);
    await expect(page.locator('.tapin-province-boundary').first()).toBeAttached();
    await pager.locator('.pagination-next').click();
    await expect(panel.locator('tbody tr').first()).toContainText('Branch 11');
@@ -93,7 +94,7 @@ const points=Array.from({length:23},(_,i)=>({id:i+1,provider_id:1,name:'Branch '
   await page.goto('http://dashboard.test/public');
   await expect(page.locator('[data-province] option')).toHaveCount(32);
   await expect(page.locator('.branch-card')).toHaveCount(23);
-  await expect(page.locator('.tapin-pin .public-marker-chart').first()).toBeAttached();
+  await expect(page.locator('.tapin-pin .marker-chart').first()).toBeAttached();
   expect(errors).toEqual([]);
   console.log('PASS: dashboard startup, numbered pagination, collapse synchronization, filters, routes, sidebar scrolling, mobile and public locator; no JavaScript runtime errors.');
  }finally{await browser.close();}

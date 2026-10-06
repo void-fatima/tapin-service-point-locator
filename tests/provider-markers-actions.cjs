@@ -59,75 +59,22 @@ async function setup(page, { publicPage = false, failTipax = false, clusterProvi
 
 async function verifyPins(page) {
   await expect.poll(()=>page.evaluate(()=>window.testMaps.length)).toBeGreaterThan(0);
-  if(await page.locator('.tapin-public').count()){
-    for(const point of points){
-      await page.locator('[data-provider="'+point.provider_id+'"]').click();
-      await page.evaluate(p=>window.testMaps[0].setView([p.latitude,p.longitude],13,{animate:false}),point);
-      const marker=page.locator('.public-logo-marker');
-      await expect(marker).toHaveCount(1);await expect(marker).toBeInViewport();
-      expect(await marker.boundingBox()).toMatchObject({width:20,height:20});
-      await expect(marker.locator('.public-marker-chart,.cluster-count')).toHaveCount(0);
-      await expect(marker.locator('.public-marker-logo')).toHaveAttribute('data-provider-slug',providers.find(p=>p.id===point.provider_id).slug);
-      if(point.provider_id!==3)await expect(marker.locator('img')).toHaveAttribute('src',new RegExp('/assets/markers/'+providers.find(p=>p.id===point.provider_id).slug+'\\.png$'));
-      else await expect(marker.locator('.provider-logo-fallback')).toHaveCount(1);
-      const coord=await marker.evaluate(el=>{const marker=window.testMarkers.find(m=>m.getElement()===el);return marker.getLatLng();});
-      expect(coord).toEqual({lat:point.latitude,lng:point.longitude});
-    }
-    return;
-  }
-  const measurements=[];
-  for (const [slug, point] of [['post',points[0]],['tipax',points[1]],['other',points[2]]]) {
-    await page.evaluate(([lat,lng])=>window.testMaps[0].setView([lat,lng],13,{animate:false}),[point.latitude,point.longitude]);
-    const pin = page.locator('.' + slug + '-marker');
-    await expect(pin).toBeVisible();
-    await expect(pin).toBeInViewport();
-    await expect(pin.locator('img')).toHaveCount(1);
-    await expect(pin.locator('img')).toHaveAttribute('src', new RegExp('/assets/markers/' + slug + '\\.png$'));
-    await expect(pin.locator('b, .cluster-count, svg, .provider-marker-medallion')).toHaveCount(0);
-    await expect.poll(() => pin.locator('img').evaluate(image => image.naturalWidth)).toBeGreaterThan(0);
-    expect(await pin.boundingBox()).toMatchObject({ width: 40, height: 60 });
-    expect(await pin.evaluate(element => getComputedStyle(element, '::before').content)).toBe('none');
-    const item=await page.evaluate(slug => {
-    const element = document.querySelector('.' + slug + '-marker'), image = element.querySelector('img');
-    const canvas = document.createElement('canvas'); canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
-    const ctx = canvas.getContext('2d'); ctx.drawImage(image, 0, 0);
-    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-    let left = canvas.width, right = -1, top = canvas.height, bottom = -1;
-    for (let y = 0; y < canvas.height; y++) for (let x = 0; x < canvas.width; x++) {
-      const i=(y*canvas.width+x)*4, alpha=pixels[i+3];
-      if(alpha!==0 && (x===0||y===0||x===canvas.width-1||y===canvas.height-1)) throw Error(slug+' has a non-transparent canvas edge');
-      if (alpha > 240) {
-        left = Math.min(left, x); right = Math.max(right, x); top = Math.min(top, y); bottom = Math.max(bottom, y);
-      }
-    }
-    let circleLeft=canvas.width,circleRight=-1,circleTop=canvas.height,circleBottom=-1;
-    for(let y=180;y<900;y++)for(let x=128;x<896;x++){const i=(y*canvas.width+x)*4;if(pixels[i+3]>240&&pixels[i]>235&&pixels[i+1]>235&&pixels[i+2]>235){circleLeft=Math.min(circleLeft,x);circleRight=Math.max(circleRight,x);circleTop=Math.min(circleTop,y);circleBottom=Math.max(circleBottom,y);}}
-    const circleWidth=circleRight-circleLeft+1,circleHeight=circleBottom-circleTop+1;
-    const marker = window.testMarkers.find(item => item.getElement() === element), map = window.testMaps.find(item => item.hasLayer(marker));
-    const latLng = marker.getLatLng(), position = map.latLngToContainerPoint(latLng), mapRect = map.getContainer().getBoundingClientRect();
-    const rect = element.getBoundingClientRect(), imageRect = image.getBoundingClientRect();
-    const scale = Math.min(imageRect.width / canvas.width, imageRect.height / canvas.height);
-    const imageTop = imageRect.y + (imageRect.height - canvas.height * scale) / 2;
-    return { slug, width: (right-left+1)*scale, height: (bottom-top+1)*scale,
-      circleWidth:circleWidth*scale,circleHeight:circleHeight*scale,
-      tipY: imageTop+(bottom+1)*scale, anchorY: rect.y+60,
-      dx: rect.x+20-mapRect.x-position.x, dy: rect.y+60-mapRect.y-position.y,
-      iconAnchor: marker.options.icon.options.iconAnchor, lat: latLng.lat, lng: latLng.lng };
-    },slug);
-    expect(item.iconAnchor).toEqual([20, 60]);
-    expect(Math.abs(item.tipY-item.anchorY)).toBeLessThan(0.1);
-    expect(Math.abs(item.dx)).toBeLessThanOrEqual(1);
-    expect(Math.abs(item.dy)).toBeLessThanOrEqual(1);
-    expect(item.lat).toBe(point.latitude); expect(item.lng).toBe(point.longitude);
-    measurements.push(item);
-  }
-  for (const item of measurements.slice(1)) {
-    expect(Math.abs(item.width-measurements[0].width)).toBeLessThanOrEqual(1.5);
-    expect(Math.abs(item.height-measurements[0].height)).toBeLessThanOrEqual(2.1);
-    expect(Math.abs(item.circleWidth-measurements[0].circleWidth)).toBeLessThanOrEqual(1);
+  const publicPage=Boolean(await page.locator('.tapin-public').count());
+  for(const point of points){
+    if(publicPage)await page.locator('[data-provider="'+point.provider_id+'"]').click();
+    else await page.locator('[data-provider-select]').selectOption(String(point.provider_id));
+    await page.evaluate(p=>window.testMaps[0].setView([p.latitude,p.longitude],13,{animate:false}),point);
+    const marker=page.locator('.logo-marker');
+    await expect(marker).toHaveCount(1);await expect(marker).toBeInViewport();
+    expect(await marker.boundingBox()).toMatchObject({width:20,height:20});
+    await expect(page.locator('.marker-chart,.cluster-count,.provider-pin-image,.province-composition')).toHaveCount(0);
+    await expect(marker.locator('.marker-logo')).toHaveAttribute('data-provider-slug',providers.find(p=>p.id===point.provider_id).slug);
+    if(point.provider_id!==3)await expect(marker.locator('img')).toHaveAttribute('src',new RegExp('/assets/markers/'+providers.find(p=>p.id===point.provider_id).slug+'\\.png$'));
+    else await expect(marker.locator('.provider-logo-fallback')).toHaveCount(1);
+    const coord=await marker.evaluate(el=>window.testMarkers.find(m=>m.getElement()===el).getLatLng());
+    expect(coord).toEqual({lat:point.latitude,lng:point.longitude});
   }
 }
-
 (async () => {
   const installedBrowser = [process.env.CHROME_PATH, process.platform === 'win32' ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : null, process.platform === 'win32' ? 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe' : null].find(candidate => candidate && fs.existsSync(candidate));
   const browser = await chromium.launch({ headless: true, ...(installedBrowser ? { executablePath: installedBrowser } : {}) });
@@ -135,8 +82,8 @@ async function verifyPins(page) {
     const publicPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
     const publicErrors = await setup(publicPage, { publicPage: true });
     await publicPage.goto('http://tapin.test/public');
-    await expect(publicPage.locator('.public-chart-marker')).toHaveCount(3);
-    await expect(publicPage.locator('.public-map-badge img,.public-map-badge .cluster-count')).toHaveCount(0);
+    await expect(publicPage.locator('.chart-marker')).toHaveCount(3);
+    await expect(publicPage.locator('.map-badge img,.map-badge .cluster-count')).toHaveCount(0);
     const legend=publicPage.locator('.map-legend');
     await expect(legend).toHaveAttribute('dir','rtl');
     await expect(legend.locator('.map-legend-item')).toHaveCount(3);
@@ -173,17 +120,10 @@ async function verifyPins(page) {
       const cluster = page.locator('.tapin-cluster');
       await expect(cluster).toHaveCount(1);
       await expect(cluster).toBeInViewport();
-      const expectedSlugs = [...new Set(ids)].map(id => ({1:'post',2:'tipax',3:'other'})[id]);
-      if(publicPage){
-        await expect(cluster.locator('.public-marker-chart')).toHaveCount(1);
-        await expect(cluster.locator('img,.cluster-count')).toHaveCount(0);
-      }else{
-        for (const slug of expectedSlugs) await expect(cluster.locator('img[src$="/'+slug+'.png"]')).toBeVisible();
-        await expect(cluster.locator('img')).toHaveCount(expectedSlugs.length);
-      }
+      await expect(cluster.locator('.marker-chart')).toHaveCount(1);
+      await expect(page.locator('.tapin-pin img,.cluster-count,.provider-image-pin,.provider-pin-image,.province-composition')).toHaveCount(0);
       if(ids.includes(3)) await expect(cluster).toHaveAttribute('aria-label',/سایر/);
-      if(!publicPage)await expect(cluster.locator('.cluster-count')).toHaveText(ids.length.toLocaleString('fa-IR'));
-      await expect(cluster).toHaveText(publicPage?'':ids.length.toLocaleString('fa-IR'));
+      await expect(cluster).toHaveText('');
       await expect(cluster).toHaveAttribute('aria-label', new RegExp('^'+ids.length.toLocaleString('fa-IR')+' '));
       await cluster.focus();
       await expect(page.locator('.leaflet-tooltip')).toContainText(ids.length.toLocaleString('fa-IR'));
@@ -192,12 +132,12 @@ async function verifyPins(page) {
       const zoom = await page.evaluate(() => window.testMaps[0].getZoom());
       await cluster.click();
       await expect.poll(() => page.evaluate(() => window.testMaps[0].getZoom())).toBeGreaterThan(zoom);
-      await expect(page.locator(publicPage?'.tapin-cluster .public-marker-chart':'.tapin-cluster img')).toHaveCount(publicPage?1:expectedSlugs.length);
+      await expect(page.locator('.tapin-cluster .marker-chart')).toHaveCount(1);
       await page.evaluate(count => window.testMaps[0].fitBounds([[35.7,51.4],[35.7,51.4+(count-1)*0.08]],{padding:[40,40],maxZoom:13,animate:false}),ids.length);
       await expect(page.locator('.tapin-cluster')).toHaveCount(0);
-      await expect(page.locator(publicPage?'.public-map-badge':'.provider-image-pin')).toHaveCount(ids.length);
-      if(!publicPage)for (const slug of expectedSlugs) await expect(page.locator('.provider-image-pin img[src$="/'+slug+'.png"]').first()).toBeInViewport();
-      const coords=await page.evaluate(() => window.testMarkers.filter(m=>(m.getElement()?.classList.contains('provider-image-pin')||m.getElement()?.classList.contains('public-map-badge')) && window.testMaps[0].hasLayer(m)).map(m=>[m.getLatLng().lat,m.getLatLng().lng]));
+      await expect(page.locator('.map-badge')).toHaveCount(ids.length);
+      await expect(page.locator('.marker-chart')).toHaveCount(ids.length);
+      const coords=await page.evaluate(() => window.testMarkers.filter(m=>m.getElement()?.classList.contains('map-badge') && window.testMaps[0].hasLayer(m)).map(m=>[m.getLatLng().lat,m.getLatLng().lng]));
       expect(coords).toEqual(ids.map((_,index)=>[35.7,51.4+index*0.08]));
       await page.locator('.tapin-map').screenshot({path: path.join(screenshotDir, name+'-'+(publicPage?'public':'admin')+'-close.png')});
       expect(errors).toEqual([]);
@@ -244,6 +184,7 @@ async function verifyPins(page) {
     await expect(deleteDialog).toBeHidden();
     await adminPage.goto('http://tapin.test/wp-admin/admin.php?page=tapin-locator#dashboard');
     await verifyPins(adminPage);
+    await adminPage.locator('[data-provider-select]').selectOption('1');
     await adminPage.locator('.tapin-map').screenshot({ path: path.join(screenshotDir, 'admin-map.png') });
     await adminPage.evaluate(([lat,lng])=>window.testMaps[window.testMaps.length-1].setView([lat,lng],13,{animate:false}),[points[0].latitude,points[0].longitude]);
     const detailTrigger = adminPage.locator('.post-marker').first();
@@ -270,6 +211,7 @@ async function verifyPins(page) {
     });
     await verifyPins(adminPage);
     await adminPage.locator('.tapin-map').screenshot({ path: path.join(screenshotDir, 'mobile-map.png') });
+    await adminPage.locator('[data-provider-select]').selectOption('1');
     await adminPage.evaluate(([lat,lng])=>window.testMaps[window.testMaps.length-1].setView([lat,lng],13,{animate:false}),[points[0].latitude,points[0].longitude]);
     const mobileTrigger = adminPage.locator('.post-marker').first();
     await mobileTrigger.click();
@@ -281,7 +223,7 @@ async function verifyPins(page) {
     await expect(detailDialog).toBeHidden();
     await expect(mobileTrigger).toBeFocused();
     expect(adminErrors).toEqual([]);
-    console.log('PASS provider-markers-actions: unchanged admin PNG pins/clusters; public charts and provider-only logo badges, stored anchors, address-only exclusion, accessible counts, click-to-zoom, logos/fallback, row actions and delete confirmation.');
+    console.log('PASS provider-markers-actions: shared admin/public charts and provider-only logos, no numbered/paired-pin structures, stored anchors, address-only exclusion, accessible counts, click-to-zoom, logos/fallback, row actions and delete confirmation.');
   } finally {
     await browser.close();
   }

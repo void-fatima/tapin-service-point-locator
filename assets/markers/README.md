@@ -8,11 +8,16 @@ overprinting logos:
 - `other.png`: crimson pin with a blank white circle.
 
 All source images are 1024 × 1536 PNGs with transparent canvas padding. The
-full canvases are retained so each pin shares a 48 × 72 CSS image box and its
-tip stays aligned to the geographic coordinate. The compact legend uses the
-same images at a proportionally scaled size.
+original files and compact pin legend are unchanged. Filtered map badges crop
+the existing Post/Tipax artwork to its emblem; configured Other-provider logos
+use their existing asset or the existing accessible fallback.
 
-Clusters show each represented category's pin image once. Their tooltip and
-accessible label report the total, the Post/Tipax/other composition, and the
-provider names. Clicking a cluster zooms toward its points; at the closest
-zoom it opens the existing point-details list.
+Admin dashboard and public maps share one 20 × 20 px badge renderer for
+province aggregates, spatial clusters and single records. With all providers,
+one circular chart shows Post/Tipax/Other proportions in yellow/green/red;
+there are no numeric labels or paired pins. With a provider filter, only that
+provider's logo appears in the same circular frame.
+
+Exact counts, composition and provider names remain in keyboard-accessible
+tooltips and labels. Badge callouts retain the original geographic anchors;
+province groups, cluster membership and click-to-zoom/details stay intact.

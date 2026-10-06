@@ -58,8 +58,8 @@ async function setup(page, {summary=true} = {}) {
     const visiblePointCount=await page.evaluate(points=>points.filter(p=>p.has_coordinates && window.testMaps[0].getBounds().contains([p.latitude,p.longitude])).length,points);
     expect(visiblePointCount).toBeGreaterThan(0);
     // These fixtures occupy separate provinces at country zoom.
-    await expect(page.locator('.public-chart-marker')).toHaveCount(visiblePointCount);
-    await expect(page.locator('.public-map-badge img,.public-map-badge .cluster-count')).toHaveCount(0);
+    await expect(page.locator('.chart-marker')).toHaveCount(visiblePointCount);
+    await expect(page.locator('.map-badge img,.map-badge .cluster-count')).toHaveCount(0);
     await expect(page.locator('.tapin-public')).toHaveAttribute('data-theme-mode',mode);
     const app=await page.locator('.tapin-public').boundingBox();
     expect(app.x).toBe(0);
@@ -92,7 +92,7 @@ async function setup(page, {summary=true} = {}) {
     await expect(page.locator('.branch-card')).toContainText('Address only');
     await expect(page.locator('.map-status')).toContainText('نمایش ۱ از ۱');
     await page.clock.runFor(1000);
-    await expect(page.locator('.public-map-badge')).toHaveCount(0);
+    await expect(page.locator('.map-badge')).toHaveCount(0);
     await page.screenshot({path:path.join(root,`artifacts/public-locator/without-coordinates-${mode}-${width}.png`),fullPage:true});
     await page.locator('[data-coordinates]').selectOption('1');
     await expect(page.locator('.branch-card')).toHaveCount(2);
