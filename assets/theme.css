@@ -382,6 +382,27 @@
 	border-inline-start: 1px solid #c8d2df !important;
 }
 
+/* The collapsed brand reveals its expand glyph on hover and keyboard focus. */
+#tapin-admin[data-theme-mode="light"].sidebar-collapsed .tapin-sidebar .brand:is(:hover, :focus-visible, :active) .brand-expand-icon {
+	background: var(--bg);
+	border-color: var(--line);
+	color: var(--text) !important;
+	box-shadow: none;
+}
+
+#tapin-admin[data-theme-mode="light"].sidebar-collapsed .tapin-sidebar .brand-expand-icon * {
+	color: inherit !important;
+}
+
+#tapin-admin[data-theme-mode="light"].sidebar-collapsed .tapin-sidebar .brand:active .brand-expand-icon {
+	background: var(--line);
+	border-color: var(--muted);
+}
+
+#tapin-admin[data-theme-mode="light"].sidebar-collapsed .tapin-sidebar .brand:focus-visible {
+	outline-color: #245ea8;
+}
+
 #tapin-admin[data-theme-mode="light"] :is(
 	.tapin-header h1, .tapin-header h2, .panel h2, .panel h3,
 	.tapin-sidebar .brand, .tapin-sidebar nav a, .sidebar-foot,
