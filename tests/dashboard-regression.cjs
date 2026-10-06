@@ -4,11 +4,13 @@ const fs=require('fs');
 const path=require('path');
 const {execFileSync}=require('child_process');
 const root=path.resolve(__dirname,'..');
+const assetRoot=process.env.TAPIN_PACKAGE_ROOT||root;
 const providers=[{id:1,slug:'other',name:'Fixture provider',is_active:1,logo:''}];
 const locations=[{provider_id:1,province:'تهران',city:'تهران'}];
 const points=Array.from({length:23},(_,i)=>({id:i+1,provider_id:1,name:'Branch '+(i+1),province:'تهران',city:'تهران',address:'Fixture address',status:'active',has_coordinates:true,latitude:35.7,longitude:51.4}));
 (async()=>{
- const browser=await chromium.launch();
+ const chrome=process.env.TAPIN_CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe';
+ const browser=await chromium.launch({headless:true,...(fs.existsSync(chrome)?{executablePath:chrome}:{})});
  try{
   const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
@@ -32,7 +34,7 @@ const points=Array.from({length:23},(_,i)=>({id:i+1,provider_id:1,name:'Branch '
    }
    if(url.pathname.startsWith('/assets/')){
     const file=url.pathname.slice(1);
-    const body=process.env.TAPIN_COMMITTED_ASSETS==='1'&&/assets\/(map\.js|admin\.js|app\.css|dashboard\.css)$/.test(file)?execFileSync('git',['show',':'+file],{cwd:root}):fs.readFileSync(path.join(root,file));
+    const body=process.env.TAPIN_COMMITTED_ASSETS==='1'&&/assets\/(map\.js|admin\.js|app\.css|dashboard\.css)$/.test(file)?execFileSync('git',['show',':'+file],{cwd:root}):fs.readFileSync(path.join(assetRoot,file));
     const ext=path.extname(file);
     return route.fulfill({body,contentType:({'.js':'application/javascript; charset=utf-8','.css':'text/css','.geojson':'application/json','.svg':'image/svg+xml','.png':'image/png','.woff2':'font/woff2'})[ext]||'application/octet-stream'});
    }
@@ -62,6 +64,7 @@ const points=Array.from({length:23},(_,i)=>({id:i+1,provider_id:1,name:'Branch '
    await expect(page.locator('.hero-number')).toHaveText('۲۳');
    await expect(page.locator('[data-retry]')).toBeHidden();
    await expect(page.locator('.tapin-pin .marker-chart').first()).toBeAttached();
+   await expect(page.locator('.tapin-pin')).toHaveText(['']);
    await expect(page.locator('.cluster-count,.provider-pin-image,.province-composition')).toHaveCount(0);
    await expect(page.locator('.tapin-province-boundary').first()).toBeAttached();
    await pager.locator('.pagination-next').click();

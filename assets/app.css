@@ -169,11 +169,9 @@ body.tapin-locator-page{margin:0;padding:0;width:100%;max-width:none}
 
 /* Shared admin/public map badges; exact counts live in tooltips and labels. */
 .tapin-app .tapin-pin.map-badge{background:transparent!important;border:0!important;border-radius:50%;box-shadow:none!important;overflow:visible}
-.tapin-app .map-badge .marker-chart,.tapin-app .map-badge .marker-logo{position:absolute;inset:0;display:grid;place-items:center;border:1.5px solid var(--text);border-radius:50%;box-shadow:0 0 0 1px var(--panel);overflow:hidden;pointer-events:none}
-.tapin-app .map-badge .marker-logo{background:#fff}
-.tapin-app .map-badge .provider-emblem{position:absolute;left:-9.5px;top:-10.8px;width:36px!important;height:54px!important;max-width:none!important;max-height:none!important;object-fit:contain}
-.tapin-app .tapin-pin.map-badge .provider-marker-logo{max-width:18px!important;max-height:18px!important}
-.tapin-app .map-badge .provider-logo-fallback{width:18px;height:18px;font-size:14px;line-height:18px;text-align:center}
+.tapin-app .map-badge .marker-chart{position:absolute;inset:0;border:1.5px solid var(--text);border-radius:50%;box-shadow:0 0 0 1px var(--panel);overflow:hidden;pointer-events:none}
+.tapin-app .tapin-pin.branch-pin{background:transparent!important;border:0!important;border-radius:0;box-shadow:none!important;overflow:visible}
+.tapin-app .branch-pin .provider-pin-image{position:absolute;left:0;display:block;width:40px!important;height:60px!important;max-width:none!important;max-height:none!important;object-fit:contain;pointer-events:none}
 .tapin-app .marker-leader{stroke:var(--text);fill:none;pointer-events:none}
 .tapin-app .marker-anchor{stroke:var(--text);fill:var(--panel);fill-opacity:1;pointer-events:none}
 .tapin-app .map-legend{direction:rtl;justify-content:flex-start}

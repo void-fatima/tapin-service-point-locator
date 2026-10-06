@@ -3,6 +3,7 @@ const {chromium, expect} = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
 const root = path.resolve(__dirname, '..');
+const assetRoot = process.env.TAPIN_PACKAGE_ROOT || root;
 const providers = [{id:1, slug:'post', name:'پست', is_active:1}, {id:2, slug:'tipax', name:'تیپاکس', is_active:1}];
 const points = [
   {id:1, provider_id:1, name:'Tehran branch', province:'تهران', city:'تهران', address:'Fixture', has_coordinates:true, latitude:35.7, longitude:51.4},
@@ -32,7 +33,7 @@ async function setup(page, {summary=true} = {}) {
     }
     if (url.pathname.startsWith('/assets/')) {
       const file = url.pathname.slice(1), extension = path.extname(file);
-      return route.fulfill({body:fs.readFileSync(path.join(root,file)),contentType:({'.css':'text/css','.js':'application/javascript; charset=utf-8','.geojson':'application/json','.svg':'image/svg+xml','.png':'image/png','.woff2':'font/woff2'})[extension] || 'application/octet-stream'});
+      return route.fulfill({body:fs.readFileSync(path.join(assetRoot,file)),contentType:({'.css':'text/css','.js':'application/javascript; charset=utf-8','.geojson':'application/json','.svg':'image/svg+xml','.png':'image/png','.woff2':'font/woff2'})[extension] || 'application/octet-stream'});
     }
     if (url.pathname.startsWith('/tiles/')) return route.fulfill({status:204});
     const unrelated = url.searchParams.get('page_id') === '99', embedded = url.searchParams.get('layout') === 'embedded';
@@ -44,7 +45,8 @@ async function setup(page, {summary=true} = {}) {
 }
 
 (async()=>{
-  const browser = await chromium.launch(process.env.TAPIN_CHROME_PATH?{executablePath:process.env.TAPIN_CHROME_PATH}:{});
+  const chrome=process.env.TAPIN_CHROME_PATH||'C:/Program Files/Google/Chrome/Application/chrome.exe';
+  const browser=await chromium.launch({headless:true,...(fs.existsSync(chrome)?{executablePath:chrome}:{})});
   try {
     fs.mkdirSync(path.join(root,'artifacts/public-locator'),{recursive:true});
     for (const width of [1440,390]) for (const mode of ['light','dark']) {
@@ -84,6 +86,9 @@ async function setup(page, {summary=true} = {}) {
     expect(requests.length).toBe(initial);
     await page.locator('[data-provider="2"]').click();
     await expect(page.locator('.branch-card')).toHaveCount(2);
+    await page.clock.runFor(1000);
+    await expect(page.locator('.chart-marker')).toHaveCount(1);
+    await expect(page.locator('.map-badge img,.branch-pin,.marker-logo,.cluster-count')).toHaveCount(0);
     expect(requests.length).toBeGreaterThan(initial);
     await page.locator('[data-clear]').click();
     await expect(page.locator('.branch-card')).toHaveCount(3);
@@ -110,6 +115,9 @@ async function setup(page, {summary=true} = {}) {
     await page.evaluate(()=>window.testMaps[0].setView([35.7,51.4],14,{animate:false}));
     await page.clock.runFor(1000);
     await expect(page.locator('.post-marker')).toHaveCount(1);
+    await expect(page.locator('.branch-pin .provider-pin-image')).toHaveCount(1);
+    await expect(page.locator('.marker-chart,.map-badge,.cluster-count')).toHaveCount(0);
+    await expect(page.locator('.branch-pin img')).toHaveAttribute('src',/\/assets\/markers\/post\.png$/);
     const center=await page.evaluate(()=>({lat:window.testMaps[0].getCenter().lat,lng:window.testMaps[0].getCenter().lng}));
     await page.locator('.branch-card').first().locator('[data-details]').click();
     await expect(page.locator('.tapin-detail')).toBeVisible();

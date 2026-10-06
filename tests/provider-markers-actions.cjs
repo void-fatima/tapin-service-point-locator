@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
+const assetRoot = process.env.TAPIN_PACKAGE_ROOT || root;
 const theme = process.env.TAPIN_TEST_THEME || 'dark';
 const providers = [
   { id: 1, slug: 'post', name: 'شرکت ملی پست', marker_color: '#ffbd18', color: '#ffbd18', logo: 'https://invalid.example/wrong-post.svg', is_active: 1 },
@@ -48,7 +49,7 @@ async function setup(page, { publicPage = false, failTipax = false, clusterProvi
     if (url.pathname.startsWith('/assets/')) {
       const relativePath = url.pathname.slice(1), extension = path.extname(relativePath);
       const contentType = { '.js': 'application/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.geojson': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2' }[extension] || 'application/octet-stream';
-      return route.fulfill({ body: fs.readFileSync(path.join(root, relativePath)), contentType });
+      return route.fulfill({ body: fs.readFileSync(path.join(assetRoot, relativePath)), contentType });
     }
     if (url.pathname.startsWith('/tiles/')) return route.fulfill({ status: 204 });
     const appRoot = publicPage ? '<div class="tapin-app tapin-public"><div class="tapin-public-root"></div></div>' : '<div id="tapin-admin" class="tapin-app" dir="rtl"></div>';
@@ -64,15 +65,23 @@ async function verifyPins(page) {
     if(publicPage)await page.locator('[data-provider="'+point.provider_id+'"]').click();
     else await page.locator('[data-provider-select]').selectOption(String(point.provider_id));
     await page.evaluate(p=>window.testMaps[0].setView([p.latitude,p.longitude],13,{animate:false}),point);
-    const marker=page.locator('.logo-marker');
+    const marker=page.locator('.branch-pin');
     await expect(marker).toHaveCount(1);await expect(marker).toBeInViewport();
-    expect(await marker.boundingBox()).toMatchObject({width:20,height:20});
-    await expect(page.locator('.marker-chart,.cluster-count,.provider-pin-image,.province-composition')).toHaveCount(0);
-    await expect(marker.locator('.marker-logo')).toHaveAttribute('data-provider-slug',providers.find(p=>p.id===point.provider_id).slug);
-    if(point.provider_id!==3)await expect(marker.locator('img')).toHaveAttribute('src',new RegExp('/assets/markers/'+providers.find(p=>p.id===point.provider_id).slug+'\\.png$'));
-    else await expect(marker.locator('.provider-logo-fallback')).toHaveCount(1);
+    expect(await marker.boundingBox()).toMatchObject({width:40,height:60});
+    await expect(page.locator('.marker-chart,.cluster-count,.province-composition,.marker-logo,.logo-marker')).toHaveCount(0);
+    await expect(marker.locator('.provider-pin-image')).toHaveCount(1);
+    await expect(marker.locator('img')).toHaveAttribute('src',new RegExp('/assets/markers/'+providers.find(p=>p.id===point.provider_id).slug+'\\.png$'));
+    await expect.poll(()=>marker.locator('img').evaluate(i=>i.naturalWidth)).toBeGreaterThan(0);
     const coord=await marker.evaluate(el=>window.testMarkers.find(m=>m.getElement()===el).getLatLng());
     expect(coord).toEqual({lat:point.latitude,lng:point.longitude});
+    const geometry=await marker.evaluate(el=>{
+      const image=el.querySelector('img'),canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;
+      const ctx=canvas.getContext('2d');ctx.drawImage(image,0,0);const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;let bottom=-1;
+      for(let y=canvas.height-1;y>=0&&bottom<0;y--)for(let x=0;x<canvas.width;x++)if(pixels[(y*canvas.width+x)*4+3]>240){bottom=y;break;}
+      const marker=window.testMarkers.find(m=>m.getElement()===el),map=window.testMaps.find(m=>m.hasLayer(marker)),rect=el.getBoundingClientRect(),imageRect=image.getBoundingClientRect(),mapRect=map.getContainer().getBoundingClientRect(),xy=map.latLngToContainerPoint(marker.getLatLng()),scale=Math.min(imageRect.width/canvas.width,imageRect.height/canvas.height);
+      return {anchor:marker.options.icon.options.iconAnchor,dx:rect.x+20-mapRect.x-xy.x,dy:rect.y+60-mapRect.y-xy.y,tipDelta:imageRect.y+(imageRect.height-canvas.height*scale)/2+(bottom+1)*scale-(rect.y+60)};
+    });
+    expect(geometry.anchor).toEqual([20,60]);expect(Math.abs(geometry.dx)).toBeLessThanOrEqual(1);expect(Math.abs(geometry.dy)).toBeLessThanOrEqual(1);expect(Math.abs(geometry.tipDelta)).toBeLessThan(.1);
   }
 }
 (async () => {
@@ -89,7 +98,7 @@ async function verifyPins(page) {
     await expect(legend.locator('.map-legend-item')).toHaveCount(3);
     expect(await legend.locator('.map-legend-item').allTextContents()).toEqual(['پست','تیپاکس','سایر']);
     for (const slug of ['post','tipax','other']) await expect(legend.locator('img[src$="/markers/'+slug+'.png"]')).toBeVisible();
-    const screenshotDir = path.join(root, 'artifacts', 'provider-pins', theme);
+    const screenshotDir = path.join(root, 'artifacts', 'map-marker-zoom-policy'+(assetRoot!==root?'-package':''), 'provider-pins', theme);
     fs.mkdirSync(screenshotDir, { recursive: true });
     await publicPage.locator('.tapin-map').screenshot({ path: path.join(screenshotDir, 'public-map-initial.png') });
     await verifyPins(publicPage);
@@ -135,9 +144,10 @@ async function verifyPins(page) {
       await expect(page.locator('.tapin-cluster .marker-chart')).toHaveCount(1);
       await page.evaluate(count => window.testMaps[0].fitBounds([[35.7,51.4],[35.7,51.4+(count-1)*0.08]],{padding:[40,40],maxZoom:13,animate:false}),ids.length);
       await expect(page.locator('.tapin-cluster')).toHaveCount(0);
-      await expect(page.locator('.map-badge')).toHaveCount(ids.length);
-      await expect(page.locator('.marker-chart')).toHaveCount(ids.length);
-      const coords=await page.evaluate(() => window.testMarkers.filter(m=>m.getElement()?.classList.contains('map-badge') && window.testMaps[0].hasLayer(m)).map(m=>[m.getLatLng().lat,m.getLatLng().lng]));
+      await expect(page.locator('.branch-pin')).toHaveCount(ids.length);
+      await expect(page.locator('.marker-chart,.map-badge,.cluster-count')).toHaveCount(0);
+      await expect(page.locator('.branch-pin .provider-pin-image')).toHaveCount(ids.length);
+      const coords=await page.evaluate(() => window.testMarkers.filter(m=>m.getElement()?.classList.contains('branch-pin') && window.testMaps[0].hasLayer(m)).map(m=>[m.getLatLng().lat,m.getLatLng().lng]));
       expect(coords).toEqual(ids.map((_,index)=>[35.7,51.4+index*0.08]));
       await page.locator('.tapin-map').screenshot({path: path.join(screenshotDir, name+'-'+(publicPage?'public':'admin')+'-close.png')});
       expect(errors).toEqual([]);
@@ -223,7 +233,7 @@ async function verifyPins(page) {
     await expect(detailDialog).toBeHidden();
     await expect(mobileTrigger).toBeFocused();
     expect(adminErrors).toEqual([]);
-    console.log('PASS provider-markers-actions: shared admin/public charts and provider-only logos, no numbered/paired-pin structures, stored anchors, address-only exclusion, accessible counts, click-to-zoom, logos/fallback, row actions and delete confirmation.');
+    console.log('PASS provider-markers-actions: shared admin/public number-free charts and separated provider-logo location pins, no numbered/paired-pin clusters, stored-coordinate pixel tips, address-only exclusion, accessible counts, click-to-zoom, logos/fallback, row actions and delete confirmation. Network fixtures, not real WordPress.');
   } finally {
     await browser.close();
   }

@@ -4,7 +4,8 @@ const { chromium, expect } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
 const root = path.resolve(__dirname, '..');
-const geometry = JSON.parse(fs.readFileSync(path.join(root, 'assets/iran-provinces.geojson'), 'utf8'));
+const assetRoot = process.env.TAPIN_PACKAGE_ROOT || root;
+const geometry = JSON.parse(fs.readFileSync(path.join(assetRoot, 'assets/iran-provinces.geojson'), 'utf8'));
 function ringContains(x, y, ring) {
   let inside = false;
   for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
@@ -35,7 +36,7 @@ const invalid = { ...points[0], id: 1002, latitude: 95, name: 'Invalid coordinat
 const rows = [...points, addressOnly, outside, invalid];
 const providers = [{ id: 1, slug: 'post', name: 'پست', color: '#ffbd18', is_active: 1 }, { id: 2, slug: 'tipax', name: 'تیپاکس', color: '#00ba88', is_active: 1 }];
 const locations = [...new Map(rows.map(p => [p.province, { province: p.province, city: p.city, provider_id: p.provider_id }])).values()];
-const artifacts = path.join(root, 'artifacts', 'iran-map-framing');
+const artifacts = path.join(root, 'artifacts', 'map-marker-zoom-policy'+(assetRoot!==root?'-package':''), 'iran-map-framing');
 
 (async () => {
   for (const point of points) if (!geometry.features.some(f => contains(point, f))) throw Error('Fixture outside supplied geometry: ' + JSON.stringify(point));
@@ -71,7 +72,7 @@ const artifacts = path.join(root, 'artifacts', 'iran-map-framing');
         }
         if (url.pathname.startsWith('/assets/')) {
           const types = { '.js': 'application/javascript; charset=utf-8', '.css': 'text/css', '.geojson': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2' };
-          return route.fulfill({ body: fs.readFileSync(path.join(root, url.pathname.slice(1))), contentType: types[path.extname(url.pathname)] || 'application/octet-stream' });
+          return route.fulfill({ body: fs.readFileSync(path.join(assetRoot, url.pathname.slice(1))), contentType: types[path.extname(url.pathname)] || 'application/octet-stream' });
         }
         // A valid transparent tile isolates framing/markers without tile errors.
         if (url.pathname.startsWith('/tiles/')) return route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"></svg>' });
@@ -92,12 +93,13 @@ const artifacts = path.join(root, 'artifacts', 'iran-map-framing');
         const members = points.filter(p => geometry.features.find(f => contains(p, f)).properties.shapeName === province.properties.shapeName);
         expect(marker.count).toBe(members.length.toLocaleString('fa-IR'));
         expect(marker.label).toContain('تجمیع استانی');
-        if (marker.composition) {
+        expect(marker.composition).toBeTruthy();expect(marker.images).toEqual([]);
+        {
           for (const provider of new Set(members.map(p => p.provider_id))) {
             expect(marker.composition).toContain(provider === 1 ? '255, 189, 24' : '0, 186, 136');
             expect(marker.label).toContain(provider === 1 ? 'پست' : 'تیپاکس');
           }
-        } else expect(marker.images.length).toBe(new Set(members.map(p => p.provider_id)).size);
+        }
         for (let i = 1; i < marker.images.length; i++) expect(marker.images[i].left).toBeGreaterThanOrEqual(marker.images[i - 1].left + marker.images[i - 1].width);
       }
       expect(represented.sort()).toEqual(expectedProvinces.sort());
@@ -180,7 +182,10 @@ const artifacts = path.join(root, 'artifacts', 'iran-map-framing');
       await expect(page.locator('.tapin-pin:not(.tapin-cluster)')).toHaveCount(1);
       const detailed = await getMarkers();
       expect(detailed[0].lat).toBe(points[3].latitude); expect(detailed[0].lng).toBe(points[3].longitude);
-      expect(detailed[0].size).toEqual([20,20]);
+      expect(detailed[0].size).toEqual([40,60]);expect(detailed[0].anchor).toEqual([20,60]);
+      await expect(page.locator('.branch-pin .provider-pin-image')).toHaveCount(1);
+      await expect(page.locator('.map-badge,.marker-chart,.cluster-count')).toHaveCount(0);
+      expect(new URL(detailed[0].images[0].source,'http://tapin.test').pathname).toBe('/assets/markers/post.png');
       await page.locator('.tapin-pin').click(); await expect(page.locator('.tapin-detail')).toBeVisible();
       await expect(page.locator('.detail-body h3')).toHaveText(points[3].name); await page.keyboard.press('Escape');
       await page.locator('.tapin-map').screenshot({ path: path.join(artifacts, prefix + '-detailed.png') });

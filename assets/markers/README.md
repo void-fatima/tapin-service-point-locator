@@ -8,15 +8,16 @@ overprinting logos:
 - `other.png`: crimson pin with a blank white circle.
 
 All source images are 1024 × 1536 PNGs with transparent canvas padding. The
-original files and compact pin legend are unchanged. Filtered map badges crop
-the existing Post/Tipax artwork to its emblem; configured Other-provider logos
-use their existing asset or the existing accessible fallback.
+original files and compact pin legend are unchanged. Individual branch pins
+retain the full supplied artwork, with its visible tip anchored to the stored
+latitude/longitude. Post/Tipax use their logo pins; other providers use the red pin.
 
-Admin dashboard and public maps share one 20 × 20 px badge renderer for
-province aggregates, spatial clusters and single records. With all providers,
-one circular chart shows Post/Tipax/Other proportions in yellow/green/red;
-there are no numeric labels or paired pins. With a provider filter, only that
-provider's logo appears in the same circular frame.
+Admin dashboard and public maps share one presentation policy. Country/province
+aggregates and unresolved spatial clusters use a 20 × 20 px circular chart of
+the actual Post/Tipax/Other proportions in yellow/green/red, including after
+provider filtering. No numeric labels or paired pins are rendered. As zoom
+separates records, each single branch uses a 40 × 60 px location pin. Zooming
+out restores charts; coincident branches remain a chart with the existing list action.
 
 Exact counts, composition and provider names remain in keyboard-accessible
 tooltips and labels. Badge callouts retain the original geographic anchors;
