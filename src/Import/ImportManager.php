@@ -12,11 +12,12 @@ class ImportManager {
  public function import_csv( string $path, int $provider, array $options = array() ): ImportResult {
   $result = new ImportResult();
   $action = $options['duplicate_action'] ?? 'skip';
-  if ( ! in_array( $action, array( 'skip', 'update' ), true ) || ! ( new ProviderRepository() )->get_by_id( $provider ) ) {
+  if ( ! in_array( $action, array( 'skip', 'update' ), true ) ) {
    $result->add_error( 0, 'options', 'Invalid provider or duplicate action (skip/update).' ); $result->finish(); return $result;
   }
   $headers = null;
   $mapper = new ColumnMapper( $options['custom_mapping'] ?? array() );
+  $providers = ( new ProviderRepository() )->get_all( false ); $per_row_provider = false;
   $number = 1;
   try {
    foreach ( TableReader::rows( $path, 'csv' ) as $row ) {
@@ -24,10 +25,20 @@ class ImportManager {
      $row[0] = preg_replace( '/^\xEF\xBB\xBF/', '', $row[0] );
      $headers = array_map( 'trim', $row );
      if ( in_array( '', $headers, true ) || count( array_unique( $headers ) ) !== count( $headers ) ) { throw new \RuntimeException( 'Headers must be nonempty and unique.' ); }
-     $mapper->auto_detect_headers( $headers ); continue;
+     $mapping = $mapper->auto_detect_headers( $headers );
+     $per_row_provider = in_array( 'provider', $mapping, true );
+     if ( ! $per_row_provider && ! ( new ProviderRepository() )->get_by_id( $provider ) ) { throw new \RuntimeException( 'برای فایل بدون ستون ارائه‌دهنده، یک ارائه‌دهندهٔ معتبر انتخاب کنید.' ); }
+     foreach ( array( 'name' => 'نام شعبه', 'address' => 'نشانی' ) as $field => $label ) { if ( ! in_array( $field, $mapping, true ) ) { throw new \RuntimeException( 'ستون شناسایی‌نشده: ' . $label ); } }
+     continue;
     }
     $number++; $result->increment_total(); $result->increment_processed();
-    $outcome = count( $row ) === count( $headers ) ? RowProcessor::process( $mapper->map_row( array_combine( $headers, $row ) ), $provider, $action ) : array( 'result' => 'failed', 'messages' => array( 'Column count mismatch.' ) );
+    $outcome = array( 'result' => 'failed', 'messages' => array( 'Column count mismatch.' ) );
+    if ( count( $row ) === count( $headers ) ) {
+     $raw = $mapper->map_row( array_combine( $headers, $row ) );
+     $row_provider = $per_row_provider ? ProviderResolver::resolve( trim( (string) ( $raw['provider'] ?? '' ) ), $providers, $options['provider_mapping'] ?? array() ) : $provider;
+     unset( $raw['provider'] );
+     $outcome = $row_provider ? RowProcessor::process( $raw, $row_provider, $action ) : array( 'result' => 'failed', 'messages' => array( 'ارائه‌دهندهٔ این ردیف ناشناخته یا مبهم است.' ) );
+    }
     if ( 'inserted' === $outcome['result'] ) { $result->increment_inserted(); }
     elseif ( 'updated' === $outcome['result'] ) { $result->increment_updated(); }
     else { $result->increment_skipped(); }

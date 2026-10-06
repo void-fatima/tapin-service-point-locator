@@ -15,9 +15,9 @@ final class ColumnMapper {
 	 * Canonical field mapping dictionary with known Persian and English aliases.
 	 */
 	private const SYNONYMS = array(
-		'provider'    => array( 'ارائه‌دهنده', 'ارائه دهنده', 'نام ارائه‌دهنده', 'provider', 'provider_name', 'provider_slug', 'provider_id' ),
+		'provider'    => array( 'ارائه‌دهنده', 'ارائه دهنده', 'نام ارائه‌دهنده', 'عنوان سرویس دهنده', 'عنوان سرویس‌دهنده', 'provider', 'provider_name', 'provider_slug', 'provider_id' ),
 		'code'        => array( 'کد', 'کد شعبه', 'کد باجه', 'کد نمایندگی', 'شناسه', 'شناسه شعبه', 'code', 'branch_code', 'id', 'branch_id' ),
-		'name'        => array( 'نام', 'نام شعبه', 'نام باجه', 'عنوان', 'نام نمایندگی', 'نام نقطه', 'name', 'title', 'branch_name' ),
+		'name'        => array( 'نام', 'نام شعبه', 'نام باجه', 'عنوان', 'نام نمایندگی', 'عنوان نمایندگی', 'نام نقطه', 'name', 'title', 'branch_name' ),
 		'province'    => array( 'استان', 'نام استان', 'province', 'state', 'ostan' ),
 		'city'        => array( 'شهر', 'شهرستان', 'نام شهر', 'city', 'shahr', 'town' ),
 		'address'     => array( 'آدرس', 'نشانی', 'آدرس کامل', 'محل', 'نشانی دقیق', 'address', 'full_address' ),

@@ -27,6 +27,11 @@ final class ImportJobs {
 		$row = self::get( $id );
 		if ( ! $row ) { return self::error( 'عملیات پیدا نشد.', 404 ); }
 		unset( $row['data']['path'], $row['data']['offset'] );
+		if ( 'preview' === $row['status'] && ! empty( $row['data']['provider_values'] ) ) {
+			$providers = ( new ProviderRepository() )->get_all( false );
+			foreach ( $row['data']['provider_values'] as &$value ) { $value['provider_id'] = ProviderResolver::resolve( $value['value'], $providers ); }
+			unset( $value );
+		}
 		return $row;
 	}
 	public static function recent(): array {
@@ -59,7 +64,7 @@ final class ImportJobs {
 		if ( ! $temp ) { return self::error( 'پوشه موقت قابل نوشتن نیست.', 500 ); }
 		@chmod( $temp, 0600 );
 		$handle = fopen( $temp, 'wb' );
-		$headers = null; $mapping = array(); $source_index = null; $tipax_sources = 0; $preview = array(); $total = 0; $bytes = 0; $started = microtime( true );
+		$headers = null; $mapping = array(); $source_index = null; $provider_index = null; $provider_values = array(); $tipax_sources = 0; $preview = array(); $total = 0; $bytes = 0; $started = microtime( true );
 		try {
 			foreach ( TableReader::rows( $path, $type ) as $row ) {
 				if ( microtime( true ) - $started > 15 ) { throw new \RuntimeException( 'آماده‌سازی بیش از حد طول کشید؛ فایل را به چند CSV کوچک‌تر تقسیم کنید.' ); }
@@ -70,12 +75,22 @@ final class ImportJobs {
 					$mapping = ( new ColumnMapper() )->auto_detect_headers( $headers );
 					$source_header = array_search( 'source', $mapping, true );
 					if ( false !== $source_header ) { $source_index = array_search( $source_header, $headers, true ); }
+					$provider_header = array_search( 'provider', $mapping, true );
+					if ( false !== $provider_header ) { $provider_index = array_search( $provider_header, $headers, true ); }
 					continue;
 				}
 				$total++;
 				if ( $total > 100000 ) { throw new \RuntimeException( 'هر فایل حداکثر ۱۰۰٬۰۰۰ ردیف دارد؛ فایل را تقسیم کنید.' ); }
 				// Excel omits trailing empty cells; CSV column mismatches are reported per row.
 				if ( 'xlsx' === $type && count( $row ) < count( $headers ) ) { $row = array_pad( $row, count( $headers ), '' ); }
+				if ( null !== $provider_index ) {
+					$value = trim( (string) ( $row[$provider_index] ?? '' ) ); $key = 'value:' . $value;
+					if ( ! isset( $provider_values[$key] ) ) {
+						if ( count( $provider_values ) >= 1000 ) { throw new \RuntimeException( 'بیش از ۱۰۰۰ نام متفاوت ارائه‌دهنده در فایل است؛ ستون ارائه‌دهنده را بررسی کنید.' ); }
+						$provider_values[$key] = array( 'value' => $value, 'total' => 0 );
+					}
+					$provider_values[$key]['total']++;
+				}
 				if ( null !== $source_index ) {
 					$host = strtolower( (string) wp_parse_url( (string) ( $row[$source_index] ?? '' ), PHP_URL_HOST ) );
 					if ( in_array( $host, array( 'tipaxco.com', 'www.tipaxco.com' ), true ) ) { $tipax_sources++; }
@@ -90,6 +105,7 @@ final class ImportJobs {
 			if ( ! $headers || ! $total ) { throw new \RuntimeException( 'فایل فاقد ردیف داده است.' ); }
 			fclose( $handle ); $handle = null;
 			$data = array( 'path' => $temp, 'headers' => $headers, 'preview' => $preview, 'mapping' => $mapping, 'total' => $total, 'processed' => 0, 'inserted' => 0, 'updated' => 0, 'failed' => 0, 'skipped' => 0, 'warnings' => 0, 'issues' => array(), 'offset' => 0 );
+			if ( null !== $provider_index ) { $data['provider_values'] = array_values( $provider_values ); }
 			if ( $tipax_sources === $total ) { $data['provider_hint'] = 'tipax'; }
 			global $wpdb;
 			$now = current_time( 'mysql', true );
@@ -125,10 +141,23 @@ final class ImportJobs {
 					$used[] = $field;
 				}
 			}
-			if ( array_diff( array( 'name', 'address' ), $used ) ) { return self::error( 'ستون‌های نام و نشانی را مشخص کنید. استان باید در فایل یا تطبیق معتبر منبع مشخص باشد.' ); }
+			$missing = array_diff( array( 'name', 'address' ), $used );
+			if ( $missing ) {
+				$labels = array( 'name' => 'نام شعبه (نام شعبه یا عنوان نمایندگی)', 'address' => 'نشانی (آدرس یا نشانی)' );
+				return self::error( 'ستون شناسایی‌نشده: ' . implode( '، ', array_intersect_key( $labels, array_flip( $missing ) ) ) . '؛ عنوان ستون فایل را اصلاح و دوباره بارگذاری کنید.' );
+			}
 			if ( ! in_array( $options['duplicate_action'] ?? '', array( 'skip', 'update' ), true ) ) { return self::error( 'روش برخورد با تکرار را انتخاب کنید.' ); }
 			$per_row_provider = in_array( 'provider', $used, true );
 			$provider = $per_row_provider ? 0 : absint( $options['provider_id'] ?? 0 );
+			$provider_mapping = $options['provider_mapping'] ?? array();
+			if ( ! is_array( $provider_mapping ) ) { return self::error( 'تطبیق ارائه‌دهندگان نامعتبر است.' ); }
+			if ( $per_row_provider && $provider_mapping ) {
+				$providers = ( new ProviderRepository() )->get_all( false );
+				$values = array_column( $job['data']['provider_values'] ?? array(), 'value' );
+				foreach ( $provider_mapping as $value => $chosen ) {
+					if ( '' === trim( (string) $value ) || ! in_array( (string) $value, $values, true ) || ! is_scalar( $chosen ) || ! preg_match( '/^[1-9][0-9]*$/D', (string) $chosen ) || ! ProviderResolver::resolve( (string) $value, $providers, array( $value => $chosen ) ) ) { return self::error( 'برای «' . (string) $value . '» یک ارائه‌دهندهٔ ثبت‌شده و مطابق با فایل انتخاب کنید.' ); }
+				}
+			}
 			if ( ! $per_row_provider ) {
 				$provider_record = ( new ProviderRepository() )->get_by_id( $provider );
 				if ( ! $provider_record ) { return self::error( 'ارائه‌دهنده معتبر انتخاب کنید.' ); }
@@ -137,6 +166,7 @@ final class ImportJobs {
 			$job['data']['mapping'] = $mapping;
 			$job['data']['provider_id'] = $provider;
 			$job['data']['provider_mode'] = $per_row_provider ? 'column' : 'selected';
+			$job['data']['provider_mapping'] = $per_row_provider ? $provider_mapping : array();
 			$job['data']['duplicate_action'] = $options['duplicate_action'];
 			$job['status'] = 'running';
 			self::save( $job );
@@ -171,10 +201,11 @@ final class ImportJobs {
 						$outcome = array( 'result' => 'failed', 'messages' => array( 'تعداد ستون‌های ردیف با سربرگ برابر نیست.' ) );
 					} else {
 						$raw = $mapper->map_row( array_combine( $job['data']['headers'], $entry['values'] ) );
-						$provider = 'column' === ( $job['data']['provider_mode'] ?? 'selected' ) ? self::resolve_provider( (string) ( $raw['provider'] ?? '' ), $providers ) : (int) $job['data']['provider_id'];
+						$provider_value = trim( (string) ( $raw['provider'] ?? '' ) );
+						$provider = 'column' === ( $job['data']['provider_mode'] ?? 'selected' ) ? ProviderResolver::resolve( $provider_value, $providers, $job['data']['provider_mapping'] ?? array() ) : (int) $job['data']['provider_id'];
 						unset( $raw['provider'] );
 						if ( ! $provider ) {
-							$outcome = array( 'result' => 'failed', 'messages' => array( 'ارائه‌دهندهٔ این ردیف خالی، ناشناخته یا مبهم است؛ نام یا شناسهٔ یک ارائه‌دهندهٔ ثبت‌شده را وارد کنید.' ) );
+							$outcome = array( 'result' => 'failed', 'messages' => array( 'ارائه‌دهندهٔ «' . ( '' === $provider_value ? '(خالی)' : $provider_value ) . '» ناشناخته یا مبهم است؛ یک ارائه‌دهندهٔ ثبت‌شده و مطابق با فایل انتخاب کنید.' ) );
 						} elseif ( ! isset( $provider_ids[$provider] ) ) {
 							throw new \RuntimeException( 'ارائه‌دهنده حذف شده است؛ عملیات را لغو کنید.' );
 						} else {
@@ -199,20 +230,6 @@ final class ImportJobs {
 			if ( 'completed' === $job['status'] ) { \Tapin\ServicePointLocator\Service\OperationalLog::record( 'import_completed', array_merge( $job['data'], array( 'job_id' => $id ) ) ); wp_delete_file( $job['data']['path'] ); }
 			return self::get_public( $id );
 		} );
-	}
-	/** Resolve an explicit spreadsheet label without guessing between providers. */
-	private static function resolve_provider( string $value, array $providers ): int {
-		$value = \Tapin\ServicePointLocator\Normalization\DataNormalizer::to_latin_digits( \Tapin\ServicePointLocator\Normalization\DataNormalizer::strtolower( \Tapin\ServicePointLocator\Normalization\DataNormalizer::normalize_persian_text( $value ) ?? '' ) );
-		if ( '' === $value ) { return 0; }
-		$matches = array();
-		foreach ( $providers as $provider ) {
-			$name = \Tapin\ServicePointLocator\Normalization\DataNormalizer::strtolower( \Tapin\ServicePointLocator\Normalization\DataNormalizer::normalize_persian_text( $provider['name'] ) ?? '' );
-			if ( $value === $name || $value === $provider['slug'] || $value === (string) $provider['id'] ) { $matches[] = (int) $provider['id']; }
-		}
-		if ( ! $matches && 'پست' === $value ) {
-			foreach ( $providers as $provider ) { if ( 'post' === $provider['slug'] ) { $matches[] = (int) $provider['id']; } }
-		}
-		return 1 === count( $matches ) ? $matches[0] : 0;
 	}
 	public static function cancel( int $id ) {
 		return self::locked( $id, static function( $job ) use ( $id ) {
