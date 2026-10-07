@@ -1,12 +1,14 @@
 <div align="center">
 
-![Tapin — connect every branch](docs/images/tapin-banner.svg)
+![Tapin — Connect every branch](docs/images/tapin-banner.svg)
 
-# Tapin Service Point Locator
+# سامانهٔ مدیریت و مکان‌یابی نقاط خدماتی تاپین
 
-**From a branch spreadsheet to a searchable service network.**
+**Tapin Service Point Locator**
 
-A Persian-first WordPress plugin for shipping providers, branch operations and public discovery.
+از فایل اطلاعات شعب تا یک شبکهٔ خدماتی قابل جست‌وجو روی نقشه.
+
+**پروژهٔ واقعی توسعه‌یافته برای شرکت تاپین — مستقر روی WordPress**
 
 ![Version](https://img.shields.io/badge/version-1.4.7-8b5cf6?style=flat-square)
 ![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-21759b?style=flat-square&logo=wordpress)
@@ -14,193 +16,332 @@ A Persian-first WordPress plugin for shipping providers, branch operations and p
 ![Persian RTL](https://img.shields.io/badge/Persian-RTL-10b981?style=flat-square)
 [![License](https://img.shields.io/badge/license-GPL--2.0--or--later-f4bc53?style=flat-square)](LICENSE)
 
-[See the interface](#see-the-interface) · [Features](#built-for-branch-operations) · [Get started](#get-started) · [API](#rest-api) · [Development](#development)
+[مشاهدهٔ سایت](https://iot-core.ir/wordpress_b/?page_id=22) · [پنل مدیریت](https://iot-core.ir/wordpress_b/wp-admin/admin.php?page=tapin-locator) · [ویدیوی دمو](docs/media/public-demo.webm)
+
+**فارسی** · [English](README.en.md)
 
 </div>
 
-Tapin brings provider management, CSV/XLSX imports, location enrichment and a public branch finder into one WordPress plugin. Operators work in a dark, Persian RTL dashboard; visitors explore the same published records through a shortcode-powered map and directory.
+**راهنمای مطالعه:** [معرفی](#overview) · [نسخهٔ آنلاین](#live) · [دمو](#demo) · [امکانات](#features) · [معماری](#architecture) · [نصب](#installation) · [ورود داده](#data-workflow) · [API](#api) · [توسعه](#development)
 
-**An incomplete location should not mean a missing branch.** Address-only records remain searchable and exportable. Only valid locations become map markers—no invented coordinates or city-center fallbacks.
+<a id="overview"></a>
 
-## See the interface
+## معرفی پروژه
 
-### One view of the network
+این سامانه برای شرکت **تاپین** ساخته شده تا مدیریت اطلاعات نقاط خدماتی و پیدا کردن شعب ارائه‌دهندگان خدمات پستی در یک بستر مشترک انجام شود. مدیران، اطلاعات شعب را در پنل اختصاصی ثبت، اصلاح، وارد و صادر می‌کنند؛ کاربران، شعب منتشرشده را در فهرست و نقشه جست‌وجو می‌کنند و به نشانی و اطلاعات تماس آن‌ها دسترسی دارند.
 
-![Persian RTL dashboard with coordinate coverage, provider distribution and an Iran province map](docs/media/dashboard.png)
+پروژه به‌صورت یک افزونهٔ WordPress پیاده‌سازی شده و دارای **پنل مدیریت فارسی، نقشهٔ تعاملی ایران، فهرست عمومی شعب، ورود CSV/XLSX، خروجی Excel و مکان‌یابی اختیاری نشانی‌ها** است. رابط راست‌به‌چپ، فونت فارسی و حالت روشن و تیره برای استفادهٔ روزمره در نظر گرفته شده‌اند.
 
-Filtered totals, coordinate coverage and provider distribution sit beside the operational map. Select a province to focus the map and narrow the directory.
+اصل مهم طراحی داده‌ها: **شعبهٔ بدون مختصات همچنان در فهرست قابل جست‌وجو است.** نشانگر نقشه فقط برای موقعیت معتبر نمایش داده می‌شود؛ مختصات حدسی یا مرکز شهر جایگزین موقعیت شعبه نمی‌شود.
 
-[Watch the 15-second walkthrough →](docs/media/demo.webm) · [View the province-filter screenshot](docs/media/province-filter.png)
+<a id="live"></a>
 
-The walkthrough follows **dashboard → Tehran filter → service points → file management**. It is a real screen recording supplied as WebM; the screenshots provide GitHub-compatible previews without relying on inline video playback.
+## نسخهٔ آنلاین
+
+| بخش | آدرس | دسترسی |
+| :--- | :--- | :--- |
+| پنل کاربران و مکان‌یاب شعب | [مشاهدهٔ سامانهٔ آنلاین](https://iot-core.ir/wordpress_b/?page_id=22) | عمومی؛ بدون نیاز به حساب کاربری |
+| پنل مدیریت | [ورود به مدیریت تاپین](https://iot-core.ir/wordpress_b/wp-admin/admin.php?page=tapin-locator) | ورود به WordPress با مجوز `manage_options` |
+
+نسخهٔ عمومی در **۷ اکتبر ۲۰۲۶** از آدرس بالا باز و دموی آن ضبط شده است. پنل مدیریت از احراز هویت و مجوزهای WordPress استفاده می‌کند.
+
+<a id="demo"></a>
+
+## ویدیوی دمو
+
+[![برای مشاهدهٔ ویدیوی سایت آنلاین کلیک کنید](docs/media/live-public-locator.png)](docs/media/public-demo.webm)
+
+**[▶ مشاهدهٔ ویدیوی نسخهٔ آنلاین](docs/media/public-demo.webm)** · **[▶ مشاهدهٔ دموی پنل مدیریت](docs/media/demo.webm)**
+
+| ویدیو | آنچه نمایش می‌دهد | محیط ضبط |
+| :--- | :--- | :--- |
+| [دموی سایت آنلاین؛ ۴۴ ثانیه](docs/media/public-demo.webm) | نمای ایران ← انتخاب تهران ← فیلتر تیپاکس ← اطلاعات شعبه ← نقاط بدون مختصات ← بازنشانی فیلترها | سایت عمومی دیپلوی‌شده |
+| [دموی مدیریت](docs/media/demo.webm) | داشبورد ← فیلتر تهران ← مدیریت نقاط خدماتی ← مدیریت فایل‌ها | نصب محلی مجزا؛ ضبط ۱۵ ثانیه‌ای |
+
+ویدیوها ضبط واقعی رابط برنامه و در قالب **WebM** هستند. لینک ویدیو را باز کنید؛ اگر پیش‌نمایش GitHub در دسترس نبود، فایل را از **View raw / Download** در مرورگر یا پخش‌کنندهٔ سازگار باز کنید. [جزئیات و منشأ رسانه‌ها](docs/media/README.md)
+
+## تصاویر محیط سامانه
+
+### داشبورد مدیریت
+
+![داشبورد فارسی تاپین؛ آمار شبکه، پوشش مختصات و توزیع ارائه‌دهندگان](docs/media/dashboard.png)
+
+داشبورد، تعداد رکوردها، وضعیت مختصات و سهم ارائه‌دهندگان را کنار نقشه نشان می‌دهد. فیلترها امکان تمرکز روی استان، شهر و ارائه‌دهنده را فراهم می‌کنند.
 
 <details>
-<summary><strong>Explore the service-point table, file manager and public locator</strong></summary>
+<summary><strong>مشاهدهٔ جدول شعب، ورود فایل و جزئیات نسخهٔ آنلاین</strong></summary>
 
-### Manage branches without leaving the dashboard
+### مدیریت نقاط خدماتی
 
-![Service-point table with shared filters, location status, actions and Excel export](docs/media/service-points.png)
+![جدول نقاط خدماتی، وضعیت موقعیت، فیلترها و خروجی Excel](docs/media/service-points.png)
 
-Search and filter the table, inspect branch details, edit records or export every matching result—not just the current page.
+### ورود داده و مدیریت فایل‌ها
 
-### Bring existing spreadsheets into the workflow
+![فرایند بارگذاری و ورود فایل CSV و XLSX](docs/media/file-management.png)
 
-![CSV and XLSX upload screen with a three-step import flow and file limits](docs/media/file-management.png)
+### فیلتر استان در سایت آنلاین
 
-Upload, preview and map columns before processing. The file manager also houses import outcomes, resumable jobs and recent export activity; this capture shows the upload screen with empty import history.
+![فیلتر تهران در نسخهٔ دیپلوی‌شده](docs/media/live-province-filter.png)
 
-### Publish a visitor-facing branch finder
+### اطلاعات شعبه در سایت آنلاین
 
-![Public shortcode showing provider and province filters, address-only postal branches and clustered map markers](docs/media/public-locator.png)
-
-Visitors can browse address cards, use telephone links and open branch details, even when a branch has no coordinates.
+![جزئیات شعبه و اطلاعات تماس در سایت عمومی](docs/media/live-branch-details.png)
 
 </details>
 
-Screenshots and video were captured from the running application at source commit `0b898e4`, using the existing local reference dataset. Counts describe that dataset, **not nationwide coverage**. WordPress account controls and local browser chrome are excluded. The hero banner is a concept illustration, not a screenshot. [Media notes](docs/media/README.md)
+تصاویر مدیریتی از نصب محلی و تصاویر با پیشوند `live-` از سایت آنلاین تهیه شده‌اند. آمار هر تصویر مربوط به داده‌های همان محیط و زمان ضبط است. بنر ابتدای صفحه، تصویر مفهومی پروژه است. [اطلاعات رسانه‌ها](docs/media/README.md)
 
-## Built for branch operations
+<a id="features"></a>
 
-| Capability | Implemented behavior |
+## امکانات
+
+| حوزه | قابلیت‌های پیاده‌سازی‌شده |
 | :--- | :--- |
-| **Persian RTL dashboard** | Filter-aware totals, coordinate coverage, Post/Tipax/Other distribution, foldable filters and independently scrolling desktop content. |
-| **Branch management** | Create, view, edit and delete records; paginate results; filter by provider, province, city, active status, coordinates and data-quality issues. |
-| **Provider registry** | Manage names, slugs, logos, colors and active status. Providers with linked branches cannot be deleted. |
-| **Map & directory** | Leaflet province selection, viewport markers, nearby-marker grouping, branch details and a collapsible admin directory with synchronized pagination. |
-| **Search** | Match branch names, addresses, codes, phone fields, provinces, cities and provider names through shared repository queries. |
-| **CSV/XLSX import** | Private staging, Persian/English column mapping, duplicate policies, resumable batches and downloadable JSON diagnostics. |
-| **Filtered XLSX export** | Export all applied filtered results, including address-only records, to an RTL worksheet with text-safe phones and postal codes. |
-| **History** | Review import counters and resume interrupted jobs; inspect recent export success/failure events and filter context. |
-| **Optional geocoding** | Queue eligible unresolved addresses for server-side Neshan enrichment; preserve valid coordinates and flag ambiguous results for review. |
+| **پنل مدیریت** | داشبورد فارسی RTL، آمار وابسته به فیلتر، وضعیت پوشش مختصات، توزیع ارائه‌دهندگان و نقشه |
+| **مدیریت شعب** | ثبت، مشاهده، ویرایش، حذف، صفحه‌بندی و فیلتر بر اساس ارائه‌دهنده، استان، شهر، فعالیت، مختصات و کیفیت داده |
+| **مدیریت ارائه‌دهندگان** | نام، Slug، لوگو، رنگ و وضعیت فعالیت؛ جلوگیری از حذف ارائه‌دهندهٔ دارای شعبه |
+| **مکان‌یاب عمومی** | نقشهٔ تعاملی ایران، فیلتر استان/شهر/ارائه‌دهنده، جزئیات شعب، لینک تماس و مسیریابی با نشان، بلد و Google Maps برای موقعیت‌های معتبر |
+| **جست‌وجو** | نام شعبه، نشانی، کد، شماره تماس، استان، شهر و نام ارائه‌دهنده |
+| **نمایش روی نقشه** | دریافت نقاط محدودهٔ قابل مشاهده، تجمیع نشانگرهای نزدیک و نمایش هویت ارائه‌دهندگان |
+| **ورود CSV/XLSX** | پیش‌نمایش، نگاشت ستون‌های فارسی و انگلیسی، اعتبارسنجی، تشخیص تکرار و پردازش دسته‌ای قابل ادامه |
+| **ورود چند ارائه‌دهنده** | تعیین ارائه‌دهندهٔ هر ردیف با ستون `provider`؛ ورود فایل مشترک چند ارائه‌دهنده |
+| **خروجی Excel** | همهٔ نتایج منطبق با فیلتر، Worksheet راست‌به‌چپ، عنوان ثابت و حفظ صفر ابتدای کدها و تلفن‌ها |
+| **تاریخچهٔ عملیات** | گزارش ورود، شمارندهٔ خطا و هشدار، ادامهٔ پردازش، گزارش JSON و رویدادهای تولید خروجی |
+| **کیفیت اطلاعات** | یکسان‌سازی نویسه‌ها و ارقام فارسی/عربی، بررسی تماس و کد پستی، اعتبارسنجی مختصات و موارد نیازمند بررسی |
+| **تکمیل موقعیت** | مکان‌یابی اختیاری Neshan در سمت سرور، صف WP-Cron، تلاش مجدد و حفاظت از مختصات معتبر موجود |
+| **رابط کاربری** | فونت Vazirmatn، حالت روشن/تیره، رابط واکنش‌گرا و کنترل‌های قابل استفاده با صفحه‌کلید |
 
-Administration requires the WordPress `manage_options` capability. Public endpoints expose only active branches belonging to active providers and omit internal metadata and source evidence. The admin operational view can include inactive records.
+## گردش کار
 
-## Get started
+**مدیر سامانه:** تعریف ارائه‌دهنده ← ثبت دستی یا بارگذاری فایل ← نگاشت و بررسی ستون‌ها ← پردازش و مرور نتایج ← اصلاح اطلاعات ← انتشار شعب فعال.
 
-### Prerequisites
+**کاربر عمومی:** انتخاب ارائه‌دهنده، استان یا شهر ← جست‌وجوی شعبه ← مشاهدهٔ فهرست یا نقشه ← باز کردن اطلاعات شعبه ← استفاده از نشانی و شماره تماس.
 
-| Component | Requirement |
+فهرست عمومی فقط **شعب فعالِ ارائه‌دهندگان فعال** را نشان می‌دهد. رکوردهای فاقد مختصات از فهرست حذف نمی‌شوند. پنل مدیریتی امکان بررسی رکوردهای غیرفعال را هم دارد.
+
+<a id="architecture"></a>
+
+## فناوری‌ها و معماری
+
+| لایه | فناوری و مسئولیت |
 | :--- | :--- |
-| WordPress / PHP | WordPress **6.0+**, PHP **7.4+**, JavaScript enabled in the browser |
-| Database | WordPress-compatible MySQL/MariaDB with InnoDB transactions and named locks; exports use a consistent read snapshot |
-| XLSX support | PHP `ZipArchive`; imports additionally need `XMLReader` and `SimpleXML` |
-| Temporary storage | Writable PHP temporary directory **outside the WordPress document root** |
-| Development only | Node.js **22.13+** for the locked development dependencies; PowerShell for ZIP packaging |
+| بستر اجرا | WordPress؛ چرخهٔ افزونه، مجوزها، Shortcode و WP-Cron |
+| بک‌اند | PHP؛ سرویس‌ها، Repository، اعتبارسنجی و REST API |
+| ذخیره‌سازی | MySQL/MariaDB؛ جداول اختصاصی با پیشوند سایت و تراکنش‌های InnoDB |
+| رابط کاربری | JavaScript بدون فریم‌ورک، CSS و رابط فارسی RTL |
+| نقشه | Leaflet **1.9.4**، هندسهٔ استان‌های ایران و تصاویر زمینهٔ OpenStreetMap |
+| فونت | Vazirmatn **33.0.3**؛ فایل‌های محلی |
+| Excel | خواندن XLSX و تولید OOXML در PHP؛ بدون سرویس پردازش فایل خارجی |
+| آزمون مرورگر | Playwright **1.55.1**؛ وابستگی محیط توسعه |
 
-The plugin header defines compatibility targets, not a claim that every minimum-version combination has been exercised. See the [validation scope](docs/PHASE3-VALIDATION.md).
+پنل مدیریت و مکان‌یاب عمومی از یک لایهٔ ذخیره‌سازی استفاده می‌کنند. داده‌ها از REST API خوانده می‌شوند و قواعد انتشار عمومی در بک‌اند اعمال می‌شوند. ورود فایل، ذخیرهٔ رکورد و نقطهٔ ادامه را در تراکنش انجام می‌دهد. خروجی Excel از یک نمای سازگار پایگاه داده و در دسته‌های محدود تولید می‌شود.
 
-### Install and run
-
-From your WordPress installation's `wp-content/plugins` directory:
-
-```sh
-git clone https://github.com/void-fatima/tapin-service-point-locator.git tapin-service-point-locator
+```text
+tapin-service-point-locator/
+├── tapin-service-point-locator.php   ورودی افزونه و چرخهٔ فعال‌سازی
+├── uninstall.php                    سیاست حذف افزونه و نگهداری داده
+├── src/
+│   ├── UI/                          پنل، Shortcode و قالب عمومی
+│   ├── Http/                        مسیرهای REST و مجوزهای دسترسی
+│   ├── Repository/                  جست‌وجو و ذخیرهٔ داده
+│   ├── Database/                    مهاجرت ساختار و قفل نوشتن
+│   ├── Import/                      پیش‌نمایش، نگاشت و پردازش فایل
+│   ├── Export/                      تولید Workbook و دانلود
+│   ├── Geocoding/                   مکان‌یابی، اعتبارسنجی و صف
+│   ├── Normalization/               یکسان‌سازی متن و شماره‌ها
+│   ├── Validation/                  خطاها و هشدارهای رکورد
+│   └── Service/                     منطق عملیات، شواهد و رویدادها
+├── assets/                          رابط، فونت، لوگو و دادهٔ جغرافیایی
+├── scripts/                         بسته‌بندی، ابزارهای داده و ضبط دمو
+├── tests/                           آزمون‌های PHP، WordPress و مرورگر
+└── docs/                            راهنماها، منابع داده و رسانه‌ها
 ```
 
-Activate **Tapin Service Point Locator** in WordPress, then open **تاپین** in the admin menu. WordPress serves the application: there is no separate frontend server, npm production build or Composer installation. Leaflet, Vazirmatn, logos and geographic assets are bundled.
+نسخهٔ فعلی افزونه **1.4.7** و نسخهٔ ساختار پایگاه داده **9** است. نام جداول با پیشوند نصب WordPress ساخته می‌شود:
 
-Prefer an uploadable ZIP? Run this from the repository root on Windows:
+| جدول | کاربرد |
+| :--- | :--- |
+| `tapin_providers` | ارائه‌دهندگان |
+| `tapin_service_points` | اطلاعات شعب، تماس، مختصات، منبع و کیفیت داده |
+| `tapin_imports` | تاریخچه و وضعیت پردازش فایل‌ها |
+| `tapin_import_points` | ارتباط رکوردها با فایل و تغییرات ورود |
+| `tapin_geocoding_jobs` | صف و وضعیت مکان‌یابی |
+| `tapin_logs` | رویدادهای عملیاتی و خروجی‌ها |
+
+<a id="installation"></a>
+
+## نصب و راه‌اندازی
+
+### پیش‌نیازها
+
+| مورد | نیازمندی |
+| :--- | :--- |
+| WordPress / PHP | WordPress **6.0+** و PHP **7.4+** مطابق هدر افزونه |
+| پایگاه داده | MySQL/MariaDB سازگار؛ پشتیبانی از InnoDB و Named Lock |
+| ورود Excel | افزونه‌های PHP: `ZipArchive`، `XMLReader` و `SimpleXML` |
+| خروجی Excel | `ZipArchive` |
+| فایل موقت | پوشهٔ قابل نوشتن PHP، خارج از مسیر عمومی WordPress |
+| مرورگر | JavaScript فعال؛ اینترنت برای تصاویر زمینهٔ نقشه |
+| توسعه | Node.js **22.13+** برای وابستگی‌های قفل‌شده؛ PowerShell برای بسته‌بندی |
+
+حداقل نسخه‌ها، اهداف سازگاری اعلام‌شده در افزونه‌اند. محیط‌ها و دامنهٔ بررسی عملی در [گزارش اعتبارسنجی](docs/PHASE3-VALIDATION.md) ثبت شده‌اند.
+
+### نصب از ZIP
+
+در ریشهٔ مخزن اجرا کنید:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/build.ps1
 ```
 
-Upload `dist/tapin-service-point-locator-1.4.7.zip` through **Plugins → Add New → Upload Plugin**. The packaging script copies runtime files, checks required assets and rejects development/session/config files. It does not run the application test suites.
+خروجی در `dist/tapin-service-point-locator-1.4.7.zip` ساخته می‌شود. در WordPress از مسیر **افزونه‌ها ← افزودن افزونه ← بارگذاری افزونه** آن را نصب و فعال کنید؛ سپس وارد منوی **تاپین** شوید.
 
-### Add data, then publish
+### نصب از سورس
 
-1. Configure providers and add branches manually, or upload CSV/XLSX using the [CSV column template](assets/import-template.csv).
-2. Supply a branch name, province and address. City may remain blank with a warning; coordinates are optional but must be supplied as a pair. For imports, verified postal-source evidence can fill missing fields, including province.
-3. Review missing-coordinate and duplicate warnings. Choose **Skip** or **Update** deliberately before processing an import.
-4. Add a **Shortcode** block to a public WordPress page:
+در مسیر `wp-content/plugins` نصب WordPress:
+
+```sh
+git clone https://github.com/void-fatima/tapin-service-point-locator.git tapin-service-point-locator
+```
+
+افزونهٔ **Tapin Service Point Locator** را از پیشخوان فعال کنید. اجرای سایت به نصب npm یا Composer و سرور جداگانهٔ فرانت‌اند نیاز ندارد؛ کتابخانهٔ نقشه، فونت‌ها، لوگوها و هندسهٔ جغرافیایی همراه افزونه هستند.
+
+### فعال‌سازی پنل عمومی
+
+در یک برگهٔ WordPress، بلوک Shortcode بسازید:
 
 ```text
 [tapin_service_points]
 ```
 
-On a WordPress page, this shortcode uses a full-viewport locator shell without the theme's sidebar or content-width limits. Other pages and the admin panel retain their existing templates. Use `[tapin_service_points layout="embedded"]` to keep the locator inside the normal page theme. Both layouts follow the existing `tapin-color-scheme` preference; public data updates after locator actions, without a periodic refresh.
-
-Activation seeds default providers, not service points. To explicitly import the bundled postal/Tipax reference snapshots, review their [provenance and limitations](docs/DATA-SOURCES.md), then run `wp tapin import-reference` from the WordPress site if WP-CLI is available. These snapshots are not a continuously synchronized national directory.
-
-## Spreadsheet workflow
-
-**Upload → preview → map columns → process batches → review history**
-
-| Format | Supported behavior | Application limits |
-| :--- | :--- | :--- |
-| CSV import | UTF-8, optional BOM, comma/semicolon/tab separators, quoted newlines | 50 MiB |
-| XLSX import | First worksheet, shared or inline strings, values only | 10 MiB compressed / 32 MiB expanded |
-| XLSX export | All applied filtered rows, RTL layout, frozen/filterable header, wrapped addresses | 100,000 rows / 64 MiB worksheet XML |
-
-Imports accept up to **100,000 data rows and 64 columns**, subject to host limits. Legacy `.xls`, formulas and multi-sheet selection are unsupported. Keep phone numbers and postal codes as text in the source workbook; the exporter preserves leading zeros and writes formula-like text as text, not executable formulas.
-
-Imports are **browser-driven**, not unattended jobs. Closing the page pauses processing; history lets you resume while staging remains available. A `provider` or `ارائه‌دهنده` column assigns each row to a registered provider by its name, slug or numeric ID, so one file can mix providers. An empty, unknown or ambiguous value fails that row. Files without this column still use the provider dropdown; a workbook whose source links all point to `tipaxco.com` preselects Tipax and rejects a mismatched provider. **Skip** leaves potential duplicates unchanged. **Update** changes only an unambiguous exact branch-code match within the same provider. Completed rows survive cancellation. See [import limits and retention](docs/OPERATIONS.md#import-details-and-limits).
-
-Export history records generation outcomes, not proof that a browser saved the file. It retains recent events for three months; generated workbooks are not archived for re-download, and raw search text is not logged.
-
-## Configuration & privacy
-
-No `.env` file is required by the plugin. WordPress owns database and site configuration.
-
-| Setting / extension point | Purpose |
-| :--- | :--- |
-| `TAPIN_NESHAN_API_KEY` | Optional PHP process environment variable or private `wp-config.php` constant; the constant takes precedence. Enables server-side geocoding. |
-| `TAPIN_NESHAN_PLUS` | Optional PHP constant selecting the Plus endpoint; requires appropriate provider access. |
-| `tapin_geocoder` | Server-side filter for an adapter implementing `GeocoderInterface`. |
-| `tapin_tile_url`, `tapin_tile_attribution` | WordPress filters for replacing the public tile service and its attribution. |
-
-Without a Neshan key, address-only records remain usable and no Neshan requests are made. Configured enrichment uses WP-Cron, bounded retries and geographic validation; existing valid coordinates are preserved. Low-traffic sites may need a system-triggered WP-Cron schedule. [Geocoding configuration](docs/PHASE2.md)
-
-Uploaded spreadsheets are processed locally. Geocoding sends normalized location/address fields—not phone numbers or import metadata—to the configured provider. Default OpenStreetMap tile requests expose the visitor's IP/referrer to that service; custom logo URLs are also loaded by the browser. Keep credentials out of JavaScript, public tile URLs and version control. Bundled boundaries and the branch directory remain available if tiles fail.
-
-## Architecture & tech stack
-
-A WordPress plugin with a PHP service/repository layer, vanilla JavaScript UI and Leaflet **1.9.4**. WordPress REST routes connect the admin and public interfaces to the same stored records; WP-Cron handles geocoding and retention. Vazirmatn provides the Persian typography. Playwright is development-only.
+نمای پیش‌فرض در برگه، مکان‌یاب تمام‌صفحه است. برای قرار دادن آن در قالب معمول سایت:
 
 ```text
-tapin-service-point-locator/
-├── tapin-service-point-locator.php   Bootstrap and lifecycle hooks
-├── src/
-│   ├── UI/                          Admin shell, shortcode and asset loading
-│   ├── Http/                        REST routes and permissions
-│   ├── Repository/                  Shared queries and persistence
-│   ├── Database/                    Idempotent migrations and write locks
-│   ├── Import/                      Staging, mapping, duplicate checks and jobs
-│   ├── Export/                      Disk-backed OOXML and download responses
-│   ├── Geocoding/                   Provider adapter, validation and queue
-│   ├── Normalization/               Persian text, digits and contact fields
-│   ├── Validation/                  Record errors and non-blocking warnings
-│   └── Service/                     Saves, trusted evidence and event logs
-├── assets/                          UI code, libraries, brands and map data
-├── scripts/                         Packaging and explicit source-data tools
-├── tests/                           PHP, WordPress and browser suites
-└── docs/                            Operations, provenance, validation and media
+[tapin_service_points layout="embedded"]
 ```
 
-Schema version **8** uses six WordPress-prefixed tables: `tapin_providers`, `tapin_service_points`, `tapin_imports`, `tapin_import_points`, `tapin_geocoding_jobs` and `tapin_logs`. Imports commit records, point provenance and checkpoints transactionally; deleting an import removes points created by that file and restores unchanged updates. Exports read a consistent snapshot in bounded batches instead of collecting the entire dataset in browser memory. Upgrading corrects Post-labeled rows whose source URL identifies Tipax.
+ارائه‌دهندگان و شعب را در پنل ثبت یا وارد کنید. فعال‌سازی افزونه، ارائه‌دهندگان پیش‌فرض را ایجاد می‌کند؛ ورود اطلاعات شعب جداگانه انجام می‌شود.
+
+<a id="data-workflow"></a>
+
+## ورود و خروج داده
+
+### آماده‌سازی فایل
+
+از [قالب CSV](assets/import-template.csv) شروع کنید. نام شعبه، استان، نشانی و ارائه‌دهندهٔ معتبر ضروری‌اند. شهر می‌تواند با هشدار خالی بماند. مختصات اختیاری‌اند؛ عرض و طول جغرافیایی باید با هم وارد شوند.
+
+| ستون | توضیح |
+| :--- | :--- |
+| `provider` | نام، Slug یا شناسهٔ ارائه‌دهندهٔ ثبت‌شده؛ در فایل فاقد این ستون، انتخاب پنل استفاده می‌شود |
+| `code`, `name` | کد و نام شعبه |
+| `province`, `city`, `address` | استان، شهر و نشانی |
+| `phone`, `mobile_phone`, `landline_phone` | تماس عمومی، همراه و ثابت |
+| `postal_code` | کد پستی؛ در Excel با نوع متن نگهداری شود |
+| `latitude`, `longitude` | زوج مختصات جغرافیایی |
+| `status` | `active` یا `inactive` |
+| `source`, `metadata` | منبع و اطلاعات تکمیلی برای پردازش داخلی |
+
+نام‌های شناخته‌شدهٔ فارسی و انگلیسی ستون‌ها تشخیص داده می‌شوند و نگاشت پیش از پردازش قابل اصلاح است. ستون `provider` امکان ورود چند ارائه‌دهنده در یک فایل را می‌دهد؛ مقدار خالی، ناشناخته یا مبهم باعث خطای همان ردیف می‌شود.
+
+### مراحل پردازش
+
+1. فایل CSV یا XLSX را بارگذاری کنید.
+2. پیش‌نمایش و نگاشت ستون‌ها را بررسی کنید.
+3. سیاست برخورد با دادهٔ تکراری را انتخاب کنید.
+4. پردازش دسته‌ها را اجرا و خطاها و هشدارها را مرور کنید.
+5. در صورت وقفه، عملیات را از تاریخچه ادامه دهید؛ گزارش JSON برای بررسی جزئیات در دسترس است.
+
+**Skip** رکوردهای مشکوک به تکرار را بدون تغییر کنار می‌گذارد. **Update** فقط در صورت تطبیق دقیق و غیرمبهم کد شعبه در همان ارائه‌دهنده، رکورد موجود را تغییر می‌دهد. اشتراک تلفن به‌تنهایی باعث بازنویسی نمی‌شود.
+
+پردازش ورود فایل با درخواست‌های مرورگر انجام می‌شود؛ بستن صفحه آن را متوقف می‌کند. ادامهٔ عملیات تا زمانی ممکن است که فایل موقت باقی باشد. لغو عملیات، ردیف‌های ثبت‌شده را نگه می‌دارد. حذف ورود از تاریخچه، تغییرات مرتبط را با بررسی Snapshot و زنجیرهٔ فایل‌ها بازمی‌گرداند؛ رکوردی که بعداً تغییر کرده، در این مرحله حفظ می‌شود.
+
+در نسخهٔ فعلی، حذف آخرین ورود تکمیل‌شده یا لغوشده، رکوردهای بدون پیوند فایل را هم پاک می‌کند؛ این موارد می‌توانند شامل دادهٔ قدیمی یا ثبت دستی باشند. پیش از حذف تاریخچه، از پایگاه داده پشتیبان بگیرید. [مرجع رفتار حذف](src/Import/ImportJobs.php)
+
+### محدودیت‌ها و خروجی
+
+| فرمت | پشتیبانی | سقف برنامه |
+| :--- | :--- | :--- |
+| CSV | UTF-8، BOM اختیاری، ویرگول/نقطه‌ویرگول/Tab و متن چندخطی نقل‌قول‌شده | **50 MiB** |
+| XLSX | نخستین Worksheet، مقادیر، Shared String و Inline String | **10 MiB** فشرده / **32 MiB** بازشده |
+| خروجی XLSX | همهٔ ردیف‌های منطبق با فیلتر؛ شامل نقاط بدون مختصات | **100,000** ردیف / **64 MiB** XML صفحه |
+
+ورود تا **100,000 ردیف و 64 ستون** مجاز است؛ هاست و PHP ممکن است سقف کمتری اعمال کنند. فایل `.xls`، فرمول‌ها و انتخاب چند Worksheet پشتیبانی نمی‌شوند. تلفن، کد شعبه و کد پستی را به‌صورت متن نگهداری کنید.
+
+خروجی Excel به صفحهٔ فعلی جدول محدود نیست. متن شبیه فرمول به‌صورت متن نوشته می‌شود. تاریخچهٔ خروجی، نتیجهٔ تولید فایل را ثبت می‌کند؛ فایل برای دانلود مجدد آرشیو نمی‌شود. [جزئیات عملیاتی](docs/OPERATIONS.md)
+
+## تنظیمات نقشه و مکان‌یابی
+
+پیکربندی پایگاه داده به WordPress سپرده شده و افزونه به `.env` نیاز ندارد. برای مکان‌یابی اختیاری، کلید خصوصی Neshan را در `wp-config.php` قرار دهید:
+
+```php
+define( 'TAPIN_NESHAN_API_KEY', 'YOUR_PRIVATE_NESHAN_API_KEY' );
+```
+
+متغیر محیطی PHP با همین نام نیز پشتیبانی می‌شود؛ ثابت PHP اولویت دارد. بدون کلید، درخواست Neshan ارسال نمی‌شود و نقاط بدون مختصات همچنان قابل استفاده‌اند.
+
+| تنظیم / Hook | کاربرد |
+| :--- | :--- |
+| `TAPIN_NESHAN_API_KEY` | کلید خصوصی مکان‌یابی سمت سرور |
+| `TAPIN_NESHAN_PLUS` | انتخاب endpoint نوع Plus، در صورت دسترسی سرویس |
+| `tapin_geocoder` | جایگزینی آداپتر با پیاده‌سازی `GeocoderInterface` |
+| `tapin_tile_url`, `tapin_tile_attribution` | تغییر سرویس تصاویر زمینه و انتساب آن |
+
+مکان‌یابی از WP-Cron، تلاش مجدد محدود و اعتبارسنجی جغرافیایی استفاده می‌کند. مختصات معتبر موجود حفظ می‌شوند و نتیجهٔ مبهم برای بررسی باقی می‌ماند. سایت کم‌ترافیک می‌تواند اجرای WP-Cron را با زمان‌بند سرور تنظیم کند. [راهنمای مکان‌یابی](docs/PHASE2.md)
+
+<a id="api"></a>
 
 ## REST API
 
-Base path: `/wp-json/tapin/v1/` (or the site's WordPress REST URL). The [route implementation](src/Http/Api.php) is the authoritative reference.
+Namespace افزونه **`tapin/v1`** است. مسیر معمول `/wp-json/tapin/v1/` است؛ در نصب‌هایی با پیوند یکتای متفاوت، URL تولیدشده توسط `rest_url()` ملاک است.
 
-| Endpoint | Access | Purpose |
+### مسیرهای عمومی
+
+| متد | مسیر | کاربرد |
 | :--- | :--- | :--- |
-| `GET public/filters` | Public | Active providers and available province/city combinations |
-| `GET public/directory` | Public | Paginated branches, including address-only entries |
-| `GET public/points` / `public/points/{id}` | Public | Located-point list / public details for an active branch |
-| `GET/POST points`, `GET/POST/DELETE points/{id}` | Admin | Query, create, read, update or delete service points |
-| `GET/POST providers`, `DELETE providers/{id}` | Admin | Provider registry |
-| `GET/POST imports`, `GET imports/{id}` | Admin | Upload, history and job details; POST subroutes `start`, `step`, `cancel` manage jobs |
-| `POST exports/points`, `GET exports` | Admin | Binary XLSX download and recent export events |
-| `GET geocoding`, `POST geocoding/retry` | Admin | Queue status and explicit retry requests |
+| `GET` | `/public/filters` | ارائه‌دهندگان فعال و ترکیب استان/شهر |
+| `GET` | `/public/directory` | فهرست صفحه‌بندی‌شده؛ شامل شعب بدون مختصات |
+| `GET` | `/public/points` | نقاط دارای موقعیت برای نقشه |
+| `GET` | `/public/points/{id}` | جزئیات عمومی یک شعبهٔ فعال |
 
-List filters include `provider_id`, `province`, `city`, `search`, `page` and `per_page`; admin queries also support status, coordinate and issue filters. Public visibility rules cannot be overridden by query parameters. The admin UI uses WordPress cookie authentication with `X-WP-Nonce`; XLSX export explicitly verifies the nonce as well as `manage_options`.
+### مسیرهای مدیریت
 
-## Development
+| متد | مسیر | کاربرد |
+| :--- | :--- | :--- |
+| `GET` | `/dashboard`, `/locations` | خلاصهٔ داشبورد و فهرست موقعیت‌ها |
+| `GET`, `POST` | `/points` | جست‌وجو و ایجاد شعبه |
+| `GET`, `POST`, `DELETE` | `/points/{id}` | مشاهده، ویرایش و حذف شعبه |
+| `GET` | `/points/{id}/details` | جزئیات مدیریتی شعبه |
+| `DELETE` | `/points/reset` | حذف همهٔ نقاط خدماتی |
+| `GET`, `POST` | `/providers` | فهرست، ایجاد یا به‌روزرسانی ارائه‌دهنده |
+| `DELETE` | `/providers/{id}` | حذف ارائه‌دهندهٔ بدون شعبه |
+| `GET`, `POST` | `/imports` | تاریخچه و بارگذاری فایل |
+| `GET`, `DELETE` | `/imports/{id}` | وضعیت ورود یا حذف عملیات و اعمال قواعد بازگردانی آن |
+| `POST` | `/imports/{id}/start`, `/imports/{id}/step`, `/imports/{id}/cancel` | شروع، پردازش دستهٔ بعدی و لغو |
+| `POST` | `/exports/points` | تولید و دانلود XLSX |
+| `GET` | `/exports`, `/geocoding` | تاریخچهٔ خروجی و وضعیت صف مکان‌یابی |
+| `POST` | `/geocoding/retry` | تلاش مجدد مکان‌یابی |
 
-Use a **disposable development WordPress site**, not production. Install the plugin there first; PHP CLI must have the same required extensions as the web runtime. LocalWP users can use its Site Shell or pass the site's PHP configuration explicitly.
+فیلترهای مشترک شامل `provider_id`، `province`، `city`، `search`، `page` و `per_page` هستند. فهرست عمومی از `has_coordinates` نیز پشتیبانی می‌کند؛ مدیریت فیلترهای `status` و `issue` را هم دارد. درخواست نقشه می‌تواند حدود `north`، `south`، `east` و `west` را ارسال کند.
 
-Standalone logic checks and browser tooling setup:
+پنل از نشست WordPress و هدر `X-WP-Nonce` استفاده می‌کند. تمام مسیرهای مدیریت به `manage_options` نیاز دارند. قواعد انتشار عمومی با پارامترهای درخواست قابل دور زدن نیستند. [مرجع مسیرها در کد](src/Http/Api.php)
+
+## امنیت، حریم خصوصی و نگهداری
+
+- فایل‌های ورودی در فضای موقت خصوصی پردازش می‌شوند و برای تبدیل فایل به سرویس خارجی ارسال نمی‌شوند.
+- پاسخ عمومی، metadata داخلی و شواهد منبع را منتشر نمی‌کند.
+- مکان‌یابیِ فعال‌شده، موقعیت و نشانی نرمال‌شده را به سرویس می‌فرستد؛ تلفن و metadata فایل ارسال نمی‌شوند.
+- دریافت تصاویر OpenStreetMap، IP و Referrer مرورگر را به آن سرویس می‌رساند. لوگوهای سفارشی نیز در مرورگر بارگذاری می‌شوند.
+- فایل موقتِ عملیات تکمیل‌شده یا لغوشده فوراً پاک می‌شود؛ عملیات رهاشده پس از **۲۴ ساعت** از طریق Cron یا بارگذاری بعدی منقضی می‌شود.
+- رویدادهای عملیاتی پس از **سه ماه** پاک‌سازی می‌شوند. تاریخچهٔ ورود، سیاست نگهداری جداگانه دارد.
+- غیرفعال‌سازی و حذف معمول افزونه، داده‌های کسب‌وکار را حفظ می‌کند. حذف جداول و تنظیمات هنگام uninstall فقط با فعال‌سازی صریح `TAPIN_UNINSTALL_DROP_DATA` انجام می‌شود.
+
+پیش از ارتقا یا حذف داده، نسخهٔ پشتیبان پایگاه داده تهیه کنید. کلیدهای خصوصی را در پیکربندی سرور نگه دارید و انتساب سرویس نقشه را حفظ کنید. [راهنمای نگهداری](docs/OPERATIONS.md)
+
+<a id="development"></a>
+
+## توسعه و آزمون
+
+آزمون‌های یکپارچگی و مرورگر را روی **نصب توسعهٔ مجزا** اجرا کنید. ابزار نشست آزمون، دسترسی کوتاه‌مدت مدیریتی ایجاد می‌کند و ممکن است برگهٔ بررسی Shortcode بسازد.
 
 ```sh
 php tests/run-checks.php
@@ -208,7 +349,7 @@ npm ci
 npx playwright install chromium
 ```
 
-WordPress integration and browser-session example (PowerShell):
+نمونهٔ اجرای آزمون WordPress و رابط در PowerShell، با PHP و افزونه‌های موردنیاز در PATH:
 
 ```powershell
 $env:TAPIN_WP_ROOT = 'C:\path\to\development-wordpress'
@@ -225,27 +366,38 @@ try {
 }
 ```
 
-`npm run test:all` runs the six browser suites listed in [package.json](package.json); it is **not** every repository check. Phase 2/3 browser suites are invoked separately above, and the HTTP workbook check follows Phase 3's download. Further targeted PHP suites include `geocoding.php`, `geocoding-integration.php`, `phase1.php` and `phase3.php`. See the [operations guide](docs/OPERATIONS.md#development-and-verification) and [validation record](docs/PHASE3-VALIDATION.md) for scope and prerequisites.
+`npm run test:all` شش مجموعهٔ تعریف‌شده در [package.json](package.json) را اجرا می‌کند. آزمون‌های PHP تکمیلی در `tests/` قرار دارند. `tests/public-page.php` قالب عمومی را بدون پایگاه داده و با فایل‌های نصب WordPress بررسی می‌کند.
 
-The session-independent `admin-location-selectors.cjs`, `dialog-position.cjs`, and `provider-markers-actions.cjs` checks accept `TAPIN_TEST_THEME=dark` or `light`. `node tests/public-locator.cjs` checks public layout, saved/system themes, controls, and absence of periodic refreshes with network fixtures. With `TAPIN_WP_ROOT` pointing to installed WordPress files, `php tests/public-page.php` checks the real shortcode parser and page-template selection without database access; these checks do not replace verification against a running WordPress page.
+گزارش‌های [اعتبارسنجی اولیه](docs/VERIFICATION.md)، [فاز ۲](docs/PHASE2-VALIDATION.md) و [فاز ۳](docs/PHASE3-VALIDATION.md) محیط و نتایج همان مرحله را ثبت می‌کنند. ضبط دمو و به‌روزرسانی README به معنای اجرای دوبارهٔ همهٔ آزمون‌ها نیست.
 
-The session helper creates a short-lived local administrator session and may create a shortcode review page. Keep its file private and always run cleanup. Test screenshots and other local artifacts belong in ignored `artifacts/`.
+### ضبط مجدد دموی عمومی
 
-## Status & documentation
+پس از نصب وابستگی‌ها و Chromium:
 
-Current plugin version: **1.4.7**. Historical validation records document their own environments and limitations; they do not imply that tests were rerun for subsequent UI changes or this README update. The media here demonstrates the current interface, not a test result or production deployment.
+```sh
+node scripts/record-demo.cjs
+```
 
-| Guide | Contents |
+برای نصب دیگر، متغیر محیطی `TAPIN_DEMO_URL` را تنظیم کنید. اسکریپت با دسترسی ناشناس از کنترل‌های عمومی استفاده می‌کند و ویدیو و تصاویر را در `docs/media/` ذخیره می‌کند. ضبط، دادهٔ سایت را تغییر نمی‌دهد.
+
+## منابع داده و مستندات
+
+اطلاعات محیط آنلاین به داده‌های واردشده توسط مدیر سامانه وابسته است. منابع مرجع همراه مخزن، Snapshotهای منطقه‌ای و بررسی‌شده‌اند و خودکار همگام‌سازی نمی‌شوند. پس از مطالعهٔ منشأ داده، ورود صریح آن با `wp tapin import-reference` و WP-CLI امکان‌پذیر است.
+
+هندسهٔ استان‌ها برای نمایش نقشه است و مرجع رسمی آخرین تغییرات تقسیمات کشوری نیست. هنگام اختلال تصاویر زمینه، هندسهٔ محلی و فهرست شعب قابل استفاده می‌مانند. پشتیبانی از حداقل نسخه‌ها و Multisite را مطابق دامنهٔ گزارش‌های آزمون ارزیابی کنید.
+
+| مستند | موضوع |
 | :--- | :--- |
-| [Operations & development](docs/OPERATIONS.md) | Import limits, setup, duplicate rules and retention |
-| [Geocoding](docs/PHASE2.md) | Neshan configuration, queue behavior and coordinate protection |
-| [Directory & Excel export](docs/PHASE3.md) | Filtered workbooks, accessible directory and history |
-| [Data sources](docs/DATA-SOURCES.md) · [Source catalog](docs/TAPIN-SOURCE-CATALOG.md) | Snapshot provenance, reviewed sources and coverage limits |
-| [Initial validation](docs/VERIFICATION.md) · [Phase 2](docs/PHASE2-VALIDATION.md) · [Phase 3](docs/PHASE3-VALIDATION.md) | Recorded checks and untested boundaries |
-| [Third-party notices](docs/THIRD-PARTY.md) | Libraries, fonts, provider marks and map attribution |
+| [Operations](docs/OPERATIONS.md) | نصب توسعه، محدودیت فایل، ادامهٔ پردازش و نگهداری |
+| [Geocoding](docs/PHASE2.md) | تنظیم Neshan، صف و حفاظت از مختصات |
+| [Directory & Export](docs/PHASE3.md) | فهرست شعب، خروجی Excel و تاریخچه |
+| [Data Sources](docs/DATA-SOURCES.md) | منشأ و محدودیت دادهٔ مرجع |
+| [Source Catalog](docs/TAPIN-SOURCE-CATALOG.md) | منابع بررسی‌شده و اسناد استان‌ها |
+| [Media](docs/media/README.md) | ویدیوها، تصاویر و شرایط ضبط |
+| [Third-party Notices](docs/THIRD-PARTY.md) | مجوز کتابخانه‌ها، فونت، نقشه و علائم تجاری |
 
-## Data retention & license
+## توسعه‌دهنده و مجوز
 
-Normal deactivation and uninstall **preserve business data**. Defining `TAPIN_UNINSTALL_DROP_DATA` as `true` in private WordPress configuration enables irreversible removal of plugin tables/options during uninstall. Back up the database before destructive operations.
+توسعه توسط **[void-fatima](https://github.com/void-fatima)** برای **شرکت تاپین** انجام شده است. این مخزن، کد و مستندات پروژهٔ واقعی را در کنار نسخهٔ آنلاین و دموی آن ارائه می‌کند.
 
-Released under **GPL-2.0-or-later**. See [LICENSE](LICENSE). Bundled libraries, geography and brand assets retain their respective [licenses and attribution](docs/THIRD-PARTY.md); provider trademarks remain with their owners.
+کد افزونه تحت مجوز **GPL-2.0-or-later** منتشر شده است؛ متن کامل در [LICENSE](LICENSE) قرار دارد. کتابخانه‌ها، فونت، داده‌های جغرافیایی و لوگوهای همراه، مجوزها و انتساب‌های خود را دارند. حقوق علائم تجاری تاپین، پست و تیپاکس متعلق به صاحبان آن‌هاست.
