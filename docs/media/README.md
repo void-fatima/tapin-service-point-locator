@@ -61,5 +61,7 @@ playback. Open or download the WebM in a compatible browser/player.
 
 Map and provider attribution remains visible in the captures. See
 [third-party notices](../THIRD-PARTY.md). The separately reused
-[`tapin-banner.svg`](../images/tapin-banner.svg) is a decorative concept banner,
-not a live application view.
+[`tapin-banner.png`](../images/tapin-banner.png) is a generated decorative
+illustration of a connected branch network, not a live application view or
+coverage map. Its design uses the official Tapin logo as the brand reference.
+See [banner source and generation notes](../images/README.md).

@@ -1,6 +1,6 @@
 <div align="center">
 
-![Tapin — connect every branch](docs/images/tapin-banner.svg)
+![Tapin Service Point Locator — Connect every branch](docs/images/tapin-banner.png)
 
 # Tapin Service Point Locator
 

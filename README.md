@@ -1,6 +1,6 @@
 <div align="center">
 
-![Tapin — Connect every branch](docs/images/tapin-banner.svg)
+![Tapin Service Point Locator — Connect every branch](docs/images/tapin-banner.png)
 
 # سامانهٔ مدیریت و مکان‌یابی نقاط خدماتی تاپین
 
