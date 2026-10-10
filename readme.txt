@@ -20,7 +20,7 @@ The accessible admin directory has shared filters and pagination. Export all cur
 == Installation ==
 1. Upload the plugin ZIP and activate it.
 2. Open the Tapin admin menu.
-3. Add points or import a CSV/XLSX file.
+3. Add points or upload an XLSX workbook; standard columns are detected automatically.
 4. Add [tapin_service_points] to a page.
 
 == External services ==
@@ -29,7 +29,7 @@ Background map tiles are requested by the visitor's browser from https://tile.op
 
 == Limits ==
 XLSX export: up to 100,000 filtered rows and 64 MiB worksheet XML, with a bounded generation deadline. Requires ZipArchive, InnoDB and writable private PHP temporary storage. Narrow filters when host limits are reached. Postal codes and phones are text; unresolved coordinates remain blank. Export history retains recent events for three months, without archiving files or raw search text.
-CSV: UTF-8, 50 MiB. XLSX: first sheet, values only, 10 MiB compressed / 32 MiB expanded. 100,000 rows per file. XLS is not supported; convert to XLSX or CSV. Imports require InnoDB and named locks. XLSX requires PHP zip, XMLReader and SimpleXML. Closing the page pauses an import; resume it from history. See README.md for full limits.
+Admin and REST uploads accept XLSX only: first sheet, values only, 10 MiB compressed / 32 MiB expanded. The internal staging engine and source-data tools also support UTF-8 CSV up to 50 MiB. The row limit is 100,000. XLS is not supported; save as XLSX for web upload. Imports require InnoDB and named locks. XLSX requires PHP zip, XMLReader and SimpleXML. Closing the page pauses an import; resume it from history. See README.md for full limits.
 
 == Changelog ==
 = 1.4.7 =

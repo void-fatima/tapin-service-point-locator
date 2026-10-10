@@ -9,7 +9,7 @@ New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 foreach ($directory in @('src', 'assets', 'docs')) {
     Copy-Item -LiteralPath (Join-Path $repoRoot $directory) -Destination (Join-Path $pluginRoot $directory) -Recurse
 }
-foreach ($file in @('tapin-service-point-locator.php', 'uninstall.php', 'README.md', 'readme.txt', 'LICENSE')) {
+foreach ($file in @('tapin-service-point-locator.php', 'uninstall.php', 'README.md', 'README.en.md', 'readme.txt', 'LICENSE')) {
     Copy-Item -LiteralPath (Join-Path $repoRoot $file) -Destination (Join-Path $pluginRoot $file)
 }
 $pluginHeader = Get-Content -LiteralPath (Join-Path $repoRoot 'tapin-service-point-locator.php') -Raw
@@ -21,7 +21,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $zip = [System.IO.Compression.ZipFile]::OpenRead($archivePath)
 try {
     $names = @($zip.Entries | ForEach-Object { $_.FullName.Replace('\', '/') })
-    foreach ($required in @('tapin-service-point-locator.php', 'src/UI/App.php', 'assets/vendor/leaflet.js', 'assets/vendor/leaflet.css', 'assets/fonts/Vazirmatn.woff2', 'assets/brand/tapin.png', 'assets/brand/post.png', 'assets/brand/tipax.svg', 'assets/iran-provinces.geojson')) {
+    foreach ($required in @('tapin-service-point-locator.php', 'README.md', 'README.en.md', 'src/UI/App.php', 'assets/vendor/leaflet.js', 'assets/vendor/leaflet.css', 'assets/fonts/Vazirmatn.woff2', 'assets/brand/tapin.png', 'assets/brand/post.png', 'assets/brand/tipax.svg', 'assets/iran-provinces.geojson')) {
         if ($names -notcontains ('tapin-service-point-locator/' + $required)) { throw "Missing runtime asset: $required" }
     }
     if ($names | Where-Object { $_ -match '/(node_modules|tests|artifacts|\.git)/|wp-config\.php|\.env|session.*\.json' }) { throw 'Unexpected development or credential file in archive.' }

@@ -6,11 +6,15 @@ Commands and paths below are relative to the repository root.
 
 ## Import details and limits
 
-Use the header-only template at [import template](../assets/import-template.csv). Required mapped fields: `name`, `province`, `city`, `address`. Optional: `code`, `phone`, `postal_code`, `latitude`, `longitude`, `status`. English and Persian headers are recognized; mapping can be changed before any records are written.
+Use the headers in the [import template](../assets/import-template.csv) and save the workbook as **XLSX** for upload. The admin UI and REST upload route accept XLSX only; CSV is supported by the internal staging engine and source-data tooling.
 
-- CSV: UTF-8, optional BOM, comma/semicolon/tab delimiters; at most 50 MiB. Quoted newlines are supported. Mismatched column counts fail that row with a report.
+Column detection is automatic. `name` and `address` must be recognized before a job starts. A saved record also needs a valid provider and province; verified source evidence can supply a missing province. City may remain blank with a warning. Optional columns include `code`, contact fields, `postal_code`, coordinates, `status`, `source` and `metadata`. Rename an unrecognized header in the workbook and upload it again; there is no manual column-mapping control in the current preview.
+
+With a `provider` column, review each distinct label and choose its registered counterpart when necessary. Empty provider values must be fixed in the workbook. Without that column, select one provider for the file. These provider choices are separate from automatic column detection.
+
+- CSV (internal engine): UTF-8, optional BOM, comma/semicolon/tab delimiters; at most 50 MiB. Quoted newlines are supported. Mismatched column counts fail that row with a report.
 - Excel: `.xlsx`, first worksheet only, at most 10 MiB compressed / 32 MiB expanded / 8 MiB shared-string XML. Shared and inline strings are supported. Formulas, external entities, malformed XML, and excessive archive sizes are rejected. Keep codes and phones as text to preserve leading zeros.
-- Legacy `.xls`, macros, formula evaluation and multiple-sheet selection are not supported. Save as `.xlsx` or UTF-8 CSV first.
+- Legacy `.xls`, macros, formula evaluation and multiple-sheet selection are not supported. For web upload, save as a values-only `.xlsx` first.
 - Maximum 100,000 data rows, 64 columns, 16 KiB per cell, 64 MiB staged data; preparation has a 15-second application budget. Host upload/PHP limits may be smaller. Split files when prompted.
 - Each processing request handles at most 50 rows or about 2 seconds of row work. A database transaction commits rows and the checkpoint together. A shared database lock serializes web writes. Repeating a completed request does not reinsert rows.
 - Closing the page pauses processing. Reopen the operation from history and choose **ادامه ورود داده**. Cancellation retains completed rows and discards unprocessed input. This is resumable browser-driven processing, not an unattended background queue.

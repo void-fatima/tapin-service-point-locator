@@ -22,7 +22,7 @@ A Persian-first WordPress plugin for shipping providers, branch operations and p
 
 </div>
 
-Tapin brings provider management, CSV/XLSX imports, location enrichment and a public branch finder into one WordPress plugin. Operators work in a dark, Persian RTL dashboard; visitors explore the same published records through a shortcode-powered map and directory.
+Tapin brings provider management, Excel imports, location enrichment and a public branch finder into one WordPress plugin. Operators work in a Persian RTL dashboard with light and dark themes; visitors explore the same published records through a shortcode-powered map and directory.
 
 ## Live deployment
 
@@ -37,48 +37,30 @@ The deployed public page was opened successfully on **2026-10-07**. Administrati
 
 [![Watch the deployed public locator](docs/media/live-public-locator.png)](docs/media/public-demo.webm)
 
-**[Watch the public-site recording](docs/media/public-demo.webm)** · **[Watch the admin walkthrough](docs/media/demo.webm)**
+**[Watch the public-site recording](docs/media/public-demo.webm)**
 
-The 44-second public recording captures the deployed site: country view → Tehran filter → Tipax filter → branch details → address-only records → reset. The admin recording uses the existing isolated local installation. Open the WebM file with GitHub's **View raw / Download** if inline playback is unavailable. [Capture dates and provenance](docs/media/README.md)
+The 44-second public recording captures the deployed site: country view → Tehran filter → Tipax filter → branch details → address-only records → reset. Open the WebM file with GitHub's **View raw / Download** if inline playback is unavailable. [Capture dates and provenance](docs/media/README.md)
 
 **An incomplete location should not mean a missing branch.** Address-only records remain searchable and exportable. Only valid locations become map markers—no invented coordinates or city-center fallbacks.
 
 ## See the interface
 
-### One view of the network
-
-![Persian RTL dashboard with coordinate coverage, provider distribution and an Iran province map](docs/media/dashboard.png)
-
-Filtered totals, coordinate coverage and provider distribution sit beside the operational map. Select a province to focus the map and narrow the directory.
-
-[Watch the 15-second walkthrough →](docs/media/demo.webm) · [View the province-filter screenshot](docs/media/province-filter.png)
-
-The walkthrough follows **dashboard → Tehran filter → service points → file management**. It is a real screen recording supplied as WebM; the screenshots provide GitHub-compatible previews without relying on inline video playback.
-
 <details>
-<summary><strong>Explore the service-point table, file manager and public locator</strong></summary>
+<summary><strong>Explore province filtering and branch details on the deployed site</strong></summary>
 
-### Manage branches without leaving the dashboard
+### Focus on a province
 
-![Service-point table with shared filters, location status, actions and Excel export](docs/media/service-points.png)
+![Deployed public locator filtered to Tehran](docs/media/live-province-filter.png)
 
-Search and filter the table, inspect branch details, edit records or export every matching result—not just the current page.
+### Find branch details
 
-### Bring existing spreadsheets into the workflow
-
-![CSV and XLSX upload screen with a three-step import flow and file limits](docs/media/file-management.png)
-
-Upload, preview and map columns before processing. The file manager also houses import outcomes, resumable jobs and recent export activity; this capture shows the upload screen with empty import history.
-
-### Publish a visitor-facing branch finder
-
-![Public shortcode showing provider and province filters, address-only postal branches and clustered map markers](docs/media/public-locator.png)
+![Branch details and published contact information on the deployed site](docs/media/live-branch-details.png)
 
 Visitors can browse address cards, use telephone links and open branch details, even when a branch has no coordinates.
 
 </details>
 
-The screenshots in this section and `demo.webm` were captured from the running application at source commit `0b898e4`, using the existing local reference dataset. Counts describe that dataset. The `live-*` screenshots and `public-demo.webm` come from the deployed public site on 2026-10-07. WordPress account controls and browser chrome are excluded. The hero banner is a concept illustration. [Media notes](docs/media/README.md)
+These screenshots and `public-demo.webm` come from the deployed public site on 2026-10-07. Counts describe the dataset at capture time. The hero banner is a concept illustration. Older local admin screenshots and the walkthrough remain in the [media archive](docs/media/README.md#historical-local-captures); they do not represent the current admin interface.
 
 ## Built for branch operations
 
@@ -90,7 +72,7 @@ The screenshots in this section and `demo.webm` were captured from the running a
 | **Map & directory** | Leaflet province selection, viewport markers, nearby-marker grouping, branch details and a collapsible admin directory with synchronized pagination. |
 | **Directions** | Public branch details link valid locations to Neshan, Balad and Google Maps. |
 | **Search** | Match branch names, addresses, codes, phone fields, provinces, cities and provider names through shared repository queries. |
-| **CSV/XLSX import** | Private staging, Persian/English column mapping, duplicate policies, resumable batches and downloadable JSON diagnostics. |
+| **Excel import** | XLSX uploads, private staging, automatic Persian/English column detection, duplicate policies, resumable batches and downloadable JSON diagnostics. |
 | **Filtered XLSX export** | Export all applied filtered results, including address-only records, to an RTL worksheet with text-safe phones and postal codes. |
 | **History** | Review import counters and resume interrupted jobs; inspect recent export success/failure events and filter context. |
 | **Optional geocoding** | Queue eligible unresolved addresses for server-side Neshan enrichment; preserve valid coordinates and flag ambiguous results for review. |
@@ -131,7 +113,7 @@ Upload `dist/tapin-service-point-locator-1.4.7.zip` through **Plugins → Add Ne
 
 ### Add data, then publish
 
-1. Configure providers and add branches manually, or upload CSV/XLSX using the [CSV column template](assets/import-template.csv).
+1. Configure providers and add branches manually, or prepare an XLSX workbook using the headers in the [CSV column template](assets/import-template.csv). Save it as XLSX before uploading.
 2. Supply a branch name, province and address. City may remain blank with a warning; coordinates are optional but must be supplied as a pair. For imports, verified postal-source evidence can fill missing fields, including province.
 3. Review missing-coordinate and duplicate warnings. Choose **Skip** or **Update** deliberately before processing an import.
 4. Add a **Shortcode** block to a public WordPress page:
@@ -146,17 +128,19 @@ Activation seeds default providers, not service points. To explicitly import the
 
 ## Spreadsheet workflow
 
-**Upload → preview → map columns → process batches → review history**
+**Upload XLSX → review detected columns and provider identities → process batches → review history**
+
+The current admin screen and REST upload route accept **XLSX only**. CSV remains supported by the internal staging engine and source-data tooling. Column mapping is automatic: rename unrecognized headers in the source workbook and upload it again. The preview does not expose manual column-mapping controls.
 
 | Format | Supported behavior | Application limits |
 | :--- | :--- | :--- |
-| CSV import | UTF-8, optional BOM, comma/semicolon/tab separators, quoted newlines | 50 MiB |
-| XLSX import | First worksheet, shared or inline strings, values only | 10 MiB compressed / 32 MiB expanded |
+| CSV, internal engine | UTF-8, optional BOM, comma/semicolon/tab separators, quoted newlines; not accepted by admin/REST upload | 50 MiB |
+| XLSX, admin/REST upload | First worksheet, shared or inline strings, values only | 10 MiB compressed / 32 MiB expanded |
 | XLSX export | All applied filtered rows, RTL layout, frozen/filterable header, wrapped addresses | 100,000 rows / 64 MiB worksheet XML |
 
 Imports accept up to **100,000 data rows and 64 columns**, subject to host limits. Legacy `.xls`, formulas and multi-sheet selection are unsupported. Keep phone numbers and postal codes as text in the source workbook; the exporter preserves leading zeros and writes formula-like text as text, not executable formulas.
 
-Imports are **browser-driven**, not unattended jobs. Closing the page pauses processing; history lets you resume while staging remains available. A `provider` or `ارائه‌دهنده` column assigns each row to a registered provider by its name, slug or numeric ID, so one file can mix providers. An empty, unknown or ambiguous value fails that row. Files without this column still use the provider dropdown; a workbook whose source links all point to `tipaxco.com` preselects Tipax and rejects a mismatched provider. **Skip** leaves potential duplicates unchanged. **Update** changes only an unambiguous exact branch-code match within the same provider. Completed rows survive cancellation. See [import limits and retention](docs/OPERATIONS.md#import-details-and-limits).
+Imports are **browser-driven**, not unattended jobs. Closing the page pauses processing; history lets you resume while staging remains available. A `provider` or `ارائه‌دهنده` column assigns rows by a registered provider's name, slug or numeric ID. The preview also lets an operator explicitly match each provider label to its registered counterpart. Empty values must be corrected in the workbook; an unresolved value fails its row during processing. Files without this column use the provider dropdown; a workbook whose source links all point to `tipaxco.com` preselects Tipax and rejects a mismatched provider. **Skip** leaves potential duplicates unchanged. **Update** changes only an unambiguous exact branch-code match within the same provider. Completed rows survive cancellation. See [import limits and retention](docs/OPERATIONS.md#import-details-and-limits).
 
 Export history records generation outcomes, not proof that a browser saved the file. It retains recent events for three months; generated workbooks are not archived for re-download, and raw search text is not logged.
 
@@ -213,7 +197,7 @@ Base path: `/wp-json/tapin/v1/` (or the site's WordPress REST URL). The [route i
 | `GET public/directory` | Public | Paginated branches, including address-only entries |
 | `GET public/points` / `public/points/{id}` | Public | Located-point list / public details for an active branch |
 | `GET/POST points`, `GET/POST/DELETE points/{id}` | Admin | Query, create, read, update or delete service points |
-| `GET points/{id}/details`, `DELETE points/reset` | Admin | Internal branch details / delete all service points |
+| `GET points/{id}/details`, `DELETE points/reset` | Admin | Display fields, including inactive branches / delete all service points |
 | `GET dashboard`, `GET locations` | Admin | Dashboard summary / available locations |
 | `GET/POST providers`, `DELETE providers/{id}` | Admin | Provider registry |
 | `GET/POST imports`, `GET imports/{id}` | Admin | Upload, history and job details; POST subroutes `start`, `step`, `cancel` manage jobs |
@@ -221,7 +205,31 @@ Base path: `/wp-json/tapin/v1/` (or the site's WordPress REST URL). The [route i
 | `POST exports/points`, `GET exports` | Admin | Binary XLSX download and recent export events |
 | `GET geocoding`, `POST geocoding/retry` | Admin | Queue status and explicit retry requests |
 
-List filters include `provider_id`, `province`, `city`, `search`, `page` and `per_page`; admin queries also support status, coordinate and issue filters. Public visibility rules cannot be overridden by query parameters. The admin UI uses WordPress cookie authentication with `X-WP-Nonce`; XLSX export explicitly verifies the nonce as well as `manage_options`.
+List filters include `provider_id`, `province`, `city`, `search`, `page` and `per_page`. The public directory also accepts `has_coordinates`; admin queries add status and issue filters. Public visibility rules cannot be overridden by query parameters. The admin UI uses WordPress cookie authentication with `X-WP-Nonce`; XLSX export explicitly verifies the nonce as well as `manage_options`.
+
+### Public request example
+
+Read two Tehran branches without authentication, using the live site's compatible `rest_route` form:
+
+```sh
+curl --get 'https://iot-core.ir/wordpress_b/' --data-urlencode 'rest_route=/tapin/v1/public/directory' --data-urlencode 'province=تهران' --data-urlencode 'per_page=2' --data-urlencode 'page=1'
+```
+
+Use `curl.exe` in Windows PowerShell. The response contains `items`, `total`, `page`, `per_page`, `total_pages` and `summary`; values reflect the current dataset.
+
+## Troubleshooting
+
+| Symptom | Action |
+| :--- | :--- |
+| A listed branch has no marker | Check the coordinate filter and map viewport. Markers need valid coordinate pairs inside the Iran geometry. |
+| A branch is missing publicly | Check that both the branch and provider are active, and clear public filters. |
+| A column is not recognized | Rename its header to a supported name such as `name`, `address` or `province`, then upload the XLSX again. |
+| CSV upload is rejected | Save the workbook as XLSX; admin and REST uploads accept XLSX only. |
+| Import stopped after closing the page | Resume from history while staging exists. If it expired, upload again and review the duplicate policy. |
+| Excel or temporary-storage error | Check PHP extensions, host size limits and a writable temporary directory outside the WordPress document root. |
+| Admin login or access error | Sign in with an account that has `manage_options`; refresh the page after renewing an expired session. |
+
+See the [operations guide](docs/OPERATIONS.md) for additional details.
 
 ## Development
 
@@ -260,7 +268,7 @@ The session helper creates a short-lived local administrator session and may cre
 
 ## Status & documentation
 
-Current plugin version: **1.4.7**, database schema **9**. This project was developed for **Tapin** and deployed at the URLs above. Historical validation records document their own environments and limitations; they do not imply that tests were rerun for subsequent UI changes or this README update. Live media demonstrates the deployed public interface; the admin media demonstrates the isolated local installation.
+Current plugin version: **1.4.7**, database schema **9**. This project was developed for **Tapin** and deployed at the URLs above. Historical validation records document their own environments and limitations; they do not imply that tests were rerun for subsequent UI changes or this README update. Featured media demonstrates the deployed public interface; archived admin media documents an older isolated local installation.
 
 To refresh the anonymous public-site recording after installing the development dependencies and Chromium:
 

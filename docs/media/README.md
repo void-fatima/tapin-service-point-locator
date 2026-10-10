@@ -28,7 +28,14 @@ another installation. The output is WebM/VP8, 1440×1080, without narration or
 browser chrome. Open the video with **View raw / Download** when GitHub does
 not provide playback. Temporary recorder output stays in ignored `artifacts/`.
 
-## Local administrator and public interface — 2026-09-29
+<a id="historical-local-captures"></a>
+
+## Historical local administrator and public interface — 2026-09-29
+
+These captures predate the current interface and are retained as an archive.
+They are no longer featured as current admin screenshots in either README.
+In particular, the old upload screen shows CSV support; the current admin and
+REST upload flow accepts XLSX only. [Current import workflow](../OPERATIONS.md#import-details-and-limits)
 
 Captured on 2026-09-29 from the running WordPress plugin at source commit
 `0b898e4` on a local, isolated installation. These are application captures,
@@ -36,12 +43,12 @@ not mockups, generated illustrations or test-pass evidence.
 
 | File | View |
 | --- | --- |
-| `dashboard.png` | Network totals, coordinate coverage, provider distribution and Iran map |
-| `province-filter.png` | Dashboard narrowed to Tehran, with clustered provider markers |
-| `service-points.png` | Management table, filters, location status and XLSX export control |
-| `file-management.png` | CSV/XLSX upload flow and empty import history |
-| `public-locator.png` | Anonymous shortcode view, address-only branch cards and mapped locations |
-| `demo.webm` | 15-second recording: dashboard → Tehran filter → service points → file management |
+| [dashboard.png](dashboard.png) | Network totals, coordinate coverage, provider distribution and Iran map |
+| [province-filter.png](province-filter.png) | Dashboard narrowed to Tehran, with clustered provider markers |
+| [service-points.png](service-points.png) | Management table, filters, location status and XLSX export control |
+| [file-management.png](file-management.png) | Historical CSV/XLSX upload flow and empty import history |
+| [public-locator.png](public-locator.png) | Anonymous shortcode view, address-only branch cards and mapped locations |
+| [demo.webm](demo.webm) | 15-second recording: dashboard → Tehran filter → service points → file management |
 
 The installation already contained the bundled reference dataset: 231 Tipax
 Tehran records and ten Semnan postal records. Counts are specific to that
