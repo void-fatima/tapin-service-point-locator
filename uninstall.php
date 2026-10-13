@@ -10,6 +10,12 @@
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
+// Quotation data is preserved unless its own explicit deletion opt-in is enabled.
+require_once __DIR__ . '/src/Autoloader.php';
+if ( ! defined( 'TAPIN_PLUGIN_DIR' ) ) { define( 'TAPIN_PLUGIN_DIR', __DIR__ . '/' ); }
+\Tapin\ServicePointLocator\Autoloader::register();
+\Tapin\ServicePointLocator\PriceCheck\Uninstall::run();
+
 wp_clear_scheduled_hook( 'tapin_cleanup_imports' );
 wp_clear_scheduled_hook( 'tapin_geocode_points' );
 	wp_clear_scheduled_hook( 'tapin_cleanup_logs' );

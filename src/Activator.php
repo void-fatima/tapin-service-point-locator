@@ -22,6 +22,7 @@ final class Activator {
 		if ( class_exists( __NAMESPACE__ . '\\Database\\Schema' ) ) {
 			Database\Schema::migrate();
 		}
+		PriceCheck\Schema::migrate();
 	}
 
 	/**
