@@ -1,0 +1,7457 @@
+{
+  "provenance": {
+    "python": "3.14.8",
+    "live_access": false,
+    "hashes": {
+      "api": "27189254d7ac2555dca395dfcc8f243f066bd1408e0dd859d8b068bfd331dbd5",
+      "records": "e6768fb66b7a689245c3e4de9d3954a6758b4e45eda04f3b3b7ab7eb3f4ba06d",
+      "providers": "15f1637ceabd535a68844fa67ce5db4fcdcd8e5ab78f201137d2ca54b9a14bc7",
+      "provider_calls": "efd7f09d5c5a23f1cadc53e9655478e24c216c3c14da143aa9d7b7af6fc8cf49"
+    }
+  },
+  "cases": [
+    {
+      "op": "routes",
+      "args": [
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              },
+              "mirror": {
+                "provider": "one",
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {
+          "$fixture": "providers"
+        },
+        "mirror"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      }
+    },
+    {
+      "op": "routes",
+      "args": [
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": "one",
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {
+          "$fixture": "providers"
+        },
+        "source"
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      }
+    },
+    {
+      "op": "provider_id",
+      "args": [
+        null,
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "provider_id",
+      "args": [
+        {},
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "provider_id",
+      "args": [
+        {
+          "provider": 1
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": 1
+      }
+    },
+    {
+      "op": "provider_id",
+      "args": [
+        {
+          "provider": "01"
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": 1
+      }
+    },
+    {
+      "op": "provider_id",
+      "args": [
+        {
+          "provider": "one"
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": 1
+      }
+    },
+    {
+      "op": "provider_id",
+      "args": [
+        {
+          "provider": true
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "provider_id",
+      "args": [
+        {
+          "provider": 1.0
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "provider_id",
+      "args": [
+        {
+          "provider": "missing"
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "translated",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        1,
+        "mode",
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "translated",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        1,
+        "mode",
+        false
+      ],
+      "expected": {
+        "ok": true,
+        "value": "b"
+      }
+    },
+    {
+      "op": "translated",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        1,
+        "mode",
+        0
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0
+      }
+    },
+    {
+      "op": "translated",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        1,
+        "mode",
+        "shared"
+      ],
+      "expected": {
+        "ok": true,
+        "value": "a"
+      }
+    },
+    {
+      "op": "translated",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        1,
+        "mode",
+        "unknown"
+      ],
+      "expected": {
+        "ok": true,
+        "value": "unknown"
+      }
+    },
+    {
+      "op": "translated",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        1,
+        "mode",
+        ""
+      ],
+      "expected": {
+        "ok": true,
+        "value": ""
+      }
+    },
+    {
+      "op": "translated",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        1,
+        "mode",
+        []
+      ],
+      "expected": {
+        "ok": true,
+        "value": []
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        {
+          "money": null,
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "$fixture": "config"
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": null,
+          "weight": 1.5,
+          "mode": "a",
+          "rows": [
+            {
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        {
+          "money": "",
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "$fixture": "config"
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": "",
+          "weight": 1.5,
+          "mode": "a",
+          "rows": [
+            {
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        {
+          "money": "15",
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "$fixture": "config"
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": 2,
+          "weight": 1.5,
+          "mode": "a",
+          "rows": [
+            {
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        {
+          "money": "-15",
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "$fixture": "config"
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": -2,
+          "weight": 1.5,
+          "mode": "a",
+          "rows": [
+            {
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        {
+          "money": 0,
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "$fixture": "config"
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": 0,
+          "weight": 1.5,
+          "mode": "a",
+          "rows": [
+            {
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        {
+          "money": false,
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "$fixture": "config"
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": false,
+          "weight": 1.5,
+          "mode": "a",
+          "rows": [
+            {
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "$fixture": "two"
+        },
+        {
+          "money": null,
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": null,
+          "weight": "1500",
+          "rows": [
+            {
+              "kind": "b",
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "$fixture": "two"
+        },
+        {
+          "money": "",
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": "",
+          "weight": "1500",
+          "rows": [
+            {
+              "kind": "b",
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "$fixture": "two"
+        },
+        {
+          "money": "15",
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": "15",
+          "weight": "1500",
+          "rows": [
+            {
+              "kind": "b",
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "$fixture": "two"
+        },
+        {
+          "money": "-15",
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": "-15",
+          "weight": "1500",
+          "rows": [
+            {
+              "kind": "b",
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "$fixture": "two"
+        },
+        {
+          "money": 0,
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": 0,
+          "weight": "1500",
+          "rows": [
+            {
+              "kind": "b",
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "$fixture": "two"
+        },
+        {
+          "money": false,
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": false,
+          "weight": "1500",
+          "rows": [
+            {
+              "kind": "b",
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "id": 4,
+          "name": "alias",
+          "display_name": "alias عنوان",
+          "active": true,
+          "logo": "",
+          "check_price_url": "https://example.test/alias",
+          "shop_id": null,
+          "price_fields": [
+            {
+              "key": "total",
+              "label": "کل"
+            }
+          ],
+          "price_currency_in": "rial",
+          "price_currency_out": "toman",
+          "price_input_param": null,
+          "weight_unit_in": "gram",
+          "weight_unit_out": "kilogram",
+          "weight_input_param": null,
+          "timeout": null,
+          "main_price_key": null,
+          "referral": {
+            "enabled": false,
+            "title": "",
+            "url": "",
+            "description": ""
+          },
+          "rules": [],
+          "location_config": {
+            "origin": {
+              "enabled": false,
+              "display": "separate",
+              "source": "service",
+              "custom_mode": "merge"
+            },
+            "destination": {
+              "enabled": false,
+              "display": "separate",
+              "province_param": null,
+              "city_param": null,
+              "source": "service",
+              "custom_mode": "merge"
+            },
+            "custom_locations": {
+              "provinces": [],
+              "cities": []
+            },
+            "blocked_locations": {
+              "provinces": [],
+              "cities": []
+            }
+          },
+          "params": [
+            {
+              "id": 11,
+              "name": "amount",
+              "label": "مبلغ",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "kind": "money",
+              "description": "",
+              "default": 0,
+              "required": true
+            },
+            {
+              "id": 12,
+              "name": "weight",
+              "label": "وزن",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "kind": "weight",
+              "description": "",
+              "default": 1,
+              "required": false
+            },
+            {
+              "id": 13,
+              "name": "mode",
+              "label": "نوع",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": "a",
+              "required": false,
+              "options": [
+                {
+                  "value": "a",
+                  "label": "اول"
+                },
+                {
+                  "value": "b",
+                  "label": "دوم"
+                }
+              ]
+            },
+            {
+              "id": 14,
+              "name": "rows",
+              "label": "ردیف",
+              "input": "list",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": null,
+              "required": false,
+              "min_items": 1,
+              "fields": [
+                {
+                  "id": 141,
+                  "name": "cost",
+                  "label": "هزینه",
+                  "input": "text",
+                  "type": "float",
+                  "visible": true,
+                  "default": 0,
+                  "kind": null,
+                  "required": false
+                },
+                {
+                  "id": 142,
+                  "name": "kind",
+                  "label": "گونه",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "default": null,
+                  "kind": null,
+                  "required": false,
+                  "options": [
+                    {
+                      "value": "a",
+                      "label": "اول"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 15,
+              "name": "obj",
+              "label": "شیء",
+              "input": "dict",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": null,
+              "required": false,
+              "fields": [
+                {
+                  "id": 151,
+                  "name": "city",
+                  "label": "شهر",
+                  "input": "text",
+                  "type": "str",
+                  "visible": true,
+                  "default": "",
+                  "kind": null,
+                  "required": false
+                }
+              ]
+            },
+            {
+              "id": 16,
+              "name": "province",
+              "label": "استان",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": "province",
+              "description": "",
+              "default": null,
+              "required": false,
+              "options": []
+            },
+            {
+              "id": 17,
+              "name": "city",
+              "label": "شهر",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": "city",
+              "description": "",
+              "default": null,
+              "required": false,
+              "options": []
+            }
+          ]
+        },
+        {
+          "money": null,
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            },
+            "4": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": null,
+          "weight": 1.5,
+          "rows": [
+            {
+              "kind": "shared",
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "id": 4,
+          "name": "alias",
+          "display_name": "alias عنوان",
+          "active": true,
+          "logo": "",
+          "check_price_url": "https://example.test/alias",
+          "shop_id": null,
+          "price_fields": [
+            {
+              "key": "total",
+              "label": "کل"
+            }
+          ],
+          "price_currency_in": "rial",
+          "price_currency_out": "toman",
+          "price_input_param": null,
+          "weight_unit_in": "gram",
+          "weight_unit_out": "kilogram",
+          "weight_input_param": null,
+          "timeout": null,
+          "main_price_key": null,
+          "referral": {
+            "enabled": false,
+            "title": "",
+            "url": "",
+            "description": ""
+          },
+          "rules": [],
+          "location_config": {
+            "origin": {
+              "enabled": false,
+              "display": "separate",
+              "source": "service",
+              "custom_mode": "merge"
+            },
+            "destination": {
+              "enabled": false,
+              "display": "separate",
+              "province_param": null,
+              "city_param": null,
+              "source": "service",
+              "custom_mode": "merge"
+            },
+            "custom_locations": {
+              "provinces": [],
+              "cities": []
+            },
+            "blocked_locations": {
+              "provinces": [],
+              "cities": []
+            }
+          },
+          "params": [
+            {
+              "id": 11,
+              "name": "amount",
+              "label": "مبلغ",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "kind": "money",
+              "description": "",
+              "default": 0,
+              "required": true
+            },
+            {
+              "id": 12,
+              "name": "weight",
+              "label": "وزن",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "kind": "weight",
+              "description": "",
+              "default": 1,
+              "required": false
+            },
+            {
+              "id": 13,
+              "name": "mode",
+              "label": "نوع",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": "a",
+              "required": false,
+              "options": [
+                {
+                  "value": "a",
+                  "label": "اول"
+                },
+                {
+                  "value": "b",
+                  "label": "دوم"
+                }
+              ]
+            },
+            {
+              "id": 14,
+              "name": "rows",
+              "label": "ردیف",
+              "input": "list",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": null,
+              "required": false,
+              "min_items": 1,
+              "fields": [
+                {
+                  "id": 141,
+                  "name": "cost",
+                  "label": "هزینه",
+                  "input": "text",
+                  "type": "float",
+                  "visible": true,
+                  "default": 0,
+                  "kind": null,
+                  "required": false
+                },
+                {
+                  "id": 142,
+                  "name": "kind",
+                  "label": "گونه",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "default": null,
+                  "kind": null,
+                  "required": false,
+                  "options": [
+                    {
+                      "value": "a",
+                      "label": "اول"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 15,
+              "name": "obj",
+              "label": "شیء",
+              "input": "dict",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": null,
+              "required": false,
+              "fields": [
+                {
+                  "id": 151,
+                  "name": "city",
+                  "label": "شهر",
+                  "input": "text",
+                  "type": "str",
+                  "visible": true,
+                  "default": "",
+                  "kind": null,
+                  "required": false
+                }
+              ]
+            },
+            {
+              "id": 16,
+              "name": "province",
+              "label": "استان",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": "province",
+              "description": "",
+              "default": null,
+              "required": false,
+              "options": []
+            },
+            {
+              "id": 17,
+              "name": "city",
+              "label": "شهر",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": "city",
+              "description": "",
+              "default": null,
+              "required": false,
+              "options": []
+            }
+          ]
+        },
+        {
+          "money": "",
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            },
+            "4": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": "",
+          "weight": 1.5,
+          "rows": [
+            {
+              "kind": "shared",
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "id": 4,
+          "name": "alias",
+          "display_name": "alias عنوان",
+          "active": true,
+          "logo": "",
+          "check_price_url": "https://example.test/alias",
+          "shop_id": null,
+          "price_fields": [
+            {
+              "key": "total",
+              "label": "کل"
+            }
+          ],
+          "price_currency_in": "rial",
+          "price_currency_out": "toman",
+          "price_input_param": null,
+          "weight_unit_in": "gram",
+          "weight_unit_out": "kilogram",
+          "weight_input_param": null,
+          "timeout": null,
+          "main_price_key": null,
+          "referral": {
+            "enabled": false,
+            "title": "",
+            "url": "",
+            "description": ""
+          },
+          "rules": [],
+          "location_config": {
+            "origin": {
+              "enabled": false,
+              "display": "separate",
+              "source": "service",
+              "custom_mode": "merge"
+            },
+            "destination": {
+              "enabled": false,
+              "display": "separate",
+              "province_param": null,
+              "city_param": null,
+              "source": "service",
+              "custom_mode": "merge"
+            },
+            "custom_locations": {
+              "provinces": [],
+              "cities": []
+            },
+            "blocked_locations": {
+              "provinces": [],
+              "cities": []
+            }
+          },
+          "params": [
+            {
+              "id": 11,
+              "name": "amount",
+              "label": "مبلغ",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "kind": "money",
+              "description": "",
+              "default": 0,
+              "required": true
+            },
+            {
+              "id": 12,
+              "name": "weight",
+              "label": "وزن",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "kind": "weight",
+              "description": "",
+              "default": 1,
+              "required": false
+            },
+            {
+              "id": 13,
+              "name": "mode",
+              "label": "نوع",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": "a",
+              "required": false,
+              "options": [
+                {
+                  "value": "a",
+                  "label": "اول"
+                },
+                {
+                  "value": "b",
+                  "label": "دوم"
+                }
+              ]
+            },
+            {
+              "id": 14,
+              "name": "rows",
+              "label": "ردیف",
+              "input": "list",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": null,
+              "required": false,
+              "min_items": 1,
+              "fields": [
+                {
+                  "id": 141,
+                  "name": "cost",
+                  "label": "هزینه",
+                  "input": "text",
+                  "type": "float",
+                  "visible": true,
+                  "default": 0,
+                  "kind": null,
+                  "required": false
+                },
+                {
+                  "id": 142,
+                  "name": "kind",
+                  "label": "گونه",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "default": null,
+                  "kind": null,
+                  "required": false,
+                  "options": [
+                    {
+                      "value": "a",
+                      "label": "اول"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 15,
+              "name": "obj",
+              "label": "شیء",
+              "input": "dict",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": null,
+              "required": false,
+              "fields": [
+                {
+                  "id": 151,
+                  "name": "city",
+                  "label": "شهر",
+                  "input": "text",
+                  "type": "str",
+                  "visible": true,
+                  "default": "",
+                  "kind": null,
+                  "required": false
+                }
+              ]
+            },
+            {
+              "id": 16,
+              "name": "province",
+              "label": "استان",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": "province",
+              "description": "",
+              "default": null,
+              "required": false,
+              "options": []
+            },
+            {
+              "id": 17,
+              "name": "city",
+              "label": "شهر",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": "city",
+              "description": "",
+              "default": null,
+              "required": false,
+              "options": []
+            }
+          ]
+        },
+        {
+          "money": "15",
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            },
+            "4": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": 2,
+          "weight": 1.5,
+          "rows": [
+            {
+              "kind": "shared",
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "id": 4,
+          "name": "alias",
+          "display_name": "alias عنوان",
+          "active": true,
+          "logo": "",
+          "check_price_url": "https://example.test/alias",
+          "shop_id": null,
+          "price_fields": [
+            {
+              "key": "total",
+              "label": "کل"
+            }
+          ],
+          "price_currency_in": "rial",
+          "price_currency_out": "toman",
+          "price_input_param": null,
+          "weight_unit_in": "gram",
+          "weight_unit_out": "kilogram",
+          "weight_input_param": null,
+          "timeout": null,
+          "main_price_key": null,
+          "referral": {
+            "enabled": false,
+            "title": "",
+            "url": "",
+            "description": ""
+          },
+          "rules": [],
+          "location_config": {
+            "origin": {
+              "enabled": false,
+              "display": "separate",
+              "source": "service",
+              "custom_mode": "merge"
+            },
+            "destination": {
+              "enabled": false,
+              "display": "separate",
+              "province_param": null,
+              "city_param": null,
+              "source": "service",
+              "custom_mode": "merge"
+            },
+            "custom_locations": {
+              "provinces": [],
+              "cities": []
+            },
+            "blocked_locations": {
+              "provinces": [],
+              "cities": []
+            }
+          },
+          "params": [
+            {
+              "id": 11,
+              "name": "amount",
+              "label": "مبلغ",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "kind": "money",
+              "description": "",
+              "default": 0,
+              "required": true
+            },
+            {
+              "id": 12,
+              "name": "weight",
+              "label": "وزن",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "kind": "weight",
+              "description": "",
+              "default": 1,
+              "required": false
+            },
+            {
+              "id": 13,
+              "name": "mode",
+              "label": "نوع",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": "a",
+              "required": false,
+              "options": [
+                {
+                  "value": "a",
+                  "label": "اول"
+                },
+                {
+                  "value": "b",
+                  "label": "دوم"
+                }
+              ]
+            },
+            {
+              "id": 14,
+              "name": "rows",
+              "label": "ردیف",
+              "input": "list",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": null,
+              "required": false,
+              "min_items": 1,
+              "fields": [
+                {
+                  "id": 141,
+                  "name": "cost",
+                  "label": "هزینه",
+                  "input": "text",
+                  "type": "float",
+                  "visible": true,
+                  "default": 0,
+                  "kind": null,
+                  "required": false
+                },
+                {
+                  "id": 142,
+                  "name": "kind",
+                  "label": "گونه",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "default": null,
+                  "kind": null,
+                  "required": false,
+                  "options": [
+                    {
+                      "value": "a",
+                      "label": "اول"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 15,
+              "name": "obj",
+              "label": "شیء",
+              "input": "dict",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": null,
+              "required": false,
+              "fields": [
+                {
+                  "id": 151,
+                  "name": "city",
+                  "label": "شهر",
+                  "input": "text",
+                  "type": "str",
+                  "visible": true,
+                  "default": "",
+                  "kind": null,
+                  "required": false
+                }
+              ]
+            },
+            {
+              "id": 16,
+              "name": "province",
+              "label": "استان",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": "province",
+              "description": "",
+              "default": null,
+              "required": false,
+              "options": []
+            },
+            {
+              "id": 17,
+              "name": "city",
+              "label": "شهر",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": "city",
+              "description": "",
+              "default": null,
+              "required": false,
+              "options": []
+            }
+          ]
+        },
+        {
+          "money": "-15",
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            },
+            "4": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": -2,
+          "weight": 1.5,
+          "rows": [
+            {
+              "kind": "shared",
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "id": 4,
+          "name": "alias",
+          "display_name": "alias عنوان",
+          "active": true,
+          "logo": "",
+          "check_price_url": "https://example.test/alias",
+          "shop_id": null,
+          "price_fields": [
+            {
+              "key": "total",
+              "label": "کل"
+            }
+          ],
+          "price_currency_in": "rial",
+          "price_currency_out": "toman",
+          "price_input_param": null,
+          "weight_unit_in": "gram",
+          "weight_unit_out": "kilogram",
+          "weight_input_param": null,
+          "timeout": null,
+          "main_price_key": null,
+          "referral": {
+            "enabled": false,
+            "title": "",
+            "url": "",
+            "description": ""
+          },
+          "rules": [],
+          "location_config": {
+            "origin": {
+              "enabled": false,
+              "display": "separate",
+              "source": "service",
+              "custom_mode": "merge"
+            },
+            "destination": {
+              "enabled": false,
+              "display": "separate",
+              "province_param": null,
+              "city_param": null,
+              "source": "service",
+              "custom_mode": "merge"
+            },
+            "custom_locations": {
+              "provinces": [],
+              "cities": []
+            },
+            "blocked_locations": {
+              "provinces": [],
+              "cities": []
+            }
+          },
+          "params": [
+            {
+              "id": 11,
+              "name": "amount",
+              "label": "مبلغ",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "kind": "money",
+              "description": "",
+              "default": 0,
+              "required": true
+            },
+            {
+              "id": 12,
+              "name": "weight",
+              "label": "وزن",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "kind": "weight",
+              "description": "",
+              "default": 1,
+              "required": false
+            },
+            {
+              "id": 13,
+              "name": "mode",
+              "label": "نوع",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": "a",
+              "required": false,
+              "options": [
+                {
+                  "value": "a",
+                  "label": "اول"
+                },
+                {
+                  "value": "b",
+                  "label": "دوم"
+                }
+              ]
+            },
+            {
+              "id": 14,
+              "name": "rows",
+              "label": "ردیف",
+              "input": "list",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": null,
+              "required": false,
+              "min_items": 1,
+              "fields": [
+                {
+                  "id": 141,
+                  "name": "cost",
+                  "label": "هزینه",
+                  "input": "text",
+                  "type": "float",
+                  "visible": true,
+                  "default": 0,
+                  "kind": null,
+                  "required": false
+                },
+                {
+                  "id": 142,
+                  "name": "kind",
+                  "label": "گونه",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "default": null,
+                  "kind": null,
+                  "required": false,
+                  "options": [
+                    {
+                      "value": "a",
+                      "label": "اول"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 15,
+              "name": "obj",
+              "label": "شیء",
+              "input": "dict",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": null,
+              "required": false,
+              "fields": [
+                {
+                  "id": 151,
+                  "name": "city",
+                  "label": "شهر",
+                  "input": "text",
+                  "type": "str",
+                  "visible": true,
+                  "default": "",
+                  "kind": null,
+                  "required": false
+                }
+              ]
+            },
+            {
+              "id": 16,
+              "name": "province",
+              "label": "استان",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": "province",
+              "description": "",
+              "default": null,
+              "required": false,
+              "options": []
+            },
+            {
+              "id": 17,
+              "name": "city",
+              "label": "شهر",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": "city",
+              "description": "",
+              "default": null,
+              "required": false,
+              "options": []
+            }
+          ]
+        },
+        {
+          "money": 0,
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            },
+            "4": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": 0,
+          "weight": 1.5,
+          "rows": [
+            {
+              "kind": "shared",
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "id": 4,
+          "name": "alias",
+          "display_name": "alias عنوان",
+          "active": true,
+          "logo": "",
+          "check_price_url": "https://example.test/alias",
+          "shop_id": null,
+          "price_fields": [
+            {
+              "key": "total",
+              "label": "کل"
+            }
+          ],
+          "price_currency_in": "rial",
+          "price_currency_out": "toman",
+          "price_input_param": null,
+          "weight_unit_in": "gram",
+          "weight_unit_out": "kilogram",
+          "weight_input_param": null,
+          "timeout": null,
+          "main_price_key": null,
+          "referral": {
+            "enabled": false,
+            "title": "",
+            "url": "",
+            "description": ""
+          },
+          "rules": [],
+          "location_config": {
+            "origin": {
+              "enabled": false,
+              "display": "separate",
+              "source": "service",
+              "custom_mode": "merge"
+            },
+            "destination": {
+              "enabled": false,
+              "display": "separate",
+              "province_param": null,
+              "city_param": null,
+              "source": "service",
+              "custom_mode": "merge"
+            },
+            "custom_locations": {
+              "provinces": [],
+              "cities": []
+            },
+            "blocked_locations": {
+              "provinces": [],
+              "cities": []
+            }
+          },
+          "params": [
+            {
+              "id": 11,
+              "name": "amount",
+              "label": "مبلغ",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "kind": "money",
+              "description": "",
+              "default": 0,
+              "required": true
+            },
+            {
+              "id": 12,
+              "name": "weight",
+              "label": "وزن",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "kind": "weight",
+              "description": "",
+              "default": 1,
+              "required": false
+            },
+            {
+              "id": 13,
+              "name": "mode",
+              "label": "نوع",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": "a",
+              "required": false,
+              "options": [
+                {
+                  "value": "a",
+                  "label": "اول"
+                },
+                {
+                  "value": "b",
+                  "label": "دوم"
+                }
+              ]
+            },
+            {
+              "id": 14,
+              "name": "rows",
+              "label": "ردیف",
+              "input": "list",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": null,
+              "required": false,
+              "min_items": 1,
+              "fields": [
+                {
+                  "id": 141,
+                  "name": "cost",
+                  "label": "هزینه",
+                  "input": "text",
+                  "type": "float",
+                  "visible": true,
+                  "default": 0,
+                  "kind": null,
+                  "required": false
+                },
+                {
+                  "id": 142,
+                  "name": "kind",
+                  "label": "گونه",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "default": null,
+                  "kind": null,
+                  "required": false,
+                  "options": [
+                    {
+                      "value": "a",
+                      "label": "اول"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": 15,
+              "name": "obj",
+              "label": "شیء",
+              "input": "dict",
+              "type": "str",
+              "visible": true,
+              "kind": null,
+              "description": "",
+              "default": null,
+              "required": false,
+              "fields": [
+                {
+                  "id": 151,
+                  "name": "city",
+                  "label": "شهر",
+                  "input": "text",
+                  "type": "str",
+                  "visible": true,
+                  "default": "",
+                  "kind": null,
+                  "required": false
+                }
+              ]
+            },
+            {
+              "id": 16,
+              "name": "province",
+              "label": "استان",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": "province",
+              "description": "",
+              "default": null,
+              "required": false,
+              "options": []
+            },
+            {
+              "id": 17,
+              "name": "city",
+              "label": "شهر",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "kind": "city",
+              "description": "",
+              "default": null,
+              "required": false,
+              "options": []
+            }
+          ]
+        },
+        {
+          "money": false,
+          "mass": "1500",
+          "mode": "shared",
+          "cost": 7,
+          "town": "تهران",
+          "origin_province_id": 1
+        },
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            },
+            "4": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {},
+        {
+          "$fixture": "providers"
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "origin_province_id": 1,
+          "amount": false,
+          "weight": 1.5,
+          "rows": [
+            {
+              "kind": "shared",
+              "cost": 7
+            }
+          ],
+          "obj": {
+            "city": "تهران"
+          }
+        }
+      }
+    },
+    {
+      "op": "incoming",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        {
+          "mode": "shared"
+        },
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              },
+              "mirror": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {
+          "1": {
+            "mode": "mode"
+          }
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "mode": "shared"
+        }
+      }
+    },
+    {
+      "op": "variant_payload",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        {},
+        {
+          "14.141": "3",
+          "13": "b",
+          "missing": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "rows": {
+            "cost": "3"
+          },
+          "mode": "b"
+        }
+      }
+    },
+    {
+      "op": "variant_payload",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        {
+          "rows": []
+        },
+        {
+          "14.141": "3",
+          "13": "b",
+          "missing": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "rows": [
+            {
+              "cost": "3"
+            }
+          ],
+          "mode": "b"
+        }
+      }
+    },
+    {
+      "op": "variant_payload",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        {
+          "rows": [
+            {
+              "cost": 8
+            },
+            {
+              "cost": 9
+            }
+          ]
+        },
+        {
+          "14.141": "3",
+          "13": "b",
+          "missing": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "rows": [
+            {
+              "cost": "3"
+            }
+          ],
+          "mode": "b"
+        }
+      }
+    },
+    {
+      "op": "variant_payload",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        {
+          "rows": {
+            "cost": 8
+          }
+        },
+        {
+          "14.141": "3",
+          "13": "b",
+          "missing": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "rows": {
+            "cost": "3"
+          },
+          "mode": "b"
+        }
+      }
+    },
+    {
+      "op": "variant_payload",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        {
+          "rows": 2
+        },
+        {
+          "14.141": "3",
+          "13": "b",
+          "missing": false
+        }
+      ],
+      "expected": {
+        "ok": false,
+        "kind": "TypeError"
+      }
+    },
+    {
+      "op": "variant_detail",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        {
+          "13": "a",
+          "14.142": "a",
+          "14.141": null,
+          "missing": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "target": "13",
+            "label": "نوع",
+            "value": "a",
+            "value_label": "اول"
+          },
+          {
+            "target": "14.142",
+            "label": "ردیف — گونه",
+            "value": "a",
+            "value_label": "اول"
+          },
+          {
+            "target": "14.141",
+            "label": "ردیف — هزینه",
+            "value": "None",
+            "value_label": "None"
+          },
+          {
+            "target": "missing",
+            "label": "missing",
+            "value": "False",
+            "value_label": "False"
+          }
+        ]
+      }
+    },
+    {
+      "op": "missing_required",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        {
+          "money": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "field": "money",
+            "message": "«مبلغ» اجباری است؛ لطفاً تکمیل کنید."
+          }
+        ]
+      }
+    },
+    {
+      "op": "missing_required",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        {
+          "money": ""
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "field": "money",
+            "message": "«مبلغ» اجباری است؛ لطفاً تکمیل کنید."
+          }
+        ]
+      }
+    },
+    {
+      "op": "missing_required",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        {
+          "money": " \t"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "field": "money",
+            "message": "«مبلغ» اجباری است؛ لطفاً تکمیل کنید."
+          }
+        ]
+      }
+    },
+    {
+      "op": "missing_required",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        {
+          "money": false
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": []
+      }
+    },
+    {
+      "op": "missing_required",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        {
+          "money": 0
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": []
+      }
+    },
+    {
+      "op": "missing_required",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        {
+          "money": []
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": []
+      }
+    },
+    {
+      "op": "missing_required",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        {
+          "money": {}
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": []
+      }
+    },
+    {
+      "op": "shared_field",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        "mode",
+        {
+          "$fixture": "config"
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": "mode"
+      }
+    },
+    {
+      "op": "shared_field",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        "rows.kind",
+        {
+          "$fixture": "config"
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": "mode"
+      }
+    },
+    {
+      "op": "shared_field",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        "rows.cost",
+        {
+          "$fixture": "config"
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": "cost"
+      }
+    },
+    {
+      "op": "shared_field",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        "obj.city",
+        {
+          "$fixture": "config"
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": "town"
+      }
+    },
+    {
+      "op": "shared_field",
+      "args": [
+        {
+          "$fixture": "one"
+        },
+        "unknown",
+        {
+          "$fixture": "config"
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": ""
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        null,
+        null,
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        null,
+        " ",
+        ""
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        null,
+        1,
+        10
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        null,
+        1,
+        20
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        null,
+        3,
+        10
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        null,
+        null,
+        20
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        null,
+        2,
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        null,
+        false,
+        10
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {},
+        null,
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {},
+        " ",
+        ""
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {},
+        1,
+        10
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {},
+        1,
+        20
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {},
+        3,
+        10
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {},
+        null,
+        20
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {},
+        2,
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {},
+        false,
+        10
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "$fixture": "section"
+        },
+        null,
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "$fixture": "section"
+        },
+        " ",
+        ""
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "$fixture": "section"
+        },
+        1,
+        10
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "$fixture": "section"
+        },
+        1,
+        20
+      ],
+      "expected": {
+        "ok": true,
+        "value": false
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "$fixture": "section"
+        },
+        3,
+        10
+      ],
+      "expected": {
+        "ok": true,
+        "value": false
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "$fixture": "section"
+        },
+        null,
+        20
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "$fixture": "section"
+        },
+        2,
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "$fixture": "section"
+        },
+        false,
+        10
+      ],
+      "expected": {
+        "ok": true,
+        "value": false
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "bindings": {
+            "city": {
+              "kind": "city",
+              "items_by_parent": {
+                "1": [
+                  {
+                    "value": 10
+                  }
+                ],
+                "2": [
+                  {
+                    "value": 20
+                  }
+                ],
+                "ignored": {}
+              }
+            }
+          }
+        },
+        null,
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "bindings": {
+            "city": {
+              "kind": "city",
+              "items_by_parent": {
+                "1": [
+                  {
+                    "value": 10
+                  }
+                ],
+                "2": [
+                  {
+                    "value": 20
+                  }
+                ],
+                "ignored": {}
+              }
+            }
+          }
+        },
+        " ",
+        ""
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "bindings": {
+            "city": {
+              "kind": "city",
+              "items_by_parent": {
+                "1": [
+                  {
+                    "value": 10
+                  }
+                ],
+                "2": [
+                  {
+                    "value": 20
+                  }
+                ],
+                "ignored": {}
+              }
+            }
+          }
+        },
+        1,
+        10
+      ],
+      "expected": {
+        "ok": true,
+        "value": false
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "bindings": {
+            "city": {
+              "kind": "city",
+              "items_by_parent": {
+                "1": [
+                  {
+                    "value": 10
+                  }
+                ],
+                "2": [
+                  {
+                    "value": 20
+                  }
+                ],
+                "ignored": {}
+              }
+            }
+          }
+        },
+        1,
+        20
+      ],
+      "expected": {
+        "ok": true,
+        "value": false
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "bindings": {
+            "city": {
+              "kind": "city",
+              "items_by_parent": {
+                "1": [
+                  {
+                    "value": 10
+                  }
+                ],
+                "2": [
+                  {
+                    "value": 20
+                  }
+                ],
+                "ignored": {}
+              }
+            }
+          }
+        },
+        3,
+        10
+      ],
+      "expected": {
+        "ok": true,
+        "value": false
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "bindings": {
+            "city": {
+              "kind": "city",
+              "items_by_parent": {
+                "1": [
+                  {
+                    "value": 10
+                  }
+                ],
+                "2": [
+                  {
+                    "value": 20
+                  }
+                ],
+                "ignored": {}
+              }
+            }
+          }
+        },
+        null,
+        20
+      ],
+      "expected": {
+        "ok": true,
+        "value": true
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "bindings": {
+            "city": {
+              "kind": "city",
+              "items_by_parent": {
+                "1": [
+                  {
+                    "value": 10
+                  }
+                ],
+                "2": [
+                  {
+                    "value": 20
+                  }
+                ],
+                "ignored": {}
+              }
+            }
+          }
+        },
+        2,
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": false
+      }
+    },
+    {
+      "op": "destination_served",
+      "args": [
+        {
+          "bindings": {
+            "city": {
+              "kind": "city",
+              "items_by_parent": {
+                "1": [
+                  {
+                    "value": 10
+                  }
+                ],
+                "2": [
+                  {
+                    "value": 20
+                  }
+                ],
+                "ignored": {}
+              }
+            }
+          }
+        },
+        false,
+        10
+      ],
+      "expected": {
+        "ok": true,
+        "value": false
+      }
+    },
+    {
+      "op": "destination",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        [
+          {
+            "name": "money",
+            "label": "مبلغ",
+            "required": true,
+            "kind": null,
+            "options": []
+          },
+          {
+            "name": "mass",
+            "kind": null,
+            "options": []
+          },
+          {
+            "name": "mode",
+            "source": {
+              "provider": 1,
+              "param": 13
+            },
+            "kind": null,
+            "options": [
+              {
+                "value": "a",
+                "label": "اول"
+              },
+              {
+                "value": "b",
+                "label": "دوم"
+              }
+            ]
+          },
+          {
+            "name": "cost",
+            "kind": null,
+            "options": []
+          },
+          {
+            "name": "town",
+            "kind": null,
+            "options": []
+          },
+          {
+            "name": "prov",
+            "kind": "province",
+            "options": []
+          },
+          {
+            "name": "dest",
+            "kind": "city",
+            "options": []
+          }
+        ]
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          true,
+          "combined",
+          "prov",
+          "dest"
+        ]
+      }
+    },
+    {
+      "op": "inferred_destination",
+      "args": [
+        {
+          "$fixture": "config"
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          true,
+          "combined",
+          "prov",
+          "dest"
+        ]
+      }
+    },
+    {
+      "op": "destination",
+      "args": [
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          },
+          "location": {
+            "destination": {
+              "enabled": false
+            }
+          }
+        },
+        [
+          {
+            "name": "money",
+            "label": "مبلغ",
+            "required": true,
+            "kind": null,
+            "options": []
+          },
+          {
+            "name": "mass",
+            "kind": null,
+            "options": []
+          },
+          {
+            "name": "mode",
+            "source": {
+              "provider": 1,
+              "param": 13
+            },
+            "kind": null,
+            "options": [
+              {
+                "value": "a",
+                "label": "اول"
+              },
+              {
+                "value": "b",
+                "label": "دوم"
+              }
+            ]
+          },
+          {
+            "name": "cost",
+            "kind": null,
+            "options": []
+          },
+          {
+            "name": "town",
+            "kind": null,
+            "options": []
+          },
+          {
+            "name": "prov",
+            "kind": "province",
+            "options": []
+          },
+          {
+            "name": "dest",
+            "kind": "city",
+            "options": []
+          }
+        ]
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          false,
+          "combined",
+          null,
+          null
+        ]
+      }
+    },
+    {
+      "op": "inferred_destination",
+      "args": [
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          },
+          "location": {
+            "destination": {
+              "enabled": false
+            }
+          }
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          false,
+          "combined",
+          null,
+          null
+        ]
+      }
+    },
+    {
+      "op": "destination",
+      "args": [
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          },
+          "location": {
+            "destination": {
+              "enabled": 0,
+              "province_field": "bad",
+              "city_field": "bad"
+            }
+          }
+        },
+        [
+          {
+            "name": "money",
+            "label": "مبلغ",
+            "required": true,
+            "kind": null,
+            "options": []
+          },
+          {
+            "name": "mass",
+            "kind": null,
+            "options": []
+          },
+          {
+            "name": "mode",
+            "source": {
+              "provider": 1,
+              "param": 13
+            },
+            "kind": null,
+            "options": [
+              {
+                "value": "a",
+                "label": "اول"
+              },
+              {
+                "value": "b",
+                "label": "دوم"
+              }
+            ]
+          },
+          {
+            "name": "cost",
+            "kind": null,
+            "options": []
+          },
+          {
+            "name": "town",
+            "kind": null,
+            "options": []
+          },
+          {
+            "name": "prov",
+            "kind": "province",
+            "options": []
+          },
+          {
+            "name": "dest",
+            "kind": "city",
+            "options": []
+          }
+        ]
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          true,
+          "combined",
+          "prov",
+          "dest"
+        ]
+      }
+    },
+    {
+      "op": "inferred_destination",
+      "args": [
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "money",
+              "label": "مبلغ",
+              "required": true
+            },
+            {
+              "name": "mass"
+            },
+            {
+              "name": "mode",
+              "source": {
+                "provider": 1,
+                "param": 13
+              }
+            },
+            {
+              "name": "cost"
+            },
+            {
+              "name": "town"
+            },
+            {
+              "name": "prov",
+              "kind": "province"
+            },
+            {
+              "name": "dest",
+              "kind": "city"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          },
+          "location": {
+            "destination": {
+              "enabled": 0,
+              "province_field": "bad",
+              "city_field": "bad"
+            }
+          }
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          true,
+          "combined",
+          "prov",
+          "dest"
+        ]
+      }
+    },
+    {
+      "op": "inferred_destination",
+      "args": [
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "prov",
+              "mirror": {
+                "provider": 1,
+                "param": 16
+              }
+            },
+            {
+              "name": "dest",
+              "source": {
+                "provider": 2,
+                "param": 17
+              }
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          true,
+          "combined",
+          "prov",
+          "dest"
+        ]
+      }
+    },
+    {
+      "op": "inferred_destination",
+      "args": [
+        {
+          "providers": [
+            2,
+            1,
+            3,
+            2
+          ],
+          "fields": [
+            {
+              "name": "prov"
+            },
+            {
+              "name": "dest"
+            }
+          ],
+          "mappings": {
+            "1": {
+              "money": "11",
+              "mass": "12",
+              "mode": "14.142",
+              "cost": "14.141",
+              "town": "15.151",
+              "prov": "16",
+              "dest": "17"
+            },
+            "2": {
+              "money": "11",
+              "mass": "12",
+              "mode": "13",
+              "prov": "16",
+              "dest": "17"
+            }
+          },
+          "value_mappings": {
+            "1": {
+              "mode": {
+                "shared": "a",
+                "False": "b",
+                "0": null
+              }
+            },
+            "2": {
+              "mode": {
+                "shared": "b"
+              }
+            }
+          },
+          "price": {
+            "field": "money",
+            "unit": "rial"
+          },
+          "weight": {
+            "field": "mass",
+            "unit": "gram"
+          },
+          "variants": {
+            "1": {
+              "13": [
+                "a",
+                "b"
+              ],
+              "14.141": [
+                "2",
+                "3"
+              ]
+            }
+          }
+        },
+        {
+          "$fixture": "providers"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          true,
+          "combined",
+          "prov",
+          "dest"
+        ]
+      }
+    }
+  ],
+  "inputs": {
+    "one": {
+      "id": 1,
+      "name": "one",
+      "display_name": "one عنوان",
+      "active": true,
+      "logo": "",
+      "check_price_url": "https://example.test/one",
+      "shop_id": null,
+      "price_fields": [
+        {
+          "key": "total",
+          "label": "کل"
+        }
+      ],
+      "price_currency_in": "rial",
+      "price_currency_out": "toman",
+      "price_input_param": null,
+      "weight_unit_in": "gram",
+      "weight_unit_out": "kilogram",
+      "weight_input_param": null,
+      "timeout": null,
+      "main_price_key": null,
+      "referral": {
+        "enabled": false,
+        "title": "",
+        "url": "",
+        "description": ""
+      },
+      "rules": [],
+      "location_config": {
+        "origin": {
+          "enabled": false,
+          "display": "separate",
+          "source": "service",
+          "custom_mode": "merge"
+        },
+        "destination": {
+          "enabled": false,
+          "display": "separate",
+          "province_param": null,
+          "city_param": null,
+          "source": "service",
+          "custom_mode": "merge"
+        },
+        "custom_locations": {
+          "provinces": [],
+          "cities": []
+        },
+        "blocked_locations": {
+          "provinces": [],
+          "cities": []
+        }
+      },
+      "params": [
+        {
+          "id": 11,
+          "name": "amount",
+          "label": "مبلغ",
+          "input": "text",
+          "type": "float",
+          "visible": true,
+          "kind": "money",
+          "description": "",
+          "default": 0,
+          "required": true
+        },
+        {
+          "id": 12,
+          "name": "weight",
+          "label": "وزن",
+          "input": "text",
+          "type": "float",
+          "visible": true,
+          "kind": "weight",
+          "description": "",
+          "default": 1,
+          "required": false
+        },
+        {
+          "id": 13,
+          "name": "mode",
+          "label": "نوع",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": "a",
+          "required": false,
+          "options": [
+            {
+              "value": "a",
+              "label": "اول"
+            },
+            {
+              "value": "b",
+              "label": "دوم"
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "name": "rows",
+          "label": "ردیف",
+          "input": "list",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": null,
+          "required": false,
+          "min_items": 1,
+          "fields": [
+            {
+              "id": 141,
+              "name": "cost",
+              "label": "هزینه",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "default": 0,
+              "kind": null,
+              "required": false
+            },
+            {
+              "id": 142,
+              "name": "kind",
+              "label": "گونه",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "default": null,
+              "kind": null,
+              "required": false,
+              "options": [
+                {
+                  "value": "a",
+                  "label": "اول"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "name": "obj",
+          "label": "شیء",
+          "input": "dict",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": null,
+          "required": false,
+          "fields": [
+            {
+              "id": 151,
+              "name": "city",
+              "label": "شهر",
+              "input": "text",
+              "type": "str",
+              "visible": true,
+              "default": "",
+              "kind": null,
+              "required": false
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "name": "province",
+          "label": "استان",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": "province",
+          "description": "",
+          "default": null,
+          "required": false,
+          "options": []
+        },
+        {
+          "id": 17,
+          "name": "city",
+          "label": "شهر",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": "city",
+          "description": "",
+          "default": null,
+          "required": false,
+          "options": []
+        }
+      ]
+    },
+    "two": {
+      "id": 2,
+      "name": "two",
+      "display_name": "two عنوان",
+      "active": true,
+      "logo": "",
+      "check_price_url": "https://example.test/two",
+      "shop_id": null,
+      "price_fields": [
+        {
+          "key": "total",
+          "label": "کل"
+        }
+      ],
+      "price_currency_in": "rial",
+      "price_currency_out": "rial",
+      "price_input_param": null,
+      "weight_unit_in": "gram",
+      "weight_unit_out": "gram",
+      "weight_input_param": null,
+      "timeout": null,
+      "main_price_key": null,
+      "referral": {
+        "enabled": false,
+        "title": "",
+        "url": "",
+        "description": ""
+      },
+      "rules": [],
+      "location_config": {
+        "origin": {
+          "enabled": false,
+          "display": "separate",
+          "source": "service",
+          "custom_mode": "merge"
+        },
+        "destination": {
+          "enabled": false,
+          "display": "separate",
+          "province_param": null,
+          "city_param": null,
+          "source": "service",
+          "custom_mode": "merge"
+        },
+        "custom_locations": {
+          "provinces": [],
+          "cities": []
+        },
+        "blocked_locations": {
+          "provinces": [],
+          "cities": []
+        }
+      },
+      "params": [
+        {
+          "id": 11,
+          "name": "amount",
+          "label": "مبلغ",
+          "input": "text",
+          "type": "float",
+          "visible": true,
+          "kind": "money",
+          "description": "",
+          "default": 0,
+          "required": true
+        },
+        {
+          "id": 12,
+          "name": "weight",
+          "label": "وزن",
+          "input": "text",
+          "type": "float",
+          "visible": true,
+          "kind": "weight",
+          "description": "",
+          "default": 1,
+          "required": false
+        },
+        {
+          "id": 13,
+          "name": "mode",
+          "label": "نوع",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": "a",
+          "required": false,
+          "options": [
+            {
+              "value": "a",
+              "label": "اول"
+            },
+            {
+              "value": "b",
+              "label": "دوم"
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "name": "rows",
+          "label": "ردیف",
+          "input": "list",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": null,
+          "required": false,
+          "min_items": 1,
+          "fields": [
+            {
+              "id": 141,
+              "name": "cost",
+              "label": "هزینه",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "default": 0,
+              "kind": null,
+              "required": false
+            },
+            {
+              "id": 142,
+              "name": "kind",
+              "label": "گونه",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "default": null,
+              "kind": null,
+              "required": false,
+              "options": [
+                {
+                  "value": "a",
+                  "label": "اول"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "name": "obj",
+          "label": "شیء",
+          "input": "dict",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": null,
+          "required": false,
+          "fields": [
+            {
+              "id": 151,
+              "name": "city",
+              "label": "شهر",
+              "input": "text",
+              "type": "str",
+              "visible": true,
+              "default": "",
+              "kind": null,
+              "required": false
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "name": "province",
+          "label": "استان",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": "province",
+          "description": "",
+          "default": null,
+          "required": false,
+          "options": []
+        },
+        {
+          "id": 17,
+          "name": "city",
+          "label": "شهر",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": "city",
+          "description": "",
+          "default": null,
+          "required": false,
+          "options": []
+        }
+      ]
+    },
+    "inactive": {
+      "id": 3,
+      "name": "inactive",
+      "display_name": "inactive عنوان",
+      "active": false,
+      "logo": "",
+      "check_price_url": "https://example.test/inactive",
+      "shop_id": null,
+      "price_fields": [
+        {
+          "key": "total",
+          "label": "کل"
+        }
+      ],
+      "price_currency_in": "rial",
+      "price_currency_out": "toman",
+      "price_input_param": null,
+      "weight_unit_in": "gram",
+      "weight_unit_out": "kilogram",
+      "weight_input_param": null,
+      "timeout": null,
+      "main_price_key": null,
+      "referral": {
+        "enabled": false,
+        "title": "",
+        "url": "",
+        "description": ""
+      },
+      "rules": [],
+      "location_config": {
+        "origin": {
+          "enabled": false,
+          "display": "separate",
+          "source": "service",
+          "custom_mode": "merge"
+        },
+        "destination": {
+          "enabled": false,
+          "display": "separate",
+          "province_param": null,
+          "city_param": null,
+          "source": "service",
+          "custom_mode": "merge"
+        },
+        "custom_locations": {
+          "provinces": [],
+          "cities": []
+        },
+        "blocked_locations": {
+          "provinces": [],
+          "cities": []
+        }
+      },
+      "params": [
+        {
+          "id": 11,
+          "name": "amount",
+          "label": "مبلغ",
+          "input": "text",
+          "type": "float",
+          "visible": true,
+          "kind": "money",
+          "description": "",
+          "default": 0,
+          "required": true
+        },
+        {
+          "id": 12,
+          "name": "weight",
+          "label": "وزن",
+          "input": "text",
+          "type": "float",
+          "visible": true,
+          "kind": "weight",
+          "description": "",
+          "default": 1,
+          "required": false
+        },
+        {
+          "id": 13,
+          "name": "mode",
+          "label": "نوع",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": "a",
+          "required": false,
+          "options": [
+            {
+              "value": "a",
+              "label": "اول"
+            },
+            {
+              "value": "b",
+              "label": "دوم"
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "name": "rows",
+          "label": "ردیف",
+          "input": "list",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": null,
+          "required": false,
+          "min_items": 1,
+          "fields": [
+            {
+              "id": 141,
+              "name": "cost",
+              "label": "هزینه",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "default": 0,
+              "kind": null,
+              "required": false
+            },
+            {
+              "id": 142,
+              "name": "kind",
+              "label": "گونه",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "default": null,
+              "kind": null,
+              "required": false,
+              "options": [
+                {
+                  "value": "a",
+                  "label": "اول"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "name": "obj",
+          "label": "شیء",
+          "input": "dict",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": null,
+          "required": false,
+          "fields": [
+            {
+              "id": 151,
+              "name": "city",
+              "label": "شهر",
+              "input": "text",
+              "type": "str",
+              "visible": true,
+              "default": "",
+              "kind": null,
+              "required": false
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "name": "province",
+          "label": "استان",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": "province",
+          "description": "",
+          "default": null,
+          "required": false,
+          "options": []
+        },
+        {
+          "id": 17,
+          "name": "city",
+          "label": "شهر",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": "city",
+          "description": "",
+          "default": null,
+          "required": false,
+          "options": []
+        }
+      ]
+    },
+    "providers": [
+      {
+        "id": 1,
+        "name": "one",
+        "display_name": "one عنوان",
+        "active": true,
+        "logo": "",
+        "check_price_url": "https://example.test/one",
+        "shop_id": null,
+        "price_fields": [
+          {
+            "key": "total",
+            "label": "کل"
+          }
+        ],
+        "price_currency_in": "rial",
+        "price_currency_out": "toman",
+        "price_input_param": null,
+        "weight_unit_in": "gram",
+        "weight_unit_out": "kilogram",
+        "weight_input_param": null,
+        "timeout": null,
+        "main_price_key": null,
+        "referral": {
+          "enabled": false,
+          "title": "",
+          "url": "",
+          "description": ""
+        },
+        "rules": [],
+        "location_config": {
+          "origin": {
+            "enabled": false,
+            "display": "separate",
+            "source": "service",
+            "custom_mode": "merge"
+          },
+          "destination": {
+            "enabled": false,
+            "display": "separate",
+            "province_param": null,
+            "city_param": null,
+            "source": "service",
+            "custom_mode": "merge"
+          },
+          "custom_locations": {
+            "provinces": [],
+            "cities": []
+          },
+          "blocked_locations": {
+            "provinces": [],
+            "cities": []
+          }
+        },
+        "params": [
+          {
+            "id": 11,
+            "name": "amount",
+            "label": "مبلغ",
+            "input": "text",
+            "type": "float",
+            "visible": true,
+            "kind": "money",
+            "description": "",
+            "default": 0,
+            "required": true
+          },
+          {
+            "id": 12,
+            "name": "weight",
+            "label": "وزن",
+            "input": "text",
+            "type": "float",
+            "visible": true,
+            "kind": "weight",
+            "description": "",
+            "default": 1,
+            "required": false
+          },
+          {
+            "id": 13,
+            "name": "mode",
+            "label": "نوع",
+            "input": "select",
+            "type": "str",
+            "visible": true,
+            "kind": null,
+            "description": "",
+            "default": "a",
+            "required": false,
+            "options": [
+              {
+                "value": "a",
+                "label": "اول"
+              },
+              {
+                "value": "b",
+                "label": "دوم"
+              }
+            ]
+          },
+          {
+            "id": 14,
+            "name": "rows",
+            "label": "ردیف",
+            "input": "list",
+            "type": "str",
+            "visible": true,
+            "kind": null,
+            "description": "",
+            "default": null,
+            "required": false,
+            "min_items": 1,
+            "fields": [
+              {
+                "id": 141,
+                "name": "cost",
+                "label": "هزینه",
+                "input": "text",
+                "type": "float",
+                "visible": true,
+                "default": 0,
+                "kind": null,
+                "required": false
+              },
+              {
+                "id": 142,
+                "name": "kind",
+                "label": "گونه",
+                "input": "select",
+                "type": "str",
+                "visible": true,
+                "default": null,
+                "kind": null,
+                "required": false,
+                "options": [
+                  {
+                    "value": "a",
+                    "label": "اول"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": 15,
+            "name": "obj",
+            "label": "شیء",
+            "input": "dict",
+            "type": "str",
+            "visible": true,
+            "kind": null,
+            "description": "",
+            "default": null,
+            "required": false,
+            "fields": [
+              {
+                "id": 151,
+                "name": "city",
+                "label": "شهر",
+                "input": "text",
+                "type": "str",
+                "visible": true,
+                "default": "",
+                "kind": null,
+                "required": false
+              }
+            ]
+          },
+          {
+            "id": 16,
+            "name": "province",
+            "label": "استان",
+            "input": "select",
+            "type": "str",
+            "visible": true,
+            "kind": "province",
+            "description": "",
+            "default": null,
+            "required": false,
+            "options": []
+          },
+          {
+            "id": 17,
+            "name": "city",
+            "label": "شهر",
+            "input": "select",
+            "type": "str",
+            "visible": true,
+            "kind": "city",
+            "description": "",
+            "default": null,
+            "required": false,
+            "options": []
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "two",
+        "display_name": "two عنوان",
+        "active": true,
+        "logo": "",
+        "check_price_url": "https://example.test/two",
+        "shop_id": null,
+        "price_fields": [
+          {
+            "key": "total",
+            "label": "کل"
+          }
+        ],
+        "price_currency_in": "rial",
+        "price_currency_out": "rial",
+        "price_input_param": null,
+        "weight_unit_in": "gram",
+        "weight_unit_out": "gram",
+        "weight_input_param": null,
+        "timeout": null,
+        "main_price_key": null,
+        "referral": {
+          "enabled": false,
+          "title": "",
+          "url": "",
+          "description": ""
+        },
+        "rules": [],
+        "location_config": {
+          "origin": {
+            "enabled": false,
+            "display": "separate",
+            "source": "service",
+            "custom_mode": "merge"
+          },
+          "destination": {
+            "enabled": false,
+            "display": "separate",
+            "province_param": null,
+            "city_param": null,
+            "source": "service",
+            "custom_mode": "merge"
+          },
+          "custom_locations": {
+            "provinces": [],
+            "cities": []
+          },
+          "blocked_locations": {
+            "provinces": [],
+            "cities": []
+          }
+        },
+        "params": [
+          {
+            "id": 11,
+            "name": "amount",
+            "label": "مبلغ",
+            "input": "text",
+            "type": "float",
+            "visible": true,
+            "kind": "money",
+            "description": "",
+            "default": 0,
+            "required": true
+          },
+          {
+            "id": 12,
+            "name": "weight",
+            "label": "وزن",
+            "input": "text",
+            "type": "float",
+            "visible": true,
+            "kind": "weight",
+            "description": "",
+            "default": 1,
+            "required": false
+          },
+          {
+            "id": 13,
+            "name": "mode",
+            "label": "نوع",
+            "input": "select",
+            "type": "str",
+            "visible": true,
+            "kind": null,
+            "description": "",
+            "default": "a",
+            "required": false,
+            "options": [
+              {
+                "value": "a",
+                "label": "اول"
+              },
+              {
+                "value": "b",
+                "label": "دوم"
+              }
+            ]
+          },
+          {
+            "id": 14,
+            "name": "rows",
+            "label": "ردیف",
+            "input": "list",
+            "type": "str",
+            "visible": true,
+            "kind": null,
+            "description": "",
+            "default": null,
+            "required": false,
+            "min_items": 1,
+            "fields": [
+              {
+                "id": 141,
+                "name": "cost",
+                "label": "هزینه",
+                "input": "text",
+                "type": "float",
+                "visible": true,
+                "default": 0,
+                "kind": null,
+                "required": false
+              },
+              {
+                "id": 142,
+                "name": "kind",
+                "label": "گونه",
+                "input": "select",
+                "type": "str",
+                "visible": true,
+                "default": null,
+                "kind": null,
+                "required": false,
+                "options": [
+                  {
+                    "value": "a",
+                    "label": "اول"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": 15,
+            "name": "obj",
+            "label": "شیء",
+            "input": "dict",
+            "type": "str",
+            "visible": true,
+            "kind": null,
+            "description": "",
+            "default": null,
+            "required": false,
+            "fields": [
+              {
+                "id": 151,
+                "name": "city",
+                "label": "شهر",
+                "input": "text",
+                "type": "str",
+                "visible": true,
+                "default": "",
+                "kind": null,
+                "required": false
+              }
+            ]
+          },
+          {
+            "id": 16,
+            "name": "province",
+            "label": "استان",
+            "input": "select",
+            "type": "str",
+            "visible": true,
+            "kind": "province",
+            "description": "",
+            "default": null,
+            "required": false,
+            "options": []
+          },
+          {
+            "id": 17,
+            "name": "city",
+            "label": "شهر",
+            "input": "select",
+            "type": "str",
+            "visible": true,
+            "kind": "city",
+            "description": "",
+            "default": null,
+            "required": false,
+            "options": []
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "name": "inactive",
+        "display_name": "inactive عنوان",
+        "active": false,
+        "logo": "",
+        "check_price_url": "https://example.test/inactive",
+        "shop_id": null,
+        "price_fields": [
+          {
+            "key": "total",
+            "label": "کل"
+          }
+        ],
+        "price_currency_in": "rial",
+        "price_currency_out": "toman",
+        "price_input_param": null,
+        "weight_unit_in": "gram",
+        "weight_unit_out": "kilogram",
+        "weight_input_param": null,
+        "timeout": null,
+        "main_price_key": null,
+        "referral": {
+          "enabled": false,
+          "title": "",
+          "url": "",
+          "description": ""
+        },
+        "rules": [],
+        "location_config": {
+          "origin": {
+            "enabled": false,
+            "display": "separate",
+            "source": "service",
+            "custom_mode": "merge"
+          },
+          "destination": {
+            "enabled": false,
+            "display": "separate",
+            "province_param": null,
+            "city_param": null,
+            "source": "service",
+            "custom_mode": "merge"
+          },
+          "custom_locations": {
+            "provinces": [],
+            "cities": []
+          },
+          "blocked_locations": {
+            "provinces": [],
+            "cities": []
+          }
+        },
+        "params": [
+          {
+            "id": 11,
+            "name": "amount",
+            "label": "مبلغ",
+            "input": "text",
+            "type": "float",
+            "visible": true,
+            "kind": "money",
+            "description": "",
+            "default": 0,
+            "required": true
+          },
+          {
+            "id": 12,
+            "name": "weight",
+            "label": "وزن",
+            "input": "text",
+            "type": "float",
+            "visible": true,
+            "kind": "weight",
+            "description": "",
+            "default": 1,
+            "required": false
+          },
+          {
+            "id": 13,
+            "name": "mode",
+            "label": "نوع",
+            "input": "select",
+            "type": "str",
+            "visible": true,
+            "kind": null,
+            "description": "",
+            "default": "a",
+            "required": false,
+            "options": [
+              {
+                "value": "a",
+                "label": "اول"
+              },
+              {
+                "value": "b",
+                "label": "دوم"
+              }
+            ]
+          },
+          {
+            "id": 14,
+            "name": "rows",
+            "label": "ردیف",
+            "input": "list",
+            "type": "str",
+            "visible": true,
+            "kind": null,
+            "description": "",
+            "default": null,
+            "required": false,
+            "min_items": 1,
+            "fields": [
+              {
+                "id": 141,
+                "name": "cost",
+                "label": "هزینه",
+                "input": "text",
+                "type": "float",
+                "visible": true,
+                "default": 0,
+                "kind": null,
+                "required": false
+              },
+              {
+                "id": 142,
+                "name": "kind",
+                "label": "گونه",
+                "input": "select",
+                "type": "str",
+                "visible": true,
+                "default": null,
+                "kind": null,
+                "required": false,
+                "options": [
+                  {
+                    "value": "a",
+                    "label": "اول"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": 15,
+            "name": "obj",
+            "label": "شیء",
+            "input": "dict",
+            "type": "str",
+            "visible": true,
+            "kind": null,
+            "description": "",
+            "default": null,
+            "required": false,
+            "fields": [
+              {
+                "id": 151,
+                "name": "city",
+                "label": "شهر",
+                "input": "text",
+                "type": "str",
+                "visible": true,
+                "default": "",
+                "kind": null,
+                "required": false
+              }
+            ]
+          },
+          {
+            "id": 16,
+            "name": "province",
+            "label": "استان",
+            "input": "select",
+            "type": "str",
+            "visible": true,
+            "kind": "province",
+            "description": "",
+            "default": null,
+            "required": false,
+            "options": []
+          },
+          {
+            "id": 17,
+            "name": "city",
+            "label": "شهر",
+            "input": "select",
+            "type": "str",
+            "visible": true,
+            "kind": "city",
+            "description": "",
+            "default": null,
+            "required": false,
+            "options": []
+          }
+        ]
+      }
+    ],
+    "config": {
+      "providers": [
+        2,
+        1,
+        3,
+        2
+      ],
+      "fields": [
+        {
+          "name": "money",
+          "label": "مبلغ",
+          "required": true
+        },
+        {
+          "name": "mass"
+        },
+        {
+          "name": "mode",
+          "source": {
+            "provider": 1,
+            "param": 13
+          }
+        },
+        {
+          "name": "cost"
+        },
+        {
+          "name": "town"
+        },
+        {
+          "name": "prov",
+          "kind": "province"
+        },
+        {
+          "name": "dest",
+          "kind": "city"
+        }
+      ],
+      "mappings": {
+        "1": {
+          "money": "11",
+          "mass": "12",
+          "mode": "14.142",
+          "cost": "14.141",
+          "town": "15.151",
+          "prov": "16",
+          "dest": "17"
+        },
+        "2": {
+          "money": "11",
+          "mass": "12",
+          "mode": "13",
+          "prov": "16",
+          "dest": "17"
+        }
+      },
+      "value_mappings": {
+        "1": {
+          "mode": {
+            "shared": "a",
+            "False": "b",
+            "0": null
+          }
+        },
+        "2": {
+          "mode": {
+            "shared": "b"
+          }
+        }
+      },
+      "price": {
+        "field": "money",
+        "unit": "rial"
+      },
+      "weight": {
+        "field": "mass",
+        "unit": "gram"
+      },
+      "variants": {
+        "1": {
+          "13": [
+            "a",
+            "b"
+          ],
+          "14.141": [
+            "2",
+            "3"
+          ]
+        }
+      }
+    },
+    "section": {
+      "bindings": {
+        "origin_province_id": {
+          "kind": "province",
+          "items": [
+            {
+              "value": 9
+            }
+          ]
+        },
+        "province": {
+          "kind": "province",
+          "items": [
+            {
+              "value": 1
+            },
+            {
+              "value": 2
+            }
+          ]
+        },
+        "city": {
+          "kind": "city",
+          "items_by_parent": {
+            "1": [
+              {
+                "value": 10
+              }
+            ],
+            "2": [
+              {
+                "value": 20
+              }
+            ],
+            "ignored": {}
+          }
+        }
+      }
+    }
+  },
+  "providers": [
+    {
+      "id": 1,
+      "name": "one",
+      "display_name": "one عنوان",
+      "active": true,
+      "logo": "",
+      "check_price_url": "https://example.test/one",
+      "shop_id": null,
+      "price_fields": [
+        {
+          "key": "total",
+          "label": "کل"
+        }
+      ],
+      "price_currency_in": "rial",
+      "price_currency_out": "toman",
+      "price_input_param": null,
+      "weight_unit_in": "gram",
+      "weight_unit_out": "kilogram",
+      "weight_input_param": null,
+      "timeout": null,
+      "main_price_key": null,
+      "referral": {
+        "enabled": false,
+        "title": "",
+        "url": "",
+        "description": ""
+      },
+      "rules": [],
+      "location_config": {
+        "origin": {
+          "enabled": false,
+          "display": "separate",
+          "source": "service",
+          "custom_mode": "merge"
+        },
+        "destination": {
+          "enabled": false,
+          "display": "separate",
+          "province_param": null,
+          "city_param": null,
+          "source": "service",
+          "custom_mode": "merge"
+        },
+        "custom_locations": {
+          "provinces": [],
+          "cities": []
+        },
+        "blocked_locations": {
+          "provinces": [],
+          "cities": []
+        }
+      },
+      "params": [
+        {
+          "id": 11,
+          "name": "amount",
+          "label": "مبلغ",
+          "input": "text",
+          "type": "float",
+          "visible": true,
+          "kind": "money",
+          "description": "",
+          "default": 0,
+          "required": true
+        },
+        {
+          "id": 12,
+          "name": "weight",
+          "label": "وزن",
+          "input": "text",
+          "type": "float",
+          "visible": true,
+          "kind": "weight",
+          "description": "",
+          "default": 1,
+          "required": false
+        },
+        {
+          "id": 13,
+          "name": "mode",
+          "label": "نوع",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": "a",
+          "required": false,
+          "options": [
+            {
+              "value": "a",
+              "label": "اول"
+            },
+            {
+              "value": "b",
+              "label": "دوم"
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "name": "rows",
+          "label": "ردیف",
+          "input": "list",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": null,
+          "required": false,
+          "min_items": 1,
+          "fields": [
+            {
+              "id": 141,
+              "name": "cost",
+              "label": "هزینه",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "default": 0,
+              "kind": null,
+              "required": false
+            },
+            {
+              "id": 142,
+              "name": "kind",
+              "label": "گونه",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "default": null,
+              "kind": null,
+              "required": false,
+              "options": [
+                {
+                  "value": "a",
+                  "label": "اول"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "name": "obj",
+          "label": "شیء",
+          "input": "dict",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": null,
+          "required": false,
+          "fields": [
+            {
+              "id": 151,
+              "name": "city",
+              "label": "شهر",
+              "input": "text",
+              "type": "str",
+              "visible": true,
+              "default": "",
+              "kind": null,
+              "required": false
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "name": "province",
+          "label": "استان",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": "province",
+          "description": "",
+          "default": null,
+          "required": false,
+          "options": []
+        },
+        {
+          "id": 17,
+          "name": "city",
+          "label": "شهر",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": "city",
+          "description": "",
+          "default": null,
+          "required": false,
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "two",
+      "display_name": "two عنوان",
+      "active": true,
+      "logo": "",
+      "check_price_url": "https://example.test/two",
+      "shop_id": null,
+      "price_fields": [
+        {
+          "key": "total",
+          "label": "کل"
+        }
+      ],
+      "price_currency_in": "rial",
+      "price_currency_out": "rial",
+      "price_input_param": null,
+      "weight_unit_in": "gram",
+      "weight_unit_out": "gram",
+      "weight_input_param": null,
+      "timeout": null,
+      "main_price_key": null,
+      "referral": {
+        "enabled": false,
+        "title": "",
+        "url": "",
+        "description": ""
+      },
+      "rules": [],
+      "location_config": {
+        "origin": {
+          "enabled": false,
+          "display": "separate",
+          "source": "service",
+          "custom_mode": "merge"
+        },
+        "destination": {
+          "enabled": false,
+          "display": "separate",
+          "province_param": null,
+          "city_param": null,
+          "source": "service",
+          "custom_mode": "merge"
+        },
+        "custom_locations": {
+          "provinces": [],
+          "cities": []
+        },
+        "blocked_locations": {
+          "provinces": [],
+          "cities": []
+        }
+      },
+      "params": [
+        {
+          "id": 11,
+          "name": "amount",
+          "label": "مبلغ",
+          "input": "text",
+          "type": "float",
+          "visible": true,
+          "kind": "money",
+          "description": "",
+          "default": 0,
+          "required": true
+        },
+        {
+          "id": 12,
+          "name": "weight",
+          "label": "وزن",
+          "input": "text",
+          "type": "float",
+          "visible": true,
+          "kind": "weight",
+          "description": "",
+          "default": 1,
+          "required": false
+        },
+        {
+          "id": 13,
+          "name": "mode",
+          "label": "نوع",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": "a",
+          "required": false,
+          "options": [
+            {
+              "value": "a",
+              "label": "اول"
+            },
+            {
+              "value": "b",
+              "label": "دوم"
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "name": "rows",
+          "label": "ردیف",
+          "input": "list",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": null,
+          "required": false,
+          "min_items": 1,
+          "fields": [
+            {
+              "id": 141,
+              "name": "cost",
+              "label": "هزینه",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "default": 0,
+              "kind": null,
+              "required": false
+            },
+            {
+              "id": 142,
+              "name": "kind",
+              "label": "گونه",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "default": null,
+              "kind": null,
+              "required": false,
+              "options": [
+                {
+                  "value": "a",
+                  "label": "اول"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "name": "obj",
+          "label": "شیء",
+          "input": "dict",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": null,
+          "required": false,
+          "fields": [
+            {
+              "id": 151,
+              "name": "city",
+              "label": "شهر",
+              "input": "text",
+              "type": "str",
+              "visible": true,
+              "default": "",
+              "kind": null,
+              "required": false
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "name": "province",
+          "label": "استان",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": "province",
+          "description": "",
+          "default": null,
+          "required": false,
+          "options": []
+        },
+        {
+          "id": 17,
+          "name": "city",
+          "label": "شهر",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": "city",
+          "description": "",
+          "default": null,
+          "required": false,
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "inactive",
+      "display_name": "inactive عنوان",
+      "active": false,
+      "logo": "",
+      "check_price_url": "https://example.test/inactive",
+      "shop_id": null,
+      "price_fields": [
+        {
+          "key": "total",
+          "label": "کل"
+        }
+      ],
+      "price_currency_in": "rial",
+      "price_currency_out": "toman",
+      "price_input_param": null,
+      "weight_unit_in": "gram",
+      "weight_unit_out": "kilogram",
+      "weight_input_param": null,
+      "timeout": null,
+      "main_price_key": null,
+      "referral": {
+        "enabled": false,
+        "title": "",
+        "url": "",
+        "description": ""
+      },
+      "rules": [],
+      "location_config": {
+        "origin": {
+          "enabled": false,
+          "display": "separate",
+          "source": "service",
+          "custom_mode": "merge"
+        },
+        "destination": {
+          "enabled": false,
+          "display": "separate",
+          "province_param": null,
+          "city_param": null,
+          "source": "service",
+          "custom_mode": "merge"
+        },
+        "custom_locations": {
+          "provinces": [],
+          "cities": []
+        },
+        "blocked_locations": {
+          "provinces": [],
+          "cities": []
+        }
+      },
+      "params": [
+        {
+          "id": 11,
+          "name": "amount",
+          "label": "مبلغ",
+          "input": "text",
+          "type": "float",
+          "visible": true,
+          "kind": "money",
+          "description": "",
+          "default": 0,
+          "required": true
+        },
+        {
+          "id": 12,
+          "name": "weight",
+          "label": "وزن",
+          "input": "text",
+          "type": "float",
+          "visible": true,
+          "kind": "weight",
+          "description": "",
+          "default": 1,
+          "required": false
+        },
+        {
+          "id": 13,
+          "name": "mode",
+          "label": "نوع",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": "a",
+          "required": false,
+          "options": [
+            {
+              "value": "a",
+              "label": "اول"
+            },
+            {
+              "value": "b",
+              "label": "دوم"
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "name": "rows",
+          "label": "ردیف",
+          "input": "list",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": null,
+          "required": false,
+          "min_items": 1,
+          "fields": [
+            {
+              "id": 141,
+              "name": "cost",
+              "label": "هزینه",
+              "input": "text",
+              "type": "float",
+              "visible": true,
+              "default": 0,
+              "kind": null,
+              "required": false
+            },
+            {
+              "id": 142,
+              "name": "kind",
+              "label": "گونه",
+              "input": "select",
+              "type": "str",
+              "visible": true,
+              "default": null,
+              "kind": null,
+              "required": false,
+              "options": [
+                {
+                  "value": "a",
+                  "label": "اول"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "name": "obj",
+          "label": "شیء",
+          "input": "dict",
+          "type": "str",
+          "visible": true,
+          "kind": null,
+          "description": "",
+          "default": null,
+          "required": false,
+          "fields": [
+            {
+              "id": 151,
+              "name": "city",
+              "label": "شهر",
+              "input": "text",
+              "type": "str",
+              "visible": true,
+              "default": "",
+              "kind": null,
+              "required": false
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "name": "province",
+          "label": "استان",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": "province",
+          "description": "",
+          "default": null,
+          "required": false,
+          "options": []
+        },
+        {
+          "id": 17,
+          "name": "city",
+          "label": "شهر",
+          "input": "select",
+          "type": "str",
+          "visible": true,
+          "kind": "city",
+          "description": "",
+          "default": null,
+          "required": false,
+          "options": []
+        }
+      ]
+    }
+  ],
+  "config": {
+    "providers": [
+      2,
+      1,
+      3,
+      2
+    ],
+    "fields": [
+      {
+        "name": "money",
+        "label": "مبلغ",
+        "required": true
+      },
+      {
+        "name": "mass"
+      },
+      {
+        "name": "mode",
+        "source": {
+          "provider": 1,
+          "param": 13
+        }
+      },
+      {
+        "name": "cost"
+      },
+      {
+        "name": "town"
+      },
+      {
+        "name": "prov",
+        "kind": "province"
+      },
+      {
+        "name": "dest",
+        "kind": "city"
+      }
+    ],
+    "mappings": {
+      "1": {
+        "money": "11",
+        "mass": "12",
+        "mode": "14.142",
+        "cost": "14.141",
+        "town": "15.151",
+        "prov": "16",
+        "dest": "17"
+      },
+      "2": {
+        "money": "11",
+        "mass": "12",
+        "mode": "13",
+        "prov": "16",
+        "dest": "17"
+      }
+    },
+    "value_mappings": {
+      "1": {
+        "mode": {
+          "shared": "a",
+          "False": "b",
+          "0": null
+        }
+      },
+      "2": {
+        "mode": {
+          "shared": "b"
+        }
+      }
+    },
+    "price": {
+      "field": "money",
+      "unit": "rial"
+    },
+    "weight": {
+      "field": "mass",
+      "unit": "gram"
+    },
+    "variants": {
+      "1": {
+        "13": [
+          "a",
+          "b"
+        ],
+        "14.141": [
+          "2",
+          "3"
+        ]
+      }
+    }
+  },
+  "section": {
+    "bindings": {
+      "origin_province_id": {
+        "kind": "province",
+        "items": [
+          {
+            "value": 9
+          }
+        ]
+      },
+      "province": {
+        "kind": "province",
+        "items": [
+          {
+            "value": 1
+          },
+          {
+            "value": 2
+          }
+        ]
+      },
+      "city": {
+        "kind": "city",
+        "items_by_parent": {
+          "1": [
+            {
+              "value": 10
+            }
+          ],
+          "2": [
+            {
+              "value": 20
+            }
+          ],
+          "ignored": {}
+        }
+      }
+    }
+  }
+}

@@ -41,6 +41,12 @@ final class BulkConfig {
 		$row = V::get( $map, $id ); if ( null === $row ) { $row = V::get( $map, (string) $id, V::object() ); }
 		return V::mapping( $row ) ? V::object( (array) $row ) : V::object();
 	}
+	/** records.py::bulk_field_provider_id; share the existing stable-ID/name resolver. */
+	public static function field_provider_id( $ref, array $providers ): ?int {
+		if ( ! V::mapping( $ref ) ) { return null; }
+		list( $ids, $names ) = self::identities( $providers );
+		return self::resolve( V::get( $ref, 'provider' ), $ids, $names );
+	}
 	private static function provider_ref( $raw, array $ids, array $names, string $path, array &$errors ): ?int {
 		$id = self::resolve( $raw, $ids, $names ); if ( null === $id ) { $text = V::fallback( V::text( $raw ), V::string( $raw ) ); ProviderConfig::error( $errors, $path, "شرکت ناشناخته در استعلام گروهی: {$text}" ); } return $id;
 	}
