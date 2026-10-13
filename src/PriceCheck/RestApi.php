@@ -22,6 +22,12 @@ final class RestApi {
 		array( '/price-check', 'POST', 'check_price', true ), array( '/bulk-check', 'POST', 'bulk_check', true ), array( '/bulk-validate', 'POST', 'bulk_validate', true ),
 		array( '/admin/preview/provider-schema', 'POST', 'preview_provider_schema', false ), array( '/admin/preview/price-check', 'POST', 'preview_price_check', false ),
 		array( '/admin/preview/bulk-schema', 'POST', 'preview_bulk_schema', false ), array( '/admin/preview/bulk-check', 'POST', 'preview_bulk_check', false ), array( '/admin/preview/bulk-validate', 'POST', 'preview_bulk_validate', false ),
+		array( '/admin/providers', 'GET', 'admin_list_providers', false ), array( '/admin/providers', 'POST', 'admin_create_provider', false ),
+		array( '/admin/providers/(?P<provider_id>[^/]+)/unserved-locations', 'GET', 'admin_unserved_locations', false ),
+		array( '/admin/providers/(?P<provider_id>[^/]+)', 'GET', 'admin_get_provider', false ), array( '/admin/providers/(?P<provider_id>[^/]+)', 'PUT', 'admin_update_provider', false ), array( '/admin/providers/(?P<provider_id>[^/]+)', 'DELETE', 'admin_delete_provider', false ),
+		array( '/admin/shops', 'GET', 'admin_list_shops', false ), array( '/admin/shops', 'POST', 'admin_create_shop', false ),
+		array( '/admin/shops/(?P<shop_id>[^/]+)', 'GET', 'admin_get_shop', false ), array( '/admin/shops/(?P<shop_id>[^/]+)', 'PUT', 'admin_update_shop', false ), array( '/admin/shops/(?P<shop_id>[^/]+)', 'DELETE', 'admin_delete_shop', false ),
+		array( '/admin/bulk', 'GET', 'admin_get_bulk', false ), array( '/admin/bulk', 'PUT', 'admin_save_bulk', false ),
 	); }
 	public static function permission( $request ) {
 		if ( ! Access::can_manage() || ! wp_verify_nonce( $request->get_header( 'X-WP-Nonce' ) ?: $request->get_param( '_wpnonce' ), 'wp_rest' ) ) { return new \WP_Error( 'tapin_price_forbidden', 'دسترسی به مدیریت استعلام قیمت مجاز نیست.', array( 'status' => 403 ) ); } return true;
@@ -37,6 +43,7 @@ final class RestApi {
 		$cookie = $verdict->cookie( $this->random ); if ( null !== $cookie ) { $response->header( 'Set-Cookie', $cookie['name'] . '=' . $cookie['value'] . '; Max-Age=' . $cookie['max_age'] . '; Path=/; HttpOnly; SameSite=lax' ); }
 	}
 	public function handle( $request, string $operation, bool $guarded, bool $admin ): \WP_REST_Response {
+		$admin = $admin || 0 === strpos( $operation, 'admin_' ) || 0 === strpos( $operation, 'preview_' );
 		if ( $admin && true !== self::permission( $request ) ) { return new \WP_REST_Response( array( 'detail' => 'دسترسی به مدیریت استعلام قیمت مجاز نیست.', 'errors' => array() ), 403 ); }
 		$verdict = null; $context = null;
 		try {
