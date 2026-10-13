@@ -26,6 +26,7 @@ final class BulkMapping {
 		foreach ( ProviderDefinition::params( $provider ) as $param ) { $params[V::get( $param, 'name' )] = $param; }
 		$mapping = BulkConfig::mappings_for( $config, $provider->id );
 		foreach ( V::get( $config, 'fields', array() ) as $field ) {
+			if ( ! V::mapping( $field ) || ! V::has( $field, 'name' ) ) { throw new \UnexpectedValueException( 'Malformed stored bulk field.' ); }
 			$name = V::get( $field, 'name' ); if ( ! V::has( $values, $name ) ) { continue; } $value = V::get( $values, $name );
 			$price = V::get( $config, 'price' ); $weight = V::get( $config, 'weight' );
 			if ( V::mapping( $price ) && V::get( $price, 'field' ) === $name ) {
@@ -113,6 +114,7 @@ final class BulkMapping {
 	public static function fields_with_kinds( $config, array $providers, array $active ): array {
 		$by_id = array(); foreach ( $providers as $provider ) { $by_id[$provider->id] = $provider; } $fields = array();
 		foreach ( V::get( $config, 'fields', array() ) as $field ) {
+			if ( ! V::mapping( $field ) ) { throw new \UnexpectedValueException( 'Malformed stored bulk field.' ); }
 			$row = (array) $field; $kind = V::get( $field, 'kind' ); $candidates = array();
 			foreach ( array( 'mirror', 'source' ) as $key ) {
 				$ref = V::get( $field, $key ); $id = BulkConfig::field_provider_id( $ref, $providers );
