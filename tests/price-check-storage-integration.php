@@ -12,6 +12,7 @@ use Tapin\ServicePointLocator\PriceCheck\ProviderConfig;
 use Tapin\ServicePointLocator\PriceCheck\ProviderStorage;
 use Tapin\ServicePointLocator\PriceCheck\StorageError;
 use Tapin\ServicePointLocator\PriceCheck\ShopStorage;
+use Tapin\ServicePointLocator\PriceCheck\BulkStorage;
 
 global $wpdb;
 $original_prefix = $wpdb->prefix;
@@ -44,6 +45,16 @@ try {
 	storage_integration_check( '01' === $listing[0]['id'] && ! array_key_exists( 'token', $listing[0] ) && 1 === $listing[0]['has_token'], 'Shop list shape changed.' );
 	$shop->city = '2'; ShopStorage::save( array( $shop ) );
 	storage_integration_check( '2' === ShopStorage::get_private( '01' )['city'] && ShopStorage::delete( '01' ) && ! ShopStorage::delete( '01' ), 'Shop update/delete failed.' );
+	storage_integration_check( ! property_exists( BulkStorage::get(), 'weight' ), 'Unsaved bulk defaults changed.' );
+	$bulk = (object) array( 'providers' => array( 1, 2 ), 'mappings' => (object) array( '1' => (object) array( 'shared' => '4' ), '2' => new stdClass() ), 'fields' => array( (object) array( 'name' => 'shared', 'source' => (object) array( 'provider' => 1, 'param' => 4 ) ) ) );
+	BulkStorage::save( $bulk ); BulkStorage::save( $bulk );
+	storage_integration_check( BulkStorage::get()->mappings->{'1'}->shared === '4', 'Bulk mapping round trip failed.' );
+	storage_integration_check( BulkStorage::prune_provider( 1 ) && ! BulkStorage::prune_provider( 1 ), 'Bulk prune/no-op failed.' );
+	storage_integration_check( array( 2 ) === BulkStorage::get()->providers && null === BulkStorage::get()->fields[0]->source, 'Bulk references survived pruning.' );
+	$test_prefix = $wpdb->prefix; $wpdb->prefix .= 'missing_';
+	try { BulkStorage::save( new stdClass() ); throw new RuntimeException( 'Missing-table write reported success.' ); }
+	catch ( StorageError $expected ) { $passed++; }
+	finally { $wpdb->prefix = $test_prefix; }
 	echo "PASS dedicated WordPress/MySQL configuration storage: {$passed} assertions.\n";
 } finally {
 	foreach ( array_reverse( $tables ) as $table ) { $wpdb->query( "DROP TABLE IF EXISTS `{$table}`" ); }

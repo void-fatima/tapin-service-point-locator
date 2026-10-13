@@ -5645,6 +5645,2848 @@
           }
         }
       ]
+    },
+    {
+      "name": "bulk singleton exact JSON replacement and prune",
+      "actions": [
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [],
+              "fields": [],
+              "mappings": {},
+              "variants": {},
+              "location": {
+                "origin": {
+                  "enabled": true,
+                  "display": "combined"
+                },
+                "destination": {
+                  "enabled": true,
+                  "display": "combined",
+                  "province_field": null,
+                  "city_field": null
+                }
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              }
+            }
+          }
+        },
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [
+                1,
+                "01",
+                "fixture",
+                2,
+                true,
+                1.0,
+                null
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "1": {
+                  "amount": "1"
+                },
+                "fixture": {},
+                "2": {
+                  "amount": "2"
+                }
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_json",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": "{\"providers\": [1, \"01\", \"fixture\", 2, true, 1.0, null], \"fields\": [{\"name\": \"amount\", \"source\": {\"provider\": \"fixture\", \"param\": 1}, \"mirror\": null}, {\"name\": \"other\", \"mirror\": {\"provider\": 1, \"param\": 4}}, null], \"mappings\": {\"1\": {\"amount\": \"1\"}, \"fixture\": {}, \"2\": {\"amount\": \"2\"}}, \"value_mappings\": {\"1\": {\"amount\": {\"0\": \"0\"}}, \"fixture\": {}, \"2\": {}}, \"variants\": {\"1\": {\"4\": [\"0\", \"x\"]}, \"fixture\": {}, \"2\": {}}, \"price\": {\"field\": null, \"unit\": \"rial\"}, \"weight\": {\"field\": \"amount\", \"unit\": \"gram\"}, \"extra\": {\"bool\": true, \"none\": null, \"list\": [], \"object\": {}, \"unicode\": \"شعبه/ \", \"numbers\": [0, 1.0, -0.0, 1e-05, 1e+16]}}"
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [
+                1,
+                "01",
+                "fixture",
+                2,
+                true,
+                1.0,
+                null
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "1": {
+                  "amount": "1"
+                },
+                "fixture": {},
+                "2": {
+                  "amount": "2"
+                }
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            1,
+            "fixture"
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [
+                2,
+                true,
+                1.0,
+                null
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": null,
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": null
+                },
+                null
+              ],
+              "mappings": {
+                "2": {
+                  "amount": "2"
+                }
+              },
+              "value_mappings": {
+                "2": {}
+              },
+              "variants": {
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            1,
+            "fixture"
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "bulk_save",
+          "args": [
+            {}
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {}
+          }
+        },
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [],
+              "fields": [],
+              "mappings": {},
+              "variants": {},
+              "location": {
+                "origin": {
+                  "enabled": true,
+                  "display": "combined"
+                },
+                "destination": {
+                  "enabled": true,
+                  "display": "combined",
+                  "province_field": null,
+                  "city_field": null
+                }
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              }
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [],
+              "fields": [],
+              "mappings": {},
+              "variants": {},
+              "location": {
+                "origin": {
+                  "enabled": true,
+                  "display": "combined"
+                },
+                "destination": {
+                  "enabled": true,
+                  "display": "combined",
+                  "province_field": null,
+                  "city_field": null
+                }
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk stored JSON fallback 'bad-json'",
+      "actions": [
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [],
+              "fields": [],
+              "mappings": {},
+              "variants": {},
+              "location": {
+                "origin": {
+                  "enabled": true,
+                  "display": "combined"
+                },
+                "destination": {
+                  "enabled": true,
+                  "display": "combined",
+                  "province_field": null,
+                  "city_field": null
+                }
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              }
+            }
+          }
+        }
+      ],
+      "initial_bulk_json": "bad-json"
+    },
+    {
+      "name": "bulk stored JSON fallback ''",
+      "actions": [
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [],
+              "fields": [],
+              "mappings": {},
+              "variants": {},
+              "location": {
+                "origin": {
+                  "enabled": true,
+                  "display": "combined"
+                },
+                "destination": {
+                  "enabled": true,
+                  "display": "combined",
+                  "province_field": null,
+                  "city_field": null
+                }
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              }
+            }
+          }
+        }
+      ],
+      "initial_bulk_json": ""
+    },
+    {
+      "name": "bulk stored JSON fallback '[]'",
+      "actions": [
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [],
+              "fields": [],
+              "mappings": {},
+              "variants": {},
+              "location": {
+                "origin": {
+                  "enabled": true,
+                  "display": "combined"
+                },
+                "destination": {
+                  "enabled": true,
+                  "display": "combined",
+                  "province_field": null,
+                  "city_field": null
+                }
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              }
+            }
+          }
+        }
+      ],
+      "initial_bulk_json": "[]"
+    },
+    {
+      "name": "bulk stored JSON fallback 'null'",
+      "actions": [
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [],
+              "fields": [],
+              "mappings": {},
+              "variants": {},
+              "location": {
+                "origin": {
+                  "enabled": true,
+                  "display": "combined"
+                },
+                "destination": {
+                  "enabled": true,
+                  "display": "combined",
+                  "province_field": null,
+                  "city_field": null
+                }
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              }
+            }
+          }
+        }
+      ],
+      "initial_bulk_json": "null"
+    },
+    {
+      "name": "bulk stored JSON fallback 'true'",
+      "actions": [
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [],
+              "fields": [],
+              "mappings": {},
+              "variants": {},
+              "location": {
+                "origin": {
+                  "enabled": true,
+                  "display": "combined"
+                },
+                "destination": {
+                  "enabled": true,
+                  "display": "combined",
+                  "province_field": null,
+                  "city_field": null
+                }
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              }
+            }
+          }
+        }
+      ],
+      "initial_bulk_json": "true"
+    },
+    {
+      "name": "bulk stored JSON fallback '1'",
+      "actions": [
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [],
+              "fields": [],
+              "mappings": {},
+              "variants": {},
+              "location": {
+                "origin": {
+                  "enabled": true,
+                  "display": "combined"
+                },
+                "destination": {
+                  "enabled": true,
+                  "display": "combined",
+                  "province_field": null,
+                  "city_field": null
+                }
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              }
+            }
+          }
+        }
+      ],
+      "initial_bulk_json": "1"
+    },
+    {
+      "name": "bulk stored JSON fallback '{}'",
+      "actions": [
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {}
+          }
+        }
+      ],
+      "initial_bulk_json": "{}"
+    },
+    {
+      "name": "bulk identity prune None",
+      "actions": [
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [
+                0,
+                "0",
+                false,
+                -1,
+                "-1",
+                1,
+                "1",
+                true,
+                1.0
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "0": {},
+                "-1": {},
+                "1": {},
+                "fixture": {}
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            null
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [
+                0,
+                "0",
+                false,
+                -1,
+                "-1",
+                1,
+                "1",
+                true,
+                1.0
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "0": {},
+                "-1": {},
+                "1": {},
+                "fixture": {}
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk identity prune 'bad'",
+      "actions": [
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [
+                0,
+                "0",
+                false,
+                -1,
+                "-1",
+                1,
+                "1",
+                true,
+                1.0
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "0": {},
+                "-1": {},
+                "1": {},
+                "fixture": {}
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            "bad"
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [
+                0,
+                "0",
+                false,
+                -1,
+                "-1",
+                1,
+                "1",
+                true,
+                1.0
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "0": {},
+                "-1": {},
+                "1": {},
+                "fixture": {}
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk identity prune True",
+      "actions": [
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [
+                0,
+                "0",
+                false,
+                -1,
+                "-1",
+                1,
+                "1",
+                true,
+                1.0
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "0": {},
+                "-1": {},
+                "1": {},
+                "fixture": {}
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            true
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [
+                0,
+                "0",
+                false,
+                -1,
+                "-1",
+                true,
+                1.0
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": null
+                },
+                null
+              ],
+              "mappings": {
+                "0": {},
+                "-1": {},
+                "fixture": {}
+              },
+              "value_mappings": {
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk identity prune 0",
+      "actions": [
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [
+                0,
+                "0",
+                false,
+                -1,
+                "-1",
+                1,
+                "1",
+                true,
+                1.0
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "0": {},
+                "-1": {},
+                "1": {},
+                "fixture": {}
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            0
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [
+                false,
+                -1,
+                "-1",
+                1,
+                "1",
+                true,
+                1.0
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "-1": {},
+                "1": {},
+                "fixture": {}
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk identity prune -1",
+      "actions": [
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [
+                0,
+                "0",
+                false,
+                -1,
+                "-1",
+                1,
+                "1",
+                true,
+                1.0
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "0": {},
+                "-1": {},
+                "1": {},
+                "fixture": {}
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            -1
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [
+                0,
+                "0",
+                false,
+                "-1",
+                1,
+                "1",
+                true,
+                1.0
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "0": {},
+                "-1": {},
+                "1": {},
+                "fixture": {}
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk identity prune 1.5",
+      "actions": [
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [
+                0,
+                "0",
+                false,
+                -1,
+                "-1",
+                1,
+                "1",
+                true,
+                1.0
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "0": {},
+                "-1": {},
+                "1": {},
+                "fixture": {}
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            1.5
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [
+                0,
+                "0",
+                false,
+                -1,
+                "-1",
+                true,
+                1.0
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": null
+                },
+                null
+              ],
+              "mappings": {
+                "0": {},
+                "-1": {},
+                "fixture": {}
+              },
+              "value_mappings": {
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk identity prune '01'",
+      "actions": [
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [
+                0,
+                "0",
+                false,
+                -1,
+                "-1",
+                1,
+                "1",
+                true,
+                1.0
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "0": {},
+                "-1": {},
+                "1": {},
+                "fixture": {}
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            "01"
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [
+                0,
+                "0",
+                false,
+                -1,
+                "-1",
+                true,
+                1.0
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": null
+                },
+                null
+              ],
+              "mappings": {
+                "0": {},
+                "-1": {},
+                "fixture": {}
+              },
+              "value_mappings": {
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk malformed reference slots 39",
+      "actions": [
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": {},
+              "fields": {},
+              "mappings": [],
+              "value_mappings": null,
+              "variants": "bad"
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            1,
+            "fixture"
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": {},
+              "fields": {},
+              "mappings": [],
+              "value_mappings": null,
+              "variants": "bad"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk malformed reference slots 40",
+      "actions": [
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [],
+              "fields": [
+                true,
+                {
+                  "source": []
+                },
+                {
+                  "source": {
+                    "provider": false
+                  }
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            1,
+            "fixture"
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [],
+              "fields": [
+                true,
+                {
+                  "source": []
+                },
+                {
+                  "source": {
+                    "provider": false
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk malformed reference slots 41",
+      "actions": [
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [
+                "fixture"
+              ],
+              "mappings": {},
+              "fields": []
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            1,
+            "fixture"
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [],
+              "mappings": {},
+              "fields": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk SQL errors",
+      "actions": [
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [
+                1,
+                "01",
+                "fixture",
+                2,
+                true,
+                1.0,
+                null
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "1": {
+                  "amount": "1"
+                },
+                "fixture": {},
+                "2": {
+                  "amount": "2"
+                }
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          ],
+          "failure": {
+            "kind": "INSERT",
+            "table": "bulk_config"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [],
+              "fields": [],
+              "mappings": {},
+              "variants": {},
+              "location": {
+                "origin": {
+                  "enabled": true,
+                  "display": "combined"
+                },
+                "destination": {
+                  "enabled": true,
+                  "display": "combined",
+                  "province_field": null,
+                  "city_field": null
+                }
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              }
+            }
+          }
+        },
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [
+                1,
+                "01",
+                "fixture",
+                2,
+                true,
+                1.0,
+                null
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "1": {
+                  "amount": "1"
+                },
+                "fixture": {},
+                "2": {
+                  "amount": "2"
+                }
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "failure": {
+            "kind": "SELECT",
+            "table": "bulk_config"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            1,
+            "fixture"
+          ],
+          "failure": {
+            "kind": "INSERT",
+            "table": "bulk_config"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [
+                1,
+                "01",
+                "fixture",
+                2,
+                true,
+                1.0,
+                null
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "1": {
+                  "amount": "1"
+                },
+                "fixture": {},
+                "2": {
+                  "amount": "2"
+                }
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "provider deletion and bulk pruning are separate",
+      "actions": [
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": null,
+              "name": "fixture",
+              "display_name": "fixture",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields": [
+                {
+                  "key": "total",
+                  "label": "هزینه"
+                }
+              ],
+              "price_currency_in": "rial",
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "referral": {
+                "enabled": true,
+                "title": "0",
+                "url": "https://example.test",
+                "description": ""
+              },
+              "rules": [
+                {
+                  "name": "",
+                  "if_field": "amount",
+                  "if_op": "gte",
+                  "if_value": "0",
+                  "if_value2": "",
+                  "then_field": "",
+                  "then_op": "",
+                  "then_value": "",
+                  "then_value2": "",
+                  "message": ""
+                }
+              ],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": null,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "float",
+                  "visible": true,
+                  "kind": "money",
+                  "description": "شرح",
+                  "default": 1.25,
+                  "required": true
+                },
+                {
+                  "id": null,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": null,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "default": 0,
+                      "kind": null,
+                      "required": false
+                    },
+                    {
+                      "id": null,
+                      "name": "code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "default": "0",
+                      "kind": null,
+                      "required": false,
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "details",
+                  "label": "details",
+                  "input": "dict",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "fields": [
+                    {
+                      "id": null,
+                      "name": "text",
+                      "label": "text",
+                      "input": "text",
+                      "type": "str",
+                      "visible": true,
+                      "default": "0",
+                      "kind": null,
+                      "required": false
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "choice",
+                  "label": "choice",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "default": "0",
+                  "required": false,
+                  "options": [
+                    {
+                      "value": "0",
+                      "label": "0"
+                    },
+                    {
+                      "value": "x",
+                      "label": "x"
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "point",
+                  "label": "point",
+                  "input": "map",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "map": {
+                    "mode": "combined",
+                    "param": "coordinates"
+                  }
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [
+                1,
+                "01",
+                "fixture",
+                2,
+                true,
+                1.0,
+                null
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "1": {
+                  "amount": "1"
+                },
+                "fixture": {},
+                "2": {
+                  "amount": "2"
+                }
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "provider_delete",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [
+                1,
+                "01",
+                "fixture",
+                2,
+                true,
+                1.0,
+                null
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": {
+                    "provider": "fixture",
+                    "param": 1
+                  },
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": {
+                    "provider": 1,
+                    "param": 4
+                  }
+                },
+                null
+              ],
+              "mappings": {
+                "1": {
+                  "amount": "1"
+                },
+                "fixture": {},
+                "2": {
+                  "amount": "2"
+                }
+              },
+              "value_mappings": {
+                "1": {
+                  "amount": {
+                    "0": "0"
+                  }
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "variants": {
+                "1": {
+                  "4": [
+                    "0",
+                    "x"
+                  ]
+                },
+                "fixture": {},
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            1,
+            "fixture"
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [
+                2,
+                true,
+                1.0,
+                null
+              ],
+              "fields": [
+                {
+                  "name": "amount",
+                  "source": null,
+                  "mirror": null
+                },
+                {
+                  "name": "other",
+                  "mirror": null
+                },
+                null
+              ],
+              "mappings": {
+                "2": {
+                  "amount": "2"
+                }
+              },
+              "value_mappings": {
+                "2": {}
+              },
+              "variants": {
+                "2": {}
+              },
+              "price": {
+                "field": null,
+                "unit": "rial"
+              },
+              "weight": {
+                "field": "amount",
+                "unit": "gram"
+              },
+              "extra": {
+                "bool": true,
+                "none": null,
+                "list": [],
+                "object": {},
+                "unicode": "شعبه/ ",
+                "numbers": [
+                  0,
+                  1.0,
+                  -0.0,
+                  1e-05,
+                  1e+16
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "bulk no-op never writes",
+      "actions": [
+        {
+          "op": "bulk_save",
+          "args": [
+            {
+              "providers": [
+                2
+              ],
+              "mappings": {
+                "2": {}
+              }
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "bulk_prune",
+          "args": [
+            1
+          ],
+          "failure": {
+            "kind": "INSERT",
+            "table": "bulk_config"
+          },
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "bulk_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "providers": [
+                2
+              ],
+              "mappings": {
+                "2": {}
+              }
+            }
+          }
+        }
+      ]
     }
   ]
 }

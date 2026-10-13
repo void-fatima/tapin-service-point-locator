@@ -12,6 +12,7 @@ use Tapin\ServicePointLocator\PriceCheck\ConfigurationDatabase;
 use Tapin\ServicePointLocator\PriceCheck\ConfigurationJson;
 use Tapin\ServicePointLocator\PriceCheck\StorageError;
 use Tapin\ServicePointLocator\PriceCheck\ShopStorage;
+use Tapin\ServicePointLocator\PriceCheck\BulkStorage;
 
 if ( ! extension_loaded( 'pdo_sqlite' ) ) { fwrite( STDERR, "Enable pdo_sqlite for the isolated storage checks.\n" ); exit( 1 ); }
 $passed = 0;
@@ -31,6 +32,10 @@ function storage_execute( $item ) {
 		case 'shops_list': return ShopStorage::list_rows( ...$item->args );
 		case 'shop_get': return ShopStorage::get_private( ...$item->args );
 		case 'shop_delete': return ShopStorage::delete( ...$item->args );
+		case 'bulk_get': return BulkStorage::get();
+		case 'bulk_save': BulkStorage::save( ...$item->args ); return null;
+		case 'bulk_prune': return BulkStorage::prune_provider( ...$item->args );
+		case 'bulk_json': return ConfigurationDatabase::rows( 'SELECT data_json FROM ' . ConfigurationDatabase::table( 'bulk_config' ) . ' WHERE id = 1' )[0]['data_json'];
 	}
 	throw new LogicException( 'Unknown storage operation.' );
 }
@@ -39,6 +44,7 @@ storage_check( JSON_ERROR_NONE === json_last_error(), 'Invalid fixture JSON.' );
 $operations = 0;
 foreach ( $fixtures->scenarios as $case ) {
 	$wpdb = new PriceCheckDatabase();
+	if ( isset( $case->initial_bulk_json ) ) { $wpdb->pdo->prepare( 'INSERT INTO wp_tapin_price_bulk_config(id, data_json) VALUES(1, ?)' )->execute( array( $case->initial_bulk_json ) ); }
 	foreach ( $case->actions as $index => $item ) {
 		$wpdb->failure = isset( $item->failure ) ? (array) $item->failure : null;
 		try { $actual = array( 'ok' => true, 'value' => storage_execute( $item ) ); }

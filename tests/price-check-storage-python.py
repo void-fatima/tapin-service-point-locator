@@ -81,7 +81,7 @@ rich = record(params=[
     {'name': 'point', 'input': 'map', 'map': {'mode': 'combined', 'param': 'coordinates'}},
 ], price_currency_out='toman', weight_unit_out='kilogram', timeout=1.23456789012345, shop_id='01', price_fields=[{'key': 'total', 'label': 'هزینه'}], referral={'enabled': True, 'title': '0', 'url': 'https://example.test'}, rules=[{'if_field': 'amount', 'if_op': 'gte', 'if_value': '0'}])
 scenarios = []
-def scenario(name, actions): scenarios.append({'name': name, 'actions': actions})
+def scenario(name, actions, **setup): scenarios.append({'name': name, 'actions': actions, **setup})
 def action(op, *args, **extra): return {'op': op, 'args': copy.deepcopy(args), **extra}
 
 scenario('rich round trip', [action('provider_save', rich), action('provider_raw', 1), action('provider_params', 1), action('provider_fields', [2, 3]), action('provider_load', 'fixture'), action('provider_all'), action('provider_load', 'missing'), action('provider_load', '01')])
@@ -121,6 +121,19 @@ scenario('shop read and write failures', [action('shops_save', [shop], failure={
 scenario('shop provider association remains logical', [action('provider_save', rich), action('shops_save', [shop]), action('shop_delete', '01'), action('provider_raw', 1), action('shops_save', [shop]), action('provider_delete', 1), action('shops_list')])
 scenario('shop later SQL failure partially persists batch', [action('shops_save', [shop, {**shop, 'id': '02'}], failure={'kind': 'INSERT', 'table': 'shops', 'skip': 1}), action('shops_list'), action('shop_get', '01'), action('shop_get', '02')])
 
+bulk = {'providers': [1, '01', 'fixture', 2, True, 1.0, None], 'fields': [{'name': 'amount', 'source': {'provider': 'fixture', 'param': 1}, 'mirror': None}, {'name': 'other', 'mirror': {'provider': 1, 'param': 4}}, None], 'mappings': {'1': {'amount': '1'}, 'fixture': {}, '2': {'amount': '2'}}, 'value_mappings': {'1': {'amount': {'0': '0'}}, 'fixture': {}, '2': {}}, 'variants': {'1': {'4': ['0', 'x']}, 'fixture': {}, '2': {}}, 'price': {'field': None, 'unit': 'rial'}, 'weight': {'field': 'amount', 'unit': 'gram'}, 'extra': {'bool': True, 'none': None, 'list': [], 'object': {}, 'unicode': 'شعبه/\u2028', 'numbers': [0, 1.0, -0.0, 1e-5, 1e16]}}
+scenario('bulk singleton exact JSON replacement and prune', [action('bulk_get'), action('bulk_save', bulk), action('bulk_json'), action('bulk_get'), action('bulk_prune', 1, 'fixture'), action('bulk_get'), action('bulk_prune', 1, 'fixture'), action('bulk_save', {}), action('bulk_get'), action('bulk_save', s.empty_bulk_config()), action('bulk_get')])
+for raw in ('bad-json', '', '[]', 'null', 'true', '1', '{}'):
+    scenario('bulk stored JSON fallback ' + repr(raw), [action('bulk_get')], initial_bulk_json=raw)
+for identity in (None, 'bad', True, 0, -1, 1.5, '01'):
+    edge = {**bulk, 'providers': [0, '0', False, -1, '-1', 1, '1', True, 1.0], 'mappings': {'0': {}, '-1': {}, '1': {}, 'fixture': {}}}
+    scenario('bulk identity prune ' + repr(identity), [action('bulk_save', edge), action('bulk_prune', identity), action('bulk_get')])
+for malformed in ({'providers': {}, 'fields': {}, 'mappings': [], 'value_mappings': None, 'variants': 'bad'}, {'providers': [], 'fields': [True, {'source': []}, {'source': {'provider': False}}]}, {'providers': ['fixture'], 'mappings': {}, 'fields': []}):
+    scenario('bulk malformed reference slots ' + str(len(scenarios)), [action('bulk_save', malformed), action('bulk_prune', 1, 'fixture'), action('bulk_get')])
+scenario('bulk SQL errors', [action('bulk_save', bulk, failure={'kind': 'INSERT', 'table': 'bulk_config'}), action('bulk_get'), action('bulk_save', bulk), action('bulk_get', failure={'kind': 'SELECT', 'table': 'bulk_config'}), action('bulk_prune', 1, 'fixture', failure={'kind': 'INSERT', 'table': 'bulk_config'}), action('bulk_get')])
+scenario('provider deletion and bulk pruning are separate', [action('provider_save', rich), action('bulk_save', bulk), action('provider_delete', 1), action('bulk_get'), action('bulk_prune', 1, 'fixture'), action('bulk_get')])
+scenario('bulk no-op never writes', [action('bulk_save', {'providers': [2], 'mappings': {'2': {}}}), action('bulk_prune', 1, failure={'kind': 'INSERT', 'table': 'bulk_config'}), action('bulk_get')])
+
 def execute(item, conn):
     op = item['op']; args = item['args']
     if op == 'provider_save': return s.save_provider(*args, conn=conn)
@@ -134,9 +147,14 @@ def execute(item, conn):
     if op == 'shops_list': return s.list_shops(*args, conn=conn)
     if op == 'shop_get': return s.get_shop(*args, conn=conn)
     if op == 'shop_delete': return s.delete_shop(*args, conn=conn)
+    if op == 'bulk_get': return s.get_bulk_config(conn=conn)
+    if op == 'bulk_save': return s.save_bulk_config(*args, conn=conn)
+    if op == 'bulk_prune': return s.prune_bulk_provider(*args, conn=conn)
+    if op == 'bulk_json': return conn.execute('SELECT data_json FROM tapin_bulk_config WHERE id = 1').fetchone()[0]
     raise AssertionError(op)
 for case in scenarios:
     conn = Connection(); s.connect = lambda: conn
+    if 'initial_bulk_json' in case: conn.raw.execute('INSERT INTO tapin_bulk_config(id, data_json) VALUES(1, ?)', (case['initial_bulk_json'],))
     for item in case['actions']:
         conn.failure = copy.deepcopy(item.get('failure'))
         try: item['expected'] = {'ok': True, 'value': execute(item, conn)}
