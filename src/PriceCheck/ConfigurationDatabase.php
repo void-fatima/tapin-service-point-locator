@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
 /** Checked wpdb operations, restricted to tables already owned by this module. */
 final class ConfigurationDatabase {
 	public static function table( string $suffix ): string {
-		if ( ! in_array( $suffix, array( 'providers', 'provider_params', 'provider_fields', 'shops', 'bulk_config', 'cache_settings', 'quote_logs' ), true ) ) {
+		if ( ! in_array( $suffix, array( 'providers', 'provider_params', 'provider_fields', 'shops', 'bulk_config', 'cache_settings', 'quote_logs', 'price_cache' ), true ) ) {
 			throw new \InvalidArgumentException( 'Unknown price-check configuration table.' );
 		}
 		return self::identifier( Schema::tables()[$suffix] );

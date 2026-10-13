@@ -1,4 +1,5 @@
 """Run original operational stores on disposable SQLite; no original db/env/network imports."""
+import ast
 import copy
 from datetime import datetime, timezone
 import hashlib
@@ -9,6 +10,7 @@ import re
 import sqlite3
 import sys
 import types
+from collections.abc import Mapping
 
 source = Path(sys.argv[1]).resolve()
 def forbidden(*args, **kwargs): raise AssertionError('External access forbidden')
@@ -26,12 +28,17 @@ class FrozenDatetime(datetime):
     @classmethod
     def now(cls, tz=None): return cls.value
 s.datetime = FrozenDatetime
+api_tree = ast.parse((source / 'api.py').read_text(encoding='utf-8'))
+key_function = next(node for node in api_tree.body if isinstance(node, ast.FunctionDef) and node.name == '_cache_key')
+key_namespace = dict(Mapping=Mapping, Any=object, json=json, hashlib=hashlib)
+exec(compile(ast.Module(body=[key_function], type_ignores=[]), 'original api.py::_cache_key', 'exec'), key_namespace)
 
 class Connection:
     def __init__(self):
         self.raw = sqlite3.connect(':memory:', isolation_level=None); self.raw.row_factory = sqlite3.Row
         self.failure = None
-        for table in ('cache_settings', 'quote_logs'):
+        self.raw.execute('PRAGMA foreign_keys=ON')
+        for table in ('providers', 'cache_settings', 'quote_logs', 'price_cache'):
             body = re.search(r'CREATE TABLE IF NOT EXISTS tapin_' + table + r' \((.*?)\) ENGINE[^;]*;', s.MYSQL_SCHEMA, re.S)[1]
             lines = []; auto = False
             for line in body.splitlines():
@@ -39,7 +46,9 @@ class Connection:
                 if not line or line.startswith('KEY '): continue
                 if 'AUTO_INCREMENT' in line: line = 'id INTEGER PRIMARY KEY AUTOINCREMENT'; auto = True
                 if auto and line.startswith('PRIMARY KEY'): continue
-                lines.append(re.sub(r'UNIQUE KEY \w+', 'UNIQUE', line))
+                line = re.sub(r'UNIQUE KEY \w+', 'UNIQUE', line)
+                if line.startswith('REFERENCES '): lines[-1] += ' ' + line
+                else: lines.append(line)
             self.raw.execute(f'CREATE TABLE tapin_{table} ({", ".join(lines)})')
     def execute(self, sql, args=()):
         if self.failure and re.match(self.failure['kind'] + r'\b', sql.strip(), re.I) and 'tapin_' + self.failure['table'] in sql:
@@ -62,8 +71,26 @@ for raw in ('not json', '[]', '{}', '{"price": false, "quote_logs": "1", "locati
 for kind, table, op, args in [('SELECT', 'cache_settings', 'settings_get', []), ('INSERT', 'cache_settings', 'settings_save', [{}]), ('INSERT', 'quote_logs', 'log_save', [error]), ('DELETE', 'quote_logs', 'log_save', [error]), ('DELETE', 'quote_logs', 'log_list', []), ('SELECT', 'quote_logs', 'log_list', []), ('DELETE', 'quote_logs', 'log_delete', [1]), ('DELETE', 'quote_logs', 'log_clear', [])]:
     case('failure ' + op + kind, [a(op, *args, failure=dict(kind=kind, table=table)), a('log_list')])
 
+cache = dict(provider_id=1, provider_name=' fixture ', params_hash=' hash ', params=dict(weight=1.25, zero=-0.0, nested=[None, False]), endpoint=' https://example.test ', quote=dict(prices=[dict(label='هزینه', value=0)]))
+replacement = dict(cache, provider_name='new', params={}, quote=[0, False])
+case('cache miss hit replacement identity clear', [a('cache_get', 1, 'hash'), a('cache_save', cache), a('cache_get', 1, ' hash '), a('cache_get', 1, 'hash'), a('cache_ids'), a('cache_save', replacement, now='2026-01-20T12:00:01+00:00'), a('cache_get', 1, 'hash'), a('cache_ids'), a('cache_get', 2, 'hash'), a('cache_clear'), a('cache_clear')], provider=True)
+case('cache retention separate from freshness', [a('settings_save', dict(price=2, price_retention=10)), a('cache_save', cache), a('cache_fresh', '2026-01-20T12:00:00+00:00', now='2026-01-20T12:00:01.999999+00:00'), a('cache_fresh', '2026-01-20T12:00:00+00:00', now='2026-01-20T12:00:02+00:00'), a('cache_get', 1, 'hash', now='2026-01-20T12:00:10+00:00'), a('cache_get', 1, 'hash', now='2026-01-20T12:00:11+00:00'), a('cache_save', cache), a('cache_save', dict(cache, params_hash='other'), now='2026-01-20T12:00:22+00:00'), a('cache_get', 1, 'hash')], provider=True)
+case('cache false defaults and truncation', [a('cache_save', dict(cache, params=None, quote=False)), a('cache_get', 1, 'hash'), a('cache_save', dict(cache, quote=dict(text='آ' * 20000))), a('cache_get', 1, 'hash')], provider=True)
+case('cache provider cascade', [a('cache_save', cache), a('provider_delete', 1), a('cache_get', 1, 'hash')], provider=True)
+case('cache missing provider', [a('cache_save', cache)])
+for stamp in (None, '', 0, 'bad', '2026-02-30T12:00:00+00:00', '2026-01-20T12:00:00Z', '2026-01-20 12:00:00', '2026-01-20T15:30:00+03:30', '2026-01-20', '2026-01-20T12:00:00.123456+00:00', '2026-01-21T12:00:00+00:00'):
+    case('cache freshness ' + str(stamp), [a('cache_fresh', stamp)])
+for kind, op, args in [('INSERT', 'cache_save', [cache]), ('DELETE', 'cache_save', [cache]), ('DELETE', 'cache_get', [1, 'hash']), ('SELECT', 'cache_get', [1, 'hash']), ('DELETE', 'cache_clear', [])]:
+    case('cache failure ' + op + kind, [a(op, *args, failure=dict(kind=kind, table='price_cache')), a('cache_get', 1, 'hash')], provider=True)
+for provider, params in [({}, {}), ({'check_price_url': 'https://other.test', 'shop_id': '02'}, {}), ({'price_currency_in': 'toman', 'price_currency_out': 'rial', 'weight_unit_in': 'kilogram', 'price_fields': [{'key': 'total', 'label': 'هزینه'}]}, {'z': 1.0, 'a': {'۱': -0.0, 'b': 1e-6}, 'array': [2, None, False], 'text': 'آ\u2028/"'}), ({}, {'b': 2, 'a': 1}), ({}, {'a': 1, 'b': 2})]:
+    case('cache hash ' + str(len(scenarios)), [a('cache_key', provider, params)])
+
 def execute(item, conn):
-    ops = dict(settings_get=s.get_cache_settings, settings_save=s.save_cache_settings, log_save=s.save_quote_log, log_list=s.list_quote_logs, log_clear=s.clear_quote_logs, log_delete=s.delete_quote_log)
+    if item['op'] == 'cache_key': return key_namespace['_cache_key'](*item['args'])
+    if item['op'] == 'cache_fresh': return s.price_cache_is_fresh(*item['args'])
+    if item['op'] == 'cache_ids': return [dict(row) for row in conn.execute('SELECT id, provider_id, params_hash FROM tapin_price_cache ORDER BY id').fetchall()]
+    if item['op'] == 'provider_delete': conn.execute('DELETE FROM tapin_providers WHERE id = ?', item['args']); return None
+    ops = dict(settings_get=s.get_cache_settings, settings_save=s.save_cache_settings, log_save=s.save_quote_log, log_list=s.list_quote_logs, log_clear=s.clear_quote_logs, log_delete=s.delete_quote_log, cache_get=s.get_price_cache, cache_save=s.save_price_cache, cache_clear=s.clear_price_cache)
     return ops[item['op']](*item['args'], conn=conn)
 
 operations = 0
@@ -71,6 +98,7 @@ for scenario in scenarios:
     conn = Connection(); s.connect = lambda: conn
     FrozenDatetime.value = datetime(2026, 1, 20, 12, 0, 0, 123456, tzinfo=timezone.utc)
     if 'initial_cache_json' in scenario: conn.raw.execute('INSERT INTO tapin_cache_settings VALUES(1, ?)', (scenario['initial_cache_json'],))
+    if scenario.get('provider'): conn.raw.execute("INSERT INTO tapin_providers(id, name, display_name) VALUES(1, 'fixture', 'fixture')")
     for item in scenario['actions']:
         if 'now' in item: FrozenDatetime.value = datetime.fromisoformat(item['now'])
         conn.failure = copy.deepcopy(item.get('failure'))
@@ -79,6 +107,10 @@ for scenario in scenarios:
         except ValueError as exc: item['expected'] = dict(ok=False, kind='ValueError', message=str(exc))
         operations += 1
     conn.raw.close()
-result = dict(provenance=dict(python=sys.version.split()[0], backend='original functions with SQLite SQL double; NOT WordPress/MySQL parity', hashes={'storage.py': hashlib.sha256((source / 'storage.py').read_bytes()).hexdigest()}, operations=operations), scenarios=scenarios)
+result = dict(provenance=dict(python=sys.version.split()[0], backend='original functions with SQLite SQL double; NOT WordPress/MySQL parity', hashes={name: hashlib.sha256((source / name).read_bytes()).hexdigest() for name in ('storage.py', 'api.py')}, operations=operations), scenarios=scenarios)
+conn = Connection(); s.connect = lambda: conn
+FrozenDatetime.value = datetime(2026, 1, 20, 12, 0, 0, 123456, tzinfo=timezone.utc)
+result['iso_compatibility_limits'] = [dict(input=value, python=s.price_cache_is_fresh(value)) for value in ('20260120T120000', '2026-W04-2T12:00:00', '2026-01-20T12')]
+conn.raw.close()
 Path(sys.argv[2]).write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
 print(f'Captured {operations} original Python operational-storage operations')

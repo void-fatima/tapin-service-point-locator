@@ -52,7 +52,8 @@ final class PriceCheckDatabase {
 				if ( ! $error_only ) { $this->last_error = 'Synthetic private database failure'; return false; }
 			}
 		}
-		$sql = preg_replace( '/ON DUPLICATE KEY UPDATE (.*)$/s', 'ON CONFLICT(id) DO UPDATE SET $1', $sql );
+		$conflict = false !== strpos( $sql, 'wp_tapin_price_price_cache' ) ? 'provider_id,params_hash' : 'id';
+		$sql = preg_replace( '/ON DUPLICATE KEY UPDATE (.*)$/s', 'ON CONFLICT(' . $conflict . ') DO UPDATE SET $1', $sql );
 		$sql = preg_replace( '/VALUES\((`[a-z_]+`)\)/', 'excluded.$1', $sql );
 		try { $result = $this->pdo->query( $sql ); if ( $error_only ) { $this->last_error = 'Synthetic private database failure'; } return $result; }
 		catch ( PDOException $error ) { $this->last_error = 'Synthetic SQL error'; return false; }
