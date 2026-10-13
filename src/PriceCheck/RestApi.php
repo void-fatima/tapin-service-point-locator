@@ -10,7 +10,7 @@ final class RestApi {
 	private $context;
 	private $random;
 	public function __construct( ?callable $services = null, ?callable $guard = null, ?callable $context = null, ?callable $random = null ) {
-		$this->services = $services ?? array( new PublicApiService(), 'call' );
+		$this->services = $services ?? static fn( $operation, $input ) => ( new ApiServices() )->call( $operation, $input );
 		$this->guard = $guard ?? static fn( $input ) => ( new SecurityGuard() )->check( $input );
 		$this->context = $context ?? static fn( $request ) => array( 'direct_ip' => (string) ( $_SERVER['REMOTE_ADDR'] ?? '' ), 'cookies' => wp_unslash( $_COOKIE ) );
 		$this->random = $random;
@@ -19,6 +19,9 @@ final class RestApi {
 		array( '/health', 'GET', 'health', false ), array( '/providers', 'GET', 'list_providers', true ),
 		array( '/providers/(?P<provider_id>[^/]+)', 'GET', 'provider_schema', true ), array( '/locations', 'GET', 'location_lookup', true ),
 		array( '/bulk', 'GET', 'bulk_schema', true ),
+		array( '/price-check', 'POST', 'check_price', true ), array( '/bulk-check', 'POST', 'bulk_check', true ), array( '/bulk-validate', 'POST', 'bulk_validate', true ),
+		array( '/admin/preview/provider-schema', 'POST', 'preview_provider_schema', false ), array( '/admin/preview/price-check', 'POST', 'preview_price_check', false ),
+		array( '/admin/preview/bulk-schema', 'POST', 'preview_bulk_schema', false ), array( '/admin/preview/bulk-check', 'POST', 'preview_bulk_check', false ), array( '/admin/preview/bulk-validate', 'POST', 'preview_bulk_validate', false ),
 	); }
 	public static function permission( $request ) {
 		if ( ! Access::can_manage() || ! wp_verify_nonce( $request->get_header( 'X-WP-Nonce' ) ?: $request->get_param( '_wpnonce' ), 'wp_rest' ) ) { return new \WP_Error( 'tapin_price_forbidden', 'دسترسی به مدیریت استعلام قیمت مجاز نیست.', array( 'status' => 403 ) ); } return true;
@@ -49,7 +52,8 @@ final class RestApi {
 			$response = new \WP_REST_Response( $result->body, $result->status, $result->headers );
 			if ( null !== $verdict ) { $this->cookie( $response, $verdict ); } return $response;
 		} catch ( QuoteError $error ) {
-			$response = new \WP_REST_Response( $error->jsonSerialize(), $error->status_code );
+			$body = $error->jsonSerialize(); try { LogSafety::assert_safe( $body ); } catch ( \Throwable $unsafe ) { $body = array( 'detail' => 'internal error', 'errors' => array() ); }
+			$response = new \WP_REST_Response( $body, $error->status_code );
 			if ( ! $admin ) { $context = $context ?? ( $this->context )( $request ); if ( empty( $context['cookies']['tapin_cid'] ) ) { $this->cookie( $response, new SecurityVerdict( array( 'issue_client_id' => true ) ) ); } } return $response;
 		} catch ( \Throwable $error ) { return new \WP_REST_Response( array( 'detail' => 'internal error' ), 500 ); }
 	}
