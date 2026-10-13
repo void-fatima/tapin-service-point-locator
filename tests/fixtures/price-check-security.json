@@ -1,0 +1,2813 @@
+{
+  "source_hashes": {
+    "security/config.py": "b97a628a0cd972a219d3207184ae258be50909bd2d79c64382cd92b7057c9704",
+    "security/canonical.py": "cb92af79fdd7727b0c1ccf481d090381a190123838ba355a44dad97fd1052bf7",
+    "security/fingerprint.py": "217dac5069b8a3405f92cbc96120db1be8a588c989704d22cb1ae7b7f3e4f304",
+    "security/models.py": "2c70ec856aef7fe8d2a0cc3b07541ab4e2ee00384d4b1eee29b9a816ac0308c7",
+    "security/interfaces.py": "7845593cbb11f7c2ef180725cb639ea621a55b16deea79ec3412167784e3c20d",
+    "security/infra_memory.py": "884d0b54d48edb6fb4b8c3385f6f4aeba4427ce51ae8907134bef9a7de66e397",
+    "security/allowlist.py": "b3aeb578698bcebf0ed50f60ab404e9ac0550021e7dfd8913fe55aa84535eeba"
+  },
+  "helpers": [
+    {
+      "kind": "client_id",
+      "args": [
+        null
+      ],
+      "result": [
+        "",
+        false
+      ]
+    },
+    {
+      "kind": "client_id",
+      "args": [
+        false
+      ],
+      "result": [
+        "",
+        true
+      ]
+    },
+    {
+      "kind": "client_id",
+      "args": [
+        true
+      ],
+      "result": [
+        "",
+        true
+      ]
+    },
+    {
+      "kind": "client_id",
+      "args": [
+        ""
+      ],
+      "result": [
+        "",
+        false
+      ]
+    },
+    {
+      "kind": "client_id",
+      "args": [
+        " "
+      ],
+      "result": [
+        "",
+        false
+      ]
+    },
+    {
+      "kind": "client_id",
+      "args": [
+        "0"
+      ],
+      "result": [
+        "",
+        true
+      ]
+    },
+    {
+      "kind": "client_id",
+      "args": [
+        123
+      ],
+      "result": [
+        "",
+        true
+      ]
+    },
+    {
+      "kind": "client_id",
+      "args": [
+        "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      ],
+      "result": [
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        false
+      ]
+    },
+    {
+      "kind": "client_id",
+      "args": [
+        " a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0 "
+      ],
+      "result": [
+        "a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0",
+        false
+      ]
+    },
+    {
+      "kind": "client_id",
+      "args": [
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "result": [
+        "",
+        true
+      ]
+    },
+    {
+      "kind": "client_id",
+      "args": [
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "result": [
+        "",
+        true
+      ]
+    },
+    {
+      "kind": "client_id",
+      "args": [
+        []
+      ],
+      "result": [
+        "",
+        true
+      ]
+    },
+    {
+      "kind": "client_id",
+      "args": [
+        {}
+      ],
+      "result": [
+        "",
+        true
+      ]
+    },
+    {
+      "kind": "client_id",
+      "args": [
+        [
+          "a"
+        ]
+      ],
+      "result": [
+        "",
+        true
+      ]
+    },
+    {
+      "kind": "client_id",
+      "args": [
+        " BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB\u001c"
+      ],
+      "result": [
+        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        false
+      ]
+    },
+    {
+      "kind": "browser",
+      "args": [
+        null
+      ],
+      "result": [
+        "3c554b3d2c61d32bbe14978f1f77d420dc660ae059d89682212b45be1e2c7e18",
+        {
+          "userAgent": null,
+          "language": null,
+          "languages": null,
+          "platform": null,
+          "screenWidth": null,
+          "screenHeight": null,
+          "colorDepth": null,
+          "devicePixelRatio": null,
+          "timezone": null,
+          "hardwareConcurrency": null,
+          "deviceMemory": null,
+          "maxTouchPoints": null
+        },
+        true,
+        0,
+        "userAgent=null\nlanguage=null\nlanguages=null\nplatform=null\nscreenWidth=null\nscreenHeight=null\ncolorDepth=null\ndevicePixelRatio=null\ntimezone=null\nhardwareConcurrency=null\ndeviceMemory=null\nmaxTouchPoints=null"
+      ]
+    },
+    {
+      "kind": "browser",
+      "args": [
+        []
+      ],
+      "result": [
+        "3c554b3d2c61d32bbe14978f1f77d420dc660ae059d89682212b45be1e2c7e18",
+        {
+          "userAgent": null,
+          "language": null,
+          "languages": null,
+          "platform": null,
+          "screenWidth": null,
+          "screenHeight": null,
+          "colorDepth": null,
+          "devicePixelRatio": null,
+          "timezone": null,
+          "hardwareConcurrency": null,
+          "deviceMemory": null,
+          "maxTouchPoints": null
+        },
+        true,
+        0,
+        "userAgent=null\nlanguage=null\nlanguages=null\nplatform=null\nscreenWidth=null\nscreenHeight=null\ncolorDepth=null\ndevicePixelRatio=null\ntimezone=null\nhardwareConcurrency=null\ndeviceMemory=null\nmaxTouchPoints=null"
+      ]
+    },
+    {
+      "kind": "browser",
+      "args": [
+        false
+      ],
+      "result": [
+        "3c554b3d2c61d32bbe14978f1f77d420dc660ae059d89682212b45be1e2c7e18",
+        {
+          "userAgent": null,
+          "language": null,
+          "languages": null,
+          "platform": null,
+          "screenWidth": null,
+          "screenHeight": null,
+          "colorDepth": null,
+          "devicePixelRatio": null,
+          "timezone": null,
+          "hardwareConcurrency": null,
+          "deviceMemory": null,
+          "maxTouchPoints": null
+        },
+        true,
+        0,
+        "userAgent=null\nlanguage=null\nlanguages=null\nplatform=null\nscreenWidth=null\nscreenHeight=null\ncolorDepth=null\ndevicePixelRatio=null\ntimezone=null\nhardwareConcurrency=null\ndeviceMemory=null\nmaxTouchPoints=null"
+      ]
+    },
+    {
+      "kind": "browser",
+      "args": [
+        {}
+      ],
+      "result": [
+        "3c554b3d2c61d32bbe14978f1f77d420dc660ae059d89682212b45be1e2c7e18",
+        {
+          "userAgent": null,
+          "language": null,
+          "languages": null,
+          "platform": null,
+          "screenWidth": null,
+          "screenHeight": null,
+          "colorDepth": null,
+          "devicePixelRatio": null,
+          "timezone": null,
+          "hardwareConcurrency": null,
+          "deviceMemory": null,
+          "maxTouchPoints": null
+        },
+        false,
+        0,
+        "userAgent=null\nlanguage=null\nlanguages=null\nplatform=null\nscreenWidth=null\nscreenHeight=null\ncolorDepth=null\ndevicePixelRatio=null\ntimezone=null\nhardwareConcurrency=null\ndeviceMemory=null\nmaxTouchPoints=null"
+      ]
+    },
+    {
+      "kind": "browser",
+      "args": [
+        {
+          "unknown": 1
+        }
+      ],
+      "result": [
+        "3c554b3d2c61d32bbe14978f1f77d420dc660ae059d89682212b45be1e2c7e18",
+        {
+          "userAgent": null,
+          "language": null,
+          "languages": null,
+          "platform": null,
+          "screenWidth": null,
+          "screenHeight": null,
+          "colorDepth": null,
+          "devicePixelRatio": null,
+          "timezone": null,
+          "hardwareConcurrency": null,
+          "deviceMemory": null,
+          "maxTouchPoints": null
+        },
+        false,
+        0,
+        "userAgent=null\nlanguage=null\nlanguages=null\nplatform=null\nscreenWidth=null\nscreenHeight=null\ncolorDepth=null\ndevicePixelRatio=null\ntimezone=null\nhardwareConcurrency=null\ndeviceMemory=null\nmaxTouchPoints=null"
+      ]
+    },
+    {
+      "kind": "browser",
+      "args": [
+        {
+          "languages": [
+            null,
+            " en ",
+            "",
+            true,
+            2
+          ]
+        }
+      ],
+      "result": [
+        "f56b846d55bb1b38bd627d54b6b7596d80a9644951afa9787ab048e046ca1d98",
+        {
+          "userAgent": null,
+          "language": null,
+          "languages": "en,True,2",
+          "platform": null,
+          "screenWidth": null,
+          "screenHeight": null,
+          "colorDepth": null,
+          "devicePixelRatio": null,
+          "timezone": null,
+          "hardwareConcurrency": null,
+          "deviceMemory": null,
+          "maxTouchPoints": null
+        },
+        false,
+        1,
+        "userAgent=null\nlanguage=null\nlanguages=en,True,2\nplatform=null\nscreenWidth=null\nscreenHeight=null\ncolorDepth=null\ndevicePixelRatio=null\ntimezone=null\nhardwareConcurrency=null\ndeviceMemory=null\nmaxTouchPoints=null"
+      ]
+    },
+    {
+      "kind": "browser",
+      "args": [
+        {
+          "screenWidth": "۰۰۱۲",
+          "devicePixelRatio": "01.2500",
+          "deviceMemory": "-0.0"
+        }
+      ],
+      "result": [
+        "bd469d9df160cf9d735bd56b449498ef0efb3f75cac4bd89fa2ebd7e7250621f",
+        {
+          "userAgent": null,
+          "language": null,
+          "languages": null,
+          "platform": null,
+          "screenWidth": 12,
+          "screenHeight": null,
+          "colorDepth": null,
+          "devicePixelRatio": 1.25,
+          "timezone": null,
+          "hardwareConcurrency": null,
+          "deviceMemory": -0.0,
+          "maxTouchPoints": null
+        },
+        false,
+        3,
+        "userAgent=null\nlanguage=null\nlanguages=null\nplatform=null\nscreenWidth=12\nscreenHeight=null\ncolorDepth=null\ndevicePixelRatio=1.25\ntimezone=null\nhardwareConcurrency=null\ndeviceMemory=0\nmaxTouchPoints=null"
+      ]
+    },
+    {
+      "kind": "browser",
+      "args": [
+        {
+          "platform": {
+            "a": 1
+          },
+          "timezone": "  =\n\\  "
+        }
+      ],
+      "result": [
+        "c88d91e69aa0de8fbe9b5b6366d85be4eb55e935661ec293905e8456c4cdc4e2",
+        {
+          "userAgent": null,
+          "language": null,
+          "languages": null,
+          "platform": "{'a': 1}",
+          "screenWidth": null,
+          "screenHeight": null,
+          "colorDepth": null,
+          "devicePixelRatio": null,
+          "timezone": "=\n\\",
+          "hardwareConcurrency": null,
+          "deviceMemory": null,
+          "maxTouchPoints": null
+        },
+        false,
+        2,
+        "userAgent=null\nlanguage=null\nlanguages=null\nplatform={'a': 1}\nscreenWidth=null\nscreenHeight=null\ncolorDepth=null\ndevicePixelRatio=null\ntimezone=\\=\\n\\\\\nhardwareConcurrency=null\ndeviceMemory=null\nmaxTouchPoints=null"
+      ]
+    },
+    {
+      "kind": "browser",
+      "args": [
+        {
+          "userAgent": "Mozilla",
+          "language": "fa",
+          "screenWidth": 1920,
+          "screenHeight": 1080,
+          "devicePixelRatio": 1.5
+        }
+      ],
+      "result": [
+        "1b6104f59127b14761df1c0547ee3e9180296da8d1cc6d668767d61b7e9f4a23",
+        {
+          "userAgent": "Mozilla",
+          "language": "fa",
+          "languages": null,
+          "platform": null,
+          "screenWidth": 1920,
+          "screenHeight": 1080,
+          "colorDepth": null,
+          "devicePixelRatio": 1.5,
+          "timezone": null,
+          "hardwareConcurrency": null,
+          "deviceMemory": null,
+          "maxTouchPoints": null
+        },
+        false,
+        5,
+        "userAgent=Mozilla\nlanguage=fa\nlanguages=null\nplatform=null\nscreenWidth=1920\nscreenHeight=1080\ncolorDepth=null\ndevicePixelRatio=1.5\ntimezone=null\nhardwareConcurrency=null\ndeviceMemory=null\nmaxTouchPoints=null"
+      ]
+    },
+    {
+      "kind": "document",
+      "args": [
+        null
+      ],
+      "result": "=null"
+    },
+    {
+      "kind": "request",
+      "args": [
+        null
+      ],
+      "result": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ""
+      ]
+    },
+    {
+      "kind": "document",
+      "args": [
+        {}
+      ],
+      "result": ""
+    },
+    {
+      "kind": "request",
+      "args": [
+        {}
+      ],
+      "result": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ""
+      ]
+    },
+    {
+      "kind": "document",
+      "args": [
+        []
+      ],
+      "result": ""
+    },
+    {
+      "kind": "request",
+      "args": [
+        []
+      ],
+      "result": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ""
+      ]
+    },
+    {
+      "kind": "document",
+      "args": [
+        [
+          true,
+          null,
+          "a=b\n\\\r"
+        ]
+      ],
+      "result": "[0]=true\n[1]=null\n[2]=a\\=b\\n\\\\\\r"
+    },
+    {
+      "kind": "request",
+      "args": [
+        [
+          true,
+          null,
+          "a=b\n\\\r"
+        ]
+      ],
+      "result": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ""
+      ]
+    },
+    {
+      "kind": "document",
+      "args": [
+        {
+          "z": 1,
+          "a": {
+            "b": [
+              2,
+              {},
+              null
+            ]
+          },
+          "é": "é",
+          "آ": "فارسی"
+        }
+      ],
+      "result": "a.b[0]=2\na.b[2]=null\nz=1\né=é\nآ=فارسی"
+    },
+    {
+      "kind": "request",
+      "args": [
+        {
+          "z": 1,
+          "a": {
+            "b": [
+              2,
+              {},
+              null
+            ]
+          },
+          "é": "é",
+          "آ": "فارسی"
+        }
+      ],
+      "result": [
+        "0fac409c31bf2adb996c69dccd044beec9982f60d6ed93d491e05be8916ac679",
+        "a.b[0]=2\na.b[2]=null\nz=1\né=é\nآ=فارسی"
+      ]
+    },
+    {
+      "kind": "document",
+      "args": [
+        {
+          "f": -0.0,
+          "tiny": 1e-07,
+          "big": 1e+23,
+          "round": 0.30000000000000004
+        }
+      ],
+      "result": "big=100000000000000000000000\nf=0\nround=0.30000000000000004\ntiny=0.0000001"
+    },
+    {
+      "kind": "request",
+      "args": [
+        {
+          "f": -0.0,
+          "tiny": 1e-07,
+          "big": 1e+23,
+          "round": 0.30000000000000004
+        }
+      ],
+      "result": [
+        "27b4b2aed24a12401cd587b4d709e48b7861d8047f0de75f30395f242c2d4160",
+        "big=100000000000000000000000\nf=0\nround=0.30000000000000004\ntiny=0.0000001"
+      ]
+    },
+    {
+      "kind": "document",
+      "args": [
+        42
+      ],
+      "result": "=42"
+    },
+    {
+      "kind": "request",
+      "args": [
+        42
+      ],
+      "result": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ""
+      ]
+    },
+    {
+      "kind": "document",
+      "args": [
+        true
+      ],
+      "result": "=true"
+    },
+    {
+      "kind": "request",
+      "args": [
+        true
+      ],
+      "result": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ""
+      ]
+    },
+    {
+      "kind": "document",
+      "args": [
+        "a=b"
+      ],
+      "result": "=a\\=b"
+    },
+    {
+      "kind": "request",
+      "args": [
+        "a=b"
+      ],
+      "result": [
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        ""
+      ]
+    },
+    {
+      "kind": "ip",
+      "args": [
+        null
+      ],
+      "result": ""
+    },
+    {
+      "kind": "ip",
+      "args": [
+        true
+      ],
+      "result": ""
+    },
+    {
+      "kind": "ip",
+      "args": [
+        ""
+      ],
+      "result": ""
+    },
+    {
+      "kind": "address",
+      "args": [
+        ""
+      ],
+      "result": ""
+    },
+    {
+      "kind": "ip",
+      "args": [
+        " 192.0.2.1 "
+      ],
+      "result": "192.0.2.1"
+    },
+    {
+      "kind": "address",
+      "args": [
+        " 192.0.2.1 "
+      ],
+      "result": "192.0.2.1"
+    },
+    {
+      "kind": "ip",
+      "args": [
+        "192.168.001.1"
+      ],
+      "result": ""
+    },
+    {
+      "kind": "address",
+      "args": [
+        "192.168.001.1"
+      ],
+      "result": ""
+    },
+    {
+      "kind": "ip",
+      "args": [
+        "192.0.2.1:abc"
+      ],
+      "result": ""
+    },
+    {
+      "kind": "address",
+      "args": [
+        "192.0.2.1:abc"
+      ],
+      "result": "192.0.2.1"
+    },
+    {
+      "kind": "ip",
+      "args": [
+        "[::1]:443"
+      ],
+      "result": ""
+    },
+    {
+      "kind": "address",
+      "args": [
+        "[::1]:443"
+      ],
+      "result": "::1"
+    },
+    {
+      "kind": "ip",
+      "args": [
+        "2001:DB8:0:0:1:0:0:1"
+      ],
+      "result": "2001:db8::1:0:0:1"
+    },
+    {
+      "kind": "address",
+      "args": [
+        "2001:DB8:0:0:1:0:0:1"
+      ],
+      "result": "2001:db8::1:0:0:1"
+    },
+    {
+      "kind": "ip",
+      "args": [
+        "::ffff:192.0.2.1"
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "address",
+      "args": [
+        "::ffff:192.0.2.1"
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "ip",
+      "args": [
+        "FE80::1%ETH0"
+      ],
+      "result": "fe80::1%eth0"
+    },
+    {
+      "kind": "address",
+      "args": [
+        "FE80::1%ETH0"
+      ],
+      "result": "fe80::1%eth0"
+    },
+    {
+      "kind": "ip",
+      "args": [
+        "::1%"
+      ],
+      "result": ""
+    },
+    {
+      "kind": "address",
+      "args": [
+        "::1%"
+      ],
+      "result": ""
+    },
+    {
+      "kind": "ip",
+      "args": [
+        "1.2.3.4/24"
+      ],
+      "result": ""
+    },
+    {
+      "kind": "address",
+      "args": [
+        "1.2.3.4/24"
+      ],
+      "result": ""
+    },
+    {
+      "kind": "ip",
+      "args": [
+        "unknown"
+      ],
+      "result": ""
+    },
+    {
+      "kind": "address",
+      "args": [
+        "unknown"
+      ],
+      "result": ""
+    },
+    {
+      "kind": "ip",
+      "args": [
+        123
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "10.2.3.4:443",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "10.2.3.4:443",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "10.2.3.4:443",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "10.2.3.4:443",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "198.51.100.1",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "198.51.100.1",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "198.51.100.1",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "198.51.100.1",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "invalid",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "invalid",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "invalid",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        false,
+        "invalid",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "192.0.2.5"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "2001:db8::5"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "192.0.2.9"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "invalid",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "invalid",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "invalid",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/8"
+        ],
+        false,
+        "invalid",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "192.0.2.5"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "2001:db8::5"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "192.0.2.9"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "invalid",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "invalid",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "invalid",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.2.3.4"
+        ],
+        false,
+        "invalid",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "192.0.2.5"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "2001:db8::5"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "192.0.2.9"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "invalid",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "invalid",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "invalid",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "2001:db8::/32"
+        ],
+        false,
+        "invalid",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "192.0.2.5"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "2001:db8::5"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "192.0.2.9"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "invalid",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "invalid",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "invalid",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "10.0.0.0/255.0.0.0"
+        ],
+        false,
+        "invalid",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "invalid",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "invalid",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "invalid",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "invalid"
+        ],
+        false,
+        "invalid",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "10.2.3.4:443",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "10.2.3.4"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "198.51.100.1",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "198.51.100.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "[2001:db8::1]:80",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "2001:db8::1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "::ffff:192.0.2.1",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": "::ffff:192.0.2.1"
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "invalid",
+        {
+          "X-Forwarded-For": "unknown, 192.0.2.5, 192.0.2.6"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "invalid",
+        {
+          "x-real-ip": "[::1]:42"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "invalid",
+        {
+          "Forwarded": "for=unknown;proto=https, for=\"[2001:db8::5]:80\""
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [
+          "::ffff:192.0.2.1"
+        ],
+        false,
+        "invalid",
+        {
+          "x-forwarded-for": "invalid",
+          "x-real-ip": "invalid",
+          "forwarded": "for=192.0.2.9"
+        }
+      ],
+      "result": ""
+    },
+    {
+      "kind": "resolve",
+      "args": [
+        [],
+        true,
+        "invalid",
+        {
+          "x-forwarded-for": "192.0.2.5"
+        }
+      ],
+      "result": "192.0.2.5"
+    },
+    {
+      "kind": "client",
+      "args": [
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      ],
+      "result": "26b188447afa8e60e4e2436b6c6d58b95f97981a05788886c696a593eb00aa58"
+    },
+    {
+      "kind": "context",
+      "args": [
+        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "::1",
+        "agent\n",
+        "/api/price-check",
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      ],
+      "result": "0432ee5f036fd537c71e4764f11f2bd81360d9ded494e3e99d086ff6d4df4b8f"
+    }
+  ]
+}
