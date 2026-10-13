@@ -14,7 +14,7 @@ final class PriceCheckDatabase {
 		$this->pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 		$this->pdo->exec( 'PRAGMA foreign_keys = ON' );
 		$definitions = \Tapin\ServicePointLocator\PriceCheck\Schema::definitions();
-		foreach ( array( 'providers', 'provider_params', 'provider_fields', 'shops', 'bulk_config', 'price_cache' ) as $suffix ) {
+		foreach ( array( 'providers', 'provider_params', 'provider_fields', 'shops', 'bulk_config', 'price_cache', 'cache_settings', 'quote_logs' ) as $suffix ) {
 			$lines = array(); $auto = false;
 			foreach ( explode( "\n", $definitions[$suffix] ) as $line ) {
 				$line = trim( $line, " \t," );
