@@ -44,6 +44,11 @@ final class PayloadNormalizer {
 		return $value;
 	}
 	public static function normalise( $provider, $incoming, array $shops ): NormalizedPayload {
+		list( $payload, $errors ) = self::prepare( $provider, $incoming );
+		return self::finish( $provider, $payload, $errors, $shops );
+	}
+	/** Pure first phase, allowing orchestration to load shops after field/rule validation. */
+	public static function prepare( $provider, $incoming ): array {
 		if ( ! V::mapping( $provider ) || ! V::mapping( $incoming ) ) { throw new \InvalidArgumentException( 'Provider and incoming values must be mappings.' ); }
 		$errors = array(); $payload = (array) ProviderDefinition::defaults( $provider );
 		foreach ( ProviderDefinition::params( $provider ) as $param ) {
@@ -61,6 +66,10 @@ final class PayloadNormalizer {
 			}
 		}
 		self::check_rules( $provider, V::object( $payload ), $errors );
+		return array( $payload, $errors );
+	}
+	/** Pure origin phase; the existing normalise API retains exactly the same rules. */
+	public static function finish( $provider, array $payload, array $errors, array $shops ): NormalizedPayload {
 		$origin = self::origin( $provider, $payload, $shops, $errors );
 		if ( $errors ) { throw new PayloadError( $errors ); }
 		unset( $payload[ProviderDefinition::ORIGIN_PROVINCE], $payload[ProviderDefinition::ORIGIN_CITY] );
@@ -138,7 +147,7 @@ final class PayloadNormalizer {
 			if ( ! $values || in_array( false, $verdicts, true ) || in_array( null, $verdicts, true ) ) { $target = '' === $then ? $if : $then; $label = self::label( $provider, $target ); ProviderConfig::error( $errors, $target, '' === $message ? "مقدار «{$label}» معتبر نیست." : $message ); }
 		}
 	}
-	private static function region_code( $value ): ?string {
+	public static function region_code( $value ): ?string {
 		if ( null === $value || is_bool( $value ) ) { return null; } if ( is_int( $value ) ) { return (string) $value; }
 		if ( is_float( $value ) ) { return is_finite( $value ) && floor( $value ) === $value ? (string) V::integer( $value ) : null; }
 		$text = V::trim( V::string( $value ) ); if ( '' === $text ) { return null; }

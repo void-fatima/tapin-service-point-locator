@@ -17,10 +17,11 @@ final class ProviderClient {
 			list( $prices, $missing ) = ProviderResponse::evaluate( $body, PythonValue::fallback( PythonValue::get( $provider, 'price_fields' ), array() ), array( 'endpoint' => $this->request->url, 'http_status' => $response->status, 'provider_status' => $status, 'provider_message' => $message ) );
 			list( $service, $display ) = Units::currency_pair( $provider );
 			if ( $service !== $display ) { foreach ( $prices as &$row ) { $row['value'] = Units::currency_amount( $row['value'], $service, $display ); } unset( $row ); }
-			return $this->clean( (object) array( 'endpoint' => $this->request->url, 'provider_status' => $status, 'provider_message' => $message, 'provider_response' => $body, 'prices' => ProviderResponse::mark_main( $prices, $provider ), 'missing_price_fields' => $missing, 'price_candidates' => array() ) );
+			return $this->clean( (object) array( 'endpoint' => $this->request->url, 'provider_status' => $status, 'provider_message' => $message, 'provider_response' => $this->request->clean_response( $body ), 'prices' => ProviderResponse::mark_main( $prices, $provider ), 'missing_price_fields' => $missing, 'price_candidates' => array() ) );
 		} catch ( ProviderCallError $error ) {
-			$context = get_object_vars( $error ); $context['extra'] = (array) $this->clean( $error->extra ); $context['errors'] = $this->clean( $error->errors );
-			$context['provider_response'] = $this->clean( $error->provider_response ); $context['provider_message'] = $this->clean( $error->provider_message ); $context['endpoint'] = $this->clean( $error->endpoint );
+			$context = (array) $this->clean( get_object_vars( $error ) ); $context['extra'] = (array) $context['extra'];
+			$context['provider_response'] = $this->request->clean_response( $error->provider_response );
+			if ( array_key_exists( 'provider_response', $context['extra'] ) ) { $context['extra']['provider_response'] = $this->request->clean_response( $error->extra['provider_response'] ); }
 			throw new ProviderCallError( $this->clean( $error->getMessage() ), $context );
 		}
 	}

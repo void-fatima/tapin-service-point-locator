@@ -14,4 +14,5 @@ final class ProviderRequest {
 	}
 	public function headers(): array { return $this->headers; }
 	public function clean( $value ) { return $this->secrets->clean( $value ); }
+	public function clean_response( $value ) { return $this->secrets->clean( $value, true ); }
 }

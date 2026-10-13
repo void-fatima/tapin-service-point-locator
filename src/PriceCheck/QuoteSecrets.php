@@ -6,12 +6,12 @@ defined( 'ABSPATH' ) || exit;
 final class QuoteSecrets {
 	private array $values = array();
 	public function remember( string $value ): void { if ( '' !== $value ) { $this->values[] = $value; } }
-	public function clean( $value ) {
+	public function clean( $value, bool $response_keys = false ) {
 		if ( PythonValue::mapping( $value ) || is_array( $value ) ) {
 			$out = array();
 			foreach ( (array) $value as $key => $item ) {
 				if ( in_array( strtolower( (string) $key ), array( 'token', 'authorization', 'proxy-authorization' ), true ) ) { continue; }
-				$out[$key] = $this->clean( $item );
+				$out[$response_keys && is_string( $key ) ? $this->clean( $key ) : $key] = $this->clean( $item, $response_keys );
 			}
 			return PythonValue::mapping( $value ) ? (object) $out : array_values( $out );
 		}
