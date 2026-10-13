@@ -8,6 +8,10 @@ use Tapin\ServicePointLocator\PriceCheck\ConfigurationJson;
 use Tapin\ServicePointLocator\PriceCheck\WordPressProviderTransport;
 use Tapin\ServicePointLocator\PriceCheck\ProviderRequest;
 use Tapin\ServicePointLocator\PriceCheck\QuoteSecrets;
+use Tapin\ServicePointLocator\PriceCheck\ProviderResponse;
+use Tapin\ServicePointLocator\PriceCheck\ProviderClient;
+use Tapin\ServicePointLocator\PriceCheck\ProviderTransport;
+use Tapin\ServicePointLocator\PriceCheck\ProviderHttpResponse;
 $passed = 0;
 function quote_check( bool $condition, string $label ): void { if ( ! $condition ) { throw new RuntimeException( $label ); } $GLOBALS['passed']++; }
 function quote_error( ProviderCallError $error ): array { return array( 'ok' => false, 'message' => $error->getMessage(), 'status_code' => $error->status_code, 'field' => $error->field, 'endpoint' => $error->endpoint, 'http_status' => $error->http_status, 'provider_status' => $error->provider_status, 'provider_message' => $error->provider_message, 'provider_response' => $error->provider_response, 'errors' => $error->errors, 'extra' => (object) $error->extra ); }
@@ -68,4 +72,43 @@ $requests = array(); $responses = array( array( 'status' => 302, 'body' => '', '
 quote_check( ! isset( $requests[1][1]['headers']['Authorization'] ), 'Credential forwarded across origins.' );
 $requests = array(); $responses = array_fill( 0, 5, array( 'status' => 302, 'body' => '{}', 'headers' => array( 'location' => '/loop' ) ) ); $reply = $transport->send( $request );
 quote_check( 5 === count( $requests ) && 302 === $reply->status, 'Redirect repeat limit changed.' );
-echo "PASS quote request/transport: {$passed} assertions; mocked HTTP only.\n";
+foreach ( $fixtures->response_cases as $index => $case ) {
+	try {
+		switch ( $case->op ) {
+			case 'parse': $value = ProviderResponse::parse( $case->args[0], base64_decode( $case->args[1] ), $case->args[2] ); break;
+			case 'extract': $value = ProviderResponse::extract( ...$case->args ); break;
+			case 'evaluate': $value = ProviderResponse::evaluate( ...$case->args ); break;
+			case 'candidates': $value = ProviderResponse::candidates( ...$case->args ); break;
+			case 'number': $value = ProviderResponse::number( ...$case->args ); break;
+			case 'main': $value = ProviderResponse::mark_main( ...$case->args ); break;
+			case 'referral': $value = ProviderResponse::referral( ...$case->args ); break;
+		}
+		$actual = array( 'ok' => true, 'value' => $value );
+	} catch ( ProviderCallError $error ) { $actual = quote_error( $error ); }
+	$flags = JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION;
+	quote_check( json_encode( $actual, $flags ) === json_encode( $case->expected, $flags ), "Original response mismatch {$index} ({$case->op})." );
+}
+final class QuoteFixtureTransport implements ProviderTransport {
+	public int $calls = 0;
+	public $reply;
+	public array $sent = array();
+	public function send( ProviderRequest $request ): ProviderHttpResponse { $this->calls++; $this->sent[] = $request; if ( $this->reply instanceof Throwable ) { throw $this->reply; } return $this->reply; }
+}
+foreach ( $fixtures->fetch_cases as $index => $case ) {
+	$mock = new QuoteFixtureTransport(); $mock->reply = new ProviderHttpResponse( $case->status, $case->raw ); $client = new ProviderClient( $mock, $builder );
+	try { $quote = $client->fetch( $case->provider, new stdClass() ); $actual = array( 'ok' => true, 'quote' => $quote, 'public' => ProviderResponse::result( $case->provider, $quote ) ); }
+	catch ( ProviderCallError $error ) { $actual = quote_error( $error ); }
+	quote_check( json_encode( $actual, $flags ) === json_encode( $case->expected, $flags ), "Original fetch mismatch {$index}." );
+}
+foreach ( $fixtures->representation_limits as $case ) {
+	try { ProviderResponse::parse( 200, $case->input, 'https://example.test' ); throw new RuntimeException( 'Unrepresentable response silently accepted.' ); }
+	catch ( DomainException $expected ) { $passed++; }
+}
+$provider = (object) array( 'id' => 1, 'name' => 'post', 'params' => array(), 'check_price_url' => 'https://example.test', 'price_fields' => array( (object) array( 'key' => 'missing' ) ) );
+$mock = new QuoteFixtureTransport(); $mock->reply = new ProviderHttpResponse( 200, '{"token":"inert-test-marker","message":"echo inert-test-marker","other":1}' ); $client = new ProviderClient( $mock, $builder );
+try { $client->fetch( $provider, (object) array( 'shop_id' => '01' ) ); throw new RuntimeException( 'Missing price accepted.' ); }
+catch ( ProviderCallError $error ) { quote_check( false === strpos( json_encode( quote_error( $error ) ), 'inert-test-marker' ), 'Secret in provider exception.' ); }
+$mock->reply = new ProviderHttpResponse( 200, '{"total":1,"token":"inert-test-marker","echo":"inert-test-marker"}' ); $provider->price_fields = array();
+$quote = $client->fetch( $provider, (object) array( 'shop_id' => '01' ) );
+quote_check( false === strpos( json_encode( $quote ), 'inert-test-marker' ) && ! property_exists( $quote->provider_response, 'token' ), 'Secret in cacheable quote.' );
+echo "PASS quote request/response/transport: {$passed} assertions; mocked HTTP only.\n";

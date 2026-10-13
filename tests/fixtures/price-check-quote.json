@@ -629,5 +629,1502 @@
         "timeout": 1.25
       }
     }
+  ],
+  "response_cases": [
+    {
+      "op": "parse",
+      "args": [
+        200,
+        "IA==",
+        "https://example.test"
+      ],
+      "expected": {
+        "ok": false,
+        "message": "سرویس قیمت پاسخ خالی برگرداند.",
+        "status_code": 502,
+        "field": null,
+        "endpoint": "https://example.test",
+        "http_status": 200,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [],
+        "extra": {}
+      }
+    },
+    {
+      "op": "parse",
+      "args": [
+        500,
+        "bm90IEpTT04=",
+        "https://example.test"
+      ],
+      "expected": {
+        "ok": false,
+        "message": "پاسخ سرویس قیمت JSON معتبر نیست.",
+        "status_code": 502,
+        "field": null,
+        "endpoint": "https://example.test",
+        "http_status": 500,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": "not JSON",
+        "errors": [],
+        "extra": {}
+      }
+    },
+    {
+      "op": "parse",
+      "args": [
+        200,
+        "bnVsbA==",
+        "https://example.test"
+      ],
+      "expected": {
+        "ok": false,
+        "message": "سرویس قیمت داده‌ای برنگرداند.",
+        "status_code": 502,
+        "field": null,
+        "endpoint": "https://example.test",
+        "http_status": 200,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [],
+        "extra": {}
+      }
+    },
+    {
+      "op": "parse",
+      "args": [
+        503,
+        "eyJyZXR1cm5zIjp7InN0YXR1cyI6IiAwICIsIm1lc3NhZ2UiOmZhbHNlfSwiZW50cmllcyI6eyJ0b3RhbCI6IjE1In19",
+        "https://example.test"
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "returns": {
+              "status": " 0 ",
+              "message": false
+            },
+            "entries": {
+              "total": "15"
+            }
+          },
+          0,
+          "False"
+        ]
+      }
+    },
+    {
+      "op": "parse",
+      "args": [
+        200,
+        "eyJyZXR1cm5zIjp7InN0YXR1cyI6dHJ1ZSwibWVzc2FnZSI6bnVsbH0sInRvdGFsIjowfQ==",
+        "https://example.test"
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "returns": {
+              "status": true,
+              "message": null
+            },
+            "total": 0
+          },
+          null,
+          ""
+        ]
+      }
+    },
+    {
+      "op": "parse",
+      "args": [
+        200,
+        "eyJyZXR1cm5zIjp7InN0YXR1cyI6MS41LCJtZXNzYWdlIjp7IndoeSI6Mn19fQ==",
+        "https://example.test"
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "returns": {
+              "status": 1.5,
+              "message": {
+                "why": 2
+              }
+            }
+          },
+          "1.5",
+          "{'why': 2}"
+        ]
+      }
+    },
+    {
+      "op": "parse",
+      "args": [
+        200,
+        "eyJ0b3RhbCI6MSwidGV4dCI6Iv8ifQ==",
+        "https://example.test"
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "total": 1,
+            "text": "�"
+          },
+          null,
+          ""
+        ]
+      }
+    },
+    {
+      "op": "extract",
+      "args": [
+        {
+          "total": 0,
+          "entries": {
+            "total": 99,
+            "send_price": "1_000",
+            "tax": "۱.۵"
+          },
+          "send_price": null
+        },
+        []
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "label": "هزینه ارسال",
+            "value": 1000
+          },
+          {
+            "label": "مالیات",
+            "value": 1.5
+          },
+          {
+            "label": "جمع کل",
+            "value": 0
+          }
+        ]
+      }
+    },
+    {
+      "op": "evaluate",
+      "args": [
+        {
+          "total": 0,
+          "entries": {
+            "total": 99,
+            "send_price": "1_000",
+            "tax": "۱.۵"
+          },
+          "send_price": null
+        },
+        []
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          [
+            {
+              "label": "هزینه ارسال",
+              "value": 1000
+            },
+            {
+              "label": "مالیات",
+              "value": 1.5
+            },
+            {
+              "label": "جمع کل",
+              "value": 0
+            }
+          ],
+          []
+        ]
+      }
+    },
+    {
+      "op": "candidates",
+      "args": [
+        {
+          "total": 0,
+          "entries": {
+            "total": 99,
+            "send_price": "1_000",
+            "tax": "۱.۵"
+          },
+          "send_price": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "key": "total",
+            "label": "total",
+            "value": 0
+          },
+          {
+            "key": "entries.total",
+            "label": "total",
+            "value": 99
+          },
+          {
+            "key": "entries.send_price",
+            "label": "send_price",
+            "value": 1000
+          },
+          {
+            "key": "entries.tax",
+            "label": "tax",
+            "value": 1.5
+          }
+        ]
+      }
+    },
+    {
+      "op": "extract",
+      "args": [
+        [
+          {
+            "value": null,
+            "price": 7
+          },
+          {
+            "price": "0",
+            "label": null
+          },
+          {
+            "amount": "-0.0",
+            "label": false
+          },
+          {
+            "total": 1.0,
+            "name": 0
+          },
+          4
+        ],
+        []
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "label": "",
+            "value": 0
+          },
+          {
+            "label": "False",
+            "value": -0.0
+          },
+          {
+            "label": "0",
+            "value": 1.0
+          }
+        ]
+      }
+    },
+    {
+      "op": "evaluate",
+      "args": [
+        [
+          {
+            "value": null,
+            "price": 7
+          },
+          {
+            "price": "0",
+            "label": null
+          },
+          {
+            "amount": "-0.0",
+            "label": false
+          },
+          {
+            "total": 1.0,
+            "name": 0
+          },
+          4
+        ],
+        []
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          [
+            {
+              "label": "",
+              "value": 0
+            },
+            {
+              "label": "False",
+              "value": -0.0
+            },
+            {
+              "label": "0",
+              "value": 1.0
+            }
+          ],
+          []
+        ]
+      }
+    },
+    {
+      "op": "candidates",
+      "args": [
+        [
+          {
+            "value": null,
+            "price": 7
+          },
+          {
+            "price": "0",
+            "label": null
+          },
+          {
+            "amount": "-0.0",
+            "label": false
+          },
+          {
+            "total": 1.0,
+            "name": 0
+          },
+          4
+        ]
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "key": ".0.price",
+            "label": "price",
+            "value": 7
+          },
+          {
+            "key": ".1.price",
+            "label": "price",
+            "value": 0
+          },
+          {
+            "key": ".2.amount",
+            "label": "amount",
+            "value": -0.0
+          },
+          {
+            "key": ".3.total",
+            "label": "total",
+            "value": 1.0
+          },
+          {
+            "key": ".3.name",
+            "label": "name",
+            "value": 0
+          },
+          {
+            "key": ".4",
+            "label": "4",
+            "value": 4
+          }
+        ]
+      }
+    },
+    {
+      "op": "extract",
+      "args": [
+        {
+          "entries": {
+            "total": "15"
+          },
+          "data": [
+            {
+              "cost": false
+            },
+            {
+              "cost": "-5"
+            }
+          ]
+        },
+        [
+          {
+            "key": "entries.total",
+            "label": "کل"
+          },
+          {
+            "key": "data.-1.cost",
+            "label": "هزینه"
+          },
+          {
+            "key": "absent",
+            "label": "ناقص"
+          }
+        ]
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "label": "کل",
+            "value": 15
+          },
+          {
+            "label": "هزینه",
+            "value": -5
+          }
+        ]
+      }
+    },
+    {
+      "op": "evaluate",
+      "args": [
+        {
+          "entries": {
+            "total": "15"
+          },
+          "data": [
+            {
+              "cost": false
+            },
+            {
+              "cost": "-5"
+            }
+          ]
+        },
+        [
+          {
+            "key": "entries.total",
+            "label": "کل"
+          },
+          {
+            "key": "data.-1.cost",
+            "label": "هزینه"
+          },
+          {
+            "key": "absent",
+            "label": "ناقص"
+          }
+        ]
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          [
+            {
+              "label": "کل",
+              "value": 15
+            },
+            {
+              "label": "هزینه",
+              "value": -5
+            }
+          ],
+          [
+            "absent"
+          ]
+        ]
+      }
+    },
+    {
+      "op": "candidates",
+      "args": [
+        {
+          "entries": {
+            "total": "15"
+          },
+          "data": [
+            {
+              "cost": false
+            },
+            {
+              "cost": "-5"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "key": "entries.total",
+            "label": "total",
+            "value": 15
+          },
+          {
+            "key": "data.1.cost",
+            "label": "cost",
+            "value": -5
+          }
+        ]
+      }
+    },
+    {
+      "op": "extract",
+      "args": [
+        {
+          "entries": {
+            "total": "bad"
+          },
+          "data": [
+            {
+              "cost": null
+            }
+          ]
+        },
+        [
+          {
+            "key": "entries.total",
+            "label": "کل"
+          },
+          {
+            "key": "data.-1.cost",
+            "label": "هزینه"
+          },
+          {
+            "key": "absent",
+            "label": "ناقص"
+          }
+        ]
+      ],
+      "expected": {
+        "ok": true,
+        "value": []
+      }
+    },
+    {
+      "op": "evaluate",
+      "args": [
+        {
+          "entries": {
+            "total": "bad"
+          },
+          "data": [
+            {
+              "cost": null
+            }
+          ]
+        },
+        [
+          {
+            "key": "entries.total",
+            "label": "کل"
+          },
+          {
+            "key": "data.-1.cost",
+            "label": "هزینه"
+          },
+          {
+            "key": "absent",
+            "label": "ناقص"
+          }
+        ]
+      ],
+      "expected": {
+        "ok": false,
+        "message": "پاسخ سرویس قیمت هیچ‌کدام از فیلدهای تنظیم‌شده را ندارد. فیلدهای تنظیم‌شده: entries.total، data.-1.cost، absent.",
+        "status_code": 502,
+        "field": null,
+        "endpoint": null,
+        "http_status": null,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": {
+          "entries": {
+            "total": "bad"
+          },
+          "data": [
+            {
+              "cost": null
+            }
+          ]
+        },
+        "errors": [
+          {
+            "field": "entries.total",
+            "message": "در پاسخ سرویس پیدا نشد."
+          },
+          {
+            "field": "data.-1.cost",
+            "message": "در پاسخ سرویس پیدا نشد."
+          },
+          {
+            "field": "absent",
+            "message": "در پاسخ سرویس پیدا نشد."
+          }
+        ],
+        "extra": {
+          "provider_response": {
+            "entries": {
+              "total": "bad"
+            },
+            "data": [
+              {
+                "cost": null
+              }
+            ]
+          },
+          "missing_price_fields": [
+            "entries.total",
+            "data.-1.cost",
+            "absent"
+          ],
+          "price_candidates": [],
+          "provider_message": null,
+          "provider_status": null,
+          "endpoint": null
+        }
+      }
+    },
+    {
+      "op": "candidates",
+      "args": [
+        {
+          "entries": {
+            "total": "bad"
+          },
+          "data": [
+            {
+              "cost": null
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": []
+      }
+    },
+    {
+      "op": "extract",
+      "args": [
+        {
+          "a": 1,
+          "data": [
+            false,
+            {
+              "x": "۲_۰۰۰"
+            }
+          ]
+        },
+        []
+      ],
+      "expected": {
+        "ok": true,
+        "value": []
+      }
+    },
+    {
+      "op": "evaluate",
+      "args": [
+        {
+          "a": 1,
+          "data": [
+            false,
+            {
+              "x": "۲_۰۰۰"
+            }
+          ]
+        },
+        []
+      ],
+      "expected": {
+        "ok": false,
+        "message": "برای این شرکت هیچ فیلد قیمتی تنظیم نشده است.",
+        "status_code": 502,
+        "field": null,
+        "endpoint": null,
+        "http_status": null,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": {
+          "a": 1,
+          "data": [
+            false,
+            {
+              "x": "۲_۰۰۰"
+            }
+          ]
+        },
+        "errors": [],
+        "extra": {
+          "provider_response": {
+            "a": 1,
+            "data": [
+              false,
+              {
+                "x": "۲_۰۰۰"
+              }
+            ]
+          },
+          "missing_price_fields": [],
+          "price_candidates": [
+            {
+              "key": "a",
+              "label": "a",
+              "value": 1
+            },
+            {
+              "key": "data.1.x",
+              "label": "x",
+              "value": 2000
+            }
+          ],
+          "provider_message": null,
+          "provider_status": null,
+          "endpoint": null
+        }
+      }
+    },
+    {
+      "op": "candidates",
+      "args": [
+        {
+          "a": 1,
+          "data": [
+            false,
+            {
+              "x": "۲_۰۰۰"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "key": "a",
+            "label": "a",
+            "value": 1
+          },
+          {
+            "key": "data.1.x",
+            "label": "x",
+            "value": 2000
+          }
+        ]
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        true
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        false
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        0
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        -1
+      ],
+      "expected": {
+        "ok": true,
+        "value": -1
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        1.0
+      ],
+      "expected": {
+        "ok": true,
+        "value": 1.0
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        -0.0
+      ],
+      "expected": {
+        "ok": true,
+        "value": -0.0
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        ""
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        " "
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        "1_000"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 1000
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        "۱۲۰"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 120
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        "1.5"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 1.5
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        "1e2"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 100.0
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        "0"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        "bad"
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        "1,000"
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        {}
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "number",
+      "args": [
+        []
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "main",
+      "args": [
+        [
+          {
+            "label": "shared",
+            "value": 1
+          },
+          {
+            "label": "shared",
+            "value": 2
+          },
+          {
+            "label": "other",
+            "value": 3
+          }
+        ],
+        {}
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "label": "shared",
+            "value": 1,
+            "main": true
+          },
+          {
+            "label": "shared",
+            "value": 2,
+            "main": false
+          },
+          {
+            "label": "other",
+            "value": 3,
+            "main": false
+          }
+        ]
+      }
+    },
+    {
+      "op": "main",
+      "args": [
+        [
+          {
+            "label": "shared",
+            "value": 1
+          },
+          {
+            "label": "shared",
+            "value": 2
+          },
+          {
+            "label": "other",
+            "value": 3
+          }
+        ],
+        {
+          "main_price_key": "missing",
+          "price_fields": [
+            {
+              "key": "x",
+              "label": "shared"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "label": "shared",
+            "value": 1,
+            "main": true
+          },
+          {
+            "label": "shared",
+            "value": 2,
+            "main": false
+          },
+          {
+            "label": "other",
+            "value": 3,
+            "main": false
+          }
+        ]
+      }
+    },
+    {
+      "op": "main",
+      "args": [
+        [
+          {
+            "label": "shared",
+            "value": 1
+          },
+          {
+            "label": "shared",
+            "value": 2
+          },
+          {
+            "label": "other",
+            "value": 3
+          }
+        ],
+        {
+          "main_price_key": "x",
+          "price_fields": [
+            {
+              "key": "x",
+              "label": "shared"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "label": "shared",
+            "value": 1,
+            "main": true
+          },
+          {
+            "label": "shared",
+            "value": 2,
+            "main": true
+          },
+          {
+            "label": "other",
+            "value": 3,
+            "main": false
+          }
+        ]
+      }
+    },
+    {
+      "op": "main",
+      "args": [
+        [
+          {
+            "label": "shared",
+            "value": 1
+          },
+          {
+            "label": "shared",
+            "value": 2
+          },
+          {
+            "label": "other",
+            "value": 3
+          }
+        ],
+        {
+          "main_price_key": "x",
+          "price_fields": [
+            {
+              "key": "x",
+              "label": "not returned"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": [
+          {
+            "label": "shared",
+            "value": 1,
+            "main": false
+          },
+          {
+            "label": "shared",
+            "value": 2,
+            "main": false
+          },
+          {
+            "label": "other",
+            "value": 3,
+            "main": false
+          }
+        ]
+      }
+    },
+    {
+      "op": "referral",
+      "args": [
+        {
+          "referral": null
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "referral",
+      "args": [
+        {
+          "referral": {}
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "referral",
+      "args": [
+        {
+          "referral": {
+            "enabled": false,
+            "title": "T",
+            "url": "https://example.test"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "referral",
+      "args": [
+        {
+          "referral": {
+            "enabled": true,
+            "title": "",
+            "url": "https://example.test"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    },
+    {
+      "op": "referral",
+      "args": [
+        {
+          "referral": {
+            "enabled": true,
+            "title": " T ",
+            "url": " http://127.0.0.1:8080/ ",
+            "description": " desc "
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "title": "T",
+          "url": "http://127.0.0.1:8080/",
+          "description": "desc"
+        }
+      }
+    },
+    {
+      "op": "referral",
+      "args": [
+        {
+          "referral": {
+            "enabled": true,
+            "title": "T",
+            "url": "ftp://example.test"
+          }
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": null
+      }
+    }
+  ],
+  "fetch_cases": [
+    {
+      "provider": {
+        "id": 1,
+        "name": "fixture",
+        "display_name": "عنوان",
+        "logo": null,
+        "params": [],
+        "check_price_url": "https://example.test",
+        "price_fields": [
+          {
+            "key": "entries.total",
+            "label": "کل"
+          },
+          {
+            "key": "tax",
+            "label": "مالیات"
+          },
+          {
+            "key": "missing",
+            "label": "ناقص"
+          }
+        ],
+        "price_currency_out": "toman",
+        "main_price_key": "tax"
+      },
+      "status": 200,
+      "raw": "{\"entries\":{\"total\":\"15\"},\"tax\":-5}",
+      "expected": {
+        "ok": true,
+        "quote": {
+          "endpoint": "https://example.test",
+          "provider_status": null,
+          "provider_message": "",
+          "provider_response": {
+            "entries": {
+              "total": "15"
+            },
+            "tax": -5
+          },
+          "prices": [
+            {
+              "label": "کل",
+              "value": 2,
+              "main": false
+            },
+            {
+              "label": "مالیات",
+              "value": -1,
+              "main": true
+            }
+          ],
+          "missing_price_fields": [
+            "missing"
+          ],
+          "price_candidates": []
+        },
+        "public": {
+          "provider": {
+            "id": 1,
+            "name": "fixture",
+            "display_name": "عنوان",
+            "logo": ""
+          },
+          "prices": [
+            {
+              "label": "کل",
+              "value": 2,
+              "main": false
+            },
+            {
+              "label": "مالیات",
+              "value": -1,
+              "main": true
+            }
+          ],
+          "currency": "toman",
+          "currency_label": "تومان",
+          "referral": null,
+          "cached": false
+        }
+      }
+    },
+    {
+      "provider": {
+        "id": 1,
+        "name": "fixture",
+        "display_name": "عنوان",
+        "logo": null,
+        "params": [],
+        "check_price_url": "https://example.test"
+      },
+      "status": 503,
+      "raw": "{\"total\":0}",
+      "expected": {
+        "ok": true,
+        "quote": {
+          "endpoint": "https://example.test",
+          "provider_status": null,
+          "provider_message": "",
+          "provider_response": {
+            "total": 0
+          },
+          "prices": [
+            {
+              "label": "جمع کل",
+              "value": 0,
+              "main": true
+            }
+          ],
+          "missing_price_fields": [],
+          "price_candidates": []
+        },
+        "public": {
+          "provider": {
+            "id": 1,
+            "name": "fixture",
+            "display_name": "عنوان",
+            "logo": ""
+          },
+          "prices": [
+            {
+              "label": "جمع کل",
+              "value": 0,
+              "main": true
+            }
+          ],
+          "currency": "rial",
+          "currency_label": "ریال",
+          "referral": null,
+          "cached": false
+        }
+      }
+    },
+    {
+      "provider": {
+        "id": 1,
+        "name": "fixture",
+        "display_name": "عنوان",
+        "logo": null,
+        "params": [],
+        "check_price_url": "https://example.test",
+        "price_currency_in": "toman"
+      },
+      "status": 200,
+      "raw": "[{\"price\":1.5}]",
+      "expected": {
+        "ok": true,
+        "quote": {
+          "endpoint": "https://example.test",
+          "provider_status": null,
+          "provider_message": "",
+          "provider_response": [
+            {
+              "price": 1.5
+            }
+          ],
+          "prices": [
+            {
+              "label": "مبلغ",
+              "value": 15.0,
+              "main": true
+            }
+          ],
+          "missing_price_fields": [],
+          "price_candidates": []
+        },
+        "public": {
+          "provider": {
+            "id": 1,
+            "name": "fixture",
+            "display_name": "عنوان",
+            "logo": ""
+          },
+          "prices": [
+            {
+              "label": "مبلغ",
+              "value": 15.0,
+              "main": true
+            }
+          ],
+          "currency": "rial",
+          "currency_label": "ریال",
+          "referral": null,
+          "cached": false
+        }
+      }
+    },
+    {
+      "provider": {
+        "id": 1,
+        "name": "fixture",
+        "display_name": "عنوان",
+        "logo": null,
+        "params": [],
+        "check_price_url": "https://example.test",
+        "price_fields": [
+          {
+            "key": "missing",
+            "label": "ناقص"
+          }
+        ]
+      },
+      "status": 200,
+      "raw": "{\"other\":1}",
+      "expected": {
+        "ok": false,
+        "message": "پاسخ سرویس قیمت هیچ‌کدام از فیلدهای تنظیم‌شده را ندارد. فیلدهای تنظیم‌شده: missing.",
+        "status_code": 502,
+        "field": null,
+        "endpoint": "https://example.test",
+        "http_status": 200,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": {
+          "other": 1
+        },
+        "errors": [
+          {
+            "field": "missing",
+            "message": "در پاسخ سرویس پیدا نشد."
+          }
+        ],
+        "extra": {
+          "provider_response": {
+            "other": 1
+          },
+          "missing_price_fields": [
+            "missing"
+          ],
+          "price_candidates": [
+            {
+              "key": "other",
+              "label": "other",
+              "value": 1
+            }
+          ],
+          "provider_message": null,
+          "provider_status": null,
+          "endpoint": "https://example.test"
+        }
+      }
+    }
+  ],
+  "representation_limits": [
+    {
+      "op": "parse",
+      "input": "{\"total\":NaN}",
+      "python_kind": "dict"
+    },
+    {
+      "op": "parse",
+      "input": "{\"total\":9223372036854775808}",
+      "python_kind": "dict"
+    },
+    {
+      "op": "parse",
+      "input": "{\"total\":1,\"text\":\"\\ud800\"}",
+      "python_kind": "dict"
+    }
   ]
 }
