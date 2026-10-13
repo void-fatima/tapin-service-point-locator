@@ -1,0 +1,121 @@
+{
+  "PUBLIC_API_CATALOG": {
+    "/api/health": {
+      "methods": [
+        "GET"
+      ],
+      "title": "سلامت سرویس",
+      "description": "پاسخ زنده‌بودن سرویس همراه شمارش ردیف‌ها؛ برای مانیتورینگ آپتایم. هیچ محدودیتی ندارد و گارد روی آن اعمال نمی‌شود.",
+      "guarded": false,
+      "default_max": null,
+      "default_window": null
+    },
+    "/api/providers": {
+      "methods": [
+        "GET"
+      ],
+      "title": "لیست شرکت‌ها",
+      "description": "لیست شرکت‌های فعال با فیلدهای نمایشی؛ صفحه اصلی با هر بار باز شدن آن را صدا می‌زند.",
+      "guarded": true,
+      "default_max": 60,
+      "default_window": 60
+    },
+    "/api/providers/{provider_id}": {
+      "methods": [
+        "GET"
+      ],
+      "title": "فرم استعلام تکی",
+      "description": "تعریف فرم یک شرکت (فیلدها + لیست استان/شهر) برای صفحه استعلام تکی و پیشرفته.",
+      "guarded": true,
+      "default_max": 60,
+      "default_window": 60
+    },
+    "/api/locations": {
+      "methods": [
+        "GET"
+      ],
+      "title": "لیست استان و شهر",
+      "description": "استان‌ها و شهرهای یک شرکت (پارامتر provider؟) با امکان رفرش دستی (refresh=true؟)؛ فرم‌ها برای پر کردن دراپ‌داون‌ها از آن استفاده می‌کنند.",
+      "guarded": true,
+      "default_max": 60,
+      "default_window": 60
+    },
+    "/api/price-check": {
+      "methods": [
+        "POST"
+      ],
+      "title": "استعلام قیمت تکی",
+      "description": "محاسبه قیمت زنده یک شرکت برای مقادیر ارسالی (دکمه ثبت و بررسی قیمت). پرهزینه‌ترین API؛ سقف پیش‌فرض ۴ درخواست در دقیقه.",
+      "guarded": true,
+      "default_max": 4,
+      "default_window": 60
+    },
+    "/api/bulk": {
+      "methods": [
+        "GET"
+      ],
+      "title": "فرم استعلام گروهی",
+      "description": "تعریف فرم مشترک استعلام گروهی (فیلدها + نگاشت شرکت‌ها) برای صفحه گروهی.",
+      "guarded": true,
+      "default_max": 60,
+      "default_window": 60
+    },
+    "/api/bulk-check": {
+      "methods": [
+        "POST"
+      ],
+      "title": "استعلام گروهی",
+      "description": "استعلام هم‌زمان قیمت همه شرکت‌های فعال گروهی (دکمه استعلام). پرهزینه‌ترین API؛ سقف پیش‌فرض ۴ درخواست در دقیقه.",
+      "guarded": true,
+      "default_max": 4,
+      "default_window": 60
+    },
+    "/api/bulk-validate": {
+      "methods": [
+        "POST"
+      ],
+      "title": "اعتبارسنجی گروهی",
+      "description": "بررسی مقادیر فرم گروهی بدون استعلام قیمت (پیش‌پرواز قبل از ثبت)؛ تماس زنده با باربر ندارد.",
+      "guarded": true,
+      "default_max": 30,
+      "default_window": 60
+    }
+  },
+  "ADMIN_API_GROUPS": [
+    {
+      "prefix": "/api/admin/bulk",
+      "title": "استعلام گروهی (تنظیمات)",
+      "description": "خواندن و ذخیره تنظیمات فرم گروهی در پنل ادمین."
+    },
+    {
+      "prefix": "/api/admin/preview",
+      "title": "پیش‌نمایش فرم‌ها",
+      "description": "ساخت فرم و استعلام آزمایشی از روی پیش‌نویس ذخیره‌نشده در ویرایشگر ادمین؛ چیزی در دیتابیس نوشته نمی‌شود."
+    },
+    {
+      "prefix": "/api/admin/providers",
+      "title": "مدیریت شرکت‌ها",
+      "description": "لیست، ساخت، ویرایش و حذف شرکت‌ها + ایمپورت اکسل استان/شهر و نمونه فایل."
+    },
+    {
+      "prefix": "/api/admin/shops",
+      "title": "مدیریت فروشگاه‌ها",
+      "description": "لیست، ساخت، ویرایش و حذف فروشگاه‌ها (شناسه/توکن تاپین) + ایمپورت اکسل."
+    },
+    {
+      "prefix": "/api/admin/logs",
+      "title": "لاگ استعلام‌ها",
+      "description": "مشاهده و حذف تاریخچه استعلام‌های ثبت‌شده."
+    },
+    {
+      "prefix": "/api/admin/security",
+      "title": "امنیت",
+      "description": "بلاک‌لیست، لیست سفید، رویدادها، تنظیمات، محدودیت‌ها و متخلفین."
+    },
+    {
+      "prefix": "/api/admin/cache",
+      "title": "کش",
+      "description": "خواندن و ذخیره مدت‌زمان کش‌ها + پاک‌سازی دستی هر کش."
+    }
+  ]
+}

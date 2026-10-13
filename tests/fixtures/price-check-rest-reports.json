@@ -1,0 +1,453 @@
+{
+  "now": 125000,
+  "seeds": [
+    {
+      "key": "tapin:rate:ip:/api/price-check:192.0.2.50",
+      "count": 5,
+      "window": 60,
+      "now": 112000
+    },
+    {
+      "key": "tapin:rate:ip:/api/providers/{provider_id}:192.0.2.50",
+      "count": 61,
+      "window": 60,
+      "now": 124000
+    }
+  ],
+  "events": [
+    {
+      "id": 1,
+      "created_at_ms": 124999,
+      "kind": "rate_limit_exceeded",
+      "ip": "192.0.2.50",
+      "client_id": "",
+      "client_fingerprint": "",
+      "route": "/api/price-check",
+      "detail": "dimensions: ip"
+    },
+    {
+      "id": 2,
+      "created_at_ms": 124000,
+      "kind": "rate_limit_exceeded",
+      "ip": "192.0.2.50",
+      "client_id": "",
+      "client_fingerprint": "",
+      "route": "/api/providers/3",
+      "detail": "dimensions: ip"
+    },
+    {
+      "id": 3,
+      "created_at_ms": 110000,
+      "kind": "rate_limit_exceeded",
+      "ip": "192.0.2.50",
+      "client_id": "",
+      "client_fingerprint": "",
+      "route": "/api/price-check",
+      "detail": "dimensions: ip"
+    },
+    {
+      "id": 4,
+      "created_at_ms": 65000,
+      "kind": "rate_limit_exceeded",
+      "ip": "192.0.2.50",
+      "client_id": "",
+      "client_fingerprint": "",
+      "route": "/api/price-check",
+      "detail": "dimensions: ip"
+    },
+    {
+      "id": 5,
+      "created_at_ms": 60000,
+      "kind": "rate_limit_exceeded",
+      "ip": "192.0.2.50",
+      "client_id": "",
+      "client_fingerprint": "",
+      "route": "/api/health",
+      "detail": "dimensions: ip"
+    },
+    {
+      "id": 6,
+      "created_at_ms": -1,
+      "kind": "rate_limit_exceeded",
+      "ip": "192.0.2.51",
+      "client_id": "",
+      "client_fingerprint": "",
+      "route": "/unknown",
+      "detail": "dimensions: ip"
+    }
+  ],
+  "cases": [
+    {
+      "op": "admin_list_rate_limits",
+      "query": {},
+      "result": {
+        "limits": [
+          {
+            "ip": "192.0.2.50",
+            "client_id": "",
+            "fingerprint": "",
+            "route": "/api/price-check",
+            "last_at_ms": 124999,
+            "started_at_ms": 110000,
+            "ends_at_ms": 172000,
+            "max_requests": 4,
+            "window_seconds": 60,
+            "dimensions": [
+              "ip"
+            ]
+          },
+          {
+            "ip": "192.0.2.50",
+            "client_id": "",
+            "fingerprint": "",
+            "route": "/api/providers/{provider_id}",
+            "last_at_ms": 124000,
+            "started_at_ms": 124000,
+            "ends_at_ms": 184000,
+            "max_requests": 60,
+            "window_seconds": 60,
+            "dimensions": [
+              "ip"
+            ]
+          }
+        ],
+        "max_requests": 4,
+        "window_seconds": 60
+      }
+    },
+    {
+      "op": "admin_list_rate_limits",
+      "query": {
+        "q": "192.0.2.50",
+        "limit": "1",
+        "min": "1"
+      },
+      "result": {
+        "limits": [
+          {
+            "ip": "192.0.2.50",
+            "client_id": "",
+            "fingerprint": "",
+            "route": "/api/price-check",
+            "last_at_ms": 124999,
+            "started_at_ms": 110000,
+            "ends_at_ms": 172000,
+            "max_requests": 4,
+            "window_seconds": 60,
+            "dimensions": [
+              "ip"
+            ]
+          }
+        ],
+        "max_requests": 4,
+        "window_seconds": 60
+      }
+    },
+    {
+      "op": "admin_list_rate_limits",
+      "query": {
+        "q": "missing",
+        "limit": "bad",
+        "min": "bad"
+      },
+      "result": {
+        "limits": [],
+        "max_requests": 4,
+        "window_seconds": 60
+      }
+    },
+    {
+      "op": "admin_list_rate_limits",
+      "query": {
+        "limit": "0",
+        "min": "-1"
+      },
+      "result": {
+        "limits": [
+          {
+            "ip": "192.0.2.50",
+            "client_id": "",
+            "fingerprint": "",
+            "route": "/api/price-check",
+            "last_at_ms": 124999,
+            "started_at_ms": 110000,
+            "ends_at_ms": 172000,
+            "max_requests": 4,
+            "window_seconds": 60,
+            "dimensions": [
+              "ip"
+            ]
+          }
+        ],
+        "max_requests": 4,
+        "window_seconds": 60
+      }
+    },
+    {
+      "op": "admin_list_repeat_offenders",
+      "query": {},
+      "result": {
+        "offenders": [],
+        "min_windows": 5,
+        "window_seconds": 60
+      }
+    },
+    {
+      "op": "admin_list_repeat_offenders",
+      "query": {
+        "q": "192.0.2.50",
+        "limit": "1",
+        "min": "1"
+      },
+      "result": {
+        "offenders": [
+          {
+            "ip": "192.0.2.50",
+            "client_id": "",
+            "fingerprint": "",
+            "route": "/api/health",
+            "windows": 2,
+            "hits": 5,
+            "first_at_ms": 60000,
+            "last_at_ms": 124999,
+            "window_seconds": 60
+          }
+        ],
+        "min_windows": 1,
+        "window_seconds": 60
+      }
+    },
+    {
+      "op": "admin_list_repeat_offenders",
+      "query": {
+        "q": "missing",
+        "limit": "bad",
+        "min": "bad"
+      },
+      "result": {
+        "offenders": [],
+        "min_windows": 5,
+        "window_seconds": 60
+      }
+    },
+    {
+      "op": "admin_list_repeat_offenders",
+      "query": {
+        "limit": "0",
+        "min": "-1"
+      },
+      "result": {
+        "offenders": [
+          {
+            "ip": "192.0.2.50",
+            "client_id": "",
+            "fingerprint": "",
+            "route": "/api/health",
+            "windows": 2,
+            "hits": 5,
+            "first_at_ms": 60000,
+            "last_at_ms": 124999,
+            "window_seconds": 60
+          }
+        ],
+        "min_windows": 1,
+        "window_seconds": 60
+      }
+    }
+  ],
+  "entries": [
+    {
+      "route": "/api/health",
+      "overrides": {},
+      "result": {
+        "route": "/api/health",
+        "methods": [
+          "GET"
+        ],
+        "title": "سلامت سرویس",
+        "description": "پاسخ زنده‌بودن سرویس همراه شمارش ردیف‌ها؛ برای مانیتورینگ آپتایم. هیچ محدودیتی ندارد و گارد روی آن اعمال نمی‌شود.",
+        "guarded": false,
+        "max_requests": null,
+        "window_seconds": null,
+        "custom": false,
+        "unlimited": false,
+        "source": "default"
+      }
+    },
+    {
+      "route": "/api/providers",
+      "overrides": {},
+      "result": {
+        "route": "/api/providers",
+        "methods": [
+          "GET"
+        ],
+        "title": "لیست شرکت‌ها",
+        "description": "لیست شرکت‌های فعال با فیلدهای نمایشی؛ صفحه اصلی با هر بار باز شدن آن را صدا می‌زند.",
+        "guarded": true,
+        "max_requests": 60,
+        "window_seconds": 60,
+        "custom": false,
+        "unlimited": false,
+        "source": "default"
+      }
+    },
+    {
+      "route": "/api/providers/{provider_id}",
+      "overrides": {},
+      "result": {
+        "route": "/api/providers/{provider_id}",
+        "methods": [
+          "GET"
+        ],
+        "title": "فرم استعلام تکی",
+        "description": "تعریف فرم یک شرکت (فیلدها + لیست استان/شهر) برای صفحه استعلام تکی و پیشرفته.",
+        "guarded": true,
+        "max_requests": 60,
+        "window_seconds": 60,
+        "custom": false,
+        "unlimited": false,
+        "source": "default"
+      }
+    },
+    {
+      "route": "/api/locations",
+      "overrides": {},
+      "result": {
+        "route": "/api/locations",
+        "methods": [
+          "GET"
+        ],
+        "title": "لیست استان و شهر",
+        "description": "استان‌ها و شهرهای یک شرکت (پارامتر provider؟) با امکان رفرش دستی (refresh=true؟)؛ فرم‌ها برای پر کردن دراپ‌داون‌ها از آن استفاده می‌کنند.",
+        "guarded": true,
+        "max_requests": 60,
+        "window_seconds": 60,
+        "custom": false,
+        "unlimited": false,
+        "source": "default"
+      }
+    },
+    {
+      "route": "/api/price-check",
+      "overrides": {},
+      "result": {
+        "route": "/api/price-check",
+        "methods": [
+          "POST"
+        ],
+        "title": "استعلام قیمت تکی",
+        "description": "محاسبه قیمت زنده یک شرکت برای مقادیر ارسالی (دکمه ثبت و بررسی قیمت). پرهزینه‌ترین API؛ سقف پیش‌فرض ۴ درخواست در دقیقه.",
+        "guarded": true,
+        "max_requests": 4,
+        "window_seconds": 60,
+        "custom": false,
+        "unlimited": false,
+        "source": "default"
+      }
+    },
+    {
+      "route": "/api/bulk",
+      "overrides": {},
+      "result": {
+        "route": "/api/bulk",
+        "methods": [
+          "GET"
+        ],
+        "title": "فرم استعلام گروهی",
+        "description": "تعریف فرم مشترک استعلام گروهی (فیلدها + نگاشت شرکت‌ها) برای صفحه گروهی.",
+        "guarded": true,
+        "max_requests": 60,
+        "window_seconds": 60,
+        "custom": false,
+        "unlimited": false,
+        "source": "default"
+      }
+    },
+    {
+      "route": "/api/bulk-check",
+      "overrides": {},
+      "result": {
+        "route": "/api/bulk-check",
+        "methods": [
+          "POST"
+        ],
+        "title": "استعلام گروهی",
+        "description": "استعلام هم‌زمان قیمت همه شرکت‌های فعال گروهی (دکمه استعلام). پرهزینه‌ترین API؛ سقف پیش‌فرض ۴ درخواست در دقیقه.",
+        "guarded": true,
+        "max_requests": 4,
+        "window_seconds": 60,
+        "custom": false,
+        "unlimited": false,
+        "source": "default"
+      }
+    },
+    {
+      "route": "/api/bulk-validate",
+      "overrides": {},
+      "result": {
+        "route": "/api/bulk-validate",
+        "methods": [
+          "POST"
+        ],
+        "title": "اعتبارسنجی گروهی",
+        "description": "بررسی مقادیر فرم گروهی بدون استعلام قیمت (پیش‌پرواز قبل از ثبت)؛ تماس زنده با باربر ندارد.",
+        "guarded": true,
+        "max_requests": 30,
+        "window_seconds": 60,
+        "custom": false,
+        "unlimited": false,
+        "source": "default"
+      }
+    },
+    {
+      "route": "/api/price-check",
+      "overrides": {
+        "/api/price-check": {
+          "enabled": false,
+          "max_requests": 2,
+          "window_seconds": 3
+        }
+      },
+      "result": {
+        "route": "/api/price-check",
+        "methods": [
+          "POST"
+        ],
+        "title": "استعلام قیمت تکی",
+        "description": "محاسبه قیمت زنده یک شرکت برای مقادیر ارسالی (دکمه ثبت و بررسی قیمت). پرهزینه‌ترین API؛ سقف پیش‌فرض ۴ درخواست در دقیقه.",
+        "guarded": true,
+        "max_requests": null,
+        "window_seconds": null,
+        "custom": true,
+        "unlimited": true,
+        "source": "off"
+      }
+    },
+    {
+      "route": "/api/price-check",
+      "overrides": {
+        "/api/price-check": {
+          "enabled": true,
+          "max_requests": 2,
+          "window_seconds": 3
+        }
+      },
+      "result": {
+        "route": "/api/price-check",
+        "methods": [
+          "POST"
+        ],
+        "title": "استعلام قیمت تکی",
+        "description": "محاسبه قیمت زنده یک شرکت برای مقادیر ارسالی (دکمه ثبت و بررسی قیمت). پرهزینه‌ترین API؛ سقف پیش‌فرض ۴ درخواست در دقیقه.",
+        "guarded": true,
+        "max_requests": 2,
+        "window_seconds": 3,
+        "custom": true,
+        "unlimited": false,
+        "source": "custom"
+      }
+    }
+  ],
+  "api_sha256": "27189254d7ac2555dca395dfcc8f243f066bd1408e0dd859d8b068bfd331dbd5"
+}

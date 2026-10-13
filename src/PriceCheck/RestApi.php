@@ -28,9 +28,30 @@ final class RestApi {
 		array( '/admin/shops', 'GET', 'admin_list_shops', false ), array( '/admin/shops', 'POST', 'admin_create_shop', false ),
 		array( '/admin/shops/(?P<shop_id>[^/]+)', 'GET', 'admin_get_shop', false ), array( '/admin/shops/(?P<shop_id>[^/]+)', 'PUT', 'admin_update_shop', false ), array( '/admin/shops/(?P<shop_id>[^/]+)', 'DELETE', 'admin_delete_shop', false ),
 		array( '/admin/bulk', 'GET', 'admin_get_bulk', false ), array( '/admin/bulk', 'PUT', 'admin_save_bulk', false ),
+		array( '/admin/logs', 'GET', 'admin_list_logs', false ),
+		array( '/admin/logs', 'DELETE', 'admin_clear_logs', false ),
+		array( '/admin/logs/(?P<log_id>[0-9]+)', 'DELETE', 'admin_delete_log', false ),
+		array( '/admin/security/blocks', 'GET', 'admin_list_blocks', false ),
+		array( '/admin/security/blocks', 'POST', 'admin_create_block', false ),
+		array( '/admin/security/blocks/(?P<block_id>[0-9]+)', 'PUT', 'admin_update_block', false ),
+		array( '/admin/security/blocks/(?P<block_id>[0-9]+)', 'DELETE', 'admin_delete_block', false ),
+		array( '/admin/security/events', 'GET', 'admin_list_security_events', false ),
+		array( '/admin/security/rate-limits', 'DELETE', 'admin_reset_rate_limits', false ),
+		array( '/admin/security/rate-limits', 'GET', 'admin_list_rate_limits', false ),
+		array( '/admin/security/route-limits', 'GET', 'admin_list_route_limits', false ),
+		array( '/admin/security/route-limits', 'PUT', 'admin_save_route_limit', false ),
+		array( '/admin/security/route-limits', 'DELETE', 'admin_delete_route_limit', false ),
+		array( '/admin/security/repeat-offenders', 'GET', 'admin_list_repeat_offenders', false ),
+		array( '/admin/cache', 'GET', 'admin_get_cache_settings', false ),
+		array( '/admin/cache', 'PUT', 'admin_save_cache_settings', false ),
+		array( '/admin/cache/clear', 'DELETE', 'admin_clear_cache', false ),
+		array( '/admin/security/allowlist', 'GET', 'admin_list_allowlist', false ),
+		array( '/admin/security/allowlist', 'POST', 'admin_create_allowlist_entry', false ),
+		array( '/admin/security/allowlist/(?P<entry_id>[0-9]+)', 'DELETE', 'admin_delete_allowlist_entry', false ),
 	); }
 	public static function permission( $request ) {
-		if ( ! Access::can_manage() || ! wp_verify_nonce( $request->get_header( 'X-WP-Nonce' ) ?: $request->get_param( '_wpnonce' ), 'wp_rest' ) ) { return new \WP_Error( 'tapin_price_forbidden', 'دسترسی به مدیریت استعلام قیمت مجاز نیست.', array( 'status' => 403 ) ); } return true;
+		$nonce = Access::can_manage() ? ( $request->get_header( 'X-WP-Nonce' ) ?: $request->get_param( '_wpnonce' ) ) : null;
+		if ( ! is_string( $nonce ) || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) { return new \WP_Error( 'tapin_price_forbidden', 'دسترسی به مدیریت استعلام قیمت مجاز نیست.', array( 'status' => 403 ) ); } return true;
 	}
 	public function register(): void {
 		foreach ( self::routes() as [$path, $method, $operation, $guarded] ) {
