@@ -69,5 +69,46 @@ for raw in ('{"cities":[{"pk":9223372036854775808,"title":"T","province_pk":1,"p
     except locations.LocationError: kind='LocationError'
     limits.append(dict(raw=raw,python=kind))
 result = dict(provenance=dict(python=sys.version.split()[0],unicode=unicodedata.unidata_version,live_access=False,hashes={name:hashlib.sha256((source/(name+'.py')).read_bytes()).hexdigest() for name in ('locations','net','providers')}),casefold=fold,cases=cases,limits=limits,flat=flat,providers=provider_rows,custom=custom)
+for value in (None,False,0,-1,'bad','1.0','10',3.5):
+    capture('ttl',[value],lambda:locations._location_ttls(value))
+
+def own_shop(key):
+    key = str(key); lookups.append(key)
+    if key in failed_shops: raise RuntimeError('private fixture failure')
+    return {'id':key,'token':None if key=='empty' else ' inert-test-marker '} if key in ('01','0','1','fallback','empty') else None
+def shops():
+    if fail_list: raise RuntimeError('private fixture failure')
+    return copy.deepcopy(shop_rows)
+credential_cases=[]
+for sid, rows, failures, listfail in [(None,[],[],False),(True,[],[],False),(1.5,[],[],False),(1.0,[],[],False),(0,[],[],False),(' 01 ',[],[],False),('empty',[{'id':'fallback','has_token':True}],[],False),('missing',[{'id':'fail','has_token':True},{'id':'fallback','has_token':True}],['fail'],False),('missing',[],['missing'],False),(None,[],[],True),(None,[{'id':'0','has_token':True}],[],False),(None,[{'id':'fallback','has_token':False}],[],False)]:
+    lookups=[]; failed_shops=failures; fail_list=listfail; shop_rows=rows
+    try:
+        cred=locations.credentials_for_provider({'shop_id':sid})
+        expected=dict(ok=True,shop_id=cred.shop_id,authorization=cred.token=='inert-test-marker')
+    except locations.LocationError as exc: expected=dict(ok=False,message=str(exc))
+    credential_cases.append(dict(id=sid,shops=rows,failed_shops=failures,fail_list=listfail,expected=expected,lookups=lookups))
+result['credential_cases']=credential_cases
+snapshot_flows = [
+    dict(name='fresh inclusive boundary and permanent stale',steps=[dict(now=100.0),dict(now=110.0,credentials=False),dict(now=111.0,raw='bad'),dict(now=10000000.0,credentials=False),dict(now=10000001.0,names=['missing'],credentials=False)]),
+    dict(name='forced refresh and retained entry',steps=[dict(now=100.25),dict(now=101.0,refresh=True),dict(now=102.0,refresh=True,mode='failure'),dict(now=103.0,refresh=True,credentials=False)]),
+    dict(name='future entry is not usable',steps=[dict(now=100.0),dict(now=99.0,credentials=False),dict(now=99.0,mode='failure')]),
+    dict(name='cold failure paths do not cache',steps=[dict(now=100.0,credentials=False),dict(now=100.0,mode='failure'),dict(now=100.0,raw='null'),dict(now=100.0,raw='{"entries":[]}'),dict(now=100.0)]),
+    dict(name='missing aliases still stores valid global records',steps=[dict(now=100.0,names=['missing']),dict(now=100.0,names=['post','tipax'],credentials=False),dict(now=100.0,names=[])]),
+    dict(name='clear forgets stale and TTL zero boundary',steps=[dict(now=100.0,ttl=0),dict(now=100.0,ttl=0,credentials=False),dict(now=101.0,ttl=0,credentials=False),dict(now=101.0,clear=True,credentials=False)]),
+]
+for flow in snapshot_flows:
+    locations.clear_memory_cache(); requests=[]
+    for step in flow['steps']:
+        if step.get('clear'): locations.clear_memory_cache()
+        async def sender(url,body,headers,timeout):
+            requests.append(dict(url=url,body=body,authorization=headers.get('Authorization')=='inert-test-marker',timeout=timeout))
+            if step.get('mode')=='failure': raise locations.LocationError('fixture upstream unavailable')
+            return step.get('status',503),step.get('raw',json.dumps(dict(returns={'status':'01','message':'M'},cities=flat),ensure_ascii=False)).encode()
+        try:
+            snap=asyncio.run(locations.get_location_snapshot(step.get('names',['post','پست','tipax']),credentials=locations.LocationCredentials('01','inert-test-marker') if step.get('credentials',True) else None,transport=sender,refresh=step.get('refresh',False),now=step['now'],ttl_seconds=step.get('ttl',10),provider_records=provider_rows))
+            step['expected']=dict(ok=True,value=asdict(snap))
+        except locations.LocationError as exc: step['expected']=dict(ok=False,message=str(exc))
+        step['cache']=copy.deepcopy(locations.cache_info()); step['requests']=copy.deepcopy(requests)
+result['snapshot_flows']=snapshot_flows
 Path(sys.argv[2]).write_text(json.dumps(result,ensure_ascii=False,indent=2,allow_nan=False),encoding='utf-8')
-print(f'Captured {len(cases)} original location helpers and {len(fold)} original Unicode casefold cases; live access forbidden')
+print(f'Captured {len(cases)} helpers, {len(credential_cases)} credential-selection and {sum(len(x["steps"]) for x in snapshot_flows)} snapshot actions, {len(fold)} Unicode mappings; mocked HTTP only')

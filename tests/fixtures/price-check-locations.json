@@ -4742,6 +4742,86 @@
           }
         ]
       }
+    },
+    {
+      "op": "ttl",
+      "args": [
+        null
+      ],
+      "expected": {
+        "ok": true,
+        "value": 21600
+      }
+    },
+    {
+      "op": "ttl",
+      "args": [
+        false
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0
+      }
+    },
+    {
+      "op": "ttl",
+      "args": [
+        0
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0
+      }
+    },
+    {
+      "op": "ttl",
+      "args": [
+        -1
+      ],
+      "expected": {
+        "ok": true,
+        "value": 0
+      }
+    },
+    {
+      "op": "ttl",
+      "args": [
+        "bad"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 21600
+      }
+    },
+    {
+      "op": "ttl",
+      "args": [
+        "1.0"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 21600
+      }
+    },
+    {
+      "op": "ttl",
+      "args": [
+        "10"
+      ],
+      "expected": {
+        "ok": true,
+        "value": 10
+      }
+    },
+    {
+      "op": "ttl",
+      "args": [
+        3.5
+      ],
+      "expected": {
+        "ok": true,
+        "value": 3
+      }
     }
   ],
   "limits": [
@@ -4842,5 +4922,2403 @@
         "province_code": "unknown"
       }
     ]
-  }
+  },
+  "credential_cases": [
+    {
+      "id": null,
+      "shops": [],
+      "failed_shops": [],
+      "fail_list": false,
+      "expected": {
+        "ok": false,
+        "message": "برای دریافت لیست شهر و استان، شناسه شعبه این شرکت یا حداقل یک شعبه دارای توکن لازم است."
+      },
+      "lookups": []
+    },
+    {
+      "id": true,
+      "shops": [],
+      "failed_shops": [],
+      "fail_list": false,
+      "expected": {
+        "ok": false,
+        "message": "برای دریافت لیست شهر و استان، شناسه شعبه معتبر نیست."
+      },
+      "lookups": []
+    },
+    {
+      "id": 1.5,
+      "shops": [],
+      "failed_shops": [],
+      "fail_list": false,
+      "expected": {
+        "ok": false,
+        "message": "برای دریافت لیست شهر و استان، شناسه شعبه معتبر نیست."
+      },
+      "lookups": []
+    },
+    {
+      "id": 1.0,
+      "shops": [],
+      "failed_shops": [],
+      "fail_list": false,
+      "expected": {
+        "ok": true,
+        "shop_id": "1",
+        "authorization": true
+      },
+      "lookups": [
+        "1"
+      ]
+    },
+    {
+      "id": 0,
+      "shops": [],
+      "failed_shops": [],
+      "fail_list": false,
+      "expected": {
+        "ok": true,
+        "shop_id": "0",
+        "authorization": true
+      },
+      "lookups": [
+        "0"
+      ]
+    },
+    {
+      "id": " 01 ",
+      "shops": [],
+      "failed_shops": [],
+      "fail_list": false,
+      "expected": {
+        "ok": true,
+        "shop_id": "01",
+        "authorization": true
+      },
+      "lookups": [
+        "01"
+      ]
+    },
+    {
+      "id": "empty",
+      "shops": [
+        {
+          "id": "fallback",
+          "has_token": true
+        }
+      ],
+      "failed_shops": [],
+      "fail_list": false,
+      "expected": {
+        "ok": true,
+        "shop_id": "fallback",
+        "authorization": true
+      },
+      "lookups": [
+        "empty",
+        "fallback"
+      ]
+    },
+    {
+      "id": "missing",
+      "shops": [
+        {
+          "id": "fail",
+          "has_token": true
+        },
+        {
+          "id": "fallback",
+          "has_token": true
+        }
+      ],
+      "failed_shops": [
+        "fail"
+      ],
+      "fail_list": false,
+      "expected": {
+        "ok": true,
+        "shop_id": "fallback",
+        "authorization": true
+      },
+      "lookups": [
+        "missing",
+        "fail",
+        "fallback"
+      ]
+    },
+    {
+      "id": "missing",
+      "shops": [],
+      "failed_shops": [
+        "missing"
+      ],
+      "fail_list": false,
+      "expected": {
+        "ok": false,
+        "message": "خواندن شعبه این شرکت برای لیست شهر و استان ناموفق بود."
+      },
+      "lookups": [
+        "missing"
+      ]
+    },
+    {
+      "id": null,
+      "shops": [],
+      "failed_shops": [],
+      "fail_list": true,
+      "expected": {
+        "ok": false,
+        "message": "خواندن شعب برای لیست شهر و استان ناموفق بود."
+      },
+      "lookups": []
+    },
+    {
+      "id": null,
+      "shops": [
+        {
+          "id": "0",
+          "has_token": true
+        }
+      ],
+      "failed_shops": [],
+      "fail_list": false,
+      "expected": {
+        "ok": true,
+        "shop_id": "0",
+        "authorization": true
+      },
+      "lookups": [
+        "0"
+      ]
+    },
+    {
+      "id": null,
+      "shops": [
+        {
+          "id": "fallback",
+          "has_token": false
+        }
+      ],
+      "failed_shops": [],
+      "fail_list": false,
+      "expected": {
+        "ok": false,
+        "message": "برای دریافت لیست شهر و استان، شناسه شعبه این شرکت یا حداقل یک شعبه دارای توکن لازم است."
+      },
+      "lookups": []
+    }
+  ],
+  "snapshot_flows": [
+    {
+      "name": "fresh inclusive boundary and permanent stale",
+      "steps": [
+        {
+          "now": 100.0,
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {
+                "post": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "پست": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "tipax": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  },
+                  "2": {
+                    "province_name": "دوم",
+                    "cities": [
+                      {
+                        "value": "20",
+                        "label": "دوم"
+                      }
+                    ]
+                  }
+                }
+              },
+              "missing": [],
+              "status": "fresh",
+              "message": "",
+              "fetched_at": 100.0,
+              "expires_at": 110.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 110.0,
+          "credentials": false,
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {
+                "post": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "پست": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "tipax": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  },
+                  "2": {
+                    "province_name": "دوم",
+                    "cities": [
+                      {
+                        "value": "20",
+                        "label": "دوم"
+                      }
+                    ]
+                  }
+                }
+              },
+              "missing": [],
+              "status": "fresh",
+              "message": "",
+              "fetched_at": 100.0,
+              "expires_at": 110.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 111.0,
+          "raw": "bad",
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {
+                "post": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "پست": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "tipax": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  },
+                  "2": {
+                    "province_name": "دوم",
+                    "cities": [
+                      {
+                        "value": "20",
+                        "label": "دوم"
+                      }
+                    ]
+                  }
+                }
+              },
+              "missing": [],
+              "status": "stale",
+              "message": "به‌روزرسانی لیست شهر و استان ناموفق بود؛ آخرین داده معتبر نمایش داده شد. خطا: پاسخ سرویس شهر و استان JSON معتبر نیست.",
+              "fetched_at": 100.0,
+              "expires_at": 110.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 10000000.0,
+          "credentials": false,
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {
+                "post": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "پست": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "tipax": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  },
+                  "2": {
+                    "province_name": "دوم",
+                    "cities": [
+                      {
+                        "value": "20",
+                        "label": "دوم"
+                      }
+                    ]
+                  }
+                }
+              },
+              "missing": [],
+              "status": "stale",
+              "message": "اعتبار لیست شهر و استان برای به‌روزرسانی در دسترس نیست؛ آخرین داده معتبر نمایش داده شد.",
+              "fetched_at": 100.0,
+              "expires_at": 110.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 10000001.0,
+          "names": [
+            "missing"
+          ],
+          "credentials": false,
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {},
+              "missing": [
+                "missing"
+              ],
+              "status": "unavailable",
+              "message": "اعتبار لیست شهر و استان برای به‌روزرسانی در دسترس نیست؛ آخرین داده معتبر نمایش داده شد.",
+              "fetched_at": 100.0,
+              "expires_at": 110.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "forced refresh and retained entry",
+      "steps": [
+        {
+          "now": 100.25,
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {
+                "post": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "پست": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "tipax": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  },
+                  "2": {
+                    "province_name": "دوم",
+                    "cities": [
+                      {
+                        "value": "20",
+                        "label": "دوم"
+                      }
+                    ]
+                  }
+                }
+              },
+              "missing": [],
+              "status": "fresh",
+              "message": "",
+              "fetched_at": 100.25,
+              "expires_at": 110.25,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 100.25,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 101.0,
+          "refresh": true,
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {
+                "post": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "پست": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "tipax": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  },
+                  "2": {
+                    "province_name": "دوم",
+                    "cities": [
+                      {
+                        "value": "20",
+                        "label": "دوم"
+                      }
+                    ]
+                  }
+                }
+              },
+              "missing": [],
+              "status": "fresh",
+              "message": "",
+              "fetched_at": 101.0,
+              "expires_at": 111.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 101.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 102.0,
+          "refresh": true,
+          "mode": "failure",
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {
+                "post": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "پست": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "tipax": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  },
+                  "2": {
+                    "province_name": "دوم",
+                    "cities": [
+                      {
+                        "value": "20",
+                        "label": "دوم"
+                      }
+                    ]
+                  }
+                }
+              },
+              "missing": [],
+              "status": "stale",
+              "message": "به‌روزرسانی لیست شهر و استان ناموفق بود؛ آخرین داده معتبر نمایش داده شد. خطا: fixture upstream unavailable",
+              "fetched_at": 101.0,
+              "expires_at": 111.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 101.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 103.0,
+          "refresh": true,
+          "credentials": false,
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {
+                "post": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "پست": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "tipax": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  },
+                  "2": {
+                    "province_name": "دوم",
+                    "cities": [
+                      {
+                        "value": "20",
+                        "label": "دوم"
+                      }
+                    ]
+                  }
+                }
+              },
+              "missing": [],
+              "status": "stale",
+              "message": "اعتبار لیست شهر و استان برای به‌روزرسانی در دسترس نیست؛ آخرین داده معتبر نمایش داده شد.",
+              "fetched_at": 101.0,
+              "expires_at": 111.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 101.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "future entry is not usable",
+      "steps": [
+        {
+          "now": 100.0,
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {
+                "post": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "پست": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "tipax": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  },
+                  "2": {
+                    "province_name": "دوم",
+                    "cities": [
+                      {
+                        "value": "20",
+                        "label": "دوم"
+                      }
+                    ]
+                  }
+                }
+              },
+              "missing": [],
+              "status": "fresh",
+              "message": "",
+              "fetched_at": 100.0,
+              "expires_at": 110.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 99.0,
+          "credentials": false,
+          "expected": {
+            "ok": false,
+            "message": "برای دریافت لیست شهر و استان، شناسه شعبه و توکن لازم است."
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 99.0,
+          "mode": "failure",
+          "expected": {
+            "ok": false,
+            "message": "fixture upstream unavailable"
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "cold failure paths do not cache",
+      "steps": [
+        {
+          "now": 100.0,
+          "credentials": false,
+          "expected": {
+            "ok": false,
+            "message": "برای دریافت لیست شهر و استان، شناسه شعبه و توکن لازم است."
+          },
+          "cache": null,
+          "requests": []
+        },
+        {
+          "now": 100.0,
+          "mode": "failure",
+          "expected": {
+            "ok": false,
+            "message": "fixture upstream unavailable"
+          },
+          "cache": null,
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 100.0,
+          "raw": "null",
+          "expected": {
+            "ok": false,
+            "message": "ساختار پاسخ سرویس شهر و استان شناخته نشد؛ هیچ شهر معتبری پیدا نشد."
+          },
+          "cache": null,
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 100.0,
+          "raw": "{\"entries\":[]}",
+          "expected": {
+            "ok": false,
+            "message": "ساختار پاسخ سرویس شهر و استان شناخته نشد؛ هیچ شهر معتبری پیدا نشد."
+          },
+          "cache": null,
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 100.0,
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {
+                "post": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "پست": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "tipax": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  },
+                  "2": {
+                    "province_name": "دوم",
+                    "cities": [
+                      {
+                        "value": "20",
+                        "label": "دوم"
+                      }
+                    ]
+                  }
+                }
+              },
+              "missing": [],
+              "status": "fresh",
+              "message": "",
+              "fetched_at": 100.0,
+              "expires_at": 110.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            },
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "missing aliases still stores valid global records",
+      "steps": [
+        {
+          "now": 100.0,
+          "names": [
+            "missing"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {},
+              "missing": [
+                "missing"
+              ],
+              "status": "unavailable",
+              "message": "برای missing داده شهر و استان پیدا نشد.",
+              "fetched_at": 100.0,
+              "expires_at": 110.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 100.0,
+          "names": [
+            "post",
+            "tipax"
+          ],
+          "credentials": false,
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {
+                "post": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "tipax": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  },
+                  "2": {
+                    "province_name": "دوم",
+                    "cities": [
+                      {
+                        "value": "20",
+                        "label": "دوم"
+                      }
+                    ]
+                  }
+                }
+              },
+              "missing": [],
+              "status": "fresh",
+              "message": "",
+              "fetched_at": 100.0,
+              "expires_at": 110.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 100.0,
+          "names": [],
+          "expected": {
+            "ok": false,
+            "message": "حداقل یک نام شرکت برای لیست شهر و استان لازم است."
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "clear forgets stale and TTL zero boundary",
+      "steps": [
+        {
+          "now": 100.0,
+          "ttl": 0,
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {
+                "post": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "پست": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "tipax": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  },
+                  "2": {
+                    "province_name": "دوم",
+                    "cities": [
+                      {
+                        "value": "20",
+                        "label": "دوم"
+                      }
+                    ]
+                  }
+                }
+              },
+              "missing": [],
+              "status": "fresh",
+              "message": "",
+              "fetched_at": 100.0,
+              "expires_at": 100.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 100.0,
+          "ttl": 0,
+          "credentials": false,
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {
+                "post": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "پست": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "tipax": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  },
+                  "2": {
+                    "province_name": "دوم",
+                    "cities": [
+                      {
+                        "value": "20",
+                        "label": "دوم"
+                      }
+                    ]
+                  }
+                }
+              },
+              "missing": [],
+              "status": "fresh",
+              "message": "",
+              "fetched_at": 100.0,
+              "expires_at": 100.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 101.0,
+          "ttl": 0,
+          "credentials": false,
+          "expected": {
+            "ok": true,
+            "value": {
+              "data": {
+                "post": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "پست": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "10",
+                        "label": "تهران"
+                      },
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  }
+                },
+                "tipax": {
+                  "1": {
+                    "province_name": "جدید",
+                    "cities": [
+                      {
+                        "value": "11",
+                        "label": "ری"
+                      }
+                    ]
+                  },
+                  "2": {
+                    "province_name": "دوم",
+                    "cities": [
+                      {
+                        "value": "20",
+                        "label": "دوم"
+                      }
+                    ]
+                  }
+                }
+              },
+              "missing": [],
+              "status": "stale",
+              "message": "اعتبار لیست شهر و استان برای به‌روزرسانی در دسترس نیست؛ آخرین داده معتبر نمایش داده شد.",
+              "fetched_at": 100.0,
+              "expires_at": 100.0,
+              "stale_expires_at": null,
+              "provider_status": "01",
+              "provider_message": "M"
+            }
+          },
+          "cache": {
+            "fetched_at": 100.0,
+            "payload": {
+              "cities": [
+                {
+                  "province_pk": "1",
+                  "province_name": "اول",
+                  "city_pk": "10",
+                  "city_name": "تهران",
+                  "availability": {
+                    "post": true,
+                    "tipax": false
+                  }
+                },
+                {
+                  "province_pk": "1",
+                  "province_name": "جدید",
+                  "city_pk": "11",
+                  "city_name": "ری",
+                  "availability": {
+                    "post": true,
+                    "tipax": true
+                  }
+                },
+                {
+                  "province_pk": "2",
+                  "province_name": "دوم",
+                  "city_pk": "20",
+                  "city_name": "دوم",
+                  "availability": {
+                    "post": false,
+                    "tipax": true
+                  }
+                }
+              ],
+              "provider_status": "01",
+              "provider_message": "M",
+              "source": "https://api.tapin.ir/api/v4/location/public/all/city/filter/"
+            }
+          },
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        },
+        {
+          "now": 101.0,
+          "clear": true,
+          "credentials": false,
+          "expected": {
+            "ok": false,
+            "message": "برای دریافت لیست شهر و استان، شناسه شعبه و توکن لازم است."
+          },
+          "cache": null,
+          "requests": [
+            {
+              "url": "https://api.tapin.ir/api/v4/location/public/all/city/filter/",
+              "body": {
+                "shop_id": "01"
+              },
+              "authorization": true,
+              "timeout": 15.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
