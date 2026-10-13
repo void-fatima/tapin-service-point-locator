@@ -14,7 +14,7 @@ final class PriceCheckDatabase {
 		$this->pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 		$this->pdo->exec( 'PRAGMA foreign_keys = ON' );
 		$definitions = \Tapin\ServicePointLocator\PriceCheck\Schema::definitions();
-		foreach ( array( 'providers', 'provider_params', 'provider_fields', 'shops', 'bulk_config', 'price_cache', 'cache_settings', 'quote_logs' ) as $suffix ) {
+		foreach ( array_keys( $definitions ) as $suffix ) {
 			$lines = array(); $auto = false;
 			foreach ( explode( "\n", $definitions[$suffix] ) as $line ) {
 				$line = trim( $line, " \t," );
@@ -53,6 +53,9 @@ final class PriceCheckDatabase {
 			}
 		}
 		$conflict = false !== strpos( $sql, 'wp_tapin_price_price_cache' ) ? 'provider_id,params_hash' : 'id';
+		if ( false !== strpos( $sql, 'wp_tapin_price_route_limits' ) ) { $conflict = 'route'; }
+		if ( false !== strpos( $sql, 'wp_tapin_price_security_allowlist' ) ) { $conflict = 'ip'; }
+		if ( false !== strpos( $sql, 'wp_tapin_price_clients' ) ) { $conflict = 'client_id'; }
 		$sql = preg_replace( '/ON DUPLICATE KEY UPDATE (.*)$/s', 'ON CONFLICT(' . $conflict . ') DO UPDATE SET $1', $sql );
 		$sql = preg_replace( '/VALUES\((`[a-z_]+`)\)/', 'excluded.$1', $sql );
 		try { $result = $this->pdo->query( $sql ); if ( $error_only ) { $this->last_error = 'Synthetic private database failure'; } return $result; }

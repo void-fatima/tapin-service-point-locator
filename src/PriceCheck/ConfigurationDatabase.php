@@ -7,7 +7,7 @@ defined( 'ABSPATH' ) || exit;
 /** Checked wpdb operations, restricted to tables already owned by this module. */
 final class ConfigurationDatabase {
 	public static function table( string $suffix ): string {
-		if ( ! in_array( $suffix, array( 'providers', 'provider_params', 'provider_fields', 'shops', 'bulk_config', 'cache_settings', 'quote_logs', 'price_cache' ), true ) ) {
+		if ( ! in_array( $suffix, array( 'providers', 'provider_params', 'provider_fields', 'shops', 'bulk_config', 'cache_settings', 'quote_logs', 'price_cache', 'security_settings', 'route_limits', 'blocked_clients', 'security_events', 'clients', 'security_allowlist' ), true ) ) {
 			throw new \InvalidArgumentException( 'Unknown price-check configuration table.' );
 		}
 		return self::identifier( Schema::tables()[$suffix] );
@@ -50,7 +50,7 @@ final class ConfigurationDatabase {
 
 	/** wpdb returns numeric columns as strings; PyMySQL exposes their database types. */
 	private static function row_types( array $row ): array {
-		foreach ( array( 'id', 'provider_id', 'param_id', 'position', 'min_items', 'visible', 'required', 'active', 'referral_enabled', 'has_token' ) as $key ) {
+		foreach ( array( 'id', 'provider_id', 'param_id', 'position', 'min_items', 'visible', 'required', 'active', 'referral_enabled', 'has_token', 'max_requests', 'window_seconds', 'enabled', 'updated_at_ms', 'created_at_ms', 'expires_at_ms', 'first_seen_ms', 'is_active', 'row_count' ) as $key ) {
 			if ( array_key_exists( $key, $row ) && null !== $row[$key] ) { $row[$key] = PythonValue::integer( $row[$key] ); }
 		}
 		if ( isset( $row['timeout'] ) ) { $row['timeout'] = (float) $row['timeout']; }

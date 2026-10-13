@@ -12,13 +12,18 @@ final class LogSafety {
 				}
 				self::assert_safe( $item );
 			}
-		} elseif ( is_string( $value ) && preg_match( '/\b(?:Bearer\s+\S+|Authorization\s*:)/i', $value ) ) {
-			throw new \InvalidArgumentException( 'Authorization text must be omitted from operational logs.' );
+		} elseif ( is_string( $value ) ) {
+			if ( preg_match( '/\b(?:Bearer\s+\S+|Authorization\s*:)/i', $value ) ) { throw new \InvalidArgumentException( 'Authorization text must be omitted from operational logs.' ); }
+			// Raw carrier responses and event detail can themselves be JSON strings.
+			$decoded = json_decode( $value );
+			if ( JSON_ERROR_NONE === json_last_error() && ( $decoded instanceof \stdClass || is_array( $decoded ) ) ) { self::assert_safe( $decoded ); }
 		}
 	}
 	public static function endpoint( string $value ): void {
 		$parts = parse_url( $value );
-		if ( is_array( $parts ) && ( isset( $parts['user'] ) || isset( $parts['pass'] ) || preg_match( '/(?:^|&)(?:token|authorization)=/i', $parts['query'] ?? '' ) ) ) {
+		if ( ! is_array( $parts ) ) { return; }
+		parse_str( $parts['query'] ?? '', $query );
+		if ( isset( $parts['user'] ) || isset( $parts['pass'] ) || array_intersect( array_map( 'strtolower', array_keys( $query ) ), array( 'token', 'authorization' ) ) ) {
 			throw new \InvalidArgumentException( 'Credential-bearing URLs must be omitted from operational logs.' );
 		}
 	}

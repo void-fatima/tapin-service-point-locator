@@ -4,9 +4,11 @@
     "backend": "original functions with SQLite SQL double; NOT WordPress/MySQL parity",
     "hashes": {
       "storage.py": "2178ed429e0036dccfa6e11bfa192f9488803edccb0ee6212e8b2befd3e08446",
-      "api.py": "27189254d7ac2555dca395dfcc8f243f066bd1408e0dd859d8b068bfd331dbd5"
+      "api.py": "27189254d7ac2555dca395dfcc8f243f066bd1408e0dd859d8b068bfd331dbd5",
+      "security/infra_mysql.py": "7dadeae4dce1cfb5f07d3d6bf3b939874a87986d5453fa430ce04c60a7bea9d2",
+      "security/models.py": "2c70ec856aef7fe8d2a0cc3b07541ab4e2ee00384d4b1eee29b9a816ac0308c7"
     },
-    "operations": 105
+    "operations": 270
   },
   "scenarios": [
     {
@@ -2075,6 +2077,2767 @@
           "expected": {
             "ok": true,
             "value": "4bf63451e5f824a41d89b60d11ca26390da97609fdc3f72e339f87b43a02d3c3"
+          }
+        }
+      ]
+    },
+    {
+      "name": "security singleton defaults and update",
+      "actions": [
+        {
+          "op": "security_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "max_requests": 4,
+              "window_seconds": 60
+            }
+          }
+        },
+        {
+          "op": "security_save",
+          "args": [
+            {
+              "max_requests": "4",
+              "window_seconds": 60.9
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "max_requests": 4,
+              "window_seconds": 60
+            }
+          }
+        },
+        {
+          "op": "security_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "max_requests": 4,
+              "window_seconds": 60
+            }
+          }
+        },
+        {
+          "op": "security_save",
+          "args": [
+            {
+              "max_requests": true,
+              "window_seconds": "1_000"
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "max_requests": 1,
+              "window_seconds": 1000
+            }
+          }
+        },
+        {
+          "op": "security_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "max_requests": 1,
+              "window_seconds": 1000
+            }
+          }
+        },
+        {
+          "op": "security_save",
+          "args": [
+            {
+              "max_requests": 100000,
+              "window_seconds": 86400
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "max_requests": 100000,
+              "window_seconds": 86400
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "security invalid {}",
+      "actions": [
+        {
+          "op": "security_save",
+          "args": [
+            {}
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "تعداد درخواست باید عدد باشد."
+          }
+        }
+      ]
+    },
+    {
+      "name": "security invalid {'max_requests': 4}",
+      "actions": [
+        {
+          "op": "security_save",
+          "args": [
+            {
+              "max_requests": 4
+            }
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "بازه زمانی باید عدد باشد (ثانیه)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "security invalid {'max_requests': 'bad', 'window_seconds': 'bad'}",
+      "actions": [
+        {
+          "op": "security_save",
+          "args": [
+            {
+              "max_requests": "bad",
+              "window_seconds": "bad"
+            }
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "تعداد درخواست باید عدد باشد."
+          }
+        }
+      ]
+    },
+    {
+      "name": "security invalid {'max_requests': 0, 'window_seconds': 'bad'}",
+      "actions": [
+        {
+          "op": "security_save",
+          "args": [
+            {
+              "max_requests": 0,
+              "window_seconds": "bad"
+            }
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "بازه زمانی باید عدد باشد (ثانیه)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "security invalid {'max_requests': 0, 'window_seconds': 1}",
+      "actions": [
+        {
+          "op": "security_save",
+          "args": [
+            {
+              "max_requests": 0,
+              "window_seconds": 1
+            }
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "تعداد درخواست باید بین 1 تا 100000 باشد."
+          }
+        }
+      ]
+    },
+    {
+      "name": "security invalid {'max_requests': 100001, 'window_seconds': 1}",
+      "actions": [
+        {
+          "op": "security_save",
+          "args": [
+            {
+              "max_requests": 100001,
+              "window_seconds": 1
+            }
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "تعداد درخواست باید بین 1 تا 100000 باشد."
+          }
+        }
+      ]
+    },
+    {
+      "name": "security invalid {'max_requests': 1, 'window_seconds': 0}",
+      "actions": [
+        {
+          "op": "security_save",
+          "args": [
+            {
+              "max_requests": 1,
+              "window_seconds": 0
+            }
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "بازه زمانی باید بین 1 ثانیه تا 86400 ثانیه باشد."
+          }
+        }
+      ]
+    },
+    {
+      "name": "security invalid {'max_requests': 1, 'window_seconds': 86401}",
+      "actions": [
+        {
+          "op": "security_save",
+          "args": [
+            {
+              "max_requests": 1,
+              "window_seconds": 86401
+            }
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "بازه زمانی باید بین 1 ثانیه تا 86400 ثانیه باشد."
+          }
+        }
+      ]
+    },
+    {
+      "name": "security stored not JSON",
+      "actions": [
+        {
+          "op": "security_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "max_requests": 4,
+              "window_seconds": 60
+            }
+          }
+        }
+      ],
+      "initial_security_json": "not JSON"
+    },
+    {
+      "name": "security stored []",
+      "actions": [
+        {
+          "op": "security_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "max_requests": 4,
+              "window_seconds": 60
+            }
+          }
+        }
+      ],
+      "initial_security_json": "[]"
+    },
+    {
+      "name": "security stored {}",
+      "actions": [
+        {
+          "op": "security_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "max_requests": 4,
+              "window_seconds": 60
+            }
+          }
+        }
+      ],
+      "initial_security_json": "{}"
+    },
+    {
+      "name": "security stored {\"max_requests\": 0, \"window_seconds\": 60}",
+      "actions": [
+        {
+          "op": "security_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "max_requests": 4,
+              "window_seconds": 60
+            }
+          }
+        }
+      ],
+      "initial_security_json": "{\"max_requests\": 0, \"window_seconds\": 60}"
+    },
+    {
+      "name": "security stored {\"max_requests\": true, \"window_seconds\": 1}",
+      "actions": [
+        {
+          "op": "security_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "max_requests": 1,
+              "window_seconds": 1
+            }
+          }
+        }
+      ],
+      "initial_security_json": "{\"max_requests\": true, \"window_seconds\": 1}"
+    },
+    {
+      "name": "routes replace delete and stored ms",
+      "actions": [
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {}
+          }
+        },
+        {
+          "op": "route_save",
+          "args": [
+            " /api/price-check ",
+            4,
+            60,
+            " OFF "
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/price-check",
+              "max_requests": 4,
+              "window_seconds": 60,
+              "enabled": false
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/price-check": {
+                "max_requests": 4,
+                "window_seconds": 60,
+                "enabled": false
+              }
+            }
+          }
+        },
+        {
+          "op": "route_raw",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "route": "/api/price-check",
+                "max_requests": 4,
+                "window_seconds": 60,
+                "enabled": 0,
+                "updated_at_ms": 1768910400123
+              }
+            ]
+          }
+        },
+        {
+          "op": "route_save",
+          "args": [
+            "/api/price-check",
+            10,
+            30,
+            "unknown"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/price-check",
+              "max_requests": 10,
+              "window_seconds": 30,
+              "enabled": true
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/price-check": {
+                "max_requests": 10,
+                "window_seconds": 30,
+                "enabled": true
+              }
+            }
+          }
+        },
+        {
+          "op": "route_delete",
+          "args": [
+            " /api/price-check "
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "route_delete",
+          "args": [
+            "/api/price-check"
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled False",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            false
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": false
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled 0",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            0
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": false
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled 0.5",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            0.5
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": true
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled None",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            null
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": true
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled ''",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            ""
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": true
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled '0'",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            "0"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": false
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled 'false'",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            "false"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": false
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled 'NO'",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            "NO"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": false
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled 'n'",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            "n"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": false
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled 'off'",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            "off"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": false
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled 'disabled'",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            "disabled"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": false
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled 'true'",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            "true"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": true
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled 'yes'",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            "yes"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": true
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled 'enabled'",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            "enabled"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": true
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled []",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            []
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": true
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route enabled {}",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/arbitrary",
+            1,
+            1,
+            {}
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "route": "/api/arbitrary",
+              "max_requests": 1,
+              "window_seconds": 1,
+              "enabled": true
+            }
+          }
+        },
+        {
+          "op": "route_get",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "/api/arbitrary": {
+                "max_requests": 1,
+                "window_seconds": 1,
+                "enabled": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "route invalid (None, 4, 60)",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            null,
+            4,
+            60
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "مسیر API معتبر نیست."
+          }
+        }
+      ]
+    },
+    {
+      "name": "route invalid ('/other', 4, 60)",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/other",
+            4,
+            60
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "مسیر API معتبر نیست."
+          }
+        }
+      ]
+    },
+    {
+      "name": "route invalid ('/api/x', None, 60)",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/x",
+            null,
+            60
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "تعداد درخواست باید عدد باشد."
+          }
+        }
+      ]
+    },
+    {
+      "name": "route invalid ('/api/x', 4, 'bad')",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/x",
+            4,
+            "bad"
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "بازه زمانی باید عدد باشد (ثانیه)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "route invalid ('/api/x', 0, 60)",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/x",
+            0,
+            60
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "تعداد درخواست باید بین 1 تا 100000 باشد."
+          }
+        }
+      ]
+    },
+    {
+      "name": "blocks duplicates newest expiry toggles and delete",
+      "actions": [
+        {
+          "op": "block_add",
+          "args": [
+            {
+              "type": "ip",
+              "value": "192.0.2.1",
+              "reason": "reason_%",
+              "created_at_ms": 1000,
+              "created_by": "fixture-admin"
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "type": "ip",
+              "value": "192.0.2.1",
+              "reason": "reason_%",
+              "created_at_ms": 1000,
+              "expires_at_ms": null,
+              "created_by": "fixture-admin",
+              "is_active": true
+            }
+          }
+        },
+        {
+          "op": "block_add",
+          "args": [
+            {
+              "type": "ip",
+              "value": "192.0.2.1",
+              "reason": "reason_%",
+              "created_at_ms": 1000,
+              "created_by": "fixture-admin",
+              "expires_at_ms": 2000
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 2,
+              "type": "ip",
+              "value": "192.0.2.1",
+              "reason": "reason_%",
+              "created_at_ms": 1000,
+              "expires_at_ms": 2000,
+              "created_by": "fixture-admin",
+              "is_active": true
+            }
+          }
+        },
+        {
+          "op": "block_find",
+          "args": [
+            "ip",
+            "192.0.2.1",
+            1999
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 2,
+              "type": "ip",
+              "value": "192.0.2.1",
+              "reason": "reason_%",
+              "created_at_ms": 1000,
+              "expires_at_ms": 2000,
+              "created_by": "fixture-admin",
+              "is_active": true
+            }
+          }
+        },
+        {
+          "op": "block_find",
+          "args": [
+            "ip",
+            "192.0.2.1",
+            2000
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "type": "ip",
+              "value": "192.0.2.1",
+              "reason": "reason_%",
+              "created_at_ms": 1000,
+              "expires_at_ms": null,
+              "created_by": "fixture-admin",
+              "is_active": true
+            }
+          }
+        },
+        {
+          "op": "block_list",
+          "args": [
+            "",
+            "",
+            "0",
+            2000
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 2,
+                "type": "ip",
+                "value": "192.0.2.1",
+                "reason": "reason_%",
+                "created_at_ms": 1000,
+                "expires_at_ms": 2000,
+                "created_by": "fixture-admin",
+                "is_active": true
+              }
+            ]
+          }
+        },
+        {
+          "op": "block_list",
+          "args": [
+            "",
+            "",
+            "1",
+            2000
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 1,
+                "type": "ip",
+                "value": "192.0.2.1",
+                "reason": "reason_%",
+                "created_at_ms": 1000,
+                "expires_at_ms": null,
+                "created_by": "fixture-admin",
+                "is_active": true
+              }
+            ]
+          }
+        },
+        {
+          "op": "block_active",
+          "args": [
+            1,
+            false
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "block_active",
+          "args": [
+            1,
+            false
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "block_update",
+          "args": [
+            2,
+            "changed",
+            null
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "block_update",
+          "args": [
+            2,
+            "changed",
+            null
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "block_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 2,
+                "type": "ip",
+                "value": "192.0.2.1",
+                "reason": "changed",
+                "created_at_ms": 1000,
+                "expires_at_ms": null,
+                "created_by": "fixture-admin",
+                "is_active": true
+              },
+              {
+                "id": 1,
+                "type": "ip",
+                "value": "192.0.2.1",
+                "reason": "reason_%",
+                "created_at_ms": 1000,
+                "expires_at_ms": null,
+                "created_by": "fixture-admin",
+                "is_active": false
+              }
+            ]
+          }
+        },
+        {
+          "op": "block_find",
+          "args": [
+            "ip",
+            "missing",
+            2000
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "block_delete",
+          "args": [
+            2
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "block_delete",
+          "args": [
+            2
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "block_update",
+          "args": [
+            9,
+            "",
+            null
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "block_active",
+          "args": [
+            9,
+            true
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "block defaults search and limit",
+      "actions": [
+        {
+          "op": "block_add",
+          "args": [
+            {}
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "type": "",
+              "value": "",
+              "reason": "",
+              "created_at_ms": 0,
+              "expires_at_ms": null,
+              "created_by": "",
+              "is_active": true
+            }
+          }
+        },
+        {
+          "op": "block_add",
+          "args": [
+            {
+              "type": "ip",
+              "value": "192.0.2.1",
+              "reason": "reason_%",
+              "created_at_ms": 1000,
+              "created_by": "fixture-admin"
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 2,
+              "type": "ip",
+              "value": "192.0.2.1",
+              "reason": "reason_%",
+              "created_at_ms": 1000,
+              "expires_at_ms": null,
+              "created_by": "fixture-admin",
+              "is_active": true
+            }
+          }
+        },
+        {
+          "op": "block_list",
+          "args": [
+            "reason_%",
+            "ip",
+            "",
+            1000,
+            5000
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 2,
+                "type": "ip",
+                "value": "192.0.2.1",
+                "reason": "reason_%",
+                "created_at_ms": 1000,
+                "expires_at_ms": null,
+                "created_by": "fixture-admin",
+                "is_active": true
+              }
+            ]
+          }
+        },
+        {
+          "op": "block_list",
+          "args": [
+            "fixture-admin"
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 2,
+                "type": "ip",
+                "value": "192.0.2.1",
+                "reason": "reason_%",
+                "created_at_ms": 1000,
+                "expires_at_ms": null,
+                "created_by": "fixture-admin",
+                "is_active": true
+              }
+            ]
+          }
+        },
+        {
+          "op": "block_list",
+          "args": [
+            "",
+            "",
+            "",
+            0,
+            -1
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 2,
+                "type": "ip",
+                "value": "192.0.2.1",
+                "reason": "reason_%",
+                "created_at_ms": 1000,
+                "expires_at_ms": null,
+                "created_by": "fixture-admin",
+                "is_active": true
+              }
+            ]
+          }
+        },
+        {
+          "op": "block_list",
+          "args": [
+            "",
+            "",
+            "",
+            0,
+            0
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 2,
+                "type": "ip",
+                "value": "192.0.2.1",
+                "reason": "reason_%",
+                "created_at_ms": 1000,
+                "expires_at_ms": null,
+                "created_by": "fixture-admin",
+                "is_active": true
+              },
+              {
+                "id": 1,
+                "type": "",
+                "value": "",
+                "reason": "",
+                "created_at_ms": 0,
+                "expires_at_ms": null,
+                "created_by": "",
+                "is_active": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "allowlist reason-only upsert",
+      "actions": [
+        {
+          "op": "allow_contains",
+          "args": [
+            "192.0.2.1"
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "allow_add",
+          "args": [
+            "192.0.2.1",
+            "first",
+            "actor1",
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "allow_add",
+          "args": [
+            "192.0.2.1",
+            "second",
+            "actor2",
+            2
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "allow_contains",
+          "args": [
+            "192.0.2.1"
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "allow_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 1,
+                "ip": "192.0.2.1",
+                "reason": "second",
+                "created_at_ms": 1,
+                "created_by": "actor1"
+              }
+            ]
+          }
+        },
+        {
+          "op": "allow_list",
+          "args": [
+            "sec%",
+            5000
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 1,
+                "ip": "192.0.2.1",
+                "reason": "second",
+                "created_at_ms": 1,
+                "created_by": "actor1"
+              }
+            ]
+          }
+        },
+        {
+          "op": "allow_list",
+          "args": [
+            "missing",
+            0
+          ],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        },
+        {
+          "op": "allow_delete",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "allow_delete",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "client first-seen preserved",
+      "actions": [
+        {
+          "op": "client_exists",
+          "args": [
+            "01"
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "client_remember",
+          "args": [
+            "01",
+            1234
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "client_remember",
+          "args": [
+            "01",
+            9999
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "client_exists",
+          "args": [
+            "01"
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "client_exists",
+          "args": [
+            "1"
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "client_rows",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "client_id": "01",
+                "first_seen_ms": 1234
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "events timestamp retention only on write",
+      "actions": [
+        {
+          "op": "settings_save",
+          "args": [
+            {
+              "security_events": 10
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "price": 86400,
+              "price_retention": 864000,
+              "locations": 21600,
+              "quote_logs": 604800,
+              "security_events": 10
+            }
+          }
+        },
+        {
+          "op": "event_record",
+          "args": [
+            {
+              "created_at_ms": 89999,
+              "kind": "rate_limited",
+              "ip": "192.0.2.1",
+              "client_id": "01",
+              "client_fingerprint": "fingerprint",
+              "route": "/api/price-check",
+              "detail": "dimension=ip"
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "event_record",
+          "args": [
+            {
+              "created_at_ms": 90000,
+              "kind": "rate_limited",
+              "ip": "192.0.2.1",
+              "client_id": "01",
+              "client_fingerprint": "fingerprint",
+              "route": "/api/price-check",
+              "detail": "dimension=ip"
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "event_record",
+          "args": [
+            {
+              "created_at_ms": 100000,
+              "kind": "rate_limited",
+              "ip": "192.0.2.1",
+              "client_id": "01",
+              "client_fingerprint": "fingerprint",
+              "route": "/api/price-check",
+              "detail": "dimension=ip"
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 3,
+                "created_at_ms": 100000,
+                "kind": "rate_limited",
+                "client_fingerprint": "fingerprint",
+                "client_id": "01",
+                "ip": "192.0.2.1",
+                "route": "/api/price-check",
+                "detail": "dimension=ip"
+              },
+              {
+                "id": 2,
+                "created_at_ms": 90000,
+                "kind": "rate_limited",
+                "client_fingerprint": "fingerprint",
+                "client_id": "01",
+                "ip": "192.0.2.1",
+                "route": "/api/price-check",
+                "detail": "dimension=ip"
+              }
+            ]
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [
+            "",
+            "01"
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 3,
+                "created_at_ms": 100000,
+                "kind": "rate_limited",
+                "client_fingerprint": "fingerprint",
+                "client_id": "01",
+                "ip": "192.0.2.1",
+                "route": "/api/price-check",
+                "detail": "dimension=ip"
+              },
+              {
+                "id": 2,
+                "created_at_ms": 90000,
+                "kind": "rate_limited",
+                "client_fingerprint": "fingerprint",
+                "client_id": "01",
+                "ip": "192.0.2.1",
+                "route": "/api/price-check",
+                "detail": "dimension=ip"
+              }
+            ]
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [
+            "rate_limited",
+            "fingerprint"
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 3,
+                "created_at_ms": 100000,
+                "kind": "rate_limited",
+                "client_fingerprint": "fingerprint",
+                "client_id": "01",
+                "ip": "192.0.2.1",
+                "route": "/api/price-check",
+                "detail": "dimension=ip"
+              },
+              {
+                "id": 2,
+                "created_at_ms": 90000,
+                "kind": "rate_limited",
+                "client_fingerprint": "fingerprint",
+                "client_id": "01",
+                "ip": "192.0.2.1",
+                "route": "/api/price-check",
+                "detail": "dimension=ip"
+              }
+            ]
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [
+            "missing"
+          ],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "now": "2027-01-01T00:00:00+00:00",
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 3,
+                "created_at_ms": 100000,
+                "kind": "rate_limited",
+                "client_fingerprint": "fingerprint",
+                "client_id": "01",
+                "ip": "192.0.2.1",
+                "route": "/api/price-check",
+                "detail": "dimension=ip"
+              },
+              {
+                "id": 2,
+                "created_at_ms": 90000,
+                "kind": "rate_limited",
+                "client_fingerprint": "fingerprint",
+                "client_id": "01",
+                "ip": "192.0.2.1",
+                "route": "/api/price-check",
+                "detail": "dimension=ip"
+              }
+            ]
+          }
+        },
+        {
+          "op": "event_record",
+          "args": [
+            {
+              "created_at_ms": 100001,
+              "kind": "rate_limited",
+              "ip": "192.0.2.1",
+              "client_id": "01",
+              "client_fingerprint": "fingerprint",
+              "route": "/api/price-check",
+              "detail": null
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 4,
+                "created_at_ms": 100001,
+                "kind": "rate_limited",
+                "client_fingerprint": "fingerprint",
+                "client_id": "01",
+                "ip": "192.0.2.1",
+                "route": "/api/price-check",
+                "detail": ""
+              },
+              {
+                "id": 3,
+                "created_at_ms": 100000,
+                "kind": "rate_limited",
+                "client_fingerprint": "fingerprint",
+                "client_id": "01",
+                "ip": "192.0.2.1",
+                "route": "/api/price-check",
+                "detail": "dimension=ip"
+              }
+            ]
+          }
+        },
+        {
+          "op": "stats",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": {
+              "price_rows": 0,
+              "quote_logs_rows": 0,
+              "security_events_rows": 2
+            }
+          }
+        },
+        {
+          "op": "event_clear",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": 2
+          }
+        },
+        {
+          "op": "event_clear",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "events defaults order limit",
+      "actions": [
+        {
+          "op": "event_record",
+          "args": [
+            {}
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "event_record",
+          "args": [
+            {
+              "created_at_ms": 1,
+              "kind": "rate_limited",
+              "ip": "192.0.2.1",
+              "client_id": "01",
+              "client_fingerprint": "fingerprint",
+              "route": "/api/price-check",
+              "detail": "dimension=ip"
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [
+            "",
+            "",
+            -1
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 2,
+                "created_at_ms": 1,
+                "kind": "rate_limited",
+                "client_fingerprint": "fingerprint",
+                "client_id": "01",
+                "ip": "192.0.2.1",
+                "route": "/api/price-check",
+                "detail": "dimension=ip"
+              }
+            ]
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [
+            "",
+            "192.0.2.1",
+            0
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 2,
+                "created_at_ms": 1,
+                "kind": "rate_limited",
+                "client_fingerprint": "fingerprint",
+                "client_id": "01",
+                "ip": "192.0.2.1",
+                "route": "/api/price-check",
+                "detail": "dimension=ip"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure security_getSELECT",
+      "actions": [
+        {
+          "op": "security_get",
+          "args": [],
+          "failure": {
+            "kind": "SELECT",
+            "table": "security_settings"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure security_saveINSERT",
+      "actions": [
+        {
+          "op": "security_save",
+          "args": [
+            {
+              "max_requests": 4,
+              "window_seconds": 60
+            }
+          ],
+          "failure": {
+            "kind": "INSERT",
+            "table": "security_settings"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure route_getSELECT",
+      "actions": [
+        {
+          "op": "route_get",
+          "args": [],
+          "failure": {
+            "kind": "SELECT",
+            "table": "route_limits"
+          },
+          "wordpress_error": "DatabaseError",
+          "expected": {
+            "ok": true,
+            "value": {}
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure route_saveINSERT",
+      "actions": [
+        {
+          "op": "route_save",
+          "args": [
+            "/api/x",
+            4,
+            60
+          ],
+          "failure": {
+            "kind": "INSERT",
+            "table": "route_limits"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure route_deleteDELETE",
+      "actions": [
+        {
+          "op": "route_delete",
+          "args": [
+            "/api/x"
+          ],
+          "failure": {
+            "kind": "DELETE",
+            "table": "route_limits"
+          },
+          "wordpress_error": "DatabaseError",
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure block_listSELECT",
+      "actions": [
+        {
+          "op": "block_list",
+          "args": [],
+          "failure": {
+            "kind": "SELECT",
+            "table": "blocked_clients"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure block_findSELECT",
+      "actions": [
+        {
+          "op": "block_find",
+          "args": [
+            "ip",
+            "x",
+            0
+          ],
+          "failure": {
+            "kind": "SELECT",
+            "table": "blocked_clients"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure block_addINSERT",
+      "actions": [
+        {
+          "op": "block_add",
+          "args": [
+            {
+              "type": "ip",
+              "value": "192.0.2.1",
+              "reason": "reason_%",
+              "created_at_ms": 1000,
+              "created_by": "fixture-admin"
+            }
+          ],
+          "failure": {
+            "kind": "INSERT",
+            "table": "blocked_clients"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure block_activeUPDATE",
+      "actions": [
+        {
+          "op": "block_active",
+          "args": [
+            1,
+            false
+          ],
+          "failure": {
+            "kind": "UPDATE",
+            "table": "blocked_clients"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure block_updateUPDATE",
+      "actions": [
+        {
+          "op": "block_update",
+          "args": [
+            1,
+            "",
+            null
+          ],
+          "failure": {
+            "kind": "UPDATE",
+            "table": "blocked_clients"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure block_deleteDELETE",
+      "actions": [
+        {
+          "op": "block_delete",
+          "args": [
+            1
+          ],
+          "failure": {
+            "kind": "DELETE",
+            "table": "blocked_clients"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure allow_containsSELECT",
+      "actions": [
+        {
+          "op": "allow_contains",
+          "args": [
+            "192.0.2.1"
+          ],
+          "failure": {
+            "kind": "SELECT",
+            "table": "security_allowlist"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure allow_listSELECT",
+      "actions": [
+        {
+          "op": "allow_list",
+          "args": [],
+          "failure": {
+            "kind": "SELECT",
+            "table": "security_allowlist"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure allow_addINSERT",
+      "actions": [
+        {
+          "op": "allow_add",
+          "args": [
+            "192.0.2.1",
+            "",
+            "",
+            0
+          ],
+          "failure": {
+            "kind": "INSERT",
+            "table": "security_allowlist"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure allow_addSELECT",
+      "actions": [
+        {
+          "op": "allow_add",
+          "args": [
+            "192.0.2.1",
+            "",
+            "",
+            0
+          ],
+          "failure": {
+            "kind": "SELECT",
+            "table": "security_allowlist"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure allow_deleteDELETE",
+      "actions": [
+        {
+          "op": "allow_delete",
+          "args": [
+            1
+          ],
+          "failure": {
+            "kind": "DELETE",
+            "table": "security_allowlist"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure client_existsSELECT",
+      "actions": [
+        {
+          "op": "client_exists",
+          "args": [
+            "01"
+          ],
+          "failure": {
+            "kind": "SELECT",
+            "table": "clients"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure client_rememberINSERT",
+      "actions": [
+        {
+          "op": "client_remember",
+          "args": [
+            "01",
+            0
+          ],
+          "failure": {
+            "kind": "INSERT",
+            "table": "clients"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure event_recordINSERT",
+      "actions": [
+        {
+          "op": "event_record",
+          "args": [
+            {
+              "created_at_ms": 100000,
+              "kind": "rate_limited",
+              "ip": "192.0.2.1",
+              "client_id": "01",
+              "client_fingerprint": "fingerprint",
+              "route": "/api/price-check",
+              "detail": "dimension=ip"
+            }
+          ],
+          "failure": {
+            "kind": "INSERT",
+            "table": "security_events"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure event_recordDELETE",
+      "actions": [
+        {
+          "op": "event_record",
+          "args": [
+            {
+              "created_at_ms": 100000,
+              "kind": "rate_limited",
+              "ip": "192.0.2.1",
+              "client_id": "01",
+              "client_fingerprint": "fingerprint",
+              "route": "/api/price-check",
+              "detail": "dimension=ip"
+            }
+          ],
+          "failure": {
+            "kind": "DELETE",
+            "table": "security_events"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 1,
+                "created_at_ms": 100000,
+                "kind": "rate_limited",
+                "client_fingerprint": "fingerprint",
+                "client_id": "01",
+                "ip": "192.0.2.1",
+                "route": "/api/price-check",
+                "detail": "dimension=ip"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure event_listSELECT",
+      "actions": [
+        {
+          "op": "event_list",
+          "args": [],
+          "failure": {
+            "kind": "SELECT",
+            "table": "security_events"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure event_clearDELETE",
+      "actions": [
+        {
+          "op": "event_clear",
+          "args": [],
+          "failure": {
+            "kind": "DELETE",
+            "table": "security_events"
+          },
+          "wordpress_error": "DatabaseError",
+          "expected": {
+            "ok": true,
+            "value": 0
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "security failure statsSELECT",
+      "actions": [
+        {
+          "op": "stats",
+          "args": [],
+          "failure": {
+            "kind": "SELECT",
+            "table": "price_cache"
+          },
+          "wordpress_error": "DatabaseError",
+          "expected": {
+            "ok": true,
+            "value": {
+              "price_rows": 0,
+              "quote_logs_rows": 0,
+              "security_events_rows": 0
+            }
+          }
+        },
+        {
+          "op": "event_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
           }
         }
       ]
