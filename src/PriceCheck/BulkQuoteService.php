@@ -9,7 +9,7 @@ final class BulkQuoteService {
 	private ProviderTransport $transport;
 	/** Nullable location snapshots; caller maps source LocationError to null, other failures propagate. */
 	private $section;
-	public function __construct( callable $section, ?ProviderTransport $transport = null, ?BulkQuoteStore $store = null ) { $this->section = $section; $this->transport = $transport ?? new WordPressProviderTransport(); $this->store = $store ?? new WordPressBulkQuoteStore(); }
+	public function __construct( ?callable $section = null, ?ProviderTransport $transport = null, ?BulkQuoteStore $store = null ) { $this->section = $section ?? new LocationSnapshotAdapter(); $this->transport = $transport ?? new WordPressProviderTransport(); $this->store = $store ?? new WordPressBulkQuoteStore(); }
 	/** Stored requests accept values only; preview additionally accepts payload and normalizes a draft. */
 	public function execute( string $raw, bool $preview = false ): array { return $this->request( $raw, $preview, false ); }
 	public function validate( string $raw, bool $preview = false ): array { return $this->request( $raw, $preview, true ); }

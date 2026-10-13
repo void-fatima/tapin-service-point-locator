@@ -64,4 +64,10 @@ final class LocationService {
 	}
 	public function cache_info(): ?array { return $this->cache->read(); }
 	public function clear(): void { $this->cache->clear(); }
+	public function provider_section( $provider, bool $refresh = false, ?float $now = null, ?LocationCredentials $credentials = null, ?array $records = null, $ttl = null ): ?\stdClass {
+		// Source checks only top-level kinds, so a nested-only provider returns null without HTTP.
+		if ( ! LocationBindings::needed( $provider ) ) { return null; } $aliases = LocationBindings::aliases( $provider );
+		if ( null === $credentials ) { try { $credentials = $this->credentials( $provider ); } catch ( LocationError $ignored ) {} }
+		return LocationBindings::section( $provider, $this->snapshot( $aliases, $credentials, $refresh, $now, $ttl, $records ) );
+	}
 }

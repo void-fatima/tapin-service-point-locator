@@ -110,5 +110,46 @@ for flow in snapshot_flows:
         except locations.LocationError as exc: step['expected']=dict(ok=False,message=str(exc))
         step['cache']=copy.deepcopy(locations.cache_info()); step['requests']=copy.deepcopy(requests)
 result['snapshot_flows']=snapshot_flows
+section_cases=[]
+base_provider=dict(id=1,name='post',display_name='پست',shop_id='01',params=[dict(name='city',kind='city',visible=True),dict(name='origin_city_id',kind='city',visible=False),dict(name='province',kind='province',visible=True),dict(name='origin_province_id',kind='province',visible=True),dict(name='extra',kind='province',visible=False),dict(name='rows',input='list',fields=[dict(name='subcity',kind='city',visible=True),dict(name='subprovince',kind='province',visible=False)])])
+section_inputs=[dict(provider=base_provider)]
+for source_name in ('service','custom'):
+    for mode in ('only','merge'):
+        for available in (True,False):
+            provider=copy.deepcopy(base_provider); provider['location_config']=dict(origin={'source':'custom','custom_mode':'only'},destination={'source':source_name,'custom_mode':mode},custom_locations=custom)
+            if not available: provider['name']='missing';provider['display_name']='ناشناخته'
+            section_inputs.append(dict(provider=provider))
+for blocked in (dict(provinces=[{'code':'1'}]),dict(cities=[{'code':'10','province_code':'1'}]),dict(cities=[{'code':'10','province_code':'1'},{'code':'11','province_code':'1'}]),dict(provinces=[{'code':'1'},{'code':'2'}])):
+    provider=copy.deepcopy(base_provider);provider['location_config']={'blocked_locations':blocked};section_inputs.append(dict(provider=provider))
+for changes in (dict(params=[]),dict(params=[base_provider['params'][-1]]),dict(name=None,display_name=None),dict(name=' post ',display_name=' پست '),dict(location_config={'origin':{'source':'custom','custom_mode':'only'},'destination':{'source':'custom','custom_mode':'only'}})):
+    section_inputs.append(dict(provider=dict(base_provider,**changes)))
+section_inputs += [dict(provider=base_provider,mode='failure'),dict(provider=base_provider,credentials=False),dict(provider=base_provider,seed=True,mode='failure'),dict(provider=base_provider,seed=True,credentials=False)]
+manual_without_shop = dict(base_provider,shop_id='missing',location_config=dict(origin={'source':'custom','custom_mode':'only'},destination={'source':'custom','custom_mode':'only'},custom_locations=custom))
+section_inputs += [dict(provider=manual_without_shop,credentials=False),dict(provider=manual_without_shop,credentials=False,seed=True)]
+for item in section_inputs:
+    locations.clear_memory_cache(); requests=[]; lookups=[];failed_shops=[];fail_list=False;shop_rows=[]
+    async def section_sender(url,body,headers,timeout):
+        requests.append(dict(url=url,body=body,authorization=headers.get('Authorization')=='inert-test-marker',timeout=timeout))
+        if item.get('mode')=='failure': raise locations.LocationError('fixture upstream unavailable')
+        return 200,json.dumps(dict(cities=flat),ensure_ascii=False).encode()
+    if item.get('seed'):
+        async def seed_sender(*args): return 200,json.dumps(dict(cities=flat),ensure_ascii=False).encode()
+        asyncio.run(locations.get_location_snapshot(['post'],credentials=locations.LocationCredentials('01','inert-test-marker'),transport=seed_sender,now=10.0,ttl_seconds=10,provider_records=provider_rows))
+    try:
+        section=asyncio.run(locations.provider_location_section(item['provider'],now=100.25,transport=section_sender,credentials=locations.LocationCredentials('01','inert-test-marker') if item.get('credentials',True) else None,provider_records=provider_rows,ttl_seconds=10))
+        item['expected']=dict(ok=True,value=section)
+    except locations.LocationError as exc: item['expected']=dict(ok=False,message=str(exc))
+    item['requests']=copy.deepcopy(requests)
+    try: item['adapter_expected']=asyncio.run(locations.provider_location_section(item['provider'],now=100.25,transport=section_sender,provider_records=provider_rows,ttl_seconds=10))
+    except locations.LocationError: item['adapter_expected']=None
+    section_cases.append(item)
+result['section_cases']=section_cases
+result['platform_iso'] = dict(input=-62135596800,python=locations._isoformat(-62135596800))
+for moment in (None,0,100.25,-0.000001,1.0000005,1.0000015,10000000000.123456,253402300800,'bad'):
+    capture('iso',[moment],lambda:locations._isoformat(moment))
+sections=[case['expected']['value'] for case in section_cases if case['expected']['ok'] and case['expected']['value'] is not None]
+for subset in ([],[None],sections[:3],sections[-2:]):
+    for origin_only in (False,True):
+        capture('merge_bindings',[subset,origin_only],lambda:locations.merge_origin_bindings(subset) if origin_only else locations.merge_bulk_location_bindings(subset))
 Path(sys.argv[2]).write_text(json.dumps(result,ensure_ascii=False,indent=2,allow_nan=False),encoding='utf-8')
-print(f'Captured {len(cases)} helpers, {len(credential_cases)} credential-selection and {sum(len(x["steps"]) for x in snapshot_flows)} snapshot actions, {len(fold)} Unicode mappings; mocked HTTP only')
+print(f'Captured {len(cases)} helpers, {len(credential_cases)} credential-selection, {sum(len(x["steps"]) for x in snapshot_flows)} snapshot and {len(section_cases)} provider-section actions, {len(fold)} Unicode mappings; mocked HTTP only')

@@ -12,6 +12,9 @@ use Tapin\ServicePointLocator\PriceCheck\ProviderTransport;
 use Tapin\ServicePointLocator\PriceCheck\ProviderRequest;
 use Tapin\ServicePointLocator\PriceCheck\ProviderHttpResponse;
 use Tapin\ServicePointLocator\PriceCheck\QuoteStore;
+use Tapin\ServicePointLocator\PriceCheck\LocationBindings;
+use Tapin\ServicePointLocator\PriceCheck\LocationSnapshotAdapter;
+use Tapin\ServicePointLocator\PriceCheck\OperationalClock;
 final class LocationFixtureCache implements LocationCache {
 	public ?array $entry = null;
 	public bool $busy = false;
@@ -51,11 +54,12 @@ $fixtures = json_decode( file_get_contents( __DIR__ . '/fixtures/price-check-loc
 location_check( JSON_ERROR_NONE === json_last_error() && false === $fixtures->provenance->live_access, 'Invalid location fixtures.' );
 foreach ( (array) $fixtures->casefold as $input => $expected ) { location_check( $expected === LocationData::canonical( $input ), 'Original Unicode casefold mismatch.' ); }
 foreach ( $fixtures->cases as $index => $case ) {
-	try { $args = $case->args; if ( 'decode' === $case->op ) { $args[1] = base64_decode( $args[1] ); } $value = 'ttl' === $case->op ? ( new LocationService( new LocationFixtureTransport(), new LocationFixtureCache(), null, new LocationFixtureStore(), static fn() => array(), static fn() => 21600 ) )->ttl( ...$args ) : call_user_func_array( array( LocationData::class, $case->op ), $args ); $actual = array( 'ok' => true, 'value' => $value ); }
+	try { $args = $case->args; if ( 'decode' === $case->op ) { $args[1] = base64_decode( $args[1] ); } if ( 'ttl' === $case->op ) { $value = ( new LocationService( new LocationFixtureTransport(), new LocationFixtureCache(), null, new LocationFixtureStore(), static fn() => array(), static fn() => 21600 ) )->ttl( ...$args ); } elseif ( 'iso' === $case->op ) { $value = LocationBindings::iso( ...$args ); } elseif ( 'merge_bindings' === $case->op ) { $value = LocationBindings::merge( ...$args ); } else { $value = call_user_func_array( array( LocationData::class, $case->op ), $args ); } $actual = array( 'ok' => true, 'value' => $value ); }
 	catch ( LocationError $error ) { $actual = array( 'ok' => false, 'message' => $error->getMessage() ); }
 	location_check( location_json( $actual ) === location_json( $case->expected ), "Original location helper mismatch {$index} ({$case->op})." );
 }
 foreach ( $fixtures->limits as $case ) { location_check( 'decoded' === $case->python, 'Missing original JSON representation evidence.' ); try { LocationData::decode( 200, $case->raw ); throw new RuntimeException( 'Lossy location JSON accepted.' ); } catch ( DomainException $error ) { location_check( true, 'Explicit JSON representation guard.' ); } }
+location_check( null === $fixtures->platform_iso->python && '0001-01-01T00:00:00+00:00' === LocationBindings::iso( $fixtures->platform_iso->input ), 'Documented Windows fromtimestamp range difference.' );
 foreach ( $fixtures->credential_cases as $case ) {
 	$store = new LocationFixtureStore(); $store->rows = $case->shops; $store->failed = $case->failed_shops; $store->fail_list = $case->fail_list;
 	$service = new LocationService( new LocationFixtureTransport(), new LocationFixtureCache(), null, $store, static fn() => array(), static fn() => 21600 );
@@ -80,4 +84,23 @@ $cache->busy = true; $service->clear();
 try { $service->snapshot( array( 'post' ), null ); throw new RuntimeException( 'Cold contention accepted.' ); } catch ( LocationError $error ) { location_check( 'به‌روزرسانی لیست شهر و استان در حال انجام است.' === $error->getMessage(), 'Busy-cache error changed.' ); }
 $cache->busy = false; $cache->fail_save = true; $transport->reply = new ProviderHttpResponse( 200, location_json( array( 'cities' => $fixtures->flat ) ) );
 try { $service->snapshot( array( 'post' ), new LocationCredentials( '01', 'inert-test-marker' ) ); throw new RuntimeException( 'Failed cache save accepted.' ); } catch ( LocationCacheError $error ) { location_check( null === $cache->read() && 0 === $cache->owners, 'Failed save changed snapshot or leaked lease.' ); }
+foreach ( $fixtures->section_cases as $index => $case ) {
+	$cache = new LocationFixtureCache(); $transport = new LocationFixtureTransport(); $store = new LocationFixtureStore();
+	$clock = new OperationalClock( static fn() => DateTimeImmutable::createFromFormat( 'U.u', '100.250000' ) );
+	$service = new LocationService( $transport, $cache, $clock, $store, static fn() => $GLOBALS['fixtures']->providers, static fn() => 10 );
+	if ( ! empty( $case->seed ) ) { $transport->reply = new ProviderHttpResponse( 200, location_json( array( 'cities' => $fixtures->flat ) ) ); $service->snapshot( array( 'post' ), new LocationCredentials( '01', 'inert-test-marker' ), false, 10.0, 10, $fixtures->providers ); $transport->requests = array(); }
+	$transport->reply = 'failure' === ( $case->mode ?? '' ) ? new LocationError( 'fixture upstream unavailable' ) : new ProviderHttpResponse( 200, location_json( array( 'cities' => $fixtures->flat ) ) );
+	try { $value = $service->provider_section( $case->provider, false, 100.25, ( $case->credentials ?? true ) ? new LocationCredentials( '01', 'inert-test-marker' ) : null, $fixtures->providers, 10 ); $actual = array( 'ok' => true, 'value' => $value ); }
+	catch ( LocationError $error ) { $actual = array( 'ok' => false, 'message' => $error->getMessage() ); }
+	location_check( location_json( $actual ) === location_json( $case->expected ) && location_json( $transport->requests ) === location_json( $case->requests ), "Original provider-section mismatch {$index}." );
+	$adapter = new LocationSnapshotAdapter( $service ); $value = $adapter( $case->provider );
+	// Successful first loads now hit the same cache; a source LocationError maps to null.
+	location_check( location_json( $value ) === location_json( $case->adapter_expected ), "Original bulk snapshot callback mismatch {$index}." );
+}
+$cache->fail_save = true; $service->clear(); $transport->reply = new ProviderHttpResponse( 200, location_json( array( 'cities' => $fixtures->flat ) ) );
+try { ( new LocationSnapshotAdapter( $service ) )( $fixtures->section_cases[0]->provider ); throw new RuntimeException( 'Unexpected cache failure swallowed by adapter.' ); } catch ( LocationCacheError $error ) { location_check( 0 === $cache->owners, 'Adapter swallowed infrastructure error or leaked lease.' ); }
+$cache->fail_save = false; $transport->reply = new RuntimeException( 'private fixture failure' );
+try { ( new LocationSnapshotAdapter( $service ) )( $fixtures->section_cases[0]->provider ); throw new LogicException( 'Unexpected transport failure swallowed by adapter.' ); } catch ( RuntimeException $error ) { location_check( 'private fixture failure' === $error->getMessage(), 'Adapter caught an unrelated exception.' ); }
+$transport->reply = new ProviderHttpResponse( 200, '{"returns":{"message":"inert-test-marker"},"cities":[{"pk":1,"title":"inert-test-marker","province_pk":1,"province_title":"P","post":true}]}' ); $safe = $service->provider_section( $fixtures->section_cases[0]->provider );
+location_check( false === strpos( location_json( array( $safe, $service->cache_info() ) ), 'inert-test-marker' ), 'Location response echo leaked a credential.' );
 echo "PASS locations: {$passed} assertions; original Python helpers + explicit JSON guards, no live HTTP.\n";
