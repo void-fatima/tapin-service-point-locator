@@ -25,4 +25,7 @@ foreach ( array( array( $deep, 'canonical document too deep' ), array( array_fil
 	try { F::document( $raw ); throw new RuntimeException( 'Missing canonical safety error.' ); } catch ( InvalidArgumentException $error ) { if ( $expected !== $error->getMessage() ) { throw $error; } } $count++;
 }
 try { F::coerce( '9223372036854775808' ); throw new RuntimeException( 'Missing bounded integer guard.' ); } catch ( DomainException $error ) { $count++; }
+$previous = ini_get( 'serialize_precision' ); ini_set( 'serialize_precision', '3' );
+if ( '1.23456' !== F::coerce( array( 1.23456 ) ) || '3' !== ini_get( 'serialize_precision' ) || '1.23456' !== F::scalar( 1.23456 ) || '3' !== ini_get( 'serialize_precision' ) ) { throw new RuntimeException( 'Canonical precision must be restored.' ); }
+ini_set( 'serialize_precision', $previous ); $count++;
 echo "Security fingerprints/IP: {$count} assertions passed.\n";

@@ -51,4 +51,16 @@ $routes = new SecurityRouteLimits( static function() { throw new RuntimeExceptio
 rate_assert( $routes->resolve( '/api/providers' ), array( 60, 60 ) ); rate_assert( $routes->resolve( '/unknown' ), array( 4, 60 ) );
 $broken = new SecurityRateLimiter( $store, $clock, 3, 9, static function() { throw new RuntimeException(); }, static function() { throw new RuntimeException(); } );
 rate_assert( $broken->consume( 'ip', '', '', 0 )['allowed'], true ); rate_assert( $broken->peek( 'ip', '', '', 0 )->ip, array( 1, 9 ) );
+$store->clear(); $wpdb->interleave_sql = 'INSERT';
+$wpdb->interleave = static function() use ( $store, $key ) { rate_assert( $store->increment( $key, 60, 1000 ), array( 1, 60 ) ); };
+rate_assert( $store->increment( $key, 60, 1000 ), array( 2, 60 ) ); $wpdb->interleave_sql = 'UPDATE';
+$name = WordPressRateLimitStore::PREFIX . hash( 'sha256', $key );
+$racer = static function() use ( &$racer, $wpdb, $name ) { $raw = $wpdb->pdo->query( "SELECT option_value FROM wp_options WHERE option_name = " . $wpdb->pdo->quote( $name ) )->fetchColumn(); [$hits, $start] = explode( ':', $raw ); $wpdb->pdo->exec( "UPDATE wp_options SET option_value = " . $wpdb->pdo->quote( ( (int) $hits + 1 ) . ':' . $start ) . " WHERE option_name = " . $wpdb->pdo->quote( $name ) ); $wpdb->interleave = $racer; };
+$wpdb->interleave = $racer;
+try { $store->increment( $key, 60, 1000 ); throw new RuntimeException( 'Missing contention failure.' ); } catch ( StorageError $error ) { rate_assert( true, true ); } $wpdb->interleave = null;
+foreach ( array( 'SELECT', 'DELETE' ) as $kind ) { $wpdb->fail = $kind; try { $store->clear(); throw new RuntimeException( 'False successful reset.' ); } catch ( StorageError $error ) { rate_assert( true, true ); } }
+$wpdb->pdo->exec( 'UPDATE wp_options SET option_value = ' . $wpdb->pdo->quote( 'corrupt' ) . ' WHERE option_name = ' . $wpdb->pdo->quote( $name ) );
+foreach ( array( 'read', 'increment' ) as $method ) { try { $store->$method( $key, 60, 1000 ); throw new RuntimeException( 'Corrupt slot accepted.' ); } catch ( StorageError $error ) { rate_assert( true, true ); } }
+$wpdb->pdo->exec( 'UPDATE wp_options SET option_value = ' . $wpdb->pdo->quote( PHP_INT_MAX . ':1000' ) . ' WHERE option_name = ' . $wpdb->pdo->quote( $name ) );
+try { $store->increment( $key, 60, 1000 ); throw new RuntimeException( 'Counter overflow accepted.' ); } catch ( StorageError $error ) { rate_assert( true, true ); }
 echo "Security rate limits: {$count} assertions passed (SQLite SQL/CAS double).\n";

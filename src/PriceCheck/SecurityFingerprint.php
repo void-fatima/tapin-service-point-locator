@@ -13,6 +13,11 @@ final class SecurityFingerprint {
 	}
 	public static function forged( $raw ): bool { return null !== $raw && ( is_bool( $raw ) || ( '' !== V::trim( V::string( $raw ) ) && '' === self::client_id( $raw ) ) ); }
 	public static function coerce( $value ) {
+		$previous = ini_get( 'serialize_precision' );
+		try { ini_set( 'serialize_precision', '-1' ); return self::coerce_value( $value ); }
+		finally { ini_set( 'serialize_precision', $previous ); }
+	}
+	private static function coerce_value( $value ) {
 		if ( null === $value || is_bool( $value ) || is_int( $value ) || is_float( $value ) ) { return $value; }
 		if ( V::listing( $value ) ) {
 			$parts = array(); foreach ( $value as $item ) { if ( null !== $item ) { $text = V::trim( V::string( $item ) ); if ( '' !== $text ) { $parts[] = $text; } } }

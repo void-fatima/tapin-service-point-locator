@@ -27,7 +27,7 @@ final class SecurityRateLimiter {
 		if ( '' !== $ip && '' !== $id ) { $dims[] = array( 'ip_client', $this->key( 'ip_client', $route, $ip, $id ) ); } return $dims;
 	}
 	public function consume( string $ip, string $id, string $fp, int $present, string $route = '' ): array {
-		$route = $this->route( $route ); $now = $this->clock->milliseconds(); $limits = $this->limits( $route ); $exceeded = array(); $retry = 0;
+		$route = $this->route( $route ); $now = SecurityTime::milliseconds( $this->clock ); $limits = $this->limits( $route ); $exceeded = array(); $retry = 0;
 		if ( null !== $limits ) { [$maximum, $window] = $limits; foreach ( $this->dimensions( $ip, $id, $fp, $present, $route ) as [$dimension, $key] ) { [$count, $ttl] = $this->store->increment( $key, $window, $now ); if ( $count > $maximum ) { $exceeded[] = $dimension; $retry = max( $retry, $ttl ); } } }
 		return array( 'allowed' => ! $exceeded, 'retry_after' => $exceeded ? max( 1, $retry ) : 0, 'exceeded_dimensions' => $exceeded );
 	}
@@ -37,14 +37,14 @@ final class SecurityRateLimiter {
 	}
 	public function reset_all(): void { $this->store->clear(); }
 	public function inspect_identity( string $ip = '', string $id = '', string $fp = '', string $route = '' ): array {
-		$route = $this->route( $route ); $now = $this->clock->milliseconds(); $limits = $this->limits( $route ); $dims = array(); $ends = 0;
+		$route = $this->route( $route ); $now = SecurityTime::milliseconds( $this->clock ); $limits = $this->limits( $route ); $dims = array(); $ends = 0;
 		if ( null === $limits ) { return array( 'limited' => false, 'ends_at_ms' => 0, 'dimensions' => array() ); } [$maximum, $window] = $limits;
 		$candidates = array(); foreach ( array( 'ip' => $ip, 'client' => $id, 'fp' => $fp ) as $dim => $value ) { if ( '' !== $value ) { $candidates[] = array( $dim, $this->key( $dim, $route, $value ) ); } } if ( '' !== $ip && '' !== $id ) { $candidates[] = array( 'ip_client', $this->key( 'ip_client', $route, $ip, $id ) ); }
 		foreach ( $candidates as [$dimension, $key] ) { try { [$count, $ttl] = $this->store->read( $key, $window, $now ); } catch ( \Throwable $error ) { $count = $ttl = 0; } $limited = $count > $maximum; if ( $limited ) { $ends = max( $ends, $now + max( 1, (int) $ttl ) * 1000 ); } $dims[] = array( 'dimension' => $dimension, 'count' => $count, 'limited' => $limited ); }
 		return array( 'limited' => (bool) array_filter( $dims, static fn( $dim ) => $dim['limited'] ), 'ends_at_ms' => $ends, 'dimensions' => $dims );
 	}
 	public function peek( string $ip, string $id, string $fp, int $present, string $route = '' ): \stdClass {
-		$route = $this->route( $route ); $now = $this->clock->milliseconds(); $limits = $this->limits( $route ); $out = new \stdClass();
+		$route = $this->route( $route ); $now = SecurityTime::milliseconds( $this->clock ); $limits = $this->limits( $route ); $out = new \stdClass();
 		if ( null !== $limits ) { foreach ( $this->dimensions( $ip, $id, $fp, $present, $route ) as [$dim, $key] ) { $out->$dim = $this->store->read( $key, $limits[1], $now ); } } return $out;
 	}
 }

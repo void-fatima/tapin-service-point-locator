@@ -8,6 +8,7 @@ final class PriceCheckRateDatabase {
 	public ?string $fail = null;
 	public bool $error_only = false;
 	public $interleave;
+	public string $interleave_sql = 'UPDATE';
 	public bool $suppressed = false;
 	public function __construct() { $this->pdo = new PDO( 'sqlite::memory:' ); $this->pdo->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION ); $this->pdo->exec( 'CREATE TABLE wp_options (option_name TEXT PRIMARY KEY, option_value TEXT, autoload TEXT)' ); }
 	public function suppress_errors( bool $value ): bool { $old = $this->suppressed; $this->suppressed = $value; return $old; }
@@ -16,7 +17,7 @@ final class PriceCheckRateDatabase {
 	private function run( string $sql, bool $read ) {
 		$this->last_error = ''; $this->queries[] = $sql;
 		if ( ! preg_match( '/\bwp_options\b/', $sql ) || preg_match( '/tapin_providers/', $sql ) ) { throw new LogicException( 'Unexpected table.' ); }
-		if ( $this->interleave && 0 === strpos( $sql, 'UPDATE' ) ) { $callback = $this->interleave; $this->interleave = null; $callback(); }
+		if ( $this->interleave && 0 === strpos( $sql, $this->interleave_sql ) ) { $callback = $this->interleave; $this->interleave = null; $callback(); }
 		if ( null !== $this->fail && 0 === strpos( $sql, $this->fail ) ) { $this->fail = null; $this->last_error = 'inert-test-marker'; return $this->error_only ? ( $read ? array() : 1 ) : false; }
 		$sql = str_replace( array( 'INSERT IGNORE', 'BINARY option_value' ), array( 'INSERT OR IGNORE', 'option_value COLLATE BINARY' ), $sql );
 		if ( false !== strpos( $sql, 'LIKE ' ) ) { $sql .= " ESCAPE '\\'"; }
