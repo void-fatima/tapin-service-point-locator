@@ -1,0 +1,633 @@
+{
+  "provenance": {
+    "python": "3.14.8",
+    "hashes": {
+      "providers": "15f1637ceabd535a68844fa67ce5db4fcdcd8e5ab78f201137d2ca54b9a14bc7",
+      "net": "b442f15ba894db7499a6178d88d340722c4ab4260516b79b514e8207d0360a33",
+      "provider_calls": "efd7f09d5c5a23f1cadc53e9655478e24c216c3c14da143aa9d7b7af6fc8cf49"
+    },
+    "live_access": false
+  },
+  "cases": [
+    {
+      "op": "request",
+      "args": [
+        {
+          "name": "post",
+          "check_price_url": "https://example.test/quote",
+          "params": []
+        },
+        {
+          "shop_id": "01",
+          "amount": 0,
+          "nested": [
+            null,
+            false,
+            -0.0,
+            "آ/"
+          ]
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "body": {
+            "shop_id": "01",
+            "amount": 0,
+            "nested": [
+              null,
+              false,
+              -0.0,
+              "آ/"
+            ]
+          },
+          "authorization": true,
+          "wire": "{\"shop_id\": \"01\", \"amount\": 0, \"nested\": [null, false, -0.0, \"آ/\"]}"
+        }
+      }
+    },
+    {
+      "op": "request",
+      "args": [
+        {
+          "name": "irpost",
+          "check_price_url": "https://example.test/quote",
+          "params": []
+        },
+        {
+          "shop_id": 0
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "body": {
+            "shop_id": 0
+          },
+          "authorization": true,
+          "wire": "{\"shop_id\": 0}"
+        }
+      }
+    },
+    {
+      "op": "request",
+      "args": [
+        {
+          "name": "tipax",
+          "check_price_url": "https://example.test/quote",
+          "params": []
+        },
+        {
+          "shop_id": 1.0
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "body": {
+            "shop_id": 1.0
+          },
+          "authorization": true,
+          "wire": "{\"shop_id\": 1.0}"
+        }
+      }
+    },
+    {
+      "op": "request",
+      "args": [
+        {
+          "name": "POST",
+          "check_price_url": "https://example.test/quote",
+          "params": []
+        },
+        {
+          "shop_id": "missing"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "body": {
+            "shop_id": "missing"
+          },
+          "authorization": false,
+          "wire": "{\"shop_id\": \"missing\"}"
+        }
+      }
+    },
+    {
+      "op": "request",
+      "args": [
+        {
+          "name": "custom",
+          "check_price_url": "https://example.test/quote",
+          "params": [
+            {
+              "name": "origin_city_id"
+            }
+          ]
+        },
+        {
+          "shop_id": "01"
+        }
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "body": {
+            "shop_id": "01"
+          },
+          "authorization": true,
+          "wire": "{\"shop_id\": \"01\"}"
+        }
+      }
+    },
+    {
+      "op": "request",
+      "args": [
+        {
+          "name": "post",
+          "check_price_url": "https://example.test/quote",
+          "params": []
+        },
+        {}
+      ],
+      "expected": {
+        "ok": true,
+        "value": {
+          "body": {},
+          "authorization": false,
+          "wire": "{}"
+        }
+      }
+    },
+    {
+      "op": "request",
+      "args": [
+        {
+          "name": "post",
+          "check_price_url": "https://example.test/quote",
+          "params": []
+        },
+        {
+          "shop_id": null
+        }
+      ],
+      "expected": {
+        "ok": false,
+        "message": "شناسه شعبه برای استعلام زنده قیمت الزامی است. آن را در تنظیمات شرکت (شناسه شعبه پیش‌فرض) تنظیم کنید.",
+        "status_code": 422,
+        "field": "shop_id",
+        "endpoint": null,
+        "http_status": null,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [
+          {
+            "field": "shop_id",
+            "message": "شناسه شعبه برای استعلام زنده قیمت الزامی است. آن را در تنظیمات شرکت (شناسه شعبه پیش‌فرض) تنظیم کنید."
+          }
+        ],
+        "extra": {}
+      }
+    },
+    {
+      "op": "request",
+      "args": [
+        {
+          "name": "post",
+          "check_price_url": "https://example.test/quote",
+          "params": []
+        },
+        {
+          "shop_id": true
+        }
+      ],
+      "expected": {
+        "ok": false,
+        "message": "شناسه شعبه برای استعلام زنده قیمت الزامی است. آن را در تنظیمات شرکت (شناسه شعبه پیش‌فرض) تنظیم کنید.",
+        "status_code": 422,
+        "field": "shop_id",
+        "endpoint": null,
+        "http_status": null,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [
+          {
+            "field": "shop_id",
+            "message": "شناسه شعبه برای استعلام زنده قیمت الزامی است. آن را در تنظیمات شرکت (شناسه شعبه پیش‌فرض) تنظیم کنید."
+          }
+        ],
+        "extra": {}
+      }
+    },
+    {
+      "op": "request",
+      "args": [
+        {
+          "name": "post",
+          "check_price_url": "https://example.test/quote",
+          "params": []
+        },
+        {
+          "shop_id": 1.5
+        }
+      ],
+      "expected": {
+        "ok": false,
+        "message": "شناسه شعبه معتبر نیست.",
+        "status_code": 422,
+        "field": "shop_id",
+        "endpoint": null,
+        "http_status": null,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [
+          {
+            "field": "shop_id",
+            "message": "شناسه شعبه معتبر نیست."
+          }
+        ],
+        "extra": {}
+      }
+    },
+    {
+      "op": "request",
+      "args": [
+        {
+          "name": "post",
+          "check_price_url": "https://example.test/quote",
+          "params": []
+        },
+        {
+          "shop_id": " "
+        }
+      ],
+      "expected": {
+        "ok": false,
+        "message": "شناسه شعبه برای استعلام زنده قیمت الزامی است.",
+        "status_code": 422,
+        "field": "shop_id",
+        "endpoint": null,
+        "http_status": null,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [
+          {
+            "field": "shop_id",
+            "message": "شناسه شعبه برای استعلام زنده قیمت الزامی است."
+          }
+        ],
+        "extra": {}
+      }
+    },
+    {
+      "op": "request",
+      "args": [
+        {
+          "name": "post",
+          "check_price_url": "https://example.test/quote",
+          "params": []
+        },
+        {
+          "shop_id": "missing"
+        }
+      ],
+      "expected": {
+        "ok": false,
+        "message": "شعبه missing در مدیریت شعب ثبت نشده است.",
+        "status_code": 422,
+        "field": "shop_id",
+        "endpoint": null,
+        "http_status": null,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [
+          {
+            "field": "shop_id",
+            "message": "شعبه missing در مدیریت شعب ثبت نشده است."
+          }
+        ],
+        "extra": {}
+      }
+    },
+    {
+      "op": "request",
+      "args": [
+        {
+          "name": "post",
+          "check_price_url": "https://example.test/quote",
+          "params": []
+        },
+        {
+          "shop_id": "empty"
+        }
+      ],
+      "expected": {
+        "ok": false,
+        "message": "توکن شعبه empty تنظیم نشده است.",
+        "status_code": 422,
+        "field": "shop_id",
+        "endpoint": null,
+        "http_status": null,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [
+          {
+            "field": "shop_id",
+            "message": "توکن شعبه empty تنظیم نشده است."
+          }
+        ],
+        "extra": {}
+      }
+    },
+    {
+      "op": "endpoint",
+      "args": [
+        null
+      ],
+      "expected": {
+        "ok": false,
+        "message": "نشانی سرویس قیمت این شرکت تنظیم نشده است.",
+        "status_code": 502,
+        "field": "check_price_url",
+        "endpoint": null,
+        "http_status": null,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [
+          {
+            "field": "check_price_url",
+            "message": "نشانی سرویس قیمت این شرکت تنظیم نشده است."
+          }
+        ],
+        "extra": {}
+      }
+    },
+    {
+      "op": "endpoint",
+      "args": [
+        ""
+      ],
+      "expected": {
+        "ok": false,
+        "message": "نشانی سرویس قیمت این شرکت تنظیم نشده است.",
+        "status_code": 502,
+        "field": "check_price_url",
+        "endpoint": null,
+        "http_status": null,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [
+          {
+            "field": "check_price_url",
+            "message": "نشانی سرویس قیمت این شرکت تنظیم نشده است."
+          }
+        ],
+        "extra": {}
+      }
+    },
+    {
+      "op": "endpoint",
+      "args": [
+        "relative"
+      ],
+      "expected": {
+        "ok": false,
+        "message": "نشانی سرویس قیمت باید یک URL کامل http یا https باشد.",
+        "status_code": 502,
+        "field": "check_price_url",
+        "endpoint": "relative",
+        "http_status": null,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [
+          {
+            "field": "check_price_url",
+            "message": "نشانی سرویس قیمت باید یک URL کامل http یا https باشد."
+          }
+        ],
+        "extra": {}
+      }
+    },
+    {
+      "op": "endpoint",
+      "args": [
+        "ftp://example.test"
+      ],
+      "expected": {
+        "ok": false,
+        "message": "نشانی سرویس قیمت باید یک URL کامل http یا https باشد.",
+        "status_code": 502,
+        "field": "check_price_url",
+        "endpoint": "ftp://example.test",
+        "http_status": null,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [
+          {
+            "field": "check_price_url",
+            "message": "نشانی سرویس قیمت باید یک URL کامل http یا https باشد."
+          }
+        ],
+        "extra": {}
+      }
+    },
+    {
+      "op": "endpoint",
+      "args": [
+        " http://127.0.0.1:8080/path "
+      ],
+      "expected": {
+        "ok": true,
+        "value": "http://127.0.0.1:8080/path"
+      }
+    },
+    {
+      "op": "endpoint",
+      "args": [
+        "https://example.test:invalid"
+      ],
+      "expected": {
+        "ok": true,
+        "value": "https://example.test:invalid"
+      }
+    },
+    {
+      "op": "endpoint",
+      "args": [
+        "https://example.test:99999"
+      ],
+      "expected": {
+        "ok": true,
+        "value": "https://example.test:99999"
+      }
+    },
+    {
+      "op": "endpoint",
+      "args": [
+        "HTTPS://example.test"
+      ],
+      "expected": {
+        "ok": true,
+        "value": "HTTPS://example.test"
+      }
+    }
+  ],
+  "transport_cases": [
+    {
+      "mode": "ok",
+      "expected": {
+        "ok": true,
+        "status": 200,
+        "bytes": 12
+      },
+      "request": {
+        "url": "https://example.test/quote",
+        "method": "POST",
+        "body": "{\"amount\": 1.0, \"text\": \"آ\"}",
+        "headers": {
+          "Content-type": "application/json",
+          "Accept": "application/json",
+          "User-agent": "tapin-check-price-web/1.0"
+        },
+        "authorization": true,
+        "timeout": 1.25
+      }
+    },
+    {
+      "mode": "http_error",
+      "expected": {
+        "ok": true,
+        "status": 503,
+        "bytes": 12
+      },
+      "request": {
+        "url": "https://example.test/quote",
+        "method": "POST",
+        "body": "{\"amount\": 1.0, \"text\": \"آ\"}",
+        "headers": {
+          "Content-type": "application/json",
+          "Accept": "application/json",
+          "User-agent": "tapin-check-price-web/1.0"
+        },
+        "authorization": true,
+        "timeout": 1.25
+      }
+    },
+    {
+      "mode": "timeout",
+      "expected": {
+        "ok": false,
+        "message": "سرویس قیمت در زمان مقرر پاسخ نداد.",
+        "status_code": 504,
+        "field": null,
+        "endpoint": "https://example.test/quote",
+        "http_status": null,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [],
+        "extra": {}
+      },
+      "request": {
+        "url": "https://example.test/quote",
+        "method": "POST",
+        "body": "{\"amount\": 1.0, \"text\": \"آ\"}",
+        "headers": {
+          "Content-type": "application/json",
+          "Accept": "application/json",
+          "User-agent": "tapin-check-price-web/1.0"
+        },
+        "authorization": true,
+        "timeout": 1.25
+      }
+    },
+    {
+      "mode": "network",
+      "expected": {
+        "ok": false,
+        "message": "ارتباط با سرویس قیمت برقرار نشد: fixture network unavailable",
+        "status_code": 502,
+        "field": null,
+        "endpoint": "https://example.test/quote",
+        "http_status": null,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [],
+        "extra": {}
+      },
+      "request": {
+        "url": "https://example.test/quote",
+        "method": "POST",
+        "body": "{\"amount\": 1.0, \"text\": \"آ\"}",
+        "headers": {
+          "Content-type": "application/json",
+          "Accept": "application/json",
+          "User-agent": "tapin-check-price-web/1.0"
+        },
+        "authorization": true,
+        "timeout": 1.25
+      }
+    },
+    {
+      "mode": "oversize",
+      "expected": {
+        "ok": false,
+        "message": "پاسخ سرویس قیمت بیش از حد بزرگ است.",
+        "status_code": 502,
+        "field": null,
+        "endpoint": "https://example.test/quote",
+        "http_status": 200,
+        "provider_status": null,
+        "provider_message": null,
+        "provider_response": null,
+        "errors": [],
+        "extra": {}
+      },
+      "request": {
+        "url": "https://example.test/quote",
+        "method": "POST",
+        "body": "{\"amount\": 1.0, \"text\": \"آ\"}",
+        "headers": {
+          "Content-type": "application/json",
+          "Accept": "application/json",
+          "User-agent": "tapin-check-price-web/1.0"
+        },
+        "authorization": true,
+        "timeout": 1.25
+      }
+    },
+    {
+      "mode": "http_error_oversize",
+      "expected": {
+        "ok": true,
+        "status": 503,
+        "bytes": 2000001
+      },
+      "request": {
+        "url": "https://example.test/quote",
+        "method": "POST",
+        "body": "{\"amount\": 1.0, \"text\": \"آ\"}",
+        "headers": {
+          "Content-type": "application/json",
+          "Accept": "application/json",
+          "User-agent": "tapin-check-price-web/1.0"
+        },
+        "authorization": true,
+        "timeout": 1.25
+      }
+    }
+  ]
+}
