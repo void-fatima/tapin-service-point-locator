@@ -1,0 +1,4431 @@
+{
+  "source_sha256": {
+    "storage": "2178ed429e0036dccfa6e11bfa192f9488803edccb0ee6212e8b2befd3e08446",
+    "providers": "15f1637ceabd535a68844fa67ce5db4fcdcd8e5ab78f201137d2ca54b9a14bc7",
+    "records": "e6768fb66b7a689245c3e4de9d3954a6758b4e45eda04f3b3b7ab7eb3f4ba06d"
+  },
+  "python": "3.14.8",
+  "backend": "SQLite memory SQL double, changed-row UPDATE emulation, autocommit",
+  "scenarios": [
+    {
+      "name": "rich round trip",
+      "actions": [
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": null,
+              "name": "fixture",
+              "display_name": "fixture",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields": [
+                {
+                  "key": "total",
+                  "label": "هزینه"
+                }
+              ],
+              "price_currency_in": "rial",
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "referral": {
+                "enabled": true,
+                "title": "0",
+                "url": "https://example.test",
+                "description": ""
+              },
+              "rules": [
+                {
+                  "name": "",
+                  "if_field": "amount",
+                  "if_op": "gte",
+                  "if_value": "0",
+                  "if_value2": "",
+                  "then_field": "",
+                  "then_op": "",
+                  "then_value": "",
+                  "then_value2": "",
+                  "message": ""
+                }
+              ],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": null,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "float",
+                  "visible": true,
+                  "kind": "money",
+                  "description": "شرح",
+                  "default": 1.25,
+                  "required": true
+                },
+                {
+                  "id": null,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": null,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "default": 0,
+                      "kind": null,
+                      "required": false
+                    },
+                    {
+                      "id": null,
+                      "name": "code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "default": "0",
+                      "kind": null,
+                      "required": false,
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "details",
+                  "label": "details",
+                  "input": "dict",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "fields": [
+                    {
+                      "id": null,
+                      "name": "text",
+                      "label": "text",
+                      "input": "text",
+                      "type": "str",
+                      "visible": true,
+                      "default": "0",
+                      "kind": null,
+                      "required": false
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "choice",
+                  "label": "choice",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "default": "0",
+                  "required": false,
+                  "options": [
+                    {
+                      "value": "0",
+                      "label": "0"
+                    },
+                    {
+                      "value": "x",
+                      "label": "x"
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "point",
+                  "label": "point",
+                  "input": "map",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "map": {
+                    "mode": "combined",
+                    "param": "coordinates"
+                  }
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "provider_raw",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "name": "fixture",
+              "display_name": "fixture",
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields_json": "[{\"key\": \"total\", \"label\": \"هزینه\"}]",
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "price_currency_in": null,
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": null,
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "referral_enabled": 1,
+              "referral_title": "0",
+              "referral_url": "https://example.test",
+              "referral_description": null,
+              "rules_json": "[{\"name\": \"\", \"if_field\": \"amount\", \"if_op\": \"gte\", \"if_value\": \"0\", \"if_value2\": \"\", \"then_field\": \"\", \"then_op\": \"\", \"then_value\": \"\", \"then_value2\": \"\", \"message\": \"\"}]",
+              "location_config_json": "{\"origin\": {\"enabled\": false, \"display\": \"separate\", \"source\": \"service\", \"custom_mode\": \"merge\"}, \"destination\": {\"enabled\": false, \"display\": \"separate\", \"province_param\": null, \"city_param\": null, \"source\": \"service\", \"custom_mode\": \"merge\"}, \"custom_locations\": {\"provinces\": [], \"cities\": []}, \"blocked_locations\": {\"provinces\": [], \"cities\": []}}",
+              "active": 1
+            }
+          }
+        },
+        {
+          "op": "provider_params",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 1,
+                "provider_id": 1,
+                "position": 0,
+                "name": "amount",
+                "label": "amount",
+                "input": "number",
+                "type": "float",
+                "visible": 1,
+                "default_value": "1.25",
+                "min_items": null,
+                "kind": "money",
+                "options_json": null,
+                "required": 1,
+                "description": "شرح",
+                "map_json": null
+              },
+              {
+                "id": 2,
+                "provider_id": 1,
+                "position": 1,
+                "name": "items",
+                "label": "items",
+                "input": "list",
+                "type": "str",
+                "visible": 0,
+                "default_value": null,
+                "min_items": 2,
+                "kind": null,
+                "options_json": null,
+                "required": 0,
+                "description": null,
+                "map_json": null
+              },
+              {
+                "id": 3,
+                "provider_id": 1,
+                "position": 2,
+                "name": "details",
+                "label": "details",
+                "input": "dict",
+                "type": "str",
+                "visible": 0,
+                "default_value": null,
+                "min_items": null,
+                "kind": null,
+                "options_json": null,
+                "required": 0,
+                "description": null,
+                "map_json": null
+              },
+              {
+                "id": 4,
+                "provider_id": 1,
+                "position": 3,
+                "name": "choice",
+                "label": "choice",
+                "input": "select",
+                "type": "str",
+                "visible": 1,
+                "default_value": "0",
+                "min_items": null,
+                "kind": null,
+                "options_json": "[{\"value\": \"0\", \"label\": \"0\"}, {\"value\": \"x\", \"label\": \"x\"}]",
+                "required": 0,
+                "description": null,
+                "map_json": null
+              },
+              {
+                "id": 5,
+                "provider_id": 1,
+                "position": 4,
+                "name": "point",
+                "label": "point",
+                "input": "map",
+                "type": "str",
+                "visible": 0,
+                "default_value": null,
+                "min_items": null,
+                "kind": null,
+                "options_json": null,
+                "required": 0,
+                "description": null,
+                "map_json": "{\"mode\": \"combined\", \"param\": \"coordinates\"}"
+              }
+            ]
+          }
+        },
+        {
+          "op": "provider_fields",
+          "args": [
+            [
+              2,
+              3
+            ]
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 1,
+                "param_id": 2,
+                "position": 0,
+                "name": "count",
+                "label": "count",
+                "input": "text",
+                "type": "int",
+                "visible": 1,
+                "default_value": "0",
+                "kind": null,
+                "options_json": null,
+                "required": 0
+              },
+              {
+                "id": 2,
+                "param_id": 2,
+                "position": 1,
+                "name": "code",
+                "label": "code",
+                "input": "select",
+                "type": "str",
+                "visible": 0,
+                "default_value": "0",
+                "kind": null,
+                "options_json": "[{\"value\": \"0\", \"label\": \"0\"}, {\"value\": \"x\", \"label\": \"x\"}]",
+                "required": 0
+              },
+              {
+                "id": 3,
+                "param_id": 3,
+                "position": 0,
+                "name": "text",
+                "label": "text",
+                "input": "text",
+                "type": "str",
+                "visible": 1,
+                "default_value": "0",
+                "kind": null,
+                "options_json": null,
+                "required": 0
+              }
+            ]
+          }
+        },
+        {
+          "op": "provider_load",
+          "args": [
+            "fixture"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "active": true,
+              "name": "fixture",
+              "display_name": "fixture",
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields": [
+                {
+                  "key": "total",
+                  "label": "هزینه"
+                }
+              ],
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "price_currency_in": "rial",
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "referral": {
+                "enabled": true,
+                "title": "0",
+                "url": "https://example.test",
+                "description": ""
+              },
+              "rules": [
+                {
+                  "name": "",
+                  "if_field": "amount",
+                  "if_op": "gte",
+                  "if_value": "0",
+                  "if_value2": "",
+                  "then_field": "",
+                  "then_op": "",
+                  "then_value": "",
+                  "then_value2": "",
+                  "message": ""
+                }
+              ],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": 1,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "float",
+                  "visible": true,
+                  "kind": "money",
+                  "description": "شرح",
+                  "required": true,
+                  "default": 1.25
+                },
+                {
+                  "id": 2,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": null,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": 1,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "kind": null,
+                      "required": false,
+                      "default": 0
+                    },
+                    {
+                      "id": 2,
+                      "name": "code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "kind": null,
+                      "required": false,
+                      "default": "0",
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": 3,
+                  "name": "details",
+                  "label": "details",
+                  "input": "dict",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": null,
+                  "fields": [
+                    {
+                      "id": 3,
+                      "name": "text",
+                      "label": "text",
+                      "input": "text",
+                      "type": "str",
+                      "visible": true,
+                      "kind": null,
+                      "required": false,
+                      "default": "0"
+                    }
+                  ]
+                },
+                {
+                  "id": 4,
+                  "name": "choice",
+                  "label": "choice",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": "0",
+                  "options": [
+                    {
+                      "value": "0",
+                      "label": "0"
+                    },
+                    {
+                      "value": "x",
+                      "label": "x"
+                    }
+                  ]
+                },
+                {
+                  "id": 5,
+                  "name": "point",
+                  "label": "point",
+                  "input": "map",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": null,
+                  "map": {
+                    "mode": "combined",
+                    "param": "coordinates"
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "provider_all",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 1,
+                "active": true,
+                "name": "fixture",
+                "display_name": "fixture",
+                "logo": "",
+                "check_price_url": "",
+                "shop_id": "01",
+                "price_fields": [
+                  {
+                    "key": "total",
+                    "label": "هزینه"
+                  }
+                ],
+                "timeout": 1.23456789012345,
+                "main_price_key": null,
+                "price_currency_in": "rial",
+                "price_currency_out": "toman",
+                "price_input_param": null,
+                "weight_unit_in": "gram",
+                "weight_unit_out": "kilogram",
+                "weight_input_param": null,
+                "referral": {
+                  "enabled": true,
+                  "title": "0",
+                  "url": "https://example.test",
+                  "description": ""
+                },
+                "rules": [
+                  {
+                    "name": "",
+                    "if_field": "amount",
+                    "if_op": "gte",
+                    "if_value": "0",
+                    "if_value2": "",
+                    "then_field": "",
+                    "then_op": "",
+                    "then_value": "",
+                    "then_value2": "",
+                    "message": ""
+                  }
+                ],
+                "location_config": {
+                  "origin": {
+                    "enabled": false,
+                    "display": "separate",
+                    "source": "service",
+                    "custom_mode": "merge"
+                  },
+                  "destination": {
+                    "enabled": false,
+                    "display": "separate",
+                    "province_param": null,
+                    "city_param": null,
+                    "source": "service",
+                    "custom_mode": "merge"
+                  },
+                  "custom_locations": {
+                    "provinces": [],
+                    "cities": []
+                  },
+                  "blocked_locations": {
+                    "provinces": [],
+                    "cities": []
+                  }
+                },
+                "params": [
+                  {
+                    "id": 1,
+                    "name": "amount",
+                    "label": "amount",
+                    "input": "number",
+                    "type": "float",
+                    "visible": true,
+                    "kind": "money",
+                    "description": "شرح",
+                    "required": true,
+                    "default": 1.25
+                  },
+                  {
+                    "id": 2,
+                    "name": "items",
+                    "label": "items",
+                    "input": "list",
+                    "type": "str",
+                    "visible": false,
+                    "kind": null,
+                    "description": "",
+                    "required": false,
+                    "default": null,
+                    "min_items": 2,
+                    "fields": [
+                      {
+                        "id": 1,
+                        "name": "count",
+                        "label": "count",
+                        "input": "text",
+                        "type": "int",
+                        "visible": true,
+                        "kind": null,
+                        "required": false,
+                        "default": 0
+                      },
+                      {
+                        "id": 2,
+                        "name": "code",
+                        "label": "code",
+                        "input": "select",
+                        "type": "str",
+                        "visible": false,
+                        "kind": null,
+                        "required": false,
+                        "default": "0",
+                        "options": [
+                          {
+                            "value": "0",
+                            "label": "0"
+                          },
+                          {
+                            "value": "x",
+                            "label": "x"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": 3,
+                    "name": "details",
+                    "label": "details",
+                    "input": "dict",
+                    "type": "str",
+                    "visible": false,
+                    "kind": null,
+                    "description": "",
+                    "required": false,
+                    "default": null,
+                    "fields": [
+                      {
+                        "id": 3,
+                        "name": "text",
+                        "label": "text",
+                        "input": "text",
+                        "type": "str",
+                        "visible": true,
+                        "kind": null,
+                        "required": false,
+                        "default": "0"
+                      }
+                    ]
+                  },
+                  {
+                    "id": 4,
+                    "name": "choice",
+                    "label": "choice",
+                    "input": "select",
+                    "type": "str",
+                    "visible": true,
+                    "kind": null,
+                    "description": "",
+                    "required": false,
+                    "default": "0",
+                    "options": [
+                      {
+                        "value": "0",
+                        "label": "0"
+                      },
+                      {
+                        "value": "x",
+                        "label": "x"
+                      }
+                    ]
+                  },
+                  {
+                    "id": 5,
+                    "name": "point",
+                    "label": "point",
+                    "input": "map",
+                    "type": "str",
+                    "visible": false,
+                    "kind": null,
+                    "description": "",
+                    "required": false,
+                    "default": null,
+                    "map": {
+                      "mode": "combined",
+                      "param": "coordinates"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "op": "provider_load",
+          "args": [
+            "missing"
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "provider_load",
+          "args": [
+            "01"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "active": true,
+              "name": "fixture",
+              "display_name": "fixture",
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields": [
+                {
+                  "key": "total",
+                  "label": "هزینه"
+                }
+              ],
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "price_currency_in": "rial",
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "referral": {
+                "enabled": true,
+                "title": "0",
+                "url": "https://example.test",
+                "description": ""
+              },
+              "rules": [
+                {
+                  "name": "",
+                  "if_field": "amount",
+                  "if_op": "gte",
+                  "if_value": "0",
+                  "if_value2": "",
+                  "then_field": "",
+                  "then_op": "",
+                  "then_value": "",
+                  "then_value2": "",
+                  "message": ""
+                }
+              ],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": 1,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "float",
+                  "visible": true,
+                  "kind": "money",
+                  "description": "شرح",
+                  "required": true,
+                  "default": 1.25
+                },
+                {
+                  "id": 2,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": null,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": 1,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "kind": null,
+                      "required": false,
+                      "default": 0
+                    },
+                    {
+                      "id": 2,
+                      "name": "code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "kind": null,
+                      "required": false,
+                      "default": "0",
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": 3,
+                  "name": "details",
+                  "label": "details",
+                  "input": "dict",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": null,
+                  "fields": [
+                    {
+                      "id": 3,
+                      "name": "text",
+                      "label": "text",
+                      "input": "text",
+                      "type": "str",
+                      "visible": true,
+                      "kind": null,
+                      "required": false,
+                      "default": "0"
+                    }
+                  ]
+                },
+                {
+                  "id": 4,
+                  "name": "choice",
+                  "label": "choice",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": "0",
+                  "options": [
+                    {
+                      "value": "0",
+                      "label": "0"
+                    },
+                    {
+                      "value": "x",
+                      "label": "x"
+                    }
+                  ]
+                },
+                {
+                  "id": 5,
+                  "name": "point",
+                  "label": "point",
+                  "input": "map",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": null,
+                  "map": {
+                    "mode": "combined",
+                    "param": "coordinates"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "rename reorder delete omitted rows",
+      "actions": [
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": null,
+              "name": "fixture",
+              "display_name": "fixture",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields": [
+                {
+                  "key": "total",
+                  "label": "هزینه"
+                }
+              ],
+              "price_currency_in": "rial",
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "referral": {
+                "enabled": true,
+                "title": "0",
+                "url": "https://example.test",
+                "description": ""
+              },
+              "rules": [
+                {
+                  "name": "",
+                  "if_field": "amount",
+                  "if_op": "gte",
+                  "if_value": "0",
+                  "if_value2": "",
+                  "then_field": "",
+                  "then_op": "",
+                  "then_value": "",
+                  "then_value2": "",
+                  "message": ""
+                }
+              ],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": null,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "float",
+                  "visible": true,
+                  "kind": "money",
+                  "description": "شرح",
+                  "default": 1.25,
+                  "required": true
+                },
+                {
+                  "id": null,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": null,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "default": 0,
+                      "kind": null,
+                      "required": false
+                    },
+                    {
+                      "id": null,
+                      "name": "code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "default": "0",
+                      "kind": null,
+                      "required": false,
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "details",
+                  "label": "details",
+                  "input": "dict",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "fields": [
+                    {
+                      "id": null,
+                      "name": "text",
+                      "label": "text",
+                      "input": "text",
+                      "type": "str",
+                      "visible": true,
+                      "default": "0",
+                      "kind": null,
+                      "required": false
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "choice",
+                  "label": "choice",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "default": "0",
+                  "required": false,
+                  "options": [
+                    {
+                      "value": "0",
+                      "label": "0"
+                    },
+                    {
+                      "value": "x",
+                      "label": "x"
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "point",
+                  "label": "point",
+                  "input": "map",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "map": {
+                    "mode": "combined",
+                    "param": "coordinates"
+                  }
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": 1,
+              "name": "renamed",
+              "display_name": "fixture",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields": [
+                {
+                  "key": "total",
+                  "label": "هزینه"
+                }
+              ],
+              "price_currency_in": "rial",
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "referral": {
+                "enabled": true,
+                "title": "0",
+                "url": "https://example.test",
+                "description": ""
+              },
+              "rules": [
+                {
+                  "name": "",
+                  "if_field": "amount",
+                  "if_op": "gte",
+                  "if_value": "0",
+                  "if_value2": "",
+                  "then_field": "",
+                  "then_op": "",
+                  "then_value": "",
+                  "then_value2": "",
+                  "message": ""
+                }
+              ],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": 3,
+                  "name": "details",
+                  "label": "details",
+                  "input": "dict",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "fields": [
+                    {
+                      "id": 3,
+                      "name": "text",
+                      "label": "text",
+                      "input": "text",
+                      "type": "str",
+                      "visible": true,
+                      "default": "0",
+                      "kind": null,
+                      "required": false
+                    }
+                  ]
+                },
+                {
+                  "id": 2,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": 2,
+                      "name": "renamed_code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "default": "0",
+                      "kind": null,
+                      "required": false,
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    },
+                    {
+                      "id": 1,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "default": 0,
+                      "kind": null,
+                      "required": false
+                    }
+                  ]
+                },
+                {
+                  "id": 1,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "float",
+                  "visible": true,
+                  "kind": "money",
+                  "description": "شرح",
+                  "default": 1.25,
+                  "required": true
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "provider_raw",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "name": "renamed",
+              "display_name": "fixture",
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields_json": "[{\"key\": \"total\", \"label\": \"هزینه\"}]",
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "price_currency_in": null,
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": null,
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "referral_enabled": 1,
+              "referral_title": "0",
+              "referral_url": "https://example.test",
+              "referral_description": null,
+              "rules_json": "[{\"name\": \"\", \"if_field\": \"amount\", \"if_op\": \"gte\", \"if_value\": \"0\", \"if_value2\": \"\", \"then_field\": \"\", \"then_op\": \"\", \"then_value\": \"\", \"then_value2\": \"\", \"message\": \"\"}]",
+              "location_config_json": "{\"origin\": {\"enabled\": false, \"display\": \"separate\", \"source\": \"service\", \"custom_mode\": \"merge\"}, \"destination\": {\"enabled\": false, \"display\": \"separate\", \"province_param\": null, \"city_param\": null, \"source\": \"service\", \"custom_mode\": \"merge\"}, \"custom_locations\": {\"provinces\": [], \"cities\": []}, \"blocked_locations\": {\"provinces\": [], \"cities\": []}}",
+              "active": 1
+            }
+          }
+        },
+        {
+          "op": "provider_params",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 3,
+                "provider_id": 1,
+                "position": 0,
+                "name": "details",
+                "label": "details",
+                "input": "dict",
+                "type": "str",
+                "visible": 0,
+                "default_value": null,
+                "min_items": null,
+                "kind": null,
+                "options_json": null,
+                "required": 0,
+                "description": null,
+                "map_json": null
+              },
+              {
+                "id": 2,
+                "provider_id": 1,
+                "position": 1,
+                "name": "items",
+                "label": "items",
+                "input": "list",
+                "type": "str",
+                "visible": 0,
+                "default_value": null,
+                "min_items": 2,
+                "kind": null,
+                "options_json": null,
+                "required": 0,
+                "description": null,
+                "map_json": null
+              },
+              {
+                "id": 1,
+                "provider_id": 1,
+                "position": 2,
+                "name": "amount",
+                "label": "amount",
+                "input": "number",
+                "type": "float",
+                "visible": 1,
+                "default_value": "1.25",
+                "min_items": null,
+                "kind": "money",
+                "options_json": null,
+                "required": 1,
+                "description": "شرح",
+                "map_json": null
+              }
+            ]
+          }
+        },
+        {
+          "op": "provider_fields",
+          "args": [
+            [
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 2,
+                "param_id": 2,
+                "position": 0,
+                "name": "renamed_code",
+                "label": "code",
+                "input": "select",
+                "type": "str",
+                "visible": 0,
+                "default_value": "0",
+                "kind": null,
+                "options_json": "[{\"value\": \"0\", \"label\": \"0\"}, {\"value\": \"x\", \"label\": \"x\"}]",
+                "required": 0
+              },
+              {
+                "id": 1,
+                "param_id": 2,
+                "position": 1,
+                "name": "count",
+                "label": "count",
+                "input": "text",
+                "type": "int",
+                "visible": 1,
+                "default_value": "0",
+                "kind": null,
+                "options_json": null,
+                "required": 0
+              },
+              {
+                "id": 3,
+                "param_id": 3,
+                "position": 0,
+                "name": "text",
+                "label": "text",
+                "input": "text",
+                "type": "str",
+                "visible": 1,
+                "default_value": "0",
+                "kind": null,
+                "options_json": null,
+                "required": 0
+              }
+            ]
+          }
+        },
+        {
+          "op": "provider_load",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "active": true,
+              "name": "renamed",
+              "display_name": "fixture",
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields": [
+                {
+                  "key": "total",
+                  "label": "هزینه"
+                }
+              ],
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "price_currency_in": "rial",
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "referral": {
+                "enabled": true,
+                "title": "0",
+                "url": "https://example.test",
+                "description": ""
+              },
+              "rules": [
+                {
+                  "name": "",
+                  "if_field": "amount",
+                  "if_op": "gte",
+                  "if_value": "0",
+                  "if_value2": "",
+                  "then_field": "",
+                  "then_op": "",
+                  "then_value": "",
+                  "then_value2": "",
+                  "message": ""
+                }
+              ],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": 3,
+                  "name": "details",
+                  "label": "details",
+                  "input": "dict",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": null,
+                  "fields": [
+                    {
+                      "id": 3,
+                      "name": "text",
+                      "label": "text",
+                      "input": "text",
+                      "type": "str",
+                      "visible": true,
+                      "kind": null,
+                      "required": false,
+                      "default": "0"
+                    }
+                  ]
+                },
+                {
+                  "id": 2,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": null,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": 2,
+                      "name": "renamed_code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "kind": null,
+                      "required": false,
+                      "default": "0",
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    },
+                    {
+                      "id": 1,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "kind": null,
+                      "required": false,
+                      "default": 0
+                    }
+                  ]
+                },
+                {
+                  "id": 1,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "float",
+                  "visible": true,
+                  "kind": "money",
+                  "description": "شرح",
+                  "required": true,
+                  "default": 1.25
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "owned foreign and duplicate ids",
+      "actions": [
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": null,
+              "name": "fixture",
+              "display_name": "fixture",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields": [
+                {
+                  "key": "total",
+                  "label": "هزینه"
+                }
+              ],
+              "price_currency_in": "rial",
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "referral": {
+                "enabled": true,
+                "title": "0",
+                "url": "https://example.test",
+                "description": ""
+              },
+              "rules": [
+                {
+                  "name": "",
+                  "if_field": "amount",
+                  "if_op": "gte",
+                  "if_value": "0",
+                  "if_value2": "",
+                  "then_field": "",
+                  "then_op": "",
+                  "then_value": "",
+                  "then_value2": "",
+                  "message": ""
+                }
+              ],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": null,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "float",
+                  "visible": true,
+                  "kind": "money",
+                  "description": "شرح",
+                  "default": 1.25,
+                  "required": true
+                },
+                {
+                  "id": null,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": null,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "default": 0,
+                      "kind": null,
+                      "required": false
+                    },
+                    {
+                      "id": null,
+                      "name": "code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "default": "0",
+                      "kind": null,
+                      "required": false,
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "details",
+                  "label": "details",
+                  "input": "dict",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "fields": [
+                    {
+                      "id": null,
+                      "name": "text",
+                      "label": "text",
+                      "input": "text",
+                      "type": "str",
+                      "visible": true,
+                      "default": "0",
+                      "kind": null,
+                      "required": false
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "choice",
+                  "label": "choice",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "default": "0",
+                  "required": false,
+                  "options": [
+                    {
+                      "value": "0",
+                      "label": "0"
+                    },
+                    {
+                      "value": "x",
+                      "label": "x"
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "point",
+                  "label": "point",
+                  "input": "map",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "map": {
+                    "mode": "combined",
+                    "param": "coordinates"
+                  }
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": null,
+              "name": "other",
+              "display_name": "other",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": null,
+              "price_fields": [],
+              "price_currency_in": "rial",
+              "price_currency_out": "rial",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "gram",
+              "weight_input_param": null,
+              "timeout": null,
+              "main_price_key": null,
+              "referral": {
+                "enabled": false,
+                "title": "",
+                "url": "",
+                "description": ""
+              },
+              "rules": [],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": 1,
+                  "name": "foreign",
+                  "label": "foreign",
+                  "input": "dict",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "fields": [
+                    {
+                      "id": 1,
+                      "name": "foreign_field",
+                      "label": "foreign_field",
+                      "input": "text",
+                      "type": "str",
+                      "visible": false,
+                      "default": "0",
+                      "kind": null,
+                      "required": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": 2
+          }
+        },
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": 1,
+              "name": "duplicate-rows",
+              "display_name": "fixture",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields": [
+                {
+                  "key": "total",
+                  "label": "هزینه"
+                }
+              ],
+              "price_currency_in": "rial",
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "referral": {
+                "enabled": true,
+                "title": "0",
+                "url": "https://example.test",
+                "description": ""
+              },
+              "rules": [
+                {
+                  "name": "",
+                  "if_field": "amount",
+                  "if_op": "gte",
+                  "if_value": "0",
+                  "if_value2": "",
+                  "then_field": "",
+                  "then_op": "",
+                  "then_value": "",
+                  "then_value2": "",
+                  "message": ""
+                }
+              ],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": 2,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": 2,
+                      "name": "renamed_code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "default": "0",
+                      "kind": null,
+                      "required": false,
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    },
+                    {
+                      "id": 1,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "default": 0,
+                      "kind": null,
+                      "required": false
+                    },
+                    {
+                      "id": 2,
+                      "name": "renamed_code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "default": "0",
+                      "kind": null,
+                      "required": false,
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": 2,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": 2,
+                      "name": "renamed_code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "default": "0",
+                      "kind": null,
+                      "required": false,
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    },
+                    {
+                      "id": 1,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "default": 0,
+                      "kind": null,
+                      "required": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "provider_params",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 2,
+                "provider_id": 1,
+                "position": 0,
+                "name": "items",
+                "label": "items",
+                "input": "list",
+                "type": "str",
+                "visible": 0,
+                "default_value": null,
+                "min_items": 2,
+                "kind": null,
+                "options_json": null,
+                "required": 0,
+                "description": null,
+                "map_json": null
+              },
+              {
+                "id": 7,
+                "provider_id": 1,
+                "position": 1,
+                "name": "items",
+                "label": "items",
+                "input": "list",
+                "type": "str",
+                "visible": 0,
+                "default_value": null,
+                "min_items": 2,
+                "kind": null,
+                "options_json": null,
+                "required": 0,
+                "description": null,
+                "map_json": null
+              }
+            ]
+          }
+        },
+        {
+          "op": "provider_fields",
+          "args": [
+            [
+              2,
+              7
+            ]
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 2,
+                "param_id": 2,
+                "position": 0,
+                "name": "renamed_code",
+                "label": "code",
+                "input": "select",
+                "type": "str",
+                "visible": 0,
+                "default_value": "0",
+                "kind": null,
+                "options_json": "[{\"value\": \"0\", \"label\": \"0\"}, {\"value\": \"x\", \"label\": \"x\"}]",
+                "required": 0
+              },
+              {
+                "id": 1,
+                "param_id": 2,
+                "position": 1,
+                "name": "count",
+                "label": "count",
+                "input": "text",
+                "type": "int",
+                "visible": 1,
+                "default_value": "0",
+                "kind": null,
+                "options_json": null,
+                "required": 0
+              },
+              {
+                "id": 5,
+                "param_id": 2,
+                "position": 2,
+                "name": "renamed_code",
+                "label": "code",
+                "input": "select",
+                "type": "str",
+                "visible": 0,
+                "default_value": "0",
+                "kind": null,
+                "options_json": "[{\"value\": \"0\", \"label\": \"0\"}, {\"value\": \"x\", \"label\": \"x\"}]",
+                "required": 0
+              },
+              {
+                "id": 6,
+                "param_id": 7,
+                "position": 0,
+                "name": "renamed_code",
+                "label": "code",
+                "input": "select",
+                "type": "str",
+                "visible": 0,
+                "default_value": "0",
+                "kind": null,
+                "options_json": "[{\"value\": \"0\", \"label\": \"0\"}, {\"value\": \"x\", \"label\": \"x\"}]",
+                "required": 0
+              },
+              {
+                "id": 7,
+                "param_id": 7,
+                "position": 1,
+                "name": "count",
+                "label": "count",
+                "input": "text",
+                "type": "int",
+                "visible": 1,
+                "default_value": "0",
+                "kind": null,
+                "options_json": null,
+                "required": 0
+              }
+            ]
+          }
+        },
+        {
+          "op": "provider_load",
+          "args": [
+            2
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 2,
+              "active": true,
+              "name": "other",
+              "display_name": "other",
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": null,
+              "price_fields": [],
+              "timeout": null,
+              "main_price_key": null,
+              "price_currency_in": "rial",
+              "price_currency_out": "rial",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "gram",
+              "weight_input_param": null,
+              "referral": {
+                "enabled": false,
+                "title": "",
+                "url": "",
+                "description": ""
+              },
+              "rules": [],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": 6,
+                  "name": "foreign",
+                  "label": "foreign",
+                  "input": "dict",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": null,
+                  "fields": [
+                    {
+                      "id": 4,
+                      "name": "foreign_field",
+                      "label": "foreign_field",
+                      "input": "text",
+                      "type": "str",
+                      "visible": false,
+                      "kind": null,
+                      "required": false,
+                      "default": "0"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "provider_load",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "active": true,
+              "name": "duplicate-rows",
+              "display_name": "fixture",
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields": [
+                {
+                  "key": "total",
+                  "label": "هزینه"
+                }
+              ],
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "price_currency_in": "rial",
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "referral": {
+                "enabled": true,
+                "title": "0",
+                "url": "https://example.test",
+                "description": ""
+              },
+              "rules": [
+                {
+                  "name": "",
+                  "if_field": "amount",
+                  "if_op": "gte",
+                  "if_value": "0",
+                  "if_value2": "",
+                  "then_field": "",
+                  "then_op": "",
+                  "then_value": "",
+                  "then_value2": "",
+                  "message": ""
+                }
+              ],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": 2,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": null,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": 2,
+                      "name": "renamed_code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "kind": null,
+                      "required": false,
+                      "default": "0",
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    },
+                    {
+                      "id": 1,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "kind": null,
+                      "required": false,
+                      "default": 0
+                    },
+                    {
+                      "id": 5,
+                      "name": "renamed_code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "kind": null,
+                      "required": false,
+                      "default": "0",
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": 7,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": null,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": 6,
+                      "name": "renamed_code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "kind": null,
+                      "required": false,
+                      "default": "0",
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    },
+                    {
+                      "id": 7,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "kind": null,
+                      "required": false,
+                      "default": 0
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "unchanged provider update is a source failure",
+      "actions": [
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": null,
+              "name": "fixture",
+              "display_name": "fixture",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": null,
+              "price_fields": [],
+              "price_currency_in": "rial",
+              "price_currency_out": "rial",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "gram",
+              "weight_input_param": null,
+              "timeout": null,
+              "main_price_key": null,
+              "referral": {
+                "enabled": false,
+                "title": "",
+                "url": "",
+                "description": ""
+              },
+              "rules": [],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": null,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "int",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "default": 0,
+                  "required": false
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": 1,
+              "name": "fixture",
+              "display_name": "fixture",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": null,
+              "price_fields": [],
+              "price_currency_in": "rial",
+              "price_currency_out": "rial",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "gram",
+              "weight_input_param": null,
+              "timeout": null,
+              "main_price_key": null,
+              "referral": {
+                "enabled": false,
+                "title": "",
+                "url": "",
+                "description": ""
+              },
+              "rules": [],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": null,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "int",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "default": 0,
+                  "required": false
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "provider_load",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "active": true,
+              "name": "fixture",
+              "display_name": "fixture",
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": null,
+              "price_fields": [],
+              "timeout": null,
+              "main_price_key": null,
+              "price_currency_in": "rial",
+              "price_currency_out": "rial",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "gram",
+              "weight_input_param": null,
+              "referral": {
+                "enabled": false,
+                "title": "",
+                "url": "",
+                "description": ""
+              },
+              "rules": [],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": 1,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "int",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": 0
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "supplied id allocation delete cascade",
+      "actions": [
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": 42,
+              "name": "fixture",
+              "display_name": "fixture",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields": [
+                {
+                  "key": "total",
+                  "label": "هزینه"
+                }
+              ],
+              "price_currency_in": "rial",
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "referral": {
+                "enabled": true,
+                "title": "0",
+                "url": "https://example.test",
+                "description": ""
+              },
+              "rules": [
+                {
+                  "name": "",
+                  "if_field": "amount",
+                  "if_op": "gte",
+                  "if_value": "0",
+                  "if_value2": "",
+                  "then_field": "",
+                  "then_op": "",
+                  "then_value": "",
+                  "then_value2": "",
+                  "message": ""
+                }
+              ],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": null,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "float",
+                  "visible": true,
+                  "kind": "money",
+                  "description": "شرح",
+                  "default": 1.25,
+                  "required": true
+                },
+                {
+                  "id": null,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": null,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "default": 0,
+                      "kind": null,
+                      "required": false
+                    },
+                    {
+                      "id": null,
+                      "name": "code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "default": "0",
+                      "kind": null,
+                      "required": false,
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "details",
+                  "label": "details",
+                  "input": "dict",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "fields": [
+                    {
+                      "id": null,
+                      "name": "text",
+                      "label": "text",
+                      "input": "text",
+                      "type": "str",
+                      "visible": true,
+                      "default": "0",
+                      "kind": null,
+                      "required": false
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "choice",
+                  "label": "choice",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "default": "0",
+                  "required": false,
+                  "options": [
+                    {
+                      "value": "0",
+                      "label": "0"
+                    },
+                    {
+                      "value": "x",
+                      "label": "x"
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "point",
+                  "label": "point",
+                  "input": "map",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "map": {
+                    "mode": "combined",
+                    "param": "coordinates"
+                  }
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": 42
+          }
+        },
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": null,
+              "name": "next",
+              "display_name": "next",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": null,
+              "price_fields": [],
+              "price_currency_in": "rial",
+              "price_currency_out": "rial",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "gram",
+              "weight_input_param": null,
+              "timeout": null,
+              "main_price_key": null,
+              "referral": {
+                "enabled": false,
+                "title": "",
+                "url": "",
+                "description": ""
+              },
+              "rules": [],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": null,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "int",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "default": 0,
+                  "required": false
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": 43
+          }
+        },
+        {
+          "op": "provider_all",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 42,
+                "active": true,
+                "name": "fixture",
+                "display_name": "fixture",
+                "logo": "",
+                "check_price_url": "",
+                "shop_id": "01",
+                "price_fields": [
+                  {
+                    "key": "total",
+                    "label": "هزینه"
+                  }
+                ],
+                "timeout": 1.23456789012345,
+                "main_price_key": null,
+                "price_currency_in": "rial",
+                "price_currency_out": "toman",
+                "price_input_param": null,
+                "weight_unit_in": "gram",
+                "weight_unit_out": "kilogram",
+                "weight_input_param": null,
+                "referral": {
+                  "enabled": true,
+                  "title": "0",
+                  "url": "https://example.test",
+                  "description": ""
+                },
+                "rules": [
+                  {
+                    "name": "",
+                    "if_field": "amount",
+                    "if_op": "gte",
+                    "if_value": "0",
+                    "if_value2": "",
+                    "then_field": "",
+                    "then_op": "",
+                    "then_value": "",
+                    "then_value2": "",
+                    "message": ""
+                  }
+                ],
+                "location_config": {
+                  "origin": {
+                    "enabled": false,
+                    "display": "separate",
+                    "source": "service",
+                    "custom_mode": "merge"
+                  },
+                  "destination": {
+                    "enabled": false,
+                    "display": "separate",
+                    "province_param": null,
+                    "city_param": null,
+                    "source": "service",
+                    "custom_mode": "merge"
+                  },
+                  "custom_locations": {
+                    "provinces": [],
+                    "cities": []
+                  },
+                  "blocked_locations": {
+                    "provinces": [],
+                    "cities": []
+                  }
+                },
+                "params": [
+                  {
+                    "id": 1,
+                    "name": "amount",
+                    "label": "amount",
+                    "input": "number",
+                    "type": "float",
+                    "visible": true,
+                    "kind": "money",
+                    "description": "شرح",
+                    "required": true,
+                    "default": 1.25
+                  },
+                  {
+                    "id": 2,
+                    "name": "items",
+                    "label": "items",
+                    "input": "list",
+                    "type": "str",
+                    "visible": false,
+                    "kind": null,
+                    "description": "",
+                    "required": false,
+                    "default": null,
+                    "min_items": 2,
+                    "fields": [
+                      {
+                        "id": 1,
+                        "name": "count",
+                        "label": "count",
+                        "input": "text",
+                        "type": "int",
+                        "visible": true,
+                        "kind": null,
+                        "required": false,
+                        "default": 0
+                      },
+                      {
+                        "id": 2,
+                        "name": "code",
+                        "label": "code",
+                        "input": "select",
+                        "type": "str",
+                        "visible": false,
+                        "kind": null,
+                        "required": false,
+                        "default": "0",
+                        "options": [
+                          {
+                            "value": "0",
+                            "label": "0"
+                          },
+                          {
+                            "value": "x",
+                            "label": "x"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": 3,
+                    "name": "details",
+                    "label": "details",
+                    "input": "dict",
+                    "type": "str",
+                    "visible": false,
+                    "kind": null,
+                    "description": "",
+                    "required": false,
+                    "default": null,
+                    "fields": [
+                      {
+                        "id": 3,
+                        "name": "text",
+                        "label": "text",
+                        "input": "text",
+                        "type": "str",
+                        "visible": true,
+                        "kind": null,
+                        "required": false,
+                        "default": "0"
+                      }
+                    ]
+                  },
+                  {
+                    "id": 4,
+                    "name": "choice",
+                    "label": "choice",
+                    "input": "select",
+                    "type": "str",
+                    "visible": true,
+                    "kind": null,
+                    "description": "",
+                    "required": false,
+                    "default": "0",
+                    "options": [
+                      {
+                        "value": "0",
+                        "label": "0"
+                      },
+                      {
+                        "value": "x",
+                        "label": "x"
+                      }
+                    ]
+                  },
+                  {
+                    "id": 5,
+                    "name": "point",
+                    "label": "point",
+                    "input": "map",
+                    "type": "str",
+                    "visible": false,
+                    "kind": null,
+                    "description": "",
+                    "required": false,
+                    "default": null,
+                    "map": {
+                      "mode": "combined",
+                      "param": "coordinates"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": 43,
+                "active": true,
+                "name": "next",
+                "display_name": "next",
+                "logo": "",
+                "check_price_url": "",
+                "shop_id": null,
+                "price_fields": [],
+                "timeout": null,
+                "main_price_key": null,
+                "price_currency_in": "rial",
+                "price_currency_out": "rial",
+                "price_input_param": null,
+                "weight_unit_in": "gram",
+                "weight_unit_out": "gram",
+                "weight_input_param": null,
+                "referral": {
+                  "enabled": false,
+                  "title": "",
+                  "url": "",
+                  "description": ""
+                },
+                "rules": [],
+                "location_config": {
+                  "origin": {
+                    "enabled": false,
+                    "display": "separate",
+                    "source": "service",
+                    "custom_mode": "merge"
+                  },
+                  "destination": {
+                    "enabled": false,
+                    "display": "separate",
+                    "province_param": null,
+                    "city_param": null,
+                    "source": "service",
+                    "custom_mode": "merge"
+                  },
+                  "custom_locations": {
+                    "provinces": [],
+                    "cities": []
+                  },
+                  "blocked_locations": {
+                    "provinces": [],
+                    "cities": []
+                  }
+                },
+                "params": [
+                  {
+                    "id": 6,
+                    "name": "amount",
+                    "label": "amount",
+                    "input": "number",
+                    "type": "int",
+                    "visible": true,
+                    "kind": null,
+                    "description": "",
+                    "required": false,
+                    "default": 0
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "op": "provider_delete",
+          "args": [
+            42
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "provider_fields",
+          "args": [
+            [
+              2,
+              3
+            ]
+          ],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        },
+        {
+          "op": "provider_all",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 43,
+                "active": true,
+                "name": "next",
+                "display_name": "next",
+                "logo": "",
+                "check_price_url": "",
+                "shop_id": null,
+                "price_fields": [],
+                "timeout": null,
+                "main_price_key": null,
+                "price_currency_in": "rial",
+                "price_currency_out": "rial",
+                "price_input_param": null,
+                "weight_unit_in": "gram",
+                "weight_unit_out": "gram",
+                "weight_input_param": null,
+                "referral": {
+                  "enabled": false,
+                  "title": "",
+                  "url": "",
+                  "description": ""
+                },
+                "rules": [],
+                "location_config": {
+                  "origin": {
+                    "enabled": false,
+                    "display": "separate",
+                    "source": "service",
+                    "custom_mode": "merge"
+                  },
+                  "destination": {
+                    "enabled": false,
+                    "display": "separate",
+                    "province_param": null,
+                    "city_param": null,
+                    "source": "service",
+                    "custom_mode": "merge"
+                  },
+                  "custom_locations": {
+                    "provinces": [],
+                    "cities": []
+                  },
+                  "blocked_locations": {
+                    "provinces": [],
+                    "cities": []
+                  }
+                },
+                "params": [
+                  {
+                    "id": 6,
+                    "name": "amount",
+                    "label": "amount",
+                    "input": "number",
+                    "type": "int",
+                    "visible": true,
+                    "kind": null,
+                    "description": "",
+                    "required": false,
+                    "default": 0
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "op": "provider_delete",
+          "args": [
+            999
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        }
+      ]
+    },
+    {
+      "name": "SQL quoting and text defaults",
+      "actions": [
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": null,
+              "name": "fixture'quoted",
+              "display_name": "fixture'quoted",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": null,
+              "price_fields": [],
+              "price_currency_in": "rial",
+              "price_currency_out": "rial",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "gram",
+              "weight_input_param": null,
+              "timeout": null,
+              "main_price_key": null,
+              "referral": {
+                "enabled": false,
+                "title": "",
+                "url": "",
+                "description": ""
+              },
+              "rules": [],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": null,
+                  "name": "flag",
+                  "label": "flag",
+                  "input": "text",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": true,
+                  "required": false
+                },
+                {
+                  "id": null,
+                  "name": "empty",
+                  "label": "empty",
+                  "input": "text",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": "",
+                  "required": false
+                },
+                {
+                  "id": null,
+                  "name": "zero",
+                  "label": "zero",
+                  "input": "text",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": "0",
+                  "required": false
+                },
+                {
+                  "id": null,
+                  "name": "none",
+                  "label": "none",
+                  "input": "text",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false
+                },
+                {
+                  "id": null,
+                  "name": "string",
+                  "label": "string",
+                  "input": "text",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": "خط\n\"\\/",
+                  "required": false
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "provider_load",
+          "args": [
+            "fixture'quoted"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "active": true,
+              "name": "fixture'quoted",
+              "display_name": "fixture'quoted",
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": null,
+              "price_fields": [],
+              "timeout": null,
+              "main_price_key": null,
+              "price_currency_in": "rial",
+              "price_currency_out": "rial",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "gram",
+              "weight_input_param": null,
+              "referral": {
+                "enabled": false,
+                "title": "",
+                "url": "",
+                "description": ""
+              },
+              "rules": [],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": 1,
+                  "name": "flag",
+                  "label": "flag",
+                  "input": "text",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": "True"
+                },
+                {
+                  "id": 2,
+                  "name": "empty",
+                  "label": "empty",
+                  "input": "text",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": null
+                },
+                {
+                  "id": 3,
+                  "name": "zero",
+                  "label": "zero",
+                  "input": "text",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": "0"
+                },
+                {
+                  "id": 4,
+                  "name": "none",
+                  "label": "none",
+                  "input": "text",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": null
+                },
+                {
+                  "id": 5,
+                  "name": "string",
+                  "label": "string",
+                  "input": "text",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": "خط\n\"\\/"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "op": "provider_raw",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "name": "fixture'quoted",
+              "display_name": "fixture'quoted",
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": null,
+              "price_fields_json": null,
+              "timeout": null,
+              "main_price_key": null,
+              "price_currency_in": null,
+              "price_currency_out": null,
+              "price_input_param": null,
+              "weight_unit_in": null,
+              "weight_unit_out": null,
+              "weight_input_param": null,
+              "referral_enabled": 0,
+              "referral_title": null,
+              "referral_url": null,
+              "referral_description": null,
+              "rules_json": null,
+              "location_config_json": "{\"origin\": {\"enabled\": false, \"display\": \"separate\", \"source\": \"service\", \"custom_mode\": \"merge\"}, \"destination\": {\"enabled\": false, \"display\": \"separate\", \"province_param\": null, \"city_param\": null, \"source\": \"service\", \"custom_mode\": \"merge\"}, \"custom_locations\": {\"provinces\": [], \"cities\": []}, \"blocked_locations\": {\"provinces\": [], \"cities\": []}}",
+              "active": 1
+            }
+          }
+        },
+        {
+          "op": "provider_params",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 1,
+                "provider_id": 1,
+                "position": 0,
+                "name": "flag",
+                "label": "flag",
+                "input": "text",
+                "type": "str",
+                "visible": 0,
+                "default_value": "True",
+                "min_items": null,
+                "kind": null,
+                "options_json": null,
+                "required": 0,
+                "description": null,
+                "map_json": null
+              },
+              {
+                "id": 2,
+                "provider_id": 1,
+                "position": 1,
+                "name": "empty",
+                "label": "empty",
+                "input": "text",
+                "type": "str",
+                "visible": 0,
+                "default_value": null,
+                "min_items": null,
+                "kind": null,
+                "options_json": null,
+                "required": 0,
+                "description": null,
+                "map_json": null
+              },
+              {
+                "id": 3,
+                "provider_id": 1,
+                "position": 2,
+                "name": "zero",
+                "label": "zero",
+                "input": "text",
+                "type": "str",
+                "visible": 0,
+                "default_value": "0",
+                "min_items": null,
+                "kind": null,
+                "options_json": null,
+                "required": 0,
+                "description": null,
+                "map_json": null
+              },
+              {
+                "id": 4,
+                "provider_id": 1,
+                "position": 3,
+                "name": "none",
+                "label": "none",
+                "input": "text",
+                "type": "str",
+                "visible": 0,
+                "default_value": null,
+                "min_items": null,
+                "kind": null,
+                "options_json": null,
+                "required": 0,
+                "description": null,
+                "map_json": null
+              },
+              {
+                "id": 5,
+                "provider_id": 1,
+                "position": 4,
+                "name": "string",
+                "label": "string",
+                "input": "text",
+                "type": "str",
+                "visible": 0,
+                "default_value": "خط\n\"\\/",
+                "min_items": null,
+                "kind": null,
+                "options_json": null,
+                "required": 0,
+                "description": null,
+                "map_json": null
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "missing name fails before writing",
+      "actions": [
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "name": "",
+              "params": []
+            }
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "نام فنی شرکت الزامی است."
+          }
+        },
+        {
+          "op": "provider_all",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "partial field write failure",
+      "actions": [
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": null,
+              "name": "fixture",
+              "display_name": "fixture",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields": [
+                {
+                  "key": "total",
+                  "label": "هزینه"
+                }
+              ],
+              "price_currency_in": "rial",
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "referral": {
+                "enabled": true,
+                "title": "0",
+                "url": "https://example.test",
+                "description": ""
+              },
+              "rules": [
+                {
+                  "name": "",
+                  "if_field": "amount",
+                  "if_op": "gte",
+                  "if_value": "0",
+                  "if_value2": "",
+                  "then_field": "",
+                  "then_op": "",
+                  "then_value": "",
+                  "then_value2": "",
+                  "message": ""
+                }
+              ],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": null,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "float",
+                  "visible": true,
+                  "kind": "money",
+                  "description": "شرح",
+                  "default": 1.25,
+                  "required": true
+                },
+                {
+                  "id": null,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": null,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "default": 0,
+                      "kind": null,
+                      "required": false
+                    },
+                    {
+                      "id": null,
+                      "name": "code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "default": "0",
+                      "kind": null,
+                      "required": false,
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "details",
+                  "label": "details",
+                  "input": "dict",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "fields": [
+                    {
+                      "id": null,
+                      "name": "text",
+                      "label": "text",
+                      "input": "text",
+                      "type": "str",
+                      "visible": true,
+                      "default": "0",
+                      "kind": null,
+                      "required": false
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "choice",
+                  "label": "choice",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "default": "0",
+                  "required": false,
+                  "options": [
+                    {
+                      "value": "0",
+                      "label": "0"
+                    },
+                    {
+                      "value": "x",
+                      "label": "x"
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "point",
+                  "label": "point",
+                  "input": "map",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "map": {
+                    "mode": "combined",
+                    "param": "coordinates"
+                  }
+                }
+              ]
+            }
+          ],
+          "failure": {
+            "kind": "INSERT",
+            "table": "provider_fields"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "provider_raw",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "name": "fixture",
+              "display_name": "fixture",
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields_json": "[{\"key\": \"total\", \"label\": \"هزینه\"}]",
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "price_currency_in": null,
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": null,
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "referral_enabled": 1,
+              "referral_title": "0",
+              "referral_url": "https://example.test",
+              "referral_description": null,
+              "rules_json": "[{\"name\": \"\", \"if_field\": \"amount\", \"if_op\": \"gte\", \"if_value\": \"0\", \"if_value2\": \"\", \"then_field\": \"\", \"then_op\": \"\", \"then_value\": \"\", \"then_value2\": \"\", \"message\": \"\"}]",
+              "location_config_json": "{\"origin\": {\"enabled\": false, \"display\": \"separate\", \"source\": \"service\", \"custom_mode\": \"merge\"}, \"destination\": {\"enabled\": false, \"display\": \"separate\", \"province_param\": null, \"city_param\": null, \"source\": \"service\", \"custom_mode\": \"merge\"}, \"custom_locations\": {\"provinces\": [], \"cities\": []}, \"blocked_locations\": {\"provinces\": [], \"cities\": []}}",
+              "active": 1
+            }
+          }
+        },
+        {
+          "op": "provider_params",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": 1,
+                "provider_id": 1,
+                "position": 0,
+                "name": "amount",
+                "label": "amount",
+                "input": "number",
+                "type": "float",
+                "visible": 1,
+                "default_value": "1.25",
+                "min_items": null,
+                "kind": "money",
+                "options_json": null,
+                "required": 1,
+                "description": "شرح",
+                "map_json": null
+              },
+              {
+                "id": 2,
+                "provider_id": 1,
+                "position": 1,
+                "name": "items",
+                "label": "items",
+                "input": "list",
+                "type": "str",
+                "visible": 0,
+                "default_value": null,
+                "min_items": 2,
+                "kind": null,
+                "options_json": null,
+                "required": 0,
+                "description": null,
+                "map_json": null
+              }
+            ]
+          }
+        },
+        {
+          "op": "provider_fields",
+          "args": [
+            [
+              2
+            ]
+          ],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        },
+        {
+          "op": "provider_load",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "active": true,
+              "name": "fixture",
+              "display_name": "fixture",
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields": [
+                {
+                  "key": "total",
+                  "label": "هزینه"
+                }
+              ],
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "price_currency_in": "rial",
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "referral": {
+                "enabled": true,
+                "title": "0",
+                "url": "https://example.test",
+                "description": ""
+              },
+              "rules": [
+                {
+                  "name": "",
+                  "if_field": "amount",
+                  "if_op": "gte",
+                  "if_value": "0",
+                  "if_value2": "",
+                  "then_field": "",
+                  "then_op": "",
+                  "then_value": "",
+                  "then_value2": "",
+                  "message": ""
+                }
+              ],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": 1,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "float",
+                  "visible": true,
+                  "kind": "money",
+                  "description": "شرح",
+                  "required": true,
+                  "default": 1.25
+                },
+                {
+                  "id": 2,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": null,
+                  "min_items": 2,
+                  "fields": []
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "provider read and delete failures",
+      "actions": [
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": null,
+              "name": "fixture",
+              "display_name": "fixture",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": null,
+              "price_fields": [],
+              "price_currency_in": "rial",
+              "price_currency_out": "rial",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "gram",
+              "weight_input_param": null,
+              "timeout": null,
+              "main_price_key": null,
+              "referral": {
+                "enabled": false,
+                "title": "",
+                "url": "",
+                "description": ""
+              },
+              "rules": [],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": null,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "int",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "default": 0,
+                  "required": false
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "provider_raw",
+          "args": [
+            1
+          ],
+          "failure": {
+            "kind": "SELECT",
+            "table": "providers"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "provider_delete",
+          "args": [
+            1
+          ],
+          "failure": {
+            "kind": "DELETE",
+            "table": "providers"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "provider_load",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "active": true,
+              "name": "fixture",
+              "display_name": "fixture",
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": null,
+              "price_fields": [],
+              "timeout": null,
+              "main_price_key": null,
+              "price_currency_in": "rial",
+              "price_currency_out": "rial",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "gram",
+              "weight_input_param": null,
+              "referral": {
+                "enabled": false,
+                "title": "",
+                "url": "",
+                "description": ""
+              },
+              "rules": [],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": 1,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "int",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "required": false,
+                  "default": 0
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
