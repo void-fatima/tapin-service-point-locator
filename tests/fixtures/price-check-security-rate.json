@@ -1,0 +1,1583 @@
+{
+  "source_hashes": {
+    "security/rate_limiter.py": "7f8376b35672a885e1eee239c203b964269cd227c93be717523866207b943da8",
+    "security/infra_memory.py": "884d0b54d48edb6fb4b8c3385f6f4aeba4427ce51ae8907134bef9a7de66e397",
+    "security/infra_starlette.py": "1afa69b8f277ee7859d9b6c227bf4a14140e6b6438949064b310d332c466b798",
+    "security/config.py": "b97a628a0cd972a219d3207184ae258be50909bd2d79c64382cd92b7057c9704"
+  },
+  "route_cases": [
+    {
+      "route": "/api/providers",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {},
+      "normalized": "/api/providers",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": " /api/providers/42 ",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {},
+      "normalized": "/api/providers/{provider_id}",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": "/api/locations",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {},
+      "normalized": "/api/locations",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": "/api/price-check",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {},
+      "normalized": "/api/price-check",
+      "result": [
+        4,
+        60
+      ]
+    },
+    {
+      "route": "/api/bulk",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {},
+      "normalized": "/api/bulk",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": "/api/bulk-check",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {},
+      "normalized": "/api/bulk-check",
+      "result": [
+        4,
+        60
+      ]
+    },
+    {
+      "route": "/api/bulk-validate",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {},
+      "normalized": "/api/bulk-validate",
+      "result": [
+        30,
+        60
+      ]
+    },
+    {
+      "route": "/unknown",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {},
+      "normalized": "/unknown",
+      "result": [
+        7,
+        11
+      ]
+    },
+    {
+      "route": "/api/health",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {},
+      "normalized": "/api/health",
+      "result": [
+        7,
+        11
+      ]
+    },
+    {
+      "route": "/api/providers",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/providers/{provider_id}": {
+          "max_requests": 2,
+          "window_seconds": 3,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/providers",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": " /api/providers/42 ",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/providers/{provider_id}": {
+          "max_requests": 2,
+          "window_seconds": 3,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/providers/{provider_id}",
+      "result": [
+        2,
+        3
+      ]
+    },
+    {
+      "route": "/api/locations",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/providers/{provider_id}": {
+          "max_requests": 2,
+          "window_seconds": 3,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/locations",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": "/api/price-check",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/providers/{provider_id}": {
+          "max_requests": 2,
+          "window_seconds": 3,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/price-check",
+      "result": [
+        4,
+        60
+      ]
+    },
+    {
+      "route": "/api/bulk",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/providers/{provider_id}": {
+          "max_requests": 2,
+          "window_seconds": 3,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/bulk",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": "/api/bulk-check",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/providers/{provider_id}": {
+          "max_requests": 2,
+          "window_seconds": 3,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/bulk-check",
+      "result": [
+        4,
+        60
+      ]
+    },
+    {
+      "route": "/api/bulk-validate",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/providers/{provider_id}": {
+          "max_requests": 2,
+          "window_seconds": 3,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/bulk-validate",
+      "result": [
+        30,
+        60
+      ]
+    },
+    {
+      "route": "/unknown",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/providers/{provider_id}": {
+          "max_requests": 2,
+          "window_seconds": 3,
+          "enabled": true
+        }
+      },
+      "normalized": "/unknown",
+      "result": [
+        7,
+        11
+      ]
+    },
+    {
+      "route": "/api/health",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/providers/{provider_id}": {
+          "max_requests": 2,
+          "window_seconds": 3,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/health",
+      "result": [
+        7,
+        11
+      ]
+    },
+    {
+      "route": "/api/providers",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/price-check": {
+          "max_requests": 1,
+          "window_seconds": 9,
+          "enabled": false
+        }
+      },
+      "normalized": "/api/providers",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": " /api/providers/42 ",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/price-check": {
+          "max_requests": 1,
+          "window_seconds": 9,
+          "enabled": false
+        }
+      },
+      "normalized": "/api/providers/{provider_id}",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": "/api/locations",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/price-check": {
+          "max_requests": 1,
+          "window_seconds": 9,
+          "enabled": false
+        }
+      },
+      "normalized": "/api/locations",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": "/api/price-check",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/price-check": {
+          "max_requests": 1,
+          "window_seconds": 9,
+          "enabled": false
+        }
+      },
+      "normalized": "/api/price-check",
+      "result": null
+    },
+    {
+      "route": "/api/bulk",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/price-check": {
+          "max_requests": 1,
+          "window_seconds": 9,
+          "enabled": false
+        }
+      },
+      "normalized": "/api/bulk",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": "/api/bulk-check",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/price-check": {
+          "max_requests": 1,
+          "window_seconds": 9,
+          "enabled": false
+        }
+      },
+      "normalized": "/api/bulk-check",
+      "result": [
+        4,
+        60
+      ]
+    },
+    {
+      "route": "/api/bulk-validate",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/price-check": {
+          "max_requests": 1,
+          "window_seconds": 9,
+          "enabled": false
+        }
+      },
+      "normalized": "/api/bulk-validate",
+      "result": [
+        30,
+        60
+      ]
+    },
+    {
+      "route": "/unknown",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/price-check": {
+          "max_requests": 1,
+          "window_seconds": 9,
+          "enabled": false
+        }
+      },
+      "normalized": "/unknown",
+      "result": [
+        7,
+        11
+      ]
+    },
+    {
+      "route": "/api/health",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/price-check": {
+          "max_requests": 1,
+          "window_seconds": 9,
+          "enabled": false
+        }
+      },
+      "normalized": "/api/health",
+      "result": [
+        7,
+        11
+      ]
+    },
+    {
+      "route": "/api/providers",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/bulk-check": {
+          "max_requests": 0,
+          "window_seconds": 0,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/providers",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": " /api/providers/42 ",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/bulk-check": {
+          "max_requests": 0,
+          "window_seconds": 0,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/providers/{provider_id}",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": "/api/locations",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/bulk-check": {
+          "max_requests": 0,
+          "window_seconds": 0,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/locations",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": "/api/price-check",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/bulk-check": {
+          "max_requests": 0,
+          "window_seconds": 0,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/price-check",
+      "result": [
+        4,
+        60
+      ]
+    },
+    {
+      "route": "/api/bulk",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/bulk-check": {
+          "max_requests": 0,
+          "window_seconds": 0,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/bulk",
+      "result": [
+        60,
+        60
+      ]
+    },
+    {
+      "route": "/api/bulk-check",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/bulk-check": {
+          "max_requests": 0,
+          "window_seconds": 0,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/bulk-check",
+      "result": [
+        4,
+        60
+      ]
+    },
+    {
+      "route": "/api/bulk-validate",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/bulk-check": {
+          "max_requests": 0,
+          "window_seconds": 0,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/bulk-validate",
+      "result": [
+        30,
+        60
+      ]
+    },
+    {
+      "route": "/unknown",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/bulk-check": {
+          "max_requests": 0,
+          "window_seconds": 0,
+          "enabled": true
+        }
+      },
+      "normalized": "/unknown",
+      "result": [
+        7,
+        11
+      ]
+    },
+    {
+      "route": "/api/health",
+      "settings": {
+        "max_requests": 7,
+        "window_seconds": 11
+      },
+      "overrides": {
+        "/api/bulk-check": {
+          "max_requests": 0,
+          "window_seconds": 0,
+          "enabled": true
+        }
+      },
+      "normalized": "/api/health",
+      "result": [
+        7,
+        11
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "op": "dimensions",
+      "args": [
+        "",
+        "",
+        "f",
+        0,
+        "/api/providers/3"
+      ],
+      "result": []
+    },
+    {
+      "op": "dimensions",
+      "args": [
+        "192.0.2.1",
+        "",
+        "f",
+        0,
+        "/api/providers/3"
+      ],
+      "result": [
+        [
+          "ip",
+          "tapin:rate:ip:/api/providers/{provider_id}:192.0.2.1"
+        ]
+      ]
+    },
+    {
+      "op": "dimensions",
+      "args": [
+        "",
+        "",
+        "f",
+        1,
+        "/api/providers/3"
+      ],
+      "result": [
+        [
+          "fp",
+          "tapin:rate:fp:/api/providers/{provider_id}:f"
+        ]
+      ]
+    },
+    {
+      "op": "dimensions",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        0,
+        "/api/providers/3"
+      ],
+      "result": [
+        [
+          "ip",
+          "tapin:rate:ip:/api/providers/{provider_id}:::1"
+        ],
+        [
+          "client",
+          "tapin:rate:client:/api/providers/{provider_id}:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        ],
+        [
+          "fp",
+          "tapin:rate:fp:/api/providers/{provider_id}:f"
+        ],
+        [
+          "ip_client",
+          "tapin:rate:ip_client:/api/providers/{provider_id}:::1:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        ]
+      ]
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": true,
+        "retry_after": 0,
+        "exceeded_dimensions": []
+      }
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": true,
+        "retry_after": 0,
+        "exceeded_dimensions": []
+      }
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": true,
+        "retry_after": 0,
+        "exceeded_dimensions": []
+      }
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": true,
+        "retry_after": 0,
+        "exceeded_dimensions": []
+      }
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": false,
+        "retry_after": 60,
+        "exceeded_dimensions": [
+          "ip",
+          "client",
+          "fp",
+          "ip_client"
+        ]
+      }
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": false,
+        "retry_after": 60,
+        "exceeded_dimensions": [
+          "ip",
+          "client",
+          "fp",
+          "ip_client"
+        ]
+      }
+    },
+    {
+      "op": "peek",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "ip": [
+          6,
+          60
+        ],
+        "client": [
+          6,
+          60
+        ],
+        "fp": [
+          6,
+          60
+        ],
+        "ip_client": [
+          6,
+          60
+        ]
+      }
+    },
+    {
+      "op": "inspect",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        "/api/price-check"
+      ],
+      "result": {
+        "limited": true,
+        "ends_at_ms": 61000,
+        "dimensions": [
+          {
+            "dimension": "ip",
+            "count": 6,
+            "limited": true
+          },
+          {
+            "dimension": "client",
+            "count": 6,
+            "limited": true
+          },
+          {
+            "dimension": "fp",
+            "count": 6,
+            "limited": true
+          },
+          {
+            "dimension": "ip_client",
+            "count": 6,
+            "limited": true
+          }
+        ]
+      }
+    },
+    {
+      "op": "time",
+      "args": [
+        1001
+      ],
+      "result": null
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": false,
+        "retry_after": 60,
+        "exceeded_dimensions": [
+          "ip",
+          "client",
+          "fp",
+          "ip_client"
+        ]
+      }
+    },
+    {
+      "op": "peek",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "ip": [
+          7,
+          60
+        ],
+        "client": [
+          7,
+          60
+        ],
+        "fp": [
+          7,
+          60
+        ],
+        "ip_client": [
+          7,
+          60
+        ]
+      }
+    },
+    {
+      "op": "time",
+      "args": [
+        2000
+      ],
+      "result": null
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": false,
+        "retry_after": 59,
+        "exceeded_dimensions": [
+          "ip",
+          "client",
+          "fp",
+          "ip_client"
+        ]
+      }
+    },
+    {
+      "op": "peek",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "ip": [
+          8,
+          59
+        ],
+        "client": [
+          8,
+          59
+        ],
+        "fp": [
+          8,
+          59
+        ],
+        "ip_client": [
+          8,
+          59
+        ]
+      }
+    },
+    {
+      "op": "time",
+      "args": [
+        60999
+      ],
+      "result": null
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": false,
+        "retry_after": 1,
+        "exceeded_dimensions": [
+          "ip",
+          "client",
+          "fp",
+          "ip_client"
+        ]
+      }
+    },
+    {
+      "op": "peek",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "ip": [
+          9,
+          1
+        ],
+        "client": [
+          9,
+          1
+        ],
+        "fp": [
+          9,
+          1
+        ],
+        "ip_client": [
+          9,
+          1
+        ]
+      }
+    },
+    {
+      "op": "time",
+      "args": [
+        61000
+      ],
+      "result": null
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": true,
+        "retry_after": 0,
+        "exceeded_dimensions": []
+      }
+    },
+    {
+      "op": "peek",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "ip": [
+          1,
+          60
+        ],
+        "client": [
+          1,
+          60
+        ],
+        "fp": [
+          1,
+          60
+        ],
+        "ip_client": [
+          1,
+          60
+        ]
+      }
+    },
+    {
+      "op": "time",
+      "args": [
+        61001
+      ],
+      "result": null
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": true,
+        "retry_after": 0,
+        "exceeded_dimensions": []
+      }
+    },
+    {
+      "op": "peek",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "ip": [
+          2,
+          60
+        ],
+        "client": [
+          2,
+          60
+        ],
+        "fp": [
+          2,
+          60
+        ],
+        "ip_client": [
+          2,
+          60
+        ]
+      }
+    },
+    {
+      "op": "time",
+      "args": [
+        60000
+      ],
+      "result": null
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": true,
+        "retry_after": 0,
+        "exceeded_dimensions": []
+      }
+    },
+    {
+      "op": "peek",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "ip": [
+          3,
+          61
+        ],
+        "client": [
+          3,
+          61
+        ],
+        "fp": [
+          3,
+          61
+        ],
+        "ip_client": [
+          3,
+          61
+        ]
+      }
+    },
+    {
+      "op": "reset",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        "/api/price-check"
+      ],
+      "result": null
+    },
+    {
+      "op": "peek",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "ip": [
+          0,
+          0
+        ],
+        "client": [
+          0,
+          0
+        ],
+        "fp": [
+          0,
+          0
+        ],
+        "ip_client": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/providers/3"
+      ],
+      "result": {
+        "allowed": true,
+        "retry_after": 0,
+        "exceeded_dimensions": []
+      }
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/providers/3"
+      ],
+      "result": {
+        "allowed": true,
+        "retry_after": 0,
+        "exceeded_dimensions": []
+      }
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/providers/3"
+      ],
+      "result": {
+        "allowed": true,
+        "retry_after": 0,
+        "exceeded_dimensions": []
+      }
+    },
+    {
+      "op": "peek",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/providers/9"
+      ],
+      "result": {
+        "ip": [
+          3,
+          60
+        ],
+        "client": [
+          3,
+          60
+        ],
+        "fp": [
+          3,
+          60
+        ],
+        "ip_client": [
+          3,
+          60
+        ]
+      }
+    },
+    {
+      "op": "override",
+      "args": [
+        {
+          "/api/price-check": {
+            "max_requests": 1,
+            "window_seconds": 2,
+            "enabled": false
+          }
+        }
+      ],
+      "result": null
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": true,
+        "retry_after": 0,
+        "exceeded_dimensions": []
+      }
+    },
+    {
+      "op": "inspect",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        "/api/price-check"
+      ],
+      "result": {
+        "limited": false,
+        "ends_at_ms": 0,
+        "dimensions": []
+      }
+    },
+    {
+      "op": "override",
+      "args": [
+        {
+          "/api/price-check": {
+            "max_requests": 1,
+            "window_seconds": 2,
+            "enabled": true
+          }
+        }
+      ],
+      "result": null
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": true,
+        "retry_after": 0,
+        "exceeded_dimensions": []
+      }
+    },
+    {
+      "op": "consume",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "allowed": false,
+        "retry_after": 2,
+        "exceeded_dimensions": [
+          "ip",
+          "client",
+          "fp",
+          "ip_client"
+        ]
+      }
+    },
+    {
+      "op": "override",
+      "args": [
+        {
+          "/api/price-check": {
+            "max_requests": 1,
+            "window_seconds": 120,
+            "enabled": true
+          }
+        }
+      ],
+      "result": null
+    },
+    {
+      "op": "peek",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "ip": [
+          2,
+          120
+        ],
+        "client": [
+          2,
+          120
+        ],
+        "fp": [
+          2,
+          120
+        ],
+        "ip_client": [
+          2,
+          120
+        ]
+      }
+    },
+    {
+      "op": "clear",
+      "args": [],
+      "result": null
+    },
+    {
+      "op": "peek",
+      "args": [
+        "::1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "f",
+        1,
+        "/api/price-check"
+      ],
+      "result": {
+        "ip": [
+          0,
+          0
+        ],
+        "client": [
+          0,
+          0
+        ],
+        "fp": [
+          0,
+          0
+        ],
+        "ip_client": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "op": "increment",
+      "args": [
+        "tapin:rate:ip:test",
+        2,
+        -1
+      ],
+      "result": [
+        1,
+        2
+      ]
+    },
+    {
+      "op": "read",
+      "args": [
+        "tapin:rate:ip:test",
+        2,
+        -1
+      ],
+      "result": [
+        1,
+        2
+      ]
+    },
+    {
+      "op": "increment",
+      "args": [
+        "tapin:rate:ip:test",
+        2,
+        1998
+      ],
+      "result": [
+        2,
+        1
+      ]
+    },
+    {
+      "op": "read",
+      "args": [
+        "tapin:rate:ip:test",
+        2,
+        1998
+      ],
+      "result": [
+        2,
+        1
+      ]
+    },
+    {
+      "op": "increment",
+      "args": [
+        "tapin:rate:ip:test",
+        2,
+        1999
+      ],
+      "result": [
+        1,
+        2
+      ]
+    },
+    {
+      "op": "read",
+      "args": [
+        "tapin:rate:ip:test",
+        2,
+        1999
+      ],
+      "result": [
+        1,
+        2
+      ]
+    },
+    {
+      "op": "increment",
+      "args": [
+        "tapin:rate:ip:test",
+        3,
+        1999
+      ],
+      "result": [
+        2,
+        3
+      ]
+    },
+    {
+      "op": "read",
+      "args": [
+        "tapin:rate:ip:test",
+        3,
+        1999
+      ],
+      "result": [
+        2,
+        3
+      ]
+    },
+    {
+      "op": "increment",
+      "args": [
+        "tapin:rate:ip:test",
+        1,
+        2999
+      ],
+      "result": [
+        1,
+        1
+      ]
+    },
+    {
+      "op": "read",
+      "args": [
+        "tapin:rate:ip:test",
+        1,
+        2999
+      ],
+      "result": [
+        1,
+        1
+      ]
+    }
+  ]
+}
