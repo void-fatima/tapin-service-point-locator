@@ -55,7 +55,8 @@ class Connection:
             self.raw.execute(f'CREATE TABLE tapin_{table} ({", ".join(lines)})')
     def execute(self, sql, args=()):
         if self.failure and re.match(self.failure['kind'] + r'\b', sql.strip(), re.I) and 'tapin_' + self.failure['table'] in sql:
-            self.failure = None; raise RuntimeError('Synthetic database failure')
+            if self.failure.get('skip', 0) > 0: self.failure['skip'] -= 1
+            else: self.failure = None; raise RuntimeError('Synthetic database failure')
         sql = re.sub(r'ON DUPLICATE KEY UPDATE (.*)$', r'ON CONFLICT(id) DO UPDATE SET \1', sql, flags=re.S)
         sql = re.sub(r'VALUES\((\w+)\)', r'excluded.\1', sql)
         # Preserve MySQL's zero changed-row UPDATE result, including the provider-save fallback bug.
@@ -104,6 +105,22 @@ scenario('missing name fails before writing', [action('provider_save', {'name': 
 scenario('partial field write failure', [action('provider_save', rich, failure={'kind': 'INSERT', 'table': 'provider_fields'}), action('provider_raw', 1), action('provider_params', 1), action('provider_fields', [2]), action('provider_load', 1)])
 scenario('provider read and delete failures', [action('provider_save', simple), action('provider_raw', 1, failure={'kind': 'SELECT', 'table': 'providers'}), action('provider_delete', 1, failure={'kind': 'DELETE', 'table': 'providers'}), action('provider_load', 1)])
 
+# The private column below contains deliberately inert test text, never a credential.
+shop = {'id': '01', 'title': ' شعبه ', 'province': '1', 'city': '2', 'token': ' inert-fixture-text '}
+scenario('shop upsert filters varchar ids and deletion', [
+    action('shops_save', [shop, {**shop, 'id': 2, 'province': '', 'city': 0}, {**shop, 'id': 1.0, 'title': "نام'شعبه"}, {**shop, 'id': '10'}]),
+    action('shops_list'), action('shops_list', '1', '2'), action('shops_list', ' 1 '), action('shop_get', '01'), action('shop_get', 1.0),
+    action('shops_save', [{**shop, 'title': 'updated', 'city': None, 'token': 'replacement-fixture-text'}]), action('shop_get', '01'),
+    action('shops_save', [{**shop, 'title': 'updated', 'city': None, 'token': 'replacement-fixture-text'}]), action('shops_save', []),
+    action('shop_delete', '01'), action('shop_delete', '01'), action('shops_list'),
+])
+for changes in ({'id': True}, {'id': False}, {'id': None}, {'id': 1.5}, {'title': ' '}, {'token': None}, {'token': True}, {'token': False}, {'token': ''}, {'token': 0}):
+    scenario('shop validation ordering ' + str(len(scenarios)), [action('shops_save', [shop, {**shop, **changes}]), action('shops_list')])
+scenario('shop zero and null handling', [action('shops_save', [{**shop, 'id': 0, 'province': 0, 'city': '0', 'token': '0'}, {**shop, 'id': '-1', 'province': '0', 'city': None}]), action('shops_list', '0'), action('shops_list', 0, '0'), action('shop_get', 0)])
+scenario('shop read and write failures', [action('shops_save', [shop], failure={'kind': 'INSERT', 'table': 'shops'}), action('shops_list'), action('shops_save', [shop]), action('shop_get', '01', failure={'kind': 'SELECT', 'table': 'shops'}), action('shop_delete', '01', failure={'kind': 'DELETE', 'table': 'shops'}), action('shops_list')])
+scenario('shop provider association remains logical', [action('provider_save', rich), action('shops_save', [shop]), action('shop_delete', '01'), action('provider_raw', 1), action('shops_save', [shop]), action('provider_delete', 1), action('shops_list')])
+scenario('shop later SQL failure partially persists batch', [action('shops_save', [shop, {**shop, 'id': '02'}], failure={'kind': 'INSERT', 'table': 'shops', 'skip': 1}), action('shops_list'), action('shop_get', '01'), action('shop_get', '02')])
+
 def execute(item, conn):
     op = item['op']; args = item['args']
     if op == 'provider_save': return s.save_provider(*args, conn=conn)
@@ -113,11 +130,15 @@ def execute(item, conn):
     if op == 'provider_load': return p.get_provider(*args)
     if op == 'provider_all': return p.get_providers()
     if op == 'provider_delete': return s.delete_provider(*args, conn=conn)
+    if op == 'shops_save': return s.save_shops(*args, conn=conn)
+    if op == 'shops_list': return s.list_shops(*args, conn=conn)
+    if op == 'shop_get': return s.get_shop(*args, conn=conn)
+    if op == 'shop_delete': return s.delete_shop(*args, conn=conn)
     raise AssertionError(op)
 for case in scenarios:
     conn = Connection(); s.connect = lambda: conn
     for item in case['actions']:
-        conn.failure = item.get('failure')
+        conn.failure = copy.deepcopy(item.get('failure'))
         try: item['expected'] = {'ok': True, 'value': execute(item, conn)}
         except ValueError as exc: item['expected'] = {'ok': False, 'kind': 'ValueError', 'message': str(exc)}
         except (sqlite3.DatabaseError, RuntimeError): item['expected'] = {'ok': False, 'kind': 'DatabaseError'}

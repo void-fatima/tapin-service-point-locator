@@ -46,8 +46,11 @@ final class PriceCheckDatabase {
 		$error_only = false;
 		if ( preg_match( '/\bwp_tapin_(?!price_)/', $sql ) ) { throw new LogicException( 'Repository touched a locator table.' ); }
 		if ( $this->failure && preg_match( '/^' . $this->failure['kind'] . '\b/i', $sql ) && false !== strpos( $sql, 'wp_tapin_price_' . $this->failure['table'] ) ) {
-			$error_only = 'error_only' === ( $this->failure['mode'] ?? null ); $this->failure = null;
-			if ( ! $error_only ) { $this->last_error = 'Synthetic private database failure'; return false; }
+			if ( ( $this->failure['skip'] ?? 0 ) > 0 ) { $this->failure['skip']--; }
+			else {
+				$error_only = 'error_only' === ( $this->failure['mode'] ?? null ); $this->failure = null;
+				if ( ! $error_only ) { $this->last_error = 'Synthetic private database failure'; return false; }
+			}
 		}
 		$sql = preg_replace( '/ON DUPLICATE KEY UPDATE (.*)$/s', 'ON CONFLICT(id) DO UPDATE SET $1', $sql );
 		$sql = preg_replace( '/VALUES\((`[a-z_]+`)\)/', 'excluded.$1', $sql );

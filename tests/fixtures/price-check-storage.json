@@ -4426,6 +4426,1225 @@
           }
         }
       ]
+    },
+    {
+      "name": "shop upsert filters varchar ids and deletion",
+      "actions": [
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              },
+              {
+                "id": 2,
+                "title": " شعبه ",
+                "province": "",
+                "city": 0,
+                "token": " inert-fixture-text "
+              },
+              {
+                "id": 1.0,
+                "title": "نام'شعبه",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              },
+              {
+                "id": "10",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              }
+            ]
+          ],
+          "expected": {
+            "ok": true,
+            "value": 4
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": "01",
+                "title": "شعبه",
+                "province": "1",
+                "city": "2",
+                "has_token": 1
+              },
+              {
+                "id": "1",
+                "title": "نام'شعبه",
+                "province": "1",
+                "city": "2",
+                "has_token": 1
+              },
+              {
+                "id": "10",
+                "title": "شعبه",
+                "province": "1",
+                "city": "2",
+                "has_token": 1
+              },
+              {
+                "id": "2",
+                "title": "شعبه",
+                "province": null,
+                "city": null,
+                "has_token": 1
+              }
+            ]
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [
+            "1",
+            "2"
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": "01",
+                "title": "شعبه",
+                "province": "1",
+                "city": "2",
+                "has_token": 1
+              },
+              {
+                "id": "1",
+                "title": "نام'شعبه",
+                "province": "1",
+                "city": "2",
+                "has_token": 1
+              },
+              {
+                "id": "10",
+                "title": "شعبه",
+                "province": "1",
+                "city": "2",
+                "has_token": 1
+              }
+            ]
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [
+            " 1 "
+          ],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        },
+        {
+          "op": "shop_get",
+          "args": [
+            "01"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": "01",
+              "title": "شعبه",
+              "province": "1",
+              "city": "2",
+              "token": "inert-fixture-text"
+            }
+          }
+        },
+        {
+          "op": "shop_get",
+          "args": [
+            1.0
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": "updated",
+                "province": "1",
+                "city": null,
+                "token": "replacement-fixture-text"
+              }
+            ]
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "shop_get",
+          "args": [
+            "01"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": "01",
+              "title": "updated",
+              "province": "1",
+              "city": null,
+              "token": "replacement-fixture-text"
+            }
+          }
+        },
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": "updated",
+                "province": "1",
+                "city": null,
+                "token": "replacement-fixture-text"
+              }
+            ]
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "shops_save",
+          "args": [
+            []
+          ],
+          "expected": {
+            "ok": true,
+            "value": 0
+          }
+        },
+        {
+          "op": "shop_delete",
+          "args": [
+            "01"
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "shop_delete",
+          "args": [
+            "01"
+          ],
+          "expected": {
+            "ok": true,
+            "value": false
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": "1",
+                "title": "نام'شعبه",
+                "province": "1",
+                "city": "2",
+                "has_token": 1
+              },
+              {
+                "id": "10",
+                "title": "شعبه",
+                "province": "1",
+                "city": "2",
+                "has_token": 1
+              },
+              {
+                "id": "2",
+                "title": "شعبه",
+                "province": null,
+                "city": null,
+                "has_token": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "shop validation ordering 10",
+      "actions": [
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              },
+              {
+                "id": true,
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              }
+            ]
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "شناسه شعبه الزامی است."
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "shop validation ordering 11",
+      "actions": [
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              },
+              {
+                "id": false,
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              }
+            ]
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "شناسه شعبه الزامی است."
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "shop validation ordering 12",
+      "actions": [
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              },
+              {
+                "id": null,
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              }
+            ]
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "شناسه شعبه الزامی است."
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "shop validation ordering 13",
+      "actions": [
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              },
+              {
+                "id": 1.5,
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              }
+            ]
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "شناسه شعبه معتبر نیست."
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "shop validation ordering 14",
+      "actions": [
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              },
+              {
+                "id": "01",
+                "title": " ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              }
+            ]
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "عنوان شعبه الزامی است."
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "shop validation ordering 15",
+      "actions": [
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              },
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": null
+              }
+            ]
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "توکن شعبه الزامی است."
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "shop validation ordering 16",
+      "actions": [
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              },
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": true
+              }
+            ]
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "توکن شعبه الزامی است."
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "shop validation ordering 17",
+      "actions": [
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              },
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": false
+              }
+            ]
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "توکن شعبه الزامی است."
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "shop validation ordering 18",
+      "actions": [
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              },
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": ""
+              }
+            ]
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "توکن شعبه الزامی است."
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "shop validation ordering 19",
+      "actions": [
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              },
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": 0
+              }
+            ]
+          ],
+          "expected": {
+            "ok": false,
+            "kind": "ValueError",
+            "message": "توکن شعبه الزامی است."
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "shop zero and null handling",
+      "actions": [
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": 0,
+                "title": " شعبه ",
+                "province": 0,
+                "city": "0",
+                "token": "0"
+              },
+              {
+                "id": "-1",
+                "title": " شعبه ",
+                "province": "0",
+                "city": null,
+                "token": " inert-fixture-text "
+              }
+            ]
+          ],
+          "expected": {
+            "ok": true,
+            "value": 2
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [
+            "0"
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": "-1",
+                "title": "شعبه",
+                "province": "0",
+                "city": null,
+                "has_token": 1
+              }
+            ]
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [
+            0,
+            "0"
+          ],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": "0",
+                "title": "شعبه",
+                "province": null,
+                "city": "0",
+                "has_token": 1
+              }
+            ]
+          }
+        },
+        {
+          "op": "shop_get",
+          "args": [
+            0
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": "0",
+              "title": "شعبه",
+              "province": null,
+              "city": "0",
+              "token": "0"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "shop read and write failures",
+      "actions": [
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              }
+            ]
+          ],
+          "failure": {
+            "kind": "INSERT",
+            "table": "shops"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": []
+          }
+        },
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              }
+            ]
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "shop_get",
+          "args": [
+            "01"
+          ],
+          "failure": {
+            "kind": "SELECT",
+            "table": "shops"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "shop_delete",
+          "args": [
+            "01"
+          ],
+          "failure": {
+            "kind": "DELETE",
+            "table": "shops"
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": "01",
+                "title": "شعبه",
+                "province": "1",
+                "city": "2",
+                "has_token": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "shop provider association remains logical",
+      "actions": [
+        {
+          "op": "provider_save",
+          "args": [
+            {
+              "id": null,
+              "name": "fixture",
+              "display_name": "fixture",
+              "active": true,
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields": [
+                {
+                  "key": "total",
+                  "label": "هزینه"
+                }
+              ],
+              "price_currency_in": "rial",
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": "gram",
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "referral": {
+                "enabled": true,
+                "title": "0",
+                "url": "https://example.test",
+                "description": ""
+              },
+              "rules": [
+                {
+                  "name": "",
+                  "if_field": "amount",
+                  "if_op": "gte",
+                  "if_value": "0",
+                  "if_value2": "",
+                  "then_field": "",
+                  "then_op": "",
+                  "then_value": "",
+                  "then_value2": "",
+                  "message": ""
+                }
+              ],
+              "location_config": {
+                "origin": {
+                  "enabled": false,
+                  "display": "separate",
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "destination": {
+                  "enabled": false,
+                  "display": "separate",
+                  "province_param": null,
+                  "city_param": null,
+                  "source": "service",
+                  "custom_mode": "merge"
+                },
+                "custom_locations": {
+                  "provinces": [],
+                  "cities": []
+                },
+                "blocked_locations": {
+                  "provinces": [],
+                  "cities": []
+                }
+              },
+              "params": [
+                {
+                  "id": null,
+                  "name": "amount",
+                  "label": "amount",
+                  "input": "number",
+                  "type": "float",
+                  "visible": true,
+                  "kind": "money",
+                  "description": "شرح",
+                  "default": 1.25,
+                  "required": true
+                },
+                {
+                  "id": null,
+                  "name": "items",
+                  "label": "items",
+                  "input": "list",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "min_items": 2,
+                  "fields": [
+                    {
+                      "id": null,
+                      "name": "count",
+                      "label": "count",
+                      "input": "text",
+                      "type": "int",
+                      "visible": true,
+                      "default": 0,
+                      "kind": null,
+                      "required": false
+                    },
+                    {
+                      "id": null,
+                      "name": "code",
+                      "label": "code",
+                      "input": "select",
+                      "type": "str",
+                      "visible": false,
+                      "default": "0",
+                      "kind": null,
+                      "required": false,
+                      "options": [
+                        {
+                          "value": "0",
+                          "label": "0"
+                        },
+                        {
+                          "value": "x",
+                          "label": "x"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "details",
+                  "label": "details",
+                  "input": "dict",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "fields": [
+                    {
+                      "id": null,
+                      "name": "text",
+                      "label": "text",
+                      "input": "text",
+                      "type": "str",
+                      "visible": true,
+                      "default": "0",
+                      "kind": null,
+                      "required": false
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "choice",
+                  "label": "choice",
+                  "input": "select",
+                  "type": "str",
+                  "visible": true,
+                  "kind": null,
+                  "description": "",
+                  "default": "0",
+                  "required": false,
+                  "options": [
+                    {
+                      "value": "0",
+                      "label": "0"
+                    },
+                    {
+                      "value": "x",
+                      "label": "x"
+                    }
+                  ]
+                },
+                {
+                  "id": null,
+                  "name": "point",
+                  "label": "point",
+                  "input": "map",
+                  "type": "str",
+                  "visible": false,
+                  "kind": null,
+                  "description": "",
+                  "default": null,
+                  "required": false,
+                  "map": {
+                    "mode": "combined",
+                    "param": "coordinates"
+                  }
+                }
+              ]
+            }
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              }
+            ]
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "shop_delete",
+          "args": [
+            "01"
+          ],
+          "expected": {
+            "ok": true,
+            "value": true
+          }
+        },
+        {
+          "op": "provider_raw",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": 1,
+              "name": "fixture",
+              "display_name": "fixture",
+              "logo": "",
+              "check_price_url": "",
+              "shop_id": "01",
+              "price_fields_json": "[{\"key\": \"total\", \"label\": \"هزینه\"}]",
+              "timeout": 1.23456789012345,
+              "main_price_key": null,
+              "price_currency_in": null,
+              "price_currency_out": "toman",
+              "price_input_param": null,
+              "weight_unit_in": null,
+              "weight_unit_out": "kilogram",
+              "weight_input_param": null,
+              "referral_enabled": 1,
+              "referral_title": "0",
+              "referral_url": "https://example.test",
+              "referral_description": null,
+              "rules_json": "[{\"name\": \"\", \"if_field\": \"amount\", \"if_op\": \"gte\", \"if_value\": \"0\", \"if_value2\": \"\", \"then_field\": \"\", \"then_op\": \"\", \"then_value\": \"\", \"then_value2\": \"\", \"message\": \"\"}]",
+              "location_config_json": "{\"origin\": {\"enabled\": false, \"display\": \"separate\", \"source\": \"service\", \"custom_mode\": \"merge\"}, \"destination\": {\"enabled\": false, \"display\": \"separate\", \"province_param\": null, \"city_param\": null, \"source\": \"service\", \"custom_mode\": \"merge\"}, \"custom_locations\": {\"provinces\": [], \"cities\": []}, \"blocked_locations\": {\"provinces\": [], \"cities\": []}}",
+              "active": 1
+            }
+          }
+        },
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              }
+            ]
+          ],
+          "expected": {
+            "ok": true,
+            "value": 1
+          }
+        },
+        {
+          "op": "provider_delete",
+          "args": [
+            1
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": "01",
+                "title": "شعبه",
+                "province": "1",
+                "city": "2",
+                "has_token": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "shop later SQL failure partially persists batch",
+      "actions": [
+        {
+          "op": "shops_save",
+          "args": [
+            [
+              {
+                "id": "01",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              },
+              {
+                "id": "02",
+                "title": " شعبه ",
+                "province": "1",
+                "city": "2",
+                "token": " inert-fixture-text "
+              }
+            ]
+          ],
+          "failure": {
+            "kind": "INSERT",
+            "table": "shops",
+            "skip": 1
+          },
+          "expected": {
+            "ok": false,
+            "kind": "DatabaseError"
+          }
+        },
+        {
+          "op": "shops_list",
+          "args": [],
+          "expected": {
+            "ok": true,
+            "value": [
+              {
+                "id": "01",
+                "title": "شعبه",
+                "province": "1",
+                "city": "2",
+                "has_token": 1
+              }
+            ]
+          }
+        },
+        {
+          "op": "shop_get",
+          "args": [
+            "01"
+          ],
+          "expected": {
+            "ok": true,
+            "value": {
+              "id": "01",
+              "title": "شعبه",
+              "province": "1",
+              "city": "2",
+              "token": "inert-fixture-text"
+            }
+          }
+        },
+        {
+          "op": "shop_get",
+          "args": [
+            "02"
+          ],
+          "expected": {
+            "ok": true,
+            "value": null
+          }
+        }
+      ]
     }
   ]
 }

@@ -11,6 +11,7 @@ use Tapin\ServicePointLocator\PriceCheck\ProviderStorage;
 use Tapin\ServicePointLocator\PriceCheck\ConfigurationDatabase;
 use Tapin\ServicePointLocator\PriceCheck\ConfigurationJson;
 use Tapin\ServicePointLocator\PriceCheck\StorageError;
+use Tapin\ServicePointLocator\PriceCheck\ShopStorage;
 
 if ( ! extension_loaded( 'pdo_sqlite' ) ) { fwrite( STDERR, "Enable pdo_sqlite for the isolated storage checks.\n" ); exit( 1 ); }
 $passed = 0;
@@ -26,6 +27,10 @@ function storage_execute( $item ) {
 		case 'provider_load': return ProviderStorage::load( ...$item->args );
 		case 'provider_all': return ProviderStorage::all();
 		case 'provider_delete': ProviderStorage::delete( ...$item->args ); return null;
+		case 'shops_save': return ShopStorage::save( ...$item->args );
+		case 'shops_list': return ShopStorage::list_rows( ...$item->args );
+		case 'shop_get': return ShopStorage::get_private( ...$item->args );
+		case 'shop_delete': return ShopStorage::delete( ...$item->args );
 	}
 	throw new LogicException( 'Unknown storage operation.' );
 }

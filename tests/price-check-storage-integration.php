@@ -11,6 +11,7 @@ use Tapin\ServicePointLocator\PriceCheck\Schema;
 use Tapin\ServicePointLocator\PriceCheck\ProviderConfig;
 use Tapin\ServicePointLocator\PriceCheck\ProviderStorage;
 use Tapin\ServicePointLocator\PriceCheck\StorageError;
+use Tapin\ServicePointLocator\PriceCheck\ShopStorage;
 
 global $wpdb;
 $original_prefix = $wpdb->prefix;
@@ -37,6 +38,12 @@ try {
 	catch ( StorageError $expected ) { $passed++; }
 	ProviderStorage::delete( $id );
 	storage_integration_check( null === ProviderStorage::load( $id ) && array() === ProviderStorage::field_rows( array( $pid ) ), 'Delete cascade failed.' );
+	$shop = (object) array( 'id' => '01', 'title' => "fixture'shop", 'province' => '0', 'city' => null, 'token' => 'inert-test-text' );
+	storage_integration_check( 1 === ShopStorage::save( array( $shop ) ) && 1 === ShopStorage::save( array( $shop ) ), 'Shop insert/unchanged upsert failed.' );
+	$listing = ShopStorage::list_rows( '0' );
+	storage_integration_check( '01' === $listing[0]['id'] && ! array_key_exists( 'token', $listing[0] ) && 1 === $listing[0]['has_token'], 'Shop list shape changed.' );
+	$shop->city = '2'; ShopStorage::save( array( $shop ) );
+	storage_integration_check( '2' === ShopStorage::get_private( '01' )['city'] && ShopStorage::delete( '01' ) && ! ShopStorage::delete( '01' ), 'Shop update/delete failed.' );
 	echo "PASS dedicated WordPress/MySQL configuration storage: {$passed} assertions.\n";
 } finally {
 	foreach ( array_reverse( $tables ) as $table ) { $wpdb->query( "DROP TABLE IF EXISTS `{$table}`" ); }

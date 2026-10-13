@@ -39,6 +39,15 @@ final class ConfigurationDatabase {
 		return array_map( array( self::class, 'row_types' ), $rows );
 	}
 
+	/** Shops have varchar IDs and must not use provider-row integer casts. */
+	public static function shop_rows( string $sql, array $values = array() ): array {
+		$rows = self::run( 'read', static fn( $db ) => $db->get_results( self::prepare( $db, $sql, $values ), ARRAY_A ) );
+		if ( ! is_array( $rows ) ) { throw new StorageError( 'read' ); }
+		foreach ( $rows as &$row ) { if ( isset( $row['has_token'] ) ) { $row['has_token'] = (int) $row['has_token']; } }
+		unset( $row );
+		return $rows;
+	}
+
 	/** wpdb returns numeric columns as strings; PyMySQL exposes their database types. */
 	private static function row_types( array $row ): array {
 		foreach ( array( 'id', 'provider_id', 'param_id', 'position', 'min_items', 'visible', 'required', 'active', 'referral_enabled', 'has_token' ) as $key ) {
@@ -90,6 +99,22 @@ final class ConfigurationDatabase {
 	public static function delete( string $suffix, array $where ): int {
 		$where = self::values( $where ); self::table( $suffix ); $table = Schema::tables()[$suffix];
 		return (int) self::run( 'delete', static fn( $db ) => $db->delete( $table, $where, self::formats( $where ) ) );
+	}
+
+	/** Preserve IDs on conflict; REPLACE would delete and reinsert the row. */
+	public static function upsert( string $suffix, array $data, array $update_columns ): void {
+		$data = self::values( $data ); $columns = $slots = $values = array();
+		foreach ( $data as $column => $value ) {
+			$columns[] = self::identifier( $column );
+			$slots[] = null === $value ? 'NULL' : ( is_int( $value ) ? '%d' : '%s' );
+			if ( null !== $value ) { $values[] = $value; }
+		}
+		$updates = array();
+		foreach ( $update_columns as $column ) {
+			if ( ! array_key_exists( $column, $data ) ) { throw new \InvalidArgumentException( 'Unknown upsert column.' ); }
+			$key = self::identifier( $column ); $updates[] = "{$key} = VALUES({$key})";
+		}
+		self::query( 'INSERT INTO ' . self::table( $suffix ) . ' (' . implode( ', ', $columns ) . ') VALUES (' . implode( ', ', $slots ) . ') ON DUPLICATE KEY UPDATE ' . implode( ', ', $updates ), $values );
 	}
 
 }
