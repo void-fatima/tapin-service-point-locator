@@ -102,7 +102,7 @@ try {
 	$wpdb->prefix = 'fixture_';
 	check( 'tapin_price_db_version' === Schema::DB_VERSION_OPTION, 'Schema version not isolated.' );
 	( new Module() )->boot();
-	check( isset( $actions['init'][10], $actions['admin_menu'][20] ) && ! isset( $actions['rest_api_init'] ), 'Module hooks missing or unfinished routes exposed.' );
+	check( isset( $actions['init'][10], $actions['admin_menu'][20] ) && isset( $actions['rest_api_init'][10] ), 'Module migration, admin and isolated REST hooks are required.' );
 	foreach ( $actions['init'][10] as $callback ) { $callback(); }
 	check( 1 === get_option( Schema::DB_VERSION_OPTION ) && 9 === get_option( 'tapin_db_version' ), 'Migration version crossed locator boundary.' );
 	check( 14 === $wpdb->creates && 3 === count( $wpdb->foreign_keys ), 'Missing tables or cascading relationships.' );

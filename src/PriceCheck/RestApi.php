@@ -1,0 +1,63 @@
+<?php
+namespace Tapin\ServicePointLocator\PriceCheck;
+defined( 'ABSPATH' ) || exit;
+
+/** Price-check HTTP boundary only. Services are injectable; locator routes are untouched. */
+final class RestApi {
+	const NAMESPACE = 'tapin-price-check/v1';
+	private $services;
+	private $guard;
+	private $context;
+	private $random;
+	public function __construct( ?callable $services = null, ?callable $guard = null, ?callable $context = null, ?callable $random = null ) {
+		$this->services = $services ?? array( new PublicApiService(), 'call' );
+		$this->guard = $guard ?? static fn( $input ) => ( new SecurityGuard() )->check( $input );
+		$this->context = $context ?? static fn( $request ) => array( 'direct_ip' => (string) ( $_SERVER['REMOTE_ADDR'] ?? '' ), 'cookies' => wp_unslash( $_COOKIE ) );
+		$this->random = $random;
+	}
+	public static function routes(): array { return array(
+		array( '/health', 'GET', 'health', false ), array( '/providers', 'GET', 'list_providers', true ),
+		array( '/providers/(?P<provider_id>[^/]+)', 'GET', 'provider_schema', true ), array( '/locations', 'GET', 'location_lookup', true ),
+		array( '/bulk', 'GET', 'bulk_schema', true ),
+	); }
+	public static function permission( $request ) {
+		if ( ! Access::can_manage() || ! wp_verify_nonce( $request->get_header( 'X-WP-Nonce' ) ?: $request->get_param( '_wpnonce' ), 'wp_rest' ) ) { return new \WP_Error( 'tapin_price_forbidden', 'دسترسی به مدیریت استعلام قیمت مجاز نیست.', array( 'status' => 403 ) ); } return true;
+	}
+	public function register(): void {
+		foreach ( self::routes() as [$path, $method, $operation, $guarded] ) {
+			$admin = 0 === strpos( $path, '/admin/' );
+			register_rest_route( self::NAMESPACE, $path, array( 'methods' => $method, 'permission_callback' => $admin ? array( self::class, 'permission' ) : '__return_true', 'callback' => fn( $request ) => $this->handle( $request, $operation, $guarded, $admin ) ) );
+		}
+		add_filter( 'rest_post_dispatch', array( $this, 'errors' ), 10, 3 );
+	}
+	private function cookie( \WP_REST_Response $response, SecurityVerdict $verdict ): void {
+		$cookie = $verdict->cookie( $this->random ); if ( null !== $cookie ) { $response->header( 'Set-Cookie', $cookie['name'] . '=' . $cookie['value'] . '; Max-Age=' . $cookie['max_age'] . '; Path=/; HttpOnly; SameSite=lax' ); }
+	}
+	public function handle( $request, string $operation, bool $guarded, bool $admin ): \WP_REST_Response {
+		if ( $admin && true !== self::permission( $request ) ) { return new \WP_REST_Response( array( 'detail' => 'دسترسی به مدیریت استعلام قیمت مجاز نیست.', 'errors' => array() ), 403 ); }
+		$verdict = null; $context = null;
+		try {
+			$input = new RestInput( $request->get_body(), $request->get_url_params(), $request->get_query_params(), $request->get_file_params() );
+			if ( $guarded ) {
+				$body = 'POST' === $request->get_method() ? $input->body() : null;
+				$context = ( $this->context )( $request ); $headers = array(); foreach ( $request->get_headers() as $key => $value ) { $headers[str_replace( '_', '-', strtolower( $key ) )] = is_array( $value ) ? ( $value[0] ?? '' ) : $value; }
+				$context['headers'] = $headers; $context['route'] = '/api' . substr( $request->get_route(), strlen( '/' . self::NAMESPACE ) ); $context['method'] = $request->get_method();
+				$verdict = ( $this->guard )( SecurityRequest::from_context( $context, $body, null === $body ? 0 : strlen( $input->raw ) ) );
+				if ( ! $verdict->allowed ) { $deny = $verdict->deny_response(); $response = new \WP_REST_Response( $deny['body'], $deny['status'], (array) $deny['headers'] ); $this->cookie( $response, $verdict ); return $response; }
+			}
+			$result = ( $this->services )( $operation, $input );
+			$response = new \WP_REST_Response( $result->body, $result->status, $result->headers );
+			if ( null !== $verdict ) { $this->cookie( $response, $verdict ); } return $response;
+		} catch ( QuoteError $error ) {
+			$response = new \WP_REST_Response( $error->jsonSerialize(), $error->status_code );
+			if ( ! $admin ) { $context = $context ?? ( $this->context )( $request ); if ( empty( $context['cookies']['tapin_cid'] ) ) { $this->cookie( $response, new SecurityVerdict( array( 'issue_client_id' => true ) ) ); } } return $response;
+		} catch ( \Throwable $error ) { return new \WP_REST_Response( array( 'detail' => 'internal error' ), 500 ); }
+	}
+	/** Adapt core-generated errors only inside this namespace; no global response changes. */
+	public function errors( $response, $server, $request ) {
+		if ( 0 !== strpos( $request->get_route(), '/' . self::NAMESPACE . '/' ) || ! $response instanceof \WP_REST_Response ) { return $response; }
+		$data = $response->get_data(); if ( ! is_array( $data ) || ! isset( $data['code'], $data['data']['status'] ) ) { return $response; }
+		$detail = 'rest_invalid_json' === $data['code'] ? 'بدنه درخواست JSON معتبر نیست.' : ( 403 === $response->get_status() || 401 === $response->get_status() ? 'دسترسی به مدیریت استعلام قیمت مجاز نیست.' : 'درخواست معتبر نیست.' );
+		$response->set_data( array( 'detail' => $detail, 'errors' => array() ) ); return $response;
+	}
+}
