@@ -60,6 +60,7 @@ const rows = [{ id: 1, provider_id: 1, name: 'Fixture branch', code: 'F-1', prov
           // anchor must agree with the Service Points form in this viewport.
           for (let cycle = 0; cycle < 4; cycle++) {
             const before = await button.boundingBox();
+            const scrollBefore = await page.evaluate(() => scrollY);
             await button.click();
             await expect(button).toHaveAttribute('aria-expanded', 'false');
             await page.waitForTimeout(220);
@@ -67,7 +68,10 @@ const rows = [{ id: 1, provider_id: 1, name: 'Fixture branch', code: 'F-1', prov
             const after = await collapsedBox(section);
             expect(after.button.width).toBeGreaterThanOrEqual(259);
             expect(after.button.height).toBe(46);
-            expect(Math.abs(after.button.y - before.y)).toBeLessThanOrEqual(2);
+            // Playwright may scroll before clicking at mobile widths. Compare
+            // document coordinates so scrolling is not mistaken for layout movement.
+            const scrollAfter = await page.evaluate(() => scrollY);
+            expect(Math.abs(after.button.y + scrollAfter - before.y - scrollBefore)).toBeLessThanOrEqual(2);
             expect(after.rightInset).toBeGreaterThanOrEqual(0);
             expect(after.rightInset).toBeLessThanOrEqual(15);
             await button.click();
