@@ -1,0 +1,56 @@
+/* Real Chromium on localhost; original controls + PHP renderer/presentation services, mocked REST only. */
+const {chromium,expect}=require('@playwright/test');
+const {execFileSync}=require('node:child_process');
+const {readFileSync,mkdirSync}=require('node:fs');
+const path=require('node:path'); const http=require('node:http'); const assert=require('node:assert/strict');
+const repo=path.resolve(__dirname,'..');const php=process.env.TAPIN_PHP||path.join(repo,'artifacts/php-runtime/php.exe');
+const fixtures=JSON.parse(execFileSync(php,[path.join(__dirname,'price-check-ui-fixtures.php')],{encoding:'utf8'}));
+const calls=[];let state='success';let singleResolve;let bulkResolve;
+const routes=JSON.parse(readFileSync(path.join(__dirname,'fixtures/price-check-rest.json'),'utf8')).routes;
+function known(method,suffix){return routes.some(r=>r.method===method&&new RegExp('^'+r.path.replace(/\{\w+:str\}/g,'[^/]+').replace(/\{\w+:int\}/g,'[0-9]+')+'$').test('/'+suffix));}
+async function api(req,res,url){const suffix=url.pathname.startsWith('/api/')?url.pathname.slice(5):url.pathname.includes('/wp-json/')?url.pathname.split('/tapin-price-check/v1/')[1]:(url.searchParams.get('rest_route')||'').split('/tapin-price-check/v1/')[1];
+ const chunks=[];for await(const chunk of req)chunks.push(chunk);const raw=Buffer.concat(chunks).toString();const body=raw&&req.headers['content-type']?.startsWith('application/json')?JSON.parse(raw):null;
+ calls.push({method:req.method,suffix,query:Object.fromEntries(url.searchParams),body,nonce:req.headers['x-wp-nonce']});
+ assert.ok(known(req.method,suffix),'UI called an undocumented REST route');let data={};let status=200;
+ if(suffix==='providers')data={providers:[{id:1,name:'sample',display_name:'شرکت نمونه',logo:'',active:true,visible_fields:[{label:'وزن'}],visible_field_count:4}]};
+ else if(suffix==='providers/sample'||suffix==='providers/1')data=fixtures.schema;
+ else if(suffix==='bulk')data=state==='empty'?{...fixtures.bulkSchema,providers:[]}:fixtures.bulkSchema;
+ else if(suffix==='price-check'){if(state==='waiting')await new Promise(resolve=>singleResolve=resolve);if(state==='error'){status=502;data={detail:'سرویس در دسترس نیست.',errors:[]};}else data=fixtures.quote;}
+ else if(suffix==='bulk-validate')data=state==='invalid'?{valid:false,errors:[{field:'weight',message:'وزن نامعتبر است.'}]}:{valid:true,errors:[]};
+ else if(suffix==='bulk-check'){if(state==='waiting')await new Promise(resolve=>bulkResolve=resolve);data={results:state==='unserved'?[{provider:fixtures.quote.provider,ok:false,error:{detail:'این شرکت به مقصد انتخاب‌شده سرویس نمی‌دهد.',unserved:true}}]:state==='all-fail'?[{provider:fixtures.quote.provider,ok:false,error:{detail:'سرویس در دسترس نیست.'}}]:[{...fixtures.quote,ok:true,variant:{},variant_detail:[]},{provider:{name:'failed',display_name:'ناموفق'},ok:false,error:{detail:'سرویس در دسترس نیست.'}}]};}
+ else throw new Error('Unmocked route: '+suffix);
+ res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(data));}
+const server=http.createServer(async(req,res)=>{try{const url=new URL(req.url,'http://localhost');if(url.pathname.startsWith('/api/')||url.pathname.includes('/wp-json/')||url.searchParams.has('rest_route'))return await api(req,res,url);
+ if(url.pathname==='/advanced'||url.pathname==='/bulk'){let html=readFileSync(path.resolve(repo,'../tapin_check_price_web/static/index.html'),'utf8').replace(/\s*<a[^>]+href="\/admin"[^>]*>.*?<\/a>/,'').replaceAll('https://unpkg.com/leaflet@1.9.4/dist/','/site/plugin/assets/vendor/');res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});return res.end(html);}
+ if(url.pathname.startsWith('/static/')){const name=url.pathname.slice(8);if(!['index.js','common.js','style.css','tapin-mark.png'].includes(name))throw new Error('Unapproved source asset');let bytes=readFileSync(path.resolve(repo,'../tapin_check_price_web/static',name));if(name==='style.css')bytes=bytes.toString().replace(/,\s*url\("fonts\/[^\"]+"\) format\("woff2"\)/g,'');res.writeHead(200,{'Content-Type':name.endsWith('.js')?'text/javascript':name.endsWith('.css')?'text/css':'image/png'});return res.end(bytes);}
+ if(url.pathname.includes('/plugin/assets/')){const relative=url.pathname.split('/plugin/')[1];const file=path.resolve(repo,relative);if(!file.startsWith(path.join(repo,'assets')+path.sep))throw new Error('Bad fixture asset');const bytes=readFileSync(file);res.writeHead(200,{'Content-Type':file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':'image/png'});return res.end(bytes);}
+ const mode=url.pathname.includes('/bulk')?'bulk':'single';const html=execFileSync(php,[path.join(__dirname,'price-check-ui-render.php')],{input:JSON.stringify({site:`http://127.0.0.1:${server.address().port}/site`,mode}),encoding:'utf8'});
+ res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});res.end('<!doctype html><html><body style="margin:0" class="tapin-price-page">'+html+'</body></html>');
+ }catch(e){res.writeHead(500);res.end('Fixture failure.');console.error(e.message);}});
+(async()=>{await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const browser=await chromium.launch({headless:true});const context=await browser.newContext({viewport:{width:1440,height:900}});const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await context.route('**/*',async route=>{const url=new URL(route.request().url());if(url.hostname==='127.0.0.1')return route.continue();throw new Error('Unexpected external browser request: '+url.hostname);});
+ const base=`http://127.0.0.1:${server.address().port}/site`;const frame=()=>page.frameLocator('iframe.tapin-price-frame');
+ try{
+ await page.goto(base+'/single/');await expect(frame().locator('#provider-list .tile')).toHaveCount(1);await expect(frame().locator('a[href="/admin"]')).toHaveCount(0);
+ await frame().locator('#provider-search').fill('ناشناخته');await expect(frame().locator('#provider-list .tile')).toHaveCount(0);await frame().locator('#provider-search').fill('نمونه');await frame().locator('#provider-list .tile button').click();
+ await expect(frame().locator('#form-panel')).toBeVisible();await expect(page).toHaveURL(/provider=sample/);await frame().locator('#single-submit-btn').click();assert.equal(calls.filter(c=>c.suffix==='price-check').length,0);await expect(frame().locator('.field.has-error')).toHaveCount(1);
+ await frame().locator('[name="param:weight"]').fill('۲');state='waiting';await frame().locator('#single-submit-btn').click();await expect(frame().locator('#single-submit-btn')).toBeDisabled();await expect.poll(()=>!!singleResolve).toBe(true);singleResolve();state='success';await expect(frame().locator('#result')).toContainText('۱۲٬۵۰۰');await expect(frame().locator('#single-submit-btn')).toBeEnabled();
+ const sent=calls.find(c=>c.suffix==='price-check');assert.equal(sent.body.provider,'sample');assert.equal(sent.body.values.weight,'2');assert.equal(sent.nonce,undefined);assert.ok(sent.body.client);
+ state='error';await frame().locator('#single-submit-btn').click();await expect(frame().locator('#result')).toContainText('سرویس در دسترس نیست.');await expect(frame().locator('#single-submit-btn')).toBeEnabled();state='success';
+ await page.goBack();assert.ok(!new URL(page.url()).searchParams.has('provider'));await expect(frame().locator('#form-panel')).toBeVisible(); // Source retains an already selected provider on this history transition.
+ await frame().locator('#back-to-list').click();await expect(frame().locator('#choose')).toBeVisible();await page.goForward();await expect(frame().locator('#form-panel')).toBeVisible();
+ await expect(frame().locator('[name="row:items:0:title"]')).toHaveCount(1);await expect(frame().locator('[name="dict:details:note"]')).toHaveCount(1); // Current source renders configured list rows inline; its older add/remove listCard helper is unused.
+ const reference=await context.newPage();await reference.goto(base.replace('/site','')+'/advanced?provider=sample');await expect(reference.locator('#form-panel')).toBeVisible();
+ const metrics=()=>{const node=document.querySelector('#form-panel .pro-layout');const style=getComputedStyle(node);return{width:node.getBoundingClientRect().width,display:style.display,columns:style.gridTemplateColumns,gap:style.gap,font:getComputedStyle(document.body).fontFamily};};
+ for(const width of [1440,390]){await page.setViewportSize({width,height:900});await reference.setViewportSize({width,height:900});await expect(frame().locator('html')).toHaveAttribute('dir','rtl');assert.ok(await page.frames()[1].evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await expect(frame().locator('#single-submit-btn')).toBeVisible();assert.deepEqual(await page.frames()[1].evaluate(metrics),await reference.evaluate(metrics));mkdirSync(path.join(repo,'artifacts'),{recursive:true});await page.screenshot({path:path.join(repo,`artifacts/price-check-single-${width}.png`)});}await reference.close();
+ await page.goto(base+'/bulk/');await expect(frame().locator('#bulk-form button[type="submit"]')).toBeVisible();assert.equal(calls.filter(c=>c.suffix==='bulk-check').length,0);
+ await frame().locator('[name="bulk:weight"]').fill('2');state='invalid';await frame().locator('#bulk-form button[type="submit"]').click();await expect(frame().locator('#toast')).toContainText('وزن نامعتبر است.');assert.equal(calls.filter(c=>c.suffix==='bulk-check').length,0);
+ state='waiting';await frame().locator('#bulk-form button[type="submit"]').click();await expect(frame().locator('#bulk-form button[type="submit"]')).toBeDisabled();await expect.poll(()=>!!bulkResolve).toBe(true);bulkResolve();state='success';await expect(frame().locator('#bulk-result')).toContainText('۱۲٬۵۰۰');await expect(frame().locator('#bulk-result')).not.toContainText('ناموفق');
+ assert.equal(calls.find(c=>c.suffix==='bulk-check').body.values.weight,'2');assert.ok(calls.filter(c=>!c.suffix.startsWith('admin/')).every(c=>!c.nonce));
+ state='all-fail';await frame().locator('#bulk-form button[type="submit"]').click();await expect(frame().locator('#bulk-form button[type="submit"]')).toBeEnabled();await expect(frame().locator('#bulk-result')).toContainText('نتیجه‌ای برای نمایش وجود ندارد');
+ state='unserved';await frame().locator('#bulk-form button[type="submit"]').click();await expect(frame().locator('#bulk-result')).toContainText('هیچ شرکتی به مقصد انتخاب‌شده سرویس نمی‌دهد.');
+ for(const width of [1440,390]){await page.setViewportSize({width,height:900});assert.ok(await page.frames()[1].evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));await expect(frame().locator('#bulk-form')).toBeVisible();}
+ state='empty';await page.reload();await expect(frame().locator('#bulk-form')).toContainText('استعلام هنوز در بخش مدیریت تنظیم نشده است.');assert.deepEqual(errors,[]);
+ console.log('Public UI browser: single/bulk desktop and 390px, required/loading/success/error/preflight/empty/unserved/history passed; localhost mocked REST only.');
+ }catch(error){console.error('Browser errors:',errors,'Called routes:',calls.map(c=>c.suffix));throw error;}finally{await context.close();await browser.close();await new Promise(resolve=>server.close(resolve));}
+})().catch(e=>{console.error(e);process.exitCode=1;});

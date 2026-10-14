@@ -33,6 +33,8 @@ function esc_html( $text ) { return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8'
 function esc_attr( $text ) { return esc_html( $text ); }
 function esc_html__( $text, ...$args ) { return esc_html( $text ); }
 function wp_clear_scheduled_hook( $hook ) {}
+define( 'TAPIN_PLUGIN_URL', 'https://wp.example/plugin/' );
+require __DIR__ . '/support/PriceCheckInterface.php';
 
 /** Records DDL and supplies inspection results, not a SQL-engine simulation. */
 class PriceTestDatabase {
@@ -124,8 +126,8 @@ try {
 	check( 'existing-locator' === $shortcodes['tapin_service_points'], 'Locator shortcode replaced.' );
 	foreach ( array( 'tapin_price_check' => 'single', 'tapin_bulk_quote' => 'bulk' ) as $tag => $mode ) {
 		$html = $shortcodes[$tag]();
-		check( false !== strpos( $html, 'data-quote-mode="' . $mode . '"' ) && false !== strpos( $html, 'مرحله ۲' ) && false === strpos( $html, '<form' ), 'Shortcode is not a marked placeholder.' );
-		check( false === strpos( $html, '/admin' ) && false === strpos( $html, '<script' ), 'Public placeholder exposes admin navigation or assets.' );
+		check( false !== strpos( $html, 'data-quote-mode="' . $mode . '"' ) && false !== strpos( $html, 'srcdoc=' ), 'Public shortcode did not embed its isolated UI.' );
+		check( false === strpos( $html, 'مدیریت داده' ) && false === strpos( $html, 'adminUrls' ), 'Public interface exposes admin navigation.' );
 	}
 	foreach ( $actions['admin_menu'][20] as $callback ) { $callback(); }
 	check( 6 === count( $menus ), 'Missing documented admin sections.' );
