@@ -9,6 +9,7 @@ final class RestApi {
 	private $guard;
 	private $context;
 	private $random;
+	private array $callbacks = array();
 	public function __construct( ?callable $services = null, ?callable $guard = null, ?callable $context = null, ?callable $random = null ) {
 		$this->services = $services ?? static fn( $operation, $input ) => ( new ApiServices() )->call( $operation, $input );
 		$this->guard = $guard ?? static fn( $input ) => ( new SecurityGuard() )->check( $input );
@@ -58,10 +59,20 @@ final class RestApi {
 	public function register(): void {
 		foreach ( self::routes() as [$path, $method, $operation, $guarded] ) {
 			$admin = 0 === strpos( $path, '/admin/' );
-			register_rest_route( self::NAMESPACE, $path, array( 'methods' => $method, 'permission_callback' => $admin ? array( self::class, 'permission' ) : '__return_true', 'callback' => fn( $request ) => $this->handle( $request, $operation, $guarded, $admin ) ) );
+			$callback = fn( $request ) => $this->handle( $request, $operation, $guarded, $admin ); $this->callbacks[] = $callback;
+			register_rest_route( self::NAMESPACE, $path, array( 'methods' => $method, 'permission_callback' => $admin ? array( self::class, 'permission' ) : '__return_true', 'callback' => $callback ) );
 		}
+		add_filter( 'rest_request_before_callbacks', array( $this, 'body_validation' ), 10, 3 );
 		add_filter( 'rest_post_dispatch', array( $this, 'errors' ), 10, 3 );
 		add_filter( 'rest_pre_serve_request', array( RestBinaryResponse::class, 'serve' ), 10, 4 );
+	}
+	/** Let only our callbacks parse raw JSON; clearing validation still runs core permissions. */
+	public function body_validation( $response, $handler, $request ) {
+		if ( $response instanceof \WP_Error && array( 'rest_invalid_json' ) === $response->get_error_codes() && in_array( $handler['callback'] ?? null, $this->callbacks, true ) ) { return null; } return $response;
+	}
+	public static function owns( $request ): bool { $prefix = '/' . self::NAMESPACE . '/'; return 0 === strncasecmp( $request->get_route(), $prefix, strlen( $prefix ) ); }
+	private static function source_route( string $operation, RestInput $input ): string {
+		foreach ( self::routes() as [$path, $method, $name] ) { if ( $name === $operation ) { return '/api' . preg_replace_callback( '/\(\?P<(\w+)>[^)]+\)/', static fn( $match ) => (string) ( $input->path[$match[1]] ?? '' ), $path ); } } throw new \LogicException( 'Unknown guarded operation.' );
 	}
 	private function cookie( \WP_REST_Response $response, SecurityVerdict $verdict ): void {
 		$cookie = $verdict->cookie( $this->random ); if ( null !== $cookie ) { $response->header( 'Set-Cookie', $cookie['name'] . '=' . $cookie['value'] . '; Max-Age=' . $cookie['max_age'] . '; Path=/; HttpOnly; SameSite=lax' ); }
@@ -75,7 +86,7 @@ final class RestApi {
 			if ( $guarded ) {
 				$body = 'POST' === $request->get_method() ? $input->body() : null;
 				$context = ( $this->context )( $request ); $headers = array(); foreach ( $request->get_headers() as $key => $value ) { $headers[str_replace( '_', '-', strtolower( $key ) )] = is_array( $value ) ? ( $value[0] ?? '' ) : $value; }
-				$context['headers'] = $headers; $context['route'] = '/api' . substr( $request->get_route(), strlen( '/' . self::NAMESPACE ) ); $context['method'] = $request->get_method();
+				$context['headers'] = $headers; $context['route'] = self::source_route( $operation, $input ); $context['method'] = $request->get_method();
 				$verdict = ( $this->guard )( SecurityRequest::from_context( $context, $body, null === $body ? 0 : strlen( $input->raw ) ) );
 				if ( ! $verdict->allowed ) { $deny = $verdict->deny_response(); $response = new \WP_REST_Response( $deny['body'], $deny['status'], (array) $deny['headers'] ); $this->cookie( $response, $verdict ); return $response; }
 			}
@@ -86,15 +97,15 @@ final class RestApi {
 		} catch ( QuoteError $error ) {
 			$body = $error->jsonSerialize(); try { LogSafety::assert_safe( $body ); } catch ( \Throwable $unsafe ) { $body = array( 'detail' => 'internal error', 'errors' => array() ); }
 			$response = new \WP_REST_Response( $body, $error->status_code );
-			if ( ! $admin ) { $context = $context ?? ( $this->context )( $request ); if ( empty( $context['cookies']['tapin_cid'] ) ) { $this->cookie( $response, new SecurityVerdict( array( 'issue_client_id' => true ) ) ); } } return $response;
+			if ( ! $admin ) { $context = $context ?? ( $this->context )( $request ); if ( ! PythonValue::truth( $context['cookies']['tapin_cid'] ?? null ) ) { $this->cookie( $response, new SecurityVerdict( array( 'issue_client_id' => true ) ) ); } } return $response;
 		} catch ( \Throwable $error ) { return new \WP_REST_Response( array( 'detail' => 'internal error' ), 500 ); }
 	}
 	/** Adapt core-generated errors only inside this namespace; no global response changes. */
 	public function errors( $response, $server, $request ) {
-		if ( 0 !== strpos( $request->get_route(), '/' . self::NAMESPACE . '/' ) || ! $response instanceof \WP_REST_Response ) { return $response; }
-		if ( 0 === strpos( $request->get_route(), '/' . self::NAMESPACE . '/admin/' ) ) { $response->header( 'Cache-Control', 'private, no-store, max-age=0' ); if ( true !== self::permission( $request ) ) { $response->set_status( 403 ); $response->set_data( array( 'detail' => 'دسترسی به مدیریت استعلام قیمت مجاز نیست.', 'errors' => array() ) ); return $response; } }
+		if ( ! self::owns( $request ) || ! $response instanceof \WP_REST_Response ) { return $response; }
+		$admin_prefix = '/' . self::NAMESPACE . '/admin/'; if ( 0 === strncasecmp( $request->get_route(), $admin_prefix, strlen( $admin_prefix ) ) ) { $response->header( 'Cache-Control', 'private, no-store, max-age=0' ); if ( true !== self::permission( $request ) ) { $response->set_status( 403 ); $response->set_data( array( 'detail' => 'دسترسی به مدیریت استعلام قیمت مجاز نیست.', 'errors' => array() ) ); return $response; } }
 		$data = $response->get_data(); if ( ! is_array( $data ) || ! isset( $data['code'], $data['message'] ) || ! array_key_exists( 'data', $data ) ) { return $response; }
-		if ( 'rest_no_route' === $data['code'] ) { foreach ( self::routes() as [$path, $method] ) { if ( preg_match( '~^/' . self::NAMESPACE . $path . '$~D', $request->get_route() ) ) { $response->set_status( 405 ); return new RestBinaryResponse( 'Method Not Allowed', 405, array( 'Content-Type' => 'text/plain; charset=utf-8' ), false ); } } $response->set_data( array( 'detail' => 'not found' ) ); return $response; }
+		if ( 'rest_no_route' === $data['code'] ) { foreach ( self::routes() as [$path, $method] ) { if ( preg_match( '~^/' . self::NAMESPACE . $path . '$~iD', $request->get_route() ) ) { $response->set_status( 405 ); return new RestBinaryResponse( 'Method Not Allowed', 405, array( 'Content-Type' => 'text/plain; charset=utf-8' ), false ); } } $response->set_data( array( 'detail' => 'not found' ) ); return $response; }
 		$detail = 'rest_invalid_json' === $data['code'] ? 'بدنه درخواست JSON معتبر نیست.' : ( 403 === $response->get_status() || 401 === $response->get_status() ? 'دسترسی به مدیریت استعلام قیمت مجاز نیست.' : 'درخواست معتبر نیست.' );
 		$response->set_data( array( 'detail' => $detail, 'errors' => array() ) ); return $response;
 	}

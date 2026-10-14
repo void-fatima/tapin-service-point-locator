@@ -7,7 +7,7 @@ class WP_REST_Response {
 	public function get_status(): int { return $this->status; } public function set_status( int $status ): void { $this->status = $status; }
 	public function header( $key, $value ): void { $this->headers[$key] = $value; } public function get_headers(): array { return $this->headers; }
 }
-class WP_Error { public string $code; public string $message; public array $data; public function __construct( $code, $message, $data ) { $this->code=$code; $this->message=$message; $this->data=$data; } }
+class WP_Error { public string $code; public string $message; public array $data; public function __construct( $code, $message, $data ) { $this->code=$code; $this->message=$message; $this->data=$data; } public function get_error_codes():array{return array($this->code);} }
 final class PriceRestRequest {
 	public string $method='GET'; public string $route=''; public string $body=''; public array $path=array(); public array $query=array(); public array $headers=array(); public array $files=array();
 	public function get_method() { return $this->method; } public function get_route() { return $this->route; } public function get_body() { return $this->body; }

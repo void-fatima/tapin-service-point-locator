@@ -10,8 +10,10 @@ final class PublicApiService {
 	private $section;
 	private $shops;
 	private $config;
-	public function __construct( ?callable $providers = null, ?callable $provider = null, ?callable $section = null, ?callable $shops = null, ?callable $config = null ) {
+	private $stats;
+	public function __construct( ?callable $providers = null, ?callable $provider = null, ?callable $section = null, ?callable $shops = null, ?callable $config = null, ?callable $stats = null ) {
 		$this->providers = $providers ?? array( ProviderStorage::class, 'all' ); $this->provider = $provider ?? array( ProviderStorage::class, 'load' ); $this->section = $section ?? array( new LocationService(), 'provider_section' ); $this->shops = $shops ?? array( ShopStorage::class, 'list_rows' ); $this->config = $config ?? array( BulkStorage::class, 'get' );
+		$this->stats = $stats ?? static function() { $counts = array(); foreach ( array( 'providers', 'shops' ) as $table ) { $rows = ConfigurationDatabase::rows( 'SELECT COUNT(*) AS row_count FROM ' . ConfigurationDatabase::table( $table ) ); if ( ! isset( $rows[0]['row_count'] ) ) { throw new StorageError( 'health_count' ); } $counts[$table] = $rows[0]['row_count']; } return $counts; };
 	}
 	public function provider( string $id, bool $display_name = false ) {
 		$provider = ( $this->provider )( V::trim( $id ) );
@@ -38,7 +40,7 @@ final class PublicApiService {
 		return array( 'providers' => $rows, 'fields' => $fields, 'mappings' => $mappings, 'origin' => (object) $origin, 'destination' => array( 'enabled' => $enabled, 'display' => $display, 'province_field' => $province, 'city_field' => $city, 'status' => $location->status, 'message' => V::fallback( $location->message, '' ), 'provinces' => $location->provinces, 'cities_by_province' => $location->cities_by_province ), 'price' => $units['price'], 'weight' => $units['weight'], 'shops' => $shops );
 	}
 	public function call( string $operation, RestInput $input ): RestResult {
-		if ( 'health' === $operation ) { return new RestResult( array( 'status' => 'ok', 'providers' => count( ( $this->providers )() ), 'shops' => count( ( $this->shops )() ) ) ); }
+		if ( 'health' === $operation ) { return new RestResult( array( 'status' => 'ok' ) + ( $this->stats )() ); }
 		if ( 'bulk_schema' === $operation ) { return new RestResult( $this->bulk( ( $this->config )() ) ); }
 		if ( 'list_providers' === $operation ) { $rows = array(); foreach ( ( $this->providers )() as $provider ) { if ( ! V::truth( V::get( $provider, 'active', true ) ) ) { continue; } $visible = array_values( array_filter( ProviderDefinition::params( $provider ), static fn( $param ) => V::truth( V::get( $param, 'visible' ) ) ) ); $rows[] = array( 'id' => $provider->id, 'name' => $provider->name, 'display_name' => $provider->display_name, 'logo' => $provider->logo, 'active' => V::get( $provider, 'active', true ), 'visible_field_count' => count( $visible ), 'visible_fields' => array_map( static fn( $p ) => array( 'label' => $p->label ), $visible ) ); } return new RestResult( array( 'providers' => $rows ) ); }
 		if ( 'provider_schema' === $operation ) { $provider = $this->provider( $input->path['provider_id'] ); if ( ! V::truth( V::get( $provider, 'active', true ) ) ) { throw new QuoteError( 404, 'این شرکت غیرفعال است.' ); } return new RestResult( $this->schema( $provider ) ); }
