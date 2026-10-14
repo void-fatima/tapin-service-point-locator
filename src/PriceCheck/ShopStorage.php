@@ -8,6 +8,8 @@ defined( 'ABSPATH' ) || exit;
 
 /** Merchant-origin configuration. Credential-bearing reads remain private server-side operations. */
 final class ShopStorage {
+	/** The source import preview uses this same pure cleaner before any storage writes. */
+	public static function clean_row( $raw ): array { return self::clean( $raw ); }
 	private static function text( $value ): string { return V::trim( V::string( V::fallback( $value, '' ) ) ); }
 	private static function nullable( $value ): ?string { $text = self::text( $value ); return '' === $text ? null : $text; }
 

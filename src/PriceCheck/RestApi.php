@@ -23,9 +23,11 @@ final class RestApi {
 		array( '/admin/preview/provider-schema', 'POST', 'preview_provider_schema', false ), array( '/admin/preview/price-check', 'POST', 'preview_price_check', false ),
 		array( '/admin/preview/bulk-schema', 'POST', 'preview_bulk_schema', false ), array( '/admin/preview/bulk-check', 'POST', 'preview_bulk_check', false ), array( '/admin/preview/bulk-validate', 'POST', 'preview_bulk_validate', false ),
 		array( '/admin/providers', 'GET', 'admin_list_providers', false ), array( '/admin/providers', 'POST', 'admin_create_provider', false ),
+		array( '/admin/providers/locations/sample', 'GET', 'admin_locations_sample', false ), array( '/admin/providers/locations/import', 'POST', 'admin_locations_import', false ),
 		array( '/admin/providers/(?P<provider_id>[^/]+)/unserved-locations', 'GET', 'admin_unserved_locations', false ),
 		array( '/admin/providers/(?P<provider_id>[^/]+)', 'GET', 'admin_get_provider', false ), array( '/admin/providers/(?P<provider_id>[^/]+)', 'PUT', 'admin_update_provider', false ), array( '/admin/providers/(?P<provider_id>[^/]+)', 'DELETE', 'admin_delete_provider', false ),
 		array( '/admin/shops', 'GET', 'admin_list_shops', false ), array( '/admin/shops', 'POST', 'admin_create_shop', false ),
+		array( '/admin/shops/sample', 'GET', 'admin_shops_sample', false ), array( '/admin/shops/import', 'POST', 'admin_import_shops', false ),
 		array( '/admin/shops/(?P<shop_id>[^/]+)', 'GET', 'admin_get_shop', false ), array( '/admin/shops/(?P<shop_id>[^/]+)', 'PUT', 'admin_update_shop', false ), array( '/admin/shops/(?P<shop_id>[^/]+)', 'DELETE', 'admin_delete_shop', false ),
 		array( '/admin/bulk', 'GET', 'admin_get_bulk', false ), array( '/admin/bulk', 'PUT', 'admin_save_bulk', false ),
 		array( '/admin/logs', 'GET', 'admin_list_logs', false ),
@@ -59,6 +61,7 @@ final class RestApi {
 			register_rest_route( self::NAMESPACE, $path, array( 'methods' => $method, 'permission_callback' => $admin ? array( self::class, 'permission' ) : '__return_true', 'callback' => fn( $request ) => $this->handle( $request, $operation, $guarded, $admin ) ) );
 		}
 		add_filter( 'rest_post_dispatch', array( $this, 'errors' ), 10, 3 );
+		add_filter( 'rest_pre_serve_request', array( RestBinaryResponse::class, 'serve' ), 10, 4 );
 	}
 	private function cookie( \WP_REST_Response $response, SecurityVerdict $verdict ): void {
 		$cookie = $verdict->cookie( $this->random ); if ( null !== $cookie ) { $response->header( 'Set-Cookie', $cookie['name'] . '=' . $cookie['value'] . '; Max-Age=' . $cookie['max_age'] . '; Path=/; HttpOnly; SameSite=lax' ); }
@@ -77,7 +80,8 @@ final class RestApi {
 				if ( ! $verdict->allowed ) { $deny = $verdict->deny_response(); $response = new \WP_REST_Response( $deny['body'], $deny['status'], (array) $deny['headers'] ); $this->cookie( $response, $verdict ); return $response; }
 			}
 			$result = ( $this->services )( $operation, $input );
-			$response = new \WP_REST_Response( $result->body, $result->status, $result->headers );
+			$headers = $result->headers; if ( $admin ) { $headers['Cache-Control'] = 'private, no-store, max-age=0'; }
+			$response = null !== $result->binary ? new RestBinaryResponse( $result->binary, $result->status, $headers ) : new \WP_REST_Response( $result->body, $result->status, $headers );
 			if ( null !== $verdict ) { $this->cookie( $response, $verdict ); } return $response;
 		} catch ( QuoteError $error ) {
 			$body = $error->jsonSerialize(); try { LogSafety::assert_safe( $body ); } catch ( \Throwable $unsafe ) { $body = array( 'detail' => 'internal error', 'errors' => array() ); }
@@ -88,7 +92,9 @@ final class RestApi {
 	/** Adapt core-generated errors only inside this namespace; no global response changes. */
 	public function errors( $response, $server, $request ) {
 		if ( 0 !== strpos( $request->get_route(), '/' . self::NAMESPACE . '/' ) || ! $response instanceof \WP_REST_Response ) { return $response; }
-		$data = $response->get_data(); if ( ! is_array( $data ) || ! isset( $data['code'], $data['data']['status'] ) ) { return $response; }
+		if ( 0 === strpos( $request->get_route(), '/' . self::NAMESPACE . '/admin/' ) ) { $response->header( 'Cache-Control', 'private, no-store, max-age=0' ); if ( true !== self::permission( $request ) ) { $response->set_status( 403 ); $response->set_data( array( 'detail' => 'دسترسی به مدیریت استعلام قیمت مجاز نیست.', 'errors' => array() ) ); return $response; } }
+		$data = $response->get_data(); if ( ! is_array( $data ) || ! isset( $data['code'], $data['message'] ) || ! array_key_exists( 'data', $data ) ) { return $response; }
+		if ( 'rest_no_route' === $data['code'] ) { foreach ( self::routes() as [$path, $method] ) { if ( preg_match( '~^/' . self::NAMESPACE . $path . '$~D', $request->get_route() ) ) { $response->set_status( 405 ); return new RestBinaryResponse( 'Method Not Allowed', 405, array( 'Content-Type' => 'text/plain; charset=utf-8' ), false ); } } $response->set_data( array( 'detail' => 'not found' ) ); return $response; }
 		$detail = 'rest_invalid_json' === $data['code'] ? 'بدنه درخواست JSON معتبر نیست.' : ( 403 === $response->get_status() || 401 === $response->get_status() ? 'دسترسی به مدیریت استعلام قیمت مجاز نیست.' : 'درخواست معتبر نیست.' );
 		$response->set_data( array( 'detail' => $detail, 'errors' => array() ) ); return $response;
 	}

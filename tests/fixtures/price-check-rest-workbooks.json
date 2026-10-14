@@ -1,0 +1,384 @@
+{
+  "cases": [
+    {
+      "kind": "shops",
+      "book": {
+        "active": 0,
+        "sheets": [
+          {
+            "title": "shops",
+            "rows": [
+              [
+                "id",
+                "title",
+                "province",
+                "city",
+                "token"
+              ],
+              [
+                "01",
+                " branch ",
+                null,
+                "0",
+                "TOKEN"
+              ],
+              [
+                true,
+                "bool",
+                1.0,
+                false,
+                "TOKEN"
+              ],
+              [
+                "02",
+                null,
+                1,
+                2,
+                "TOKEN"
+              ],
+              [
+                "03",
+                "no token",
+                1,
+                2,
+                null
+              ],
+              []
+            ]
+          }
+        ]
+      },
+      "result": {
+        "rows": [
+          {
+            "id": "01",
+            "title": "branch",
+            "province": null,
+            "city": "0",
+            "token": "TOKEN"
+          },
+          {
+            "id": "True",
+            "title": "bool",
+            "province": "1.0",
+            "city": "False",
+            "token": "TOKEN"
+          }
+        ],
+        "errors": [
+          {
+            "field": "row 4",
+            "message": "عنوان شعبه الزامی است."
+          },
+          {
+            "field": "row 5",
+            "message": "توکن شعبه الزامی است."
+          }
+        ],
+        "valid": 2
+      }
+    },
+    {
+      "kind": "shops",
+      "book": {
+        "active": 0,
+        "sheets": [
+          {
+            "title": "sheet",
+            "rows": [
+              [],
+              [
+                "01",
+                "leading blank",
+                null,
+                null,
+                "TOKEN"
+              ]
+            ]
+          }
+        ]
+      },
+      "result": {
+        "rows": [
+          {
+            "id": "01",
+            "title": "leading blank",
+            "province": null,
+            "city": null,
+            "token": "TOKEN"
+          }
+        ],
+        "errors": [],
+        "valid": 1
+      }
+    },
+    {
+      "kind": "shops",
+      "book": {
+        "active": 1,
+        "sheets": [
+          {
+            "title": "ignored",
+            "rows": [
+              [
+                "wrong"
+              ]
+            ]
+          },
+          {
+            "title": "shops",
+            "rows": [
+              [
+                "101",
+                "active",
+                null,
+                null,
+                "TOKEN"
+              ]
+            ]
+          }
+        ]
+      },
+      "result": {
+        "rows": [
+          {
+            "id": "101",
+            "title": "active",
+            "province": null,
+            "city": null,
+            "token": "TOKEN"
+          }
+        ],
+        "errors": [],
+        "valid": 1
+      }
+    },
+    {
+      "kind": "locations",
+      "book": {
+        "active": 0,
+        "sheets": [
+          {
+            "title": "استان‌ها",
+            "rows": [
+              [],
+              [
+                "code",
+                "title"
+              ],
+              [
+                "1",
+                "One"
+              ],
+              [
+                "1",
+                "Duplicate"
+              ],
+              [
+                null,
+                "Missing"
+              ],
+              [
+                "0",
+                null
+              ],
+              [
+                true,
+                "boolean"
+              ]
+            ]
+          },
+          {
+            "title": "cities",
+            "rows": [
+              [
+                "code",
+                "title",
+                "province_code"
+              ],
+              [
+                "10",
+                "Town",
+                "1"
+              ],
+              [
+                "10",
+                "dupe",
+                "1"
+              ],
+              [
+                "20",
+                "Bad",
+                null
+              ],
+              [
+                "20",
+                "Good",
+                "1"
+              ],
+              [
+                "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "Long",
+                "1"
+              ]
+            ]
+          }
+        ]
+      },
+      "result": {
+        "provinces": [
+          {
+            "code": "1",
+            "title": "One"
+          },
+          {
+            "code": "0",
+            "title": "0"
+          }
+        ],
+        "cities": [
+          {
+            "code": "10",
+            "title": "Town",
+            "province_code": "1"
+          },
+          {
+            "code": "20",
+            "title": "Good",
+            "province_code": "1"
+          }
+        ],
+        "errors": [
+          {
+            "field": "provinces row 4",
+            "message": "کد استان تکراری: 1"
+          },
+          {
+            "field": "provinces row 5",
+            "message": "کد استان خالی است."
+          },
+          {
+            "field": "provinces row 7",
+            "message": "کد استان خالی است."
+          },
+          {
+            "field": "cities row 3",
+            "message": "کد شهر تکراری: 10"
+          },
+          {
+            "field": "cities row 4",
+            "message": "کد استان شهر الزامی است."
+          },
+          {
+            "field": "cities row 6",
+            "message": "کد شهر بیش از حد طولانی است."
+          }
+        ],
+        "valid": 4
+      }
+    },
+    {
+      "kind": "locations",
+      "book": {
+        "active": 0,
+        "sheets": [
+          {
+            "title": "unnamed",
+            "rows": [
+              [
+                "code",
+                "title",
+                "province_code"
+              ],
+              [
+                "1",
+                "Town",
+                "1"
+              ]
+            ]
+          }
+        ]
+      },
+      "result": {
+        "provinces": [],
+        "cities": [
+          {
+            "code": "1",
+            "title": "Town",
+            "province_code": "1"
+          }
+        ],
+        "errors": [],
+        "valid": 1
+      }
+    },
+    {
+      "kind": "locations",
+      "book": {
+        "active": 0,
+        "sheets": [
+          {
+            "title": "sheet",
+            "rows": [
+              [
+                "0",
+                false
+              ],
+              [
+                "2",
+                null
+              ]
+            ]
+          }
+        ]
+      },
+      "result": {
+        "provinces": [
+          {
+            "code": "0",
+            "title": "0"
+          },
+          {
+            "code": "2",
+            "title": "2"
+          }
+        ],
+        "cities": [],
+        "errors": [],
+        "valid": 2
+      }
+    },
+    {
+      "kind": "locations",
+      "book": {
+        "active": 0,
+        "sheets": [
+          {
+            "title": "other",
+            "rows": [
+              [
+                "1"
+              ]
+            ]
+          },
+          {
+            "title": "unknown",
+            "rows": [
+              [
+                "2"
+              ]
+            ]
+          }
+        ]
+      },
+      "status": 422,
+      "error": {
+        "detail": "شیت استان (provinces) یا شهر (cities) در فایل پیدا نشد.",
+        "errors": []
+      }
+    }
+  ],
+  "api_sha256": "27189254d7ac2555dca395dfcc8f243f066bd1408e0dd859d8b068bfd331dbd5",
+  "storage_sha256": "2178ed429e0036dccfa6e11bfa192f9488803edccb0ee6212e8b2befd3e08446",
+  "decoder_executed": false
+}
