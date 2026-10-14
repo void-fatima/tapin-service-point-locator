@@ -144,7 +144,7 @@ try {
 		$identity = array( 'logged_in' => true, 'capable' => true );
 		check( Access::can_manage(), 'Administrator denied.' );
 		ob_start(); $menu['callback'](); $html = ob_get_clean();
-		check( false !== strpos( $html, esc_html( $menu['title'] ) ) && false !== strpos( $html, 'مرحله ۲' ), 'Admin placeholder absent.' );
+		check( false !== strpos( $html, esc_html( $menu['title'] ) ) && false !== strpos( $html, 'srcdoc=' ), 'Protected admin interface absent.' );
 	}
 	$wpdb->queries = array();
 	require TAPIN_PLUGIN_DIR . 'uninstall.php';

@@ -12,6 +12,7 @@ await request('/api/price-check',{method:'POST',headers:{'X-WP-Nonce':'must-be-r
 assert.throws(()=>request('/api/admin/shops'));assert.throws(()=>pageURL('/preview/provider'));assert.throws(()=>pageURL('/admin/shops'));
 assert.equal(pageURL('/bulk'),'https://wp.example/sub/?page_id=12');navigate('/advanced?provider=carrier');assert.deepEqual(routeLocation(),{pathname:'/advanced',search:'?provider=carrier'});
 navigate('/bulk');assert.equal(location.href,'https://wp.example/sub/?page_id=12');
+const bulkPage=config.publicUrls.bulk;config.publicUrls.bulk=config.publicUrls.single;assert.ok(pageURL('/bulk').includes('tapin_price_mode=bulk'));config.publicUrls.bulk=bulkPage;
 config.admin=true;config.nonce='test-rest-nonce';config.route='/admin/providers';config.adminUrls={providers:'https://wp.example/sub/wp-admin/admin.php?page=tapin-price-providers',shops:'https://wp.example/sub/wp-admin/admin.php?page=tapin-price-shops',security:'https://wp.example/sub/wp-admin/admin.php?page=tapin-price-security',bulk:'https://wp.example/sub/wp-admin/admin.php?page=tapin-price-bulk'};
 for(const [method,suffix]of[['GET','shops'],['POST','shops/import'],['GET','shops/sample'],['POST','preview/price-check']]){await request('/api/admin/'+suffix,{method});assert.equal(calls.at(-1).options.headers.get('X-WP-Nonce'),'test-rest-nonce');}
 const original=config.restUrl;config.restUrl='https://external.invalid/wp-json/tapin-price-check/v1/';assert.throws(()=>request('/api/admin/shops'));config.restUrl=original;

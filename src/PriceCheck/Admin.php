@@ -5,16 +5,19 @@ namespace Tapin\ServicePointLocator\PriceCheck;
 defined( 'ABSPATH' ) || exit;
 
 final class Admin {
+	private array $hooks = array();
 
 	public function register(): void {
 		foreach ( $this->screens() as $slug => $title ) {
-			add_submenu_page( 'tapin-locator', $title, $title, Access::CAPABILITY, $slug, function() use ( $title ) {
-				$this->render( $title );
+			$hook = add_submenu_page( 'tapin-locator', $title, $title, Access::CAPABILITY, $slug, function() use ( $title, $slug ) {
+				$this->render( $title, substr( $slug, strlen( 'tapin-price-' ) ) );
 			} );
+			if ( is_string( $hook ) ) { $this->hooks[] = $hook; }
 		}
+		add_action( 'admin_enqueue_scripts', function( $hook ) { if ( in_array( $hook, $this->hooks, true ) && Access::can_manage() ) { InterfaceScreen::enqueue(); } } );
 	}
 
-	/** Provider list and editor share one screen; previews come with later UI work. */
+	/** Provider list/editor and protected draft preview share the providers entry. */
 	private function screens(): array {
 		return array(
 			'tapin-price-providers' => __( 'استعلام قیمت: شرکت‌ها', 'tapin-service-point-locator' ),
@@ -26,8 +29,8 @@ final class Admin {
 		);
 	}
 
-	public function render( string $title ): void {
+	public function render( string $title, string $screen = 'providers' ): void {
 		Access::require_admin();
-		echo '<div class="wrap tapin-price-admin" dir="rtl" lang="fa"><h1>' . esc_html( $title ) . '</h1><p role="status">' . esc_html__( 'مرحله ۲: زیرساخت استعلام قیمت آماده است؛ امکانات مدیریت هنوز فعال نشده‌اند.', 'tapin-service-point-locator' ) . '</p></div>';
+		echo '<div class="wrap tapin-price-admin" dir="rtl" lang="fa"><h1 class="screen-reader-text">' . esc_html( $title ) . '</h1>' . InterfaceScreen::frame( $screen, true, wp_unslash( $_GET ) ) . '</div>';
 	}
 }

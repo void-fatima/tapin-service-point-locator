@@ -52,7 +52,7 @@ export function pageURL(route) {
   const url = new URL(base || host().location.href, host().location.href);
   for (const key of ['provider', 'sub', 'tapin_price_route', 'tapin_price_preview', 'tapin_price_mode']) url.searchParams.delete(key);
   if (virtual.pathname.startsWith('/admin/')) url.searchParams.set('tapin_price_route', virtual.pathname);
-  else if (!base) url.searchParams.set('tapin_price_mode', virtual.pathname === '/advanced' ? 'single' : 'bulk');
+  else if (!base || settings.publicUrls.single === settings.publicUrls.bulk) url.searchParams.set('tapin_price_mode', virtual.pathname === '/advanced' ? 'single' : 'bulk');
   virtual.searchParams.forEach((value, key) => url.searchParams.set(key, value));
   return url.href;
 }

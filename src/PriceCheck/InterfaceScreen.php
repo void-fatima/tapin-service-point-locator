@@ -28,6 +28,8 @@ final class InterfaceScreen {
 		ob_start(); include __DIR__ . '/views/' . ( $admin && ! $preview ? 'admin' : 'public' ) . '.php'; $html = ob_get_clean();
 		$assets = TAPIN_PLUGIN_URL . 'assets/price-check/';
 		$html = str_replace( '/static/', esc_url( $assets ), $html );
+		$html = str_replace( '<head>', '<head><base href="about:srcdoc">', $html );
+		if ( $admin && ! $preview ) { $html = str_replace( '{{public-url}}', esc_url( $config['publicUrls']['bulk'] ?: ( $config['publicUrls']['single'] ?: home_url( '/' ) ) ), $html ); foreach ( array( 'providers', 'shops' ) as $resource ) { $html = str_replace( '/api/admin/' . $resource . '</span>', esc_url( rest_url( RestApi::NAMESPACE . '/admin/' . $resource ) ) . '</span>', $html ); } }
 		$html = str_replace( 'https://unpkg.com/leaflet@1.9.4/dist/', esc_url( TAPIN_PLUGIN_URL . 'assets/vendor/' ), $html );
 		$html = preg_replace_callback( '~(src=")([^"<>]+/(?:index|admin)\.js)(")~', static fn( $m ) => $m[1] . $m[2] . '?v=' . filemtime( TAPIN_PLUGIN_DIR . 'assets/price-check/' . basename( $m[2] ) ) . $m[3], $html );
 		return str_replace( '</head>', '<script>window.TapinPriceUI=' . wp_json_encode( $config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES ) . ';</script></head>', $html );

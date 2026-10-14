@@ -7,6 +7,8 @@ function has_shortcode( $text, $tag ) { return false !== strpos( $text, '[' . $t
 function get_permalink( $post = null ) { return ( $GLOBALS['interface_site'] ?? 'https://wp.example/site' ) . ( 12 === ( $post->ID ?? 11 ) ? '/bulk/' : '/single/' ); }
 function rest_url( $path ) { return ( $GLOBALS['interface_site'] ?? 'https://wp.example/site' ) . '/wp-json/' . $path; }
 function admin_url( $path ) { return ( $GLOBALS['interface_site'] ?? 'https://wp.example/site' ) . '/wp-admin/' . $path; }
+function home_url( $path ) { return ( $GLOBALS['interface_site'] ?? 'https://wp.example/site' ) . $path; }
+if ( ! function_exists( 'wp_unslash' ) ) { function wp_unslash( $value ) { return $value; } }
 function wp_create_nonce( $action ) { if ( 'wp_rest' !== $action ) { throw new LogicException( 'Wrong nonce action.' ); } return 'test-rest-nonce'; }
 function wp_json_encode( $value, $flags = 0 ) { return json_encode( $value, $flags ); }
 function esc_url( $text ) { return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' ); }
