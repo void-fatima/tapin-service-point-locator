@@ -30,6 +30,29 @@ const securityHost = document.getElementById('security-rows');
 const cacheView = document.getElementById('cache-view');
 const cacheHost = document.getElementById('cache-rows');
 const tabs = [...document.querySelectorAll('.tabs button')];
+const adminShell = document.querySelector('.pc-admin-shell');
+const sidebarToggle = adminShell?.querySelector('.pc-sidebar-toggle');
+const SIDEBAR_STORAGE_KEY = 'tapin.price-check.admin-sidebar-collapsed';
+
+function setSidebarCollapsed(collapsed, persist = true) {
+  if (!adminShell || !sidebarToggle) return;
+  adminShell.classList.toggle('pc-sidebar-collapsed', collapsed);
+  sidebarToggle.setAttribute('aria-expanded', String(!collapsed));
+  const label = collapsed ? 'نمایش منوی مدیریت' : 'جمع کردن منوی مدیریت';
+  sidebarToggle.setAttribute('aria-label', label);
+  sidebarToggle.title = label;
+  if (persist) {
+    try { localStorage.setItem(SIDEBAR_STORAGE_KEY, collapsed ? '1' : '0'); } catch (_) { /* Storage may be disabled. */ }
+  }
+}
+
+if (adminShell && sidebarToggle) {
+  try { setSidebarCollapsed(localStorage.getItem(SIDEBAR_STORAGE_KEY) === '1', false); }
+  catch (_) { setSidebarCollapsed(false, false); }
+  sidebarToggle.addEventListener('click', () => {
+    setSidebarCollapsed(!adminShell.classList.contains('pc-sidebar-collapsed'));
+  });
+}
 
 function auth() { return {}; }
 
@@ -3389,7 +3412,10 @@ async function removeShop(shopId) {
 
 function markTab(name) {
   tabs.forEach((tab) => {
-    tab.classList.toggle('btn-ghost', tab.dataset.tab !== name);
+    const active = tab.dataset.tab === name;
+    tab.classList.toggle('btn-ghost', !active);
+    if (active) tab.setAttribute('aria-current', 'page');
+    else tab.removeAttribute('aria-current');
   });
 }
 
