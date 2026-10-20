@@ -1350,8 +1350,8 @@ let bulkSort = 'cheap';
 let lastBulkSubmit = null;
 
 function markNav(name) {
-  navBulk.classList.toggle('btn-ghost', name !== 'bulk');
-  navAdvanced.classList.toggle('btn-ghost', name !== 'advanced');
+  if (navBulk) navBulk.classList.toggle('btn-ghost', name !== 'bulk');
+  if (navAdvanced) navAdvanced.classList.toggle('btn-ghost', name !== 'advanced');
 }
 
 function showBulkView() {
@@ -1368,8 +1368,8 @@ function showAdvancedView() {
   window.scrollTo({ top: 0 });
 }
 
-navBulk.addEventListener('click', () => { go('/bulk'); routePublic(); });
-navAdvanced.addEventListener('click', () => { go('/advanced'); routePublic(); });
+navBulk?.addEventListener('click', () => { go('/bulk'); routePublic(); });
+navAdvanced?.addEventListener('click', () => { go('/advanced'); routePublic(); });
 
 function go(url) {
   if (routeLocation().pathname + routeLocation().search !== url) {

@@ -20,12 +20,10 @@
   <header class="topbar">
     <div class="wrap wrap-pro">
       <span class="brand"><img class="brand-mark" src="/static/tapin-mark.png" alt="تاپین"><span class="brand-word">تاپین</span><span class="brand-page">استعلام قیمت ارسال</span></span>
-<?php endif; ?>
-      <nav class="nav<?php echo $embedded ? ' quote-nav wrap wrap-pro' : ''; ?>" aria-label="نوع استعلام">
+      <nav class="nav" aria-label="نوع استعلام">
         <button class="btn" type="button" id="nav-bulk">استعلام</button>
         <button class="btn btn-ghost" type="button" id="nav-advanced">استعلام پیشرفته</button>
       </nav>
-<?php if ( ! $embedded ) : ?>
     </div>
   </header>
 <?php endif; ?>
