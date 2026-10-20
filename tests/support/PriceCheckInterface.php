@@ -22,5 +22,5 @@ function is_page() { return true; }
 function get_queried_object() { return $GLOBALS['post'] ?? null; }
 function post_password_required( $post ) { return '' !== $post->post_password; }
 function get_shortcode_regex( $tags ) { return '(\[?)\[(' . implode( '|', $tags ) . ')([^\]]*)\](?:(\/)|([^\[\]]*))?(\]?)'; }
-function shortcode_parse_atts( $text ) { return false !== strpos( $text, 'embedded' ) ? array( 'layout' => 'embedded' ) : array(); }
+function shortcode_parse_atts( $text ) { return preg_match( '/layout=["\x27]?(embedded|standalone)/', $text, $match ) ? array( 'layout' => $match[1] ) : array(); }
 if ( ! function_exists( 'esc_html__' ) ) { function esc_html__( $text, ...$args ) { return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' ); } }

@@ -3,3 +3,6 @@
 .tapin-price-page .tapin-price-frame { height: 100vh; height: 100dvh; }
 .tapin-price-page.admin-bar .tapin-price-frame { height: calc(100vh - 32px); height: calc(100dvh - 32px); }
 @media (max-width: 782px) { .tapin-price-page.admin-bar .tapin-price-frame { height: calc(100vh - 46px); height: calc(100dvh - 46px); } }
+/* Public embeds stay within the theme's content column; the child fits its content. */
+.tapin-price-embedded { min-width: 0; }
+.tapin-price-embedded > .tapin-price-frame { height: 620px; min-height: 0; max-width: 100%; }

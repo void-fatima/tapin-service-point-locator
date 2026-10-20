@@ -1,0 +1,5 @@
+/* Loaded only inside the public embedded iframe, never into the theme document. */
+html { height: auto; min-height: 0; }
+body { display: flow-root; min-height: 0; height: auto; }
+.quote-nav { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 16px; padding-bottom: 16px; }
+main.wrap { flex: none; }

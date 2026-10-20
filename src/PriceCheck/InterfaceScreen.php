@@ -15,7 +15,8 @@ final class InterfaceScreen {
 		}
 		return (array) apply_filters( 'tapin_price_page_urls', $urls );
 	}
-	public static function document( string $mode, bool $admin = false, array $query = array() ): string {
+	public static function document( string $mode, bool $admin = false, array $query = array(), bool $embedded = false ): string {
+		$embedded = $embedded && ! $admin;
 		if ( $admin ) { Access::require_admin(); }
 		$preview = $admin && in_array( $query['tapin_price_preview'] ?? null, array( 'provider', 'bulk' ), true ) ? $query['tapin_price_preview'] : null;
 		$route = $admin ? '/admin/' . $mode : ( 'single' === $mode ? '/advanced' : '/bulk' );
@@ -34,10 +35,12 @@ final class InterfaceScreen {
 		$html = preg_replace_callback( '~(src=")([^"<>]+/(?:index|admin)\.js)(")~', static fn( $m ) => $m[1] . $m[2] . '?v=' . filemtime( TAPIN_PLUGIN_DIR . 'assets/price-check/' . basename( $m[2] ) ) . $m[3], $html );
 		return str_replace( '</head>', '<script>window.TapinPriceUI=' . wp_json_encode( $config, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES ) . ';</script></head>', $html );
 	}
-	public static function frame( string $mode, bool $admin = false, array $query = array() ): string {
-		$html = self::document( $mode, $admin, $query ); self::enqueue();
+	public static function frame( string $mode, bool $admin = false, array $query = array(), bool $embedded = false ): string {
+		$embedded = $embedded && ! $admin;
+		$html = self::document( $mode, $admin, $query, $embedded ); self::enqueue();
 		ob_start(); if ( ! wp_style_is( 'tapin-price-frame', 'done' ) ) { wp_print_styles( array( 'tapin-price-frame' ) ); } $styles = ob_get_clean();
 		$title = $admin ? 'مدیریت استعلام قیمت تاپین' : ( 'single' === $mode ? 'استعلام پیشرفته قیمت ارسال' : 'استعلام قیمت ارسال' );
-		return $styles . '<div class="tapin-price-public alignwide" data-quote-mode="' . esc_attr( $mode ) . '"><iframe class="tapin-price-frame" title="' . esc_attr( $title ) . '" srcdoc="' . esc_attr( $html ) . '"></iframe><noscript>برای استفاده از استعلام قیمت، جاوااسکریپت مرورگر را فعال کنید.</noscript></div>';
+		$layout_class = $embedded ? ' tapin-price-embedded' : ' alignwide';
+		return $styles . '<div class="tapin-price-public' . $layout_class . '" data-quote-mode="' . esc_attr( $mode ) . '"><iframe class="tapin-price-frame" title="' . esc_attr( $title ) . '" srcdoc="' . esc_attr( $html ) . '"></iframe><noscript>برای استفاده از استعلام قیمت، جاوااسکریپت مرورگر را فعال کنید.</noscript></div>';
 	}
 }

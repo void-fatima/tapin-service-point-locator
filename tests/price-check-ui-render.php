@@ -8,4 +8,7 @@ function is_user_logged_in() { return $GLOBALS['input']['logged'] ?? false; }
 function current_user_can( $cap ) { return 'manage_options' === $cap && ( $GLOBALS['input']['capable'] ?? false ); }
 function wp_die( $message, $title = '', $args = array() ) { throw new RuntimeException( 'denied:' . ( $args['response'] ?? 0 ) ); }
 function esc_attr( $text ) { return htmlspecialchars( $text, ENT_QUOTES, 'UTF-8' ); }
-try { echo \Tapin\ServicePointLocator\PriceCheck\InterfaceScreen::frame( $input['mode'] ?? 'single', $input['admin'] ?? false, $input['query'] ?? array() ); } catch ( Throwable $error ) { fwrite( STDERR, $error->getMessage() . "\n" ); exit( 1 ); }
+try {
+	if ( $input['admin'] ?? false ) { echo \Tapin\ServicePointLocator\PriceCheck\InterfaceScreen::frame( $input['mode'] ?? 'providers', true, $input['query'] ?? array() ); }
+	else { $pages = new \Tapin\ServicePointLocator\PriceCheck\PublicPages(); echo $pages->{ $input['mode'] ?? 'single' }( $input['attributes'] ?? array() ); }
+} catch ( Throwable $error ) { fwrite( STDERR, $error->getMessage() . "\n" ); exit( 1 ); }
