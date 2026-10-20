@@ -1902,6 +1902,8 @@ tr.log-detail .card:last-child { margin-bottom: 0; }
   overflow: visible;
   transition: flex-basis var(--tapin-motion-panel) var(--tapin-motion-ease), padding var(--tapin-motion-panel) var(--tapin-motion-ease);
 }
+.pc-admin-shell { width: 100%; max-width: 100%; min-width: 0; overflow-x: clip; }
+.pc-admin-shell #shops-rows > .card:has(> table) { max-width: 100%; overflow-x: auto; }
 .pc-admin-shell .pc-sidebar-toggle {
   appearance: none;
   -webkit-appearance: none;
