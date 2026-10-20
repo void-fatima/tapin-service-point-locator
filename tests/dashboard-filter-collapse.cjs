@@ -55,6 +55,8 @@ const rows = [{ id: 1, provider_id: 1, name: 'Fixture branch', code: 'F-1', prov
           await expect(button).toHaveAttribute('aria-expanded', 'true');
           const fields = parent(section).locator(section === 'dashboard' ? '.map-selects' : '.filter-field').first();
           await expect(fields.first()).toBeVisible();
+          expect(await fields.evaluate(el => CSS.supports('transition-behavior', 'allow-discrete'))).toBe(true);
+          expect(await fields.evaluate(el => parseFloat(getComputedStyle(el).transitionDuration))).toBeGreaterThanOrEqual(0.15);
 
           // Repeatedly collapse/reopen; collapsed dimensions and the header's
           // anchor must agree with the Service Points form in this viewport.
@@ -63,6 +65,8 @@ const rows = [{ id: 1, provider_id: 1, name: 'Fixture branch', code: 'F-1', prov
             const scrollBefore = await page.evaluate(() => scrollY);
             await button.click();
             await expect(button).toHaveAttribute('aria-expanded', 'false');
+            expect(await fields.evaluate(el => el.inert)).toBe(true);
+            await expect.poll(() => fields.evaluate(el => el.getAnimations().some(animation => animation.transitionProperty === 'opacity'))).toBe(true);
             await page.waitForTimeout(220);
             await expect(fields.first()).toBeHidden();
             const after = await collapsedBox(section);
@@ -76,9 +80,17 @@ const rows = [{ id: 1, provider_id: 1, name: 'Fixture branch', code: 'F-1', prov
             expect(after.rightInset).toBeLessThanOrEqual(15);
             await button.click();
             await expect(button).toHaveAttribute('aria-expanded', 'true');
+            await expect.poll(() => fields.evaluate(el => el.inert)).toBe(false);
             await page.waitForTimeout(220);
             await expect(fields.first()).toBeVisible();
           }
+
+          await button.evaluate(node => { node.click(); node.click(); node.click(); });
+          await expect(button).toHaveAttribute('aria-expanded', 'false');
+          expect(await fields.evaluate(el => el.inert)).toBe(true);
+          await button.evaluate(node => node.click());
+          await expect(button).toHaveAttribute('aria-expanded', 'true');
+          await expect.poll(() => fields.evaluate(el => el.inert)).toBe(false);
 
           // Keyboard activation must expose the same accessible state.
           await button.focus();

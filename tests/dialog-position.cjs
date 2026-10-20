@@ -107,6 +107,8 @@ function assertCenteredAndContained(bounds, viewport, tolerance = 2) {
 
     await trigger.click();
     await expect(dialog).toBeVisible();
+    expect(await dialog.evaluate(element => CSS.supports('transition-behavior', 'allow-discrete'))).toBe(true);
+    expect(await dialog.evaluate(element => parseFloat(getComputedStyle(element).transitionDuration))).toBeGreaterThanOrEqual(0.28);
     await expect(page.locator('#tapin-admin')).toHaveAttribute('data-theme-mode',theme);
     const desktopBounds = await dialog.boundingBox();
     assertCenteredAndContained(desktopBounds, { width: 1440, height: 900 });
@@ -136,6 +138,14 @@ function assertCenteredAndContained(bounds, viewport, tolerance = 2) {
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();
     expect(await trigger.evaluate(element => document.activeElement === element)).toBe(true);
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await trigger.click();
+    await expect(dialog).toBeVisible();
+    expect(await dialog.evaluate(element => parseFloat(getComputedStyle(element).transitionDuration))).toBeLessThanOrEqual(0.01);
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
 
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('http://tapin.test/wp-admin/admin.php?page=tapin-locator#points?page=2');

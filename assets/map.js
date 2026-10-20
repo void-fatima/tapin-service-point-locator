@@ -173,6 +173,7 @@
       // Fold the whole filter row behind this trigger. Pending search/provider
       // edits are committed first, but a pure toggle must not reload: a reload
       // would silently jump pagination back to page 1.
+      const filterControls=[...tools.querySelectorAll(':scope > :not(.filter-title)')];
       title.onclick=()=>{
         clearTimeout(searchTimer);
         const s=container.querySelector('.locator-search input[name=search]');
@@ -180,6 +181,7 @@
         if(typed!==search||provider!==selected){search=typed;selected=provider;refreshFilters();}
         const folded=tools.classList.toggle('filters-collapsed');
         title.setAttribute('aria-expanded',String(!folded));
+        filterControls.forEach(node=>{node.inert=folded;node.setAttribute('aria-hidden',String(folded));});
       };
       // The field is folded behind its جستجو trigger so the crowded row only
       // shows buttons. Opening swaps in the short placeholder and lights up the

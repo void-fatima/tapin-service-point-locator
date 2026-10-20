@@ -1,13 +1,13 @@
 /* Approved dashboard: statistics left, map right, shared filters above.
    The root carries dir="rtl", so a plain row puts the sidebar on the right. */
-#tapin-admin{--bg:#071020;--panel:#0b172b;--line:#233654;--orange:#ffbd18;--green:#00d59b;flex-direction:row;background:radial-gradient(ellipse at top,#132340,#071020 65%)}
+#tapin-admin{--tapin-motion-feedback:150ms;--tapin-motion-panel:280ms;--tapin-motion-ease:cubic-bezier(.22,1,.36,1);--bg:#071020;--panel:#0b172b;--line:#233654;--orange:#ffbd18;--green:#00d59b;flex-direction:row;background:radial-gradient(ellipse at top,#132340,#071020 65%)}
 #tapin-admin .tapin-sidebar{background:#081324;border-color:#182a44}
 @media(min-width:851px){body.toplevel_page_tapin-locator{overflow:hidden}#tapin-admin{height:calc(100vh - 32px);height:calc(100dvh - 32px);min-height:0;overflow:hidden}#tapin-admin .tapin-sidebar{height:100%;overflow-y:auto;flex-shrink:0}#tapin-admin .tapin-main{height:100%;min-height:0;overflow-y:auto;overscroll-behavior-y:contain}}
 @media(max-width:850px){#tapin-admin .tapin-sidebar{position:sticky;top:var(--wp-admin--admin-bar--height,46px);z-index:1001}}
 /* Collapsible sidebar: the logo is the toggle, so folding it leaves only the
    glyph rail — no label, no tagline, no footer text. */
-#tapin-admin .tapin-sidebar{position:relative;transition:flex-basis .25s ease}
-#tapin-admin .tapin-sidebar .brand{appearance:none;-webkit-appearance:none;background:transparent;border:0;color:inherit;font:inherit;width:100%;text-align:center;cursor:pointer;transition:background .15s ease}
+#tapin-admin .tapin-sidebar{position:relative;transition:flex-basis var(--tapin-motion-panel) var(--tapin-motion-ease)}
+#tapin-admin .tapin-sidebar .brand{appearance:none;-webkit-appearance:none;background:transparent;border:0;color:inherit;font:inherit;width:100%;text-align:center;cursor:pointer;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .tapin-sidebar .brand:hover{background:rgba(255,255,255,.06)}
 #tapin-admin .tapin-sidebar .brand:focus-visible{outline:2px solid #e6c174;outline-offset:-4px}
 #tapin-admin.sidebar-collapsed .tapin-sidebar{flex-basis:72px}
@@ -29,12 +29,12 @@
 #tapin-admin .header-actions a{padding:12px 22px;border-radius:10px;font-size:16px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;line-height:1;box-sizing:border-box}
 #tapin-admin .header-actions .primary{background:#ffbd18;box-shadow:0 0 14px #ffb90035}
 #tapin-admin .header-actions .text-action{background:linear-gradient(130deg,#242a96,#251061);border:1px solid #7552ff;color:#fff!important}
-#tapin-admin .tapin-notice{cursor:pointer;transition:all .2s ease;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px;border-radius:10px;margin:16px 20px 0;background:linear-gradient(135deg,rgba(16,48,34,0.95),rgba(10,32,22,0.95));border:1px solid #1fa370;color:#d1fae5;box-shadow:0 4px 18px rgba(31,163,112,0.22)}
+#tapin-admin .tapin-notice{cursor:pointer;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease);font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px;border-radius:10px;margin:16px 20px 0;background:linear-gradient(135deg,rgba(16,48,34,0.95),rgba(10,32,22,0.95));border:1px solid #1fa370;color:#d1fae5;box-shadow:0 4px 18px rgba(31,163,112,0.22)}
 #tapin-admin .tapin-notice:hover{box-shadow:0 6px 24px rgba(31,163,112,0.32);transform:translateY(-1px)}
 #tapin-admin .tapin-notice .notice-content{display:inline-flex;align-items:center;gap:12px;font-size:13px;line-height:1.6;flex:1}
 #tapin-admin .tapin-notice .notice-icon{flex-shrink:0;color:#34d399;display:block}
 #tapin-admin .tapin-notice .notice-text{font-weight:600}
-#tapin-admin .tapin-notice .notice-close{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:inherit;font-size:19px;line-height:1;cursor:pointer;padding:0;min-height:28px;transition:all .15s ease}
+#tapin-admin .tapin-notice .notice-close{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:inherit;font-size:19px;line-height:1;cursor:pointer;padding:0;min-height:28px;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .tapin-notice .notice-close:hover{background:rgba(255,255,255,0.18);color:#fff}
 #tapin-admin .tapin-notice.error{background:linear-gradient(135deg,rgba(56,18,28,0.96),rgba(36,10,18,0.96))!important;border:1px solid #d44d68!important;color:#ffe6eb!important;box-shadow:0 4px 22px rgba(212,77,104,0.28)!important}
 #tapin-admin .tapin-notice.error .notice-icon{color:#ff6b87}
@@ -50,7 +50,7 @@
 #tapin-admin .dashboard-overview{direction:rtl;min-width:0;display:flex;flex-direction:column;gap:14px}
 #tapin-admin .dashboard-map{direction:rtl;min-width:0;position:static;overflow:visible;background:transparent;display:flex;flex-direction:column}
 #tapin-admin .dashboard-map .map-tools{position:absolute;top:0;left:0;right:0;display:flex;flex-wrap:nowrap;gap:8px;padding:12px;border:1px solid #163868;border-radius:12px;background:linear-gradient(110deg,#0b1e43,#091327);box-shadow:inset 0 0 16px #0b326733;min-height:78px;align-items:center;box-sizing:border-box}
-#tapin-admin .filter-title{padding:9px 18px;background:linear-gradient(120deg,#5b34eb,#211459);border:1px solid #7553ff;border-radius:8px;white-space:nowrap;flex-shrink:0;font-size:14px;font-weight:700;color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;box-shadow:0 0 12px rgba(117,83,255,0.35);transition:all .15s ease;box-sizing:border-box}
+#tapin-admin .filter-title{padding:9px 18px;background:linear-gradient(120deg,#5b34eb,#211459);border:1px solid #7553ff;border-radius:8px;white-space:nowrap;flex-shrink:0;font-size:14px;font-weight:700;color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;box-shadow:0 0 12px rgba(117,83,255,0.35);transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease);box-sizing:border-box}
 #tapin-admin .filter-title:hover{background:linear-gradient(120deg,#6b46ff,#2d197a);border-color:#9374ff;box-shadow:0 0 18px rgba(117,83,255,0.55);transform:translateY(-1px)}
 #tapin-admin .filter-title:active{transform:translateY(0);box-shadow:0 0 8px rgba(117,83,255,0.3)}
 #tapin-admin .filter-title:focus-visible{outline:2px solid #e6c174;outline-offset:2px}
@@ -59,7 +59,7 @@
    so the label, icons and chevron never slide — only the left edge grows.
    The retry button is excluded from the fold so an error stays reachable. */
 #tapin-admin .filter-title{min-width:128px;padding:9px 16px;gap:7px;justify-content:flex-start}
-#tapin-admin .filter-title .chev{flex:0 0 auto;opacity:.85;transition:transform .2s ease,opacity .2s ease;transform:rotate(180deg)}
+#tapin-admin .filter-title .chev{flex:0 0 auto;opacity:.85;transition:transform var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) ease;transform:rotate(180deg)}
 #tapin-admin .filter-title:hover .chev{opacity:1}
 /* padding-block only: keeping padding-inline at the row's 12px is what stops
    the trigger's right edge from jumping between the two states. */
@@ -74,6 +74,10 @@
 /* Scoped on the id because the field rules carry two ids and outrank a plain
    class-level collapse selector. */
 #tapin-admin #point-filters.filters-collapsed>:not(.filter-title){display:none!important}
+@supports (transition-behavior:allow-discrete){
+  #tapin-admin .map-tools>:not(.filter-title),#tapin-admin #point-filters>:not(.filter-title){transition:opacity var(--tapin-motion-feedback) ease,transform 180ms var(--tapin-motion-ease),display 180ms allow-discrete;transition-behavior:allow-discrete}
+  #tapin-admin .map-tools.filters-collapsed>:not(.filter-title),#tapin-admin #point-filters.filters-collapsed>:not(.filter-title){opacity:0;transform:translateY(-4px)}
+}
 #tapin-admin .filters-collapsed .filter-title .chev{transform:rotate(0deg);opacity:1}
 #tapin-admin .map-tools>select{flex:1;min-width:0;width:auto}
 #tapin-admin .map-tools .map-selects{display:contents}
@@ -83,7 +87,7 @@
 #tapin-admin .map-tools select{appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238fa5c7' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:left 12px center;padding-inline-start:12px;padding-inline-end:32px;cursor:pointer;border-radius:8px;transition:border-color .15s ease,background-color .15s ease}
 #tapin-admin .map-tools select:hover{border-color:#486b9c;background-color:#10223e}
 #tapin-admin .map-tools select:focus{border-color:#7553ff;box-shadow:0 0 0 2px rgba(117,83,255,0.25);outline:none}
-#tapin-admin .map-tools [data-reset]{cursor:pointer;background:linear-gradient(135deg,#13284a,#0d1a33);border:1px solid #2b4b7a;color:#d5e4f7;border-radius:8px;padding:8px 14px;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px;flex-shrink:0;transition:all .15s ease}
+#tapin-admin .map-tools [data-reset]{cursor:pointer;background:linear-gradient(135deg,#13284a,#0d1a33);border:1px solid #2b4b7a;color:#d5e4f7;border-radius:8px;padding:8px 14px;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px;flex-shrink:0;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .map-tools [data-reset]:hover{background:linear-gradient(135deg,#1b396b,#122547);border-color:#4878b5;color:#fff;box-shadow:0 0 10px rgba(43,75,122,0.4);transform:translateY(-1px)}
 #tapin-admin .map-tools [data-reset]:active{transform:translateY(0)}
 #tapin-admin .map-tools [data-reset]:focus-visible{outline:2px solid #e6c174;outline-offset:2px}
@@ -95,7 +99,7 @@
 #tapin-admin .map-tools .locator-search input{width:100%;border-radius:8px;padding:8px 12px;transition:border-color .15s ease,background-color .15s ease}
 #tapin-admin .map-tools .locator-search input:hover{border-color:#486b9c;background-color:#10223e}
 #tapin-admin .map-tools .locator-search input:focus{border-color:#7553ff;box-shadow:0 0 0 2px rgba(117,83,255,0.25);outline:none}
-#tapin-admin .map-tools .locator-search button{position:static;width:auto;height:auto;clip-path:none;min-height:46px;font-size:12px;border-radius:8px;cursor:pointer;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;transition:all .15s ease;flex-shrink:0;box-sizing:border-box}
+#tapin-admin .map-tools .locator-search button{position:static;width:auto;height:auto;clip-path:none;min-height:46px;font-size:12px;border-radius:8px;cursor:pointer;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease);flex-shrink:0;box-sizing:border-box}
 /* جستجو trigger: stays a calm, muted blue that sits with the toolbar, then
    lights up once the field is open so the active state is obvious. */
 #tapin-admin .map-tools .locator-search .btn-search{background:linear-gradient(135deg,#3361b8,#26489c);border:1px solid #4570c2;color:#eaf2ff}
@@ -156,7 +160,7 @@
 #tapin-admin .directory-table th:nth-child(6),#tapin-admin .directory-table td:nth-child(6),#tapin-admin .directory-table th:nth-child(7),#tapin-admin .directory-table td:nth-child(7){width:105px;white-space:nowrap;direction:ltr;text-align:center}
 #tapin-admin .directory-table th:nth-child(8),#tapin-admin .directory-table td:nth-child(8){width:125px;white-space:nowrap;text-align:center}
 #tapin-admin .directory-table th:nth-child(9),#tapin-admin .directory-table td:nth-child(9){width:105px;white-space:nowrap;text-align:center}
-#tapin-admin .directory-table [data-details]{background:linear-gradient(135deg,#1b3966,#132847);border:1px solid #2d558a;color:#d5e5fa;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;transition:all .15s ease}
+#tapin-admin .directory-table [data-details]{background:linear-gradient(135deg,#1b3966,#132847);border:1px solid #2d558a;color:#d5e5fa;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;white-space:nowrap;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .directory-table [data-details]:hover{background:#234a85;border-color:#467bc4;color:#fff;box-shadow:0 0 8px rgba(45,85,138,0.4)}
 
 /* Global icon-button alignment: any control carrying an inline SVG + label.
@@ -172,18 +176,18 @@
 #tapin-admin .section-title>.import-stepper{flex-direction:row;align-items:center}
 #tapin-admin .section-title h2,#tapin-admin .section-title h3{display:flex;align-items:center;gap:8px;margin:0}
 #tapin-admin .section-title small,#tapin-admin .section-title .step-label{font-size:12px;font-weight:500;color:#8fa7c9;letter-spacing:0}
-#tapin-admin .section-title a:not(.primary):not([download]){display:inline-flex;align-items:center;gap:6px;color:#9fc6ff;font-size:13px;font-weight:600;text-decoration:none;padding:6px 10px;border-radius:7px;border:1px solid #233e66;background:#0d1e38;transition:all .15s ease}
+#tapin-admin .section-title a:not(.primary):not([download]){display:inline-flex;align-items:center;gap:6px;color:#9fc6ff;font-size:13px;font-weight:600;text-decoration:none;padding:6px 10px;border-radius:7px;border:1px solid #233e66;background:#0d1e38;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .section-title a:not(.primary):not([download]):hover{background:#193a6b;border-color:#3b74bf;color:#fff;transform:translateY(-1px)}
 
 #tapin-admin .dashboard-directory-panel .map-actions{display:flex;align-items:center;justify-content:flex-start;gap:10px;padding:14px 0 0;background:transparent;flex-wrap:wrap}
 #tapin-admin .dashboard-directory-panel .page-indicator{color:#c4d6ed;font-size:12px;font-weight:600;padding:8px 14px;background:#0d1c36;border:1px solid #1c355e;border-radius:7px;white-space:nowrap;font-variant-numeric:tabular-nums;min-height:38px;display:inline-flex;align-items:center;box-sizing:border-box}
-#tapin-admin .dashboard-directory-panel .map-actions button{background:linear-gradient(135deg,#132747,#0d1a33);border:1px solid #2b4b7a;color:#d5e4f7;padding:8px 16px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;min-height:38px;transition:all .15s ease}
+#tapin-admin .dashboard-directory-panel .map-actions button{background:linear-gradient(135deg,#132747,#0d1a33);border:1px solid #2b4b7a;color:#d5e4f7;padding:8px 16px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;min-height:38px;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .dashboard-directory-panel .map-actions button:hover:not(:disabled){background:#1c3866;border-color:#4878b5;color:#fff;transform:translateY(-1px)}
 #tapin-admin .dashboard-directory-panel .map-actions button:disabled{opacity:0.4;cursor:not-allowed}
 #tapin-admin .dashboard-directory-panel .map-actions [data-list]{background:#10223d;border:1px solid #22426d;color:#94b1d6;margin-inline-start:auto}
 #tapin-admin .dashboard-directory-panel .map-actions [data-list]:hover{background:#173259;border-color:#396aa8;color:#fff}
 #tapin-admin .dashboard-directory-panel .export-controls{display:flex;align-items:center;gap:14px;padding:14px 18px;margin-top:14px;background:rgba(10,24,46,0.6);border:1px solid #1c365b;border-radius:8px}
-#tapin-admin .dashboard-directory-panel .export-controls button{background:linear-gradient(135deg,#059669,#047857);border:1px solid #10b981;color:#fff;font-weight:700;padding:9px 18px;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap;transition:all .15s ease}
+#tapin-admin .dashboard-directory-panel .export-controls button{background:linear-gradient(135deg,#059669,#047857);border:1px solid #10b981;color:#fff;font-weight:700;padding:9px 18px;border-radius:7px;cursor:pointer;font-size:13px;white-space:nowrap;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .dashboard-directory-panel .export-controls button:hover{background:#10b981;box-shadow:0 0 12px rgba(16,185,129,0.4)}
 #tapin-admin .dashboard-directory-panel .export-controls small{color:#8ba3c7;font-size:12px}
 #tapin-admin .dashboard-directory-panel .export-controls [role="status"]{color:#34d399;font-size:12px;font-weight:600}
@@ -191,12 +195,12 @@
 /* Service Points (#points) Header & Actions Alignment (Fixes Image 2) */
 #tapin-admin .section-title{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
 #tapin-admin .section-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-#tapin-admin .section-actions a.primary{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px;padding:9px 18px;border-radius:8px;background:#ffbd18;color:#161824!important;text-decoration:none;box-shadow:0 0 14px rgba(255,185,0,0.25);transition:all .15s ease}
+#tapin-admin .section-actions a.primary{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px;padding:9px 18px;border-radius:8px;background:#ffbd18;color:#161824!important;text-decoration:none;box-shadow:0 0 14px rgba(255,185,0,0.25);transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .section-actions a.primary:hover{background:#ffc73b;box-shadow:0 0 18px rgba(255,185,0,0.45);transform:translateY(-1px)}
 #tapin-admin .section-actions .export-controls{margin:0;padding:0;background:transparent;border:0;display:flex;flex-wrap:nowrap;align-items:center;gap:10px;min-width:0}
 #tapin-admin .section-actions .export-controls small{white-space:nowrap;font-size:12px}
 #tapin-admin .section-actions .export-controls [role="status"]{flex-basis:auto;white-space:nowrap;font-size:12px}
-#tapin-admin .section-actions .export-controls button{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:8px 16px;border-radius:8px;background:linear-gradient(135deg,#059669,#047857);border:1px solid #10b981;color:#fff;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .15s ease}
+#tapin-admin .section-actions .export-controls button{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:8px 16px;border-radius:8px;background:linear-gradient(135deg,#059669,#047857);border:1px solid #10b981;color:#fff;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .section-actions .export-controls button:hover{background:#10b981;box-shadow:0 0 12px rgba(16,185,129,0.4);transform:translateY(-1px)}
 #tapin-admin .section-actions .export-controls small{color:#8ba3c7;font-size:12px}
 
@@ -240,7 +244,7 @@
 #tapin-admin .tapin-dialog select[name=province],#tapin-admin .tapin-dialog select[name=city]{width:100%;min-width:0}
 #tapin-admin .tapin-dialog select[name=city]:disabled{opacity:.62;cursor:not-allowed}
 #tapin-admin #point-filters .filter-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
-#tapin-admin #point-filters .filter-actions button,#tapin-admin #point-filters .filter-actions a{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;white-space:nowrap;text-decoration:none;cursor:pointer;box-sizing:border-box;transition:all .15s ease}
+#tapin-admin #point-filters .filter-actions button,#tapin-admin #point-filters .filter-actions a{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;white-space:nowrap;text-decoration:none;cursor:pointer;box-sizing:border-box;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin #point-filters .filter-actions button.primary{background:linear-gradient(135deg,#1d4ed8,#1e3a8a);border:1px solid #3b82f6;color:#fff}
 #tapin-admin #point-filters .filter-actions button.primary:hover{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-color:#60a5fa;box-shadow:0 0 10px rgba(59,130,246,0.4);transform:translateY(-1px)}
 #tapin-admin #point-filters .filter-actions .btn-clear-filters{background:#101f38;border:1px solid #28446b;color:#a3badc}
@@ -290,13 +294,13 @@
 #tapin-admin .points-management-table .status-pill.muted .status-dot{width:7px;height:7px;border-radius:50%;background:#6b7280;display:inline-block}
 #tapin-admin .points-management-table th:nth-child(9),#tapin-admin .points-management-table td:nth-child(9),#tapin-admin .points-management-table .cell-actions{width:19%;white-space:nowrap!important;text-align:center}
 #tapin-admin .points-management-table .tapin-row-actions{display:inline-flex;flex-wrap:nowrap;align-items:center;gap:3px;justify-content:center;white-space:nowrap}
-#tapin-admin .points-management-table .tapin-row-actions button{display:inline-flex;align-items:center;gap:3px;padding:5px 6px;border-radius:6px;font-size:10.5px;font-weight:600;cursor:pointer;transition:all .15s ease;border:1px solid #233e66;background:#0d1e38;color:#c4d9f5;white-space:nowrap}
+#tapin-admin .points-management-table .tapin-row-actions button{display:inline-flex;align-items:center;gap:3px;padding:5px 6px;border-radius:6px;font-size:10.5px;font-weight:600;cursor:pointer;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease);border:1px solid #233e66;background:#0d1e38;color:#c4d9f5;white-space:nowrap}
 #tapin-admin .points-management-table .tapin-row-actions button.btn-view:hover{background:#193a6b;border-color:#3b74bf;color:#fff}
 #tapin-admin .points-management-table .tapin-row-actions button.btn-edit{background:#112642;border-color:#274875;color:#ffd666}
 #tapin-admin .points-management-table .tapin-row-actions button.btn-edit:hover{background:#1c3c66;border-color:#e6b800;color:#ffe58f}
 #tapin-admin .points-management-table .tapin-row-actions button.danger{background:rgba(220,38,38,0.15);border-color:rgba(220,38,38,0.4);color:#fca5a5}
 #tapin-admin .points-management-table .tapin-row-actions button.danger:hover{background:rgba(220,38,38,0.3);border-color:#ef4444;color:#fff}
-#tapin-admin .history-table .import-delete,#tapin-admin .import-delete-detail{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:6px 11px;border:1px solid rgba(220,75,91,.42);border-radius:8px;background:linear-gradient(135deg,rgba(106,32,47,.32),rgba(58,22,36,.4));color:#ffabb4;font-size:12px;font-weight:700;white-space:nowrap;transition:background .15s ease,border-color .15s ease,color .15s ease,box-shadow .15s ease}
+#tapin-admin .history-table .import-delete,#tapin-admin .import-delete-detail{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:6px 11px;border:1px solid rgba(220,75,91,.42);border-radius:8px;background:linear-gradient(135deg,rgba(106,32,47,.32),rgba(58,22,36,.4));color:#ffabb4;font-size:12px;font-weight:700;white-space:nowrap;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color .15s ease,color .15s ease,box-shadow .15s ease}
 #tapin-admin .history-table .import-delete:hover:not(:disabled),#tapin-admin .import-delete-detail:hover:not(:disabled){background:linear-gradient(135deg,rgba(151,43,61,.55),rgba(87,27,44,.65));border-color:#ed6476;color:#fff;box-shadow:0 3px 14px rgba(212,77,104,.18)}
 #tapin-admin .history-table .import-delete:disabled,#tapin-admin .import-delete-detail:disabled{opacity:.45;cursor:not-allowed}
 #tapin-admin .import-history .section-title{margin-bottom:16px}
@@ -314,10 +318,10 @@
 #tapin-admin .pagination{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:24px;padding:16px;background:rgba(10,22,42,0.5);border:1px solid #1a304e;border-radius:12px}
 #tapin-admin .pagination-controls{display:flex;align-items:center;gap:6px;justify-content:center;flex-wrap:wrap}
 #tapin-admin .pagination-pages{display:flex;align-items:center;gap:4px}
-#tapin-admin .pagination-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;background:#0e1e38;border:1px solid #223f69;color:#c8daf2;cursor:pointer;min-height:38px;transition:all .15s ease}
+#tapin-admin .pagination-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;background:#0e1e38;border:1px solid #223f69;color:#c8daf2;cursor:pointer;min-height:38px;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .pagination-btn:hover:not(:disabled){background:#183561;border-color:#3d6ea8;color:#fff;transform:translateY(-1px)}
 #tapin-admin .pagination-btn:disabled{opacity:0.35;cursor:not-allowed}
-#tapin-admin .pagination-num{min-width:38px;height:38px;padding:0 10px;border-radius:8px;font-size:13px;font-weight:700;background:#0c1a30;border:1px solid #1e3960;color:#b5cce8;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;transition:all .15s ease}
+#tapin-admin .pagination-num{min-width:38px;height:38px;padding:0 10px;border-radius:8px;font-size:13px;font-weight:700;background:#0c1a30;border:1px solid #1e3960;color:#b5cce8;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .pagination-num:hover:not(.active){background:#163259;border-color:#3768a3;color:#fff;transform:translateY(-1px)}
 #tapin-admin .pagination-num.active{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-color:#60a5fa;color:#fff;box-shadow:0 0 12px rgba(37,99,235,0.45);cursor:default}
 #tapin-admin .pagination-ellipsis{color:#6983a8;padding:0 6px;font-weight:700}
@@ -333,7 +337,7 @@
 #tapin-admin .step-item.active .step-num{background:#ffbd18;color:#161824;border-color:#ffbd18;box-shadow:0 0 8px rgba(255,189,24,0.4)}
 #tapin-admin .step-sep{color:#435c7e;font-size:12px}
 
-#tapin-admin .upload-zone{position:relative;text-align:center;margin:22px 0 16px;border:2px dashed #22426d;border-radius:14px;background:linear-gradient(135deg,rgba(12,25,45,0.7),rgba(8,18,35,0.7));padding:40px 24px;transition:all .2s ease;display:flex;flex-direction:column;align-items:center}
+#tapin-admin .upload-zone{position:relative;text-align:center;margin:22px 0 16px;border:2px dashed #22426d;border-radius:14px;background:linear-gradient(135deg,rgba(12,25,45,0.7),rgba(8,18,35,0.7));padding:40px 24px;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease);display:flex;flex-direction:column;align-items:center}
 #tapin-admin .upload-zone:hover,#tapin-admin .upload-zone.drag-active{border-color:#7553ff;background:linear-gradient(135deg,rgba(25,38,70,0.8),rgba(15,25,50,0.8));box-shadow:0 0 25px rgba(117,83,255,0.15)}
 #tapin-admin .upload-icon-wrap{display:grid;place-items:center;width:68px;height:68px;border-radius:18px;background:linear-gradient(135deg,rgba(117,83,255,0.2),rgba(80,45,210,0.1));border:1px solid rgba(117,83,255,0.35);color:#bfa4ff;margin-bottom:16px;box-shadow:0 0 20px rgba(117,83,255,0.2)}
 #tapin-admin .upload-title{font-size:18px;font-weight:700;color:#f0f4fc;margin:0 0 8px}
@@ -342,15 +346,15 @@
 
 #tapin-admin .custom-file-selector{position:relative;display:inline-flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;margin-bottom:18px}
 #tapin-admin .sr-only-input{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-#tapin-admin .btn-browse{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:9px;background:linear-gradient(135deg,#1b396b,#122547);border:1px solid #335991;color:#e1edfc;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(18,37,71,0.5);transition:all .15s ease}
+#tapin-admin .btn-browse{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:9px;background:linear-gradient(135deg,#1b396b,#122547);border:1px solid #335991;color:#e1edfc;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(18,37,71,0.5);transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .custom-file-selector:hover .btn-browse{background:linear-gradient(135deg,#234c8c,#183361);border-color:#487bc4;color:#fff;box-shadow:0 6px 18px rgba(35,76,140,0.45);transform:translateY(-1px)}
 #tapin-admin .custom-file-selector input:focus-visible + .btn-browse{outline:2px solid #e6c174;outline-offset:2px}
-#tapin-admin .selected-file-name{display:inline-flex;align-items:center;gap:9px;padding:8px 18px;border-radius:22px;background:linear-gradient(135deg,rgba(0,213,155,0.15),rgba(0,180,130,0.08));border:1px solid rgba(0,213,155,0.45);color:#00f0aa;font-size:13px;font-weight:600;box-shadow:0 0 16px rgba(0,213,155,0.18);transition:all .15s ease}
+#tapin-admin .selected-file-name{display:inline-flex;align-items:center;gap:9px;padding:8px 18px;border-radius:22px;background:linear-gradient(135deg,rgba(0,213,155,0.15),rgba(0,180,130,0.08));border:1px solid rgba(0,213,155,0.45);color:#00f0aa;font-size:13px;font-weight:600;box-shadow:0 0 16px rgba(0,213,155,0.18);transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .selected-file-name .file-pill-icon{flex-shrink:0;color:#00f0aa;display:block}
 #tapin-admin .selected-file-name small{color:#98f7dc;font-weight:500}
 
 #tapin-admin .upload-actions{margin-bottom:22px}
-#tapin-admin .btn-upload-submit{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:10px;background:#ffbd18;color:#161824!important;font-weight:700;font-size:14px;border:0;cursor:pointer;box-shadow:0 0 18px rgba(255,189,24,0.35);transition:all .15s ease}
+#tapin-admin .btn-upload-submit{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:10px;background:#ffbd18;color:#161824!important;font-weight:700;font-size:14px;border:0;cursor:pointer;box-shadow:0 0 18px rgba(255,189,24,0.35);transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .btn-upload-submit:hover:not(:disabled){background:#ffc73b;box-shadow:0 0 24px rgba(255,189,24,0.55);transform:translateY(-1px)}
 #tapin-admin .btn-upload-submit:disabled{opacity:0.5;cursor:not-allowed}
 
@@ -362,7 +366,7 @@
 #tapin-admin .upload-note svg{flex-shrink:0;color:#9fbada}
 
 #tapin-admin .upload-footer{display:flex;justify-content:flex-start;margin-top:12px}
-#tapin-admin .btn-template-download{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:9px;background:linear-gradient(135deg,#132747,#0d1a33);border:1px solid #2b4b7a;color:#d5e4f7;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s ease}
+#tapin-admin .btn-template-download{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:9px;background:linear-gradient(135deg,#132747,#0d1a33);border:1px solid #2b4b7a;color:#d5e4f7;font-size:12px;font-weight:600;text-decoration:none;transition:background-color var(--tapin-motion-feedback) var(--tapin-motion-ease),border-color var(--tapin-motion-feedback) var(--tapin-motion-ease),color var(--tapin-motion-feedback) var(--tapin-motion-ease),opacity var(--tapin-motion-feedback) var(--tapin-motion-ease),transform var(--tapin-motion-feedback) var(--tapin-motion-ease)}
 #tapin-admin .btn-template-download:hover{background:#1c3866;border-color:#4878b5;color:#fff;box-shadow:0 0 12px rgba(43,75,122,0.4);transform:translateY(-1px)}
 
 @media(max-width:1200px){#tapin-admin .dashboard-hero{padding-top:165px;grid-template-columns:minmax(240px,.6fr) minmax(0,1fr)}#tapin-admin .dashboard-map .map-tools{flex-wrap:wrap;min-height:auto}#tapin-admin .map-tools .locator-search{flex-basis:100%}#tapin-admin .eyebrow{font-size:15px}#tapin-admin .header-actions a{font-size:13px;padding:10px}}
@@ -449,3 +453,5 @@
 #tapin-admin .points-management-table .tapin-row-actions button::after{content:attr(data-tooltip);position:absolute;inset:auto 50% calc(100% + 8px) auto;transform:translateX(50%) translateY(3px);z-index:500;pointer-events:none;opacity:0;white-space:nowrap;padding:4px 9px;border:1px solid #465574;border-radius:6px;background:#111b2c;color:#f2f5fc;font-family:inherit;font-size:11px;line-height:1.6;box-shadow:0 5px 16px #0008;transition:opacity .12s ease,transform .12s ease}
 #tapin-admin .points-management-table .tapin-row-actions button:hover::after,#tapin-admin .points-management-table .tapin-row-actions button:focus-visible::after{opacity:1;transform:translateX(50%) translateY(0)}
 #tapin-admin .points-management-table .tapin-row-actions button:focus-visible{outline:2px solid #ffcf58;outline-offset:2px;z-index:2}
+
+@media(prefers-reduced-motion:reduce){#tapin-admin :not(.leaflet-container):not(.leaflet-container *),#tapin-admin :not(.leaflet-container):not(.leaflet-container *)::before,#tapin-admin :not(.leaflet-container):not(.leaflet-container *)::after{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto!important}#tapin-admin .tapin-sidebar{transition:none!important}}

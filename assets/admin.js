@@ -129,9 +129,11 @@
     // Same fold behaviour as the dashboard filter row: the trigger stretches
     // while folded and the fields collapse behind it.
     const filterTrigger=form.querySelector('.filter-title');
+    const filterControls=[...form.querySelectorAll(':scope > :not(.filter-title)')];
     filterTrigger.onclick=()=>{
       const folded=form.classList.toggle('filters-collapsed');
       filterTrigger.setAttribute('aria-expanded',String(!folded));
+      filterControls.forEach(node=>{node.inert=folded;node.setAttribute('aria-hidden',String(folded));});
     };
     Tapin.exportControl(content().querySelector('.section-actions'),()=>query);
     mountGeocoding(form,data.items,token);
@@ -429,13 +431,16 @@
   }
   shell();
   const sideToggle=root.querySelector('[data-sidebar-toggle]');
+  root.querySelector('.tapin-sidebar').addEventListener('transitionend',event=>{
+    if(event.target===event.currentTarget&&event.propertyName==='flex-basis')window.dispatchEvent(new Event('resize'));
+  });
   sideToggle.onclick=()=>{
     const collapsed=root.classList.toggle('sidebar-collapsed');
     sideToggle.setAttribute('aria-expanded',String(!collapsed));
     const label=collapsed?'نمایش سایدبار':'جمع کردن سایدبار';
     sideToggle.setAttribute('aria-label',label);sideToggle.title=label;
-    // Leaflet tracks window resize; let the flex transition settle first.
-    setTimeout(()=>window.dispatchEvent(new Event('resize')),320);
+    // Keep Leaflet in sync at the start and end of the sidebar flex transition.
+    requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
   };
   window.addEventListener('hashchange',()=>{root.querySelector('dialog').close();refresh();});refresh();
 })();
