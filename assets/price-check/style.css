@@ -2,48 +2,13 @@
     Every class name used by the JS renderers is preserved; this file only
     changes how those structures look and feel. */
 
-/* IRANSans is bundled so Persian text and digits render in one typeface. */
+/* Use the plugin-bundled Vazirmatn font used by the locator and map UI. */
 @font-face {
-  font-family: "IRANSans";
+  font-family: "TapinVazir";
   font-style: normal;
-  font-weight: 200;
+  font-weight: 100 900;
   font-display: swap;
-  src: local("IRANSans"), local("IRANSansWeb_UltraLight");
-}
-@font-face {
-  font-family: "IRANSans";
-  font-style: normal;
-  font-weight: 300;
-  font-display: swap;
-  src: local("IRANSans"), local("IRANSansWeb_Light");
-}
-@font-face {
-  font-family: "IRANSans";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: local("IRANSans"), local("IRANSansWeb");
-}
-@font-face {
-  font-family: "IRANSans";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: local("IRANSans"), local("IRANSansWeb_Medium");
-}
-@font-face {
-  font-family: "IRANSans";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: local("IRANSans"), local("IRANSansWeb_Bold");
-}
-@font-face {
-  font-family: "IRANSans";
-  font-style: normal;
-  font-weight: 800 900;
-  font-display: swap;
-  src: local("IRANSans"), local("IRANSansWeb_Bold");
+  src: url("../fonts/Vazirmatn.woff2") format("woff2");
 }
 
 :root {
@@ -81,10 +46,13 @@
   --radius-sm: 8px;
   --shadow: 0 1px 2px rgba(23, 25, 45, 0.05), 0 8px 24px -12px rgba(23, 25, 45, 0.18);
   --shadow-sm: 0 1px 2px rgba(23, 25, 45, 0.06);
-  --font: "IRANSans", Tahoma, Arial, sans-serif;
+  --font: "TapinVazir", Tahoma, Arial, sans-serif;
 }
 
 * { box-sizing: border-box; }
+
+/* Form controls do not inherit typography from body in every browser. */
+button, input, select, textarea { font-family: inherit; }
 
 body {
   margin: 0;
