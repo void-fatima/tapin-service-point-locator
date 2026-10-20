@@ -61,7 +61,7 @@ final class Schema {
 			$indexes[$row['Key_name']]['unique'] = 0 === (int) $row['Non_unique'];
 		}
 		foreach ( explode( "\n", $definition ) as $line ) {
-			$line = trim( $line, " \t," );
+			$line = trim( $line, " \t\r," );
 			if ( preg_match( '/^(PRIMARY KEY|UNIQUE KEY|KEY)\s+(?:(\w+)\s+)?\(([^)]+)\)$/', $line, $match ) ) {
 				$name = 'PRIMARY KEY' === $match[1] ? 'PRIMARY' : $match[2];
 				$expected = array_map( 'trim', explode( ',', $match[3] ) );

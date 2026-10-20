@@ -11,6 +11,7 @@ use Tapin\ServicePointLocator\PriceCheck\ProviderDefinition;
 use Tapin\ServicePointLocator\PriceCheck\Units;
 use Tapin\ServicePointLocator\PriceCheck\RecordError;
 use Tapin\ServicePointLocator\PriceCheck\PayloadError;
+use Tapin\ServicePointLocator\PriceCheck\PythonValue;
 
 function expand_fixture( $value ) {
 	global $fixture;
@@ -81,4 +82,19 @@ foreach ( $fixture->compatibility_limits as $case ) {
 	catch ( DomainException $error ) { $guarded++; }
 }
 echo "Explicit PHP compatibility guards: {$guarded} passed (not parity claims).\n";
+
+$float_regressions = array(
+	array( 35.7, '35.7' ),
+	array( 1.0e-5, '1e-05' ),
+	array( 1.0e-6, '1e-06' ),
+	array( 1.0e16, '1e+16' ),
+	array( 1.0, '1.0' ),
+	array( -0.0, '-0.0' ),
+);
+$initial_serialize_precision = ini_get( 'serialize_precision' );
+foreach ( $float_regressions as $regression ) {
+	if ( PythonValue::string( $regression[0] ) !== $regression[1] ) { echo 'FAIL Python float representation: ' . $regression[1] . "\n"; exit( 1 ); }
+}
+if ( ini_get( 'serialize_precision' ) !== $initial_serialize_precision ) { echo "FAIL serialize_precision was not restored.\n"; exit( 1 ); }
+echo 'Python float representation regressions: ' . count( $float_regressions ) . " passed.\n";
 exit( $failed ? 1 : 0 );

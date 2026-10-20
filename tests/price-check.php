@@ -132,7 +132,8 @@ try {
 	foreach ( $actions['admin_menu'][20] as $callback ) { $callback(); }
 	check( 6 === count( $menus ), 'Missing documented admin sections.' );
 	foreach ( $menus as $slug => $menu ) {
-		check( 0 === strpos( $slug, 'tapin-price-' ) && 'tapin-locator' === $menu['parent'] && 'manage_options' === $menu['capability'], 'Menu namespace/capability mismatch.' );
+		$expected_parent = 'tapin-price-providers' === $slug ? 'tapin-locator' : '';
+		check( 0 === strpos( $slug, 'tapin-price-' ) && $expected_parent === $menu['parent'] && 'manage_options' === $menu['capability'], 'Menu namespace/capability mismatch.' );
 		foreach ( array( array( false, false ), array( true, false ), array( false, true ) ) as $state ) {
 			$identity = array( 'logged_in' => $state[0], 'capable' => $state[1] );
 			check( ! Access::can_manage(), 'Admin permission helper allowed unauthorized read/write.' );

@@ -17,7 +17,7 @@ final class PriceCheckDatabase {
 		foreach ( array_keys( $definitions ) as $suffix ) {
 			$lines = array(); $auto = false;
 			foreach ( explode( "\n", $definitions[$suffix] ) as $line ) {
-				$line = trim( $line, " \t," );
+				$line = trim( $line, " \t\r," );
 				if ( 0 === strpos( $line, 'KEY ' ) ) { continue; }
 				if ( false !== strpos( $line, 'AUTO_INCREMENT' ) ) { $line = 'id INTEGER PRIMARY KEY AUTOINCREMENT'; $auto = true; }
 				if ( $auto && 0 === strpos( $line, 'PRIMARY KEY' ) ) { continue; }

@@ -36,7 +36,13 @@ final class PythonValue {
 		if ( is_float( $value ) ) {
 			if ( is_nan( $value ) ) { return 'nan'; }
 			if ( is_infinite( $value ) ) { return $value < 0 ? '-inf' : 'inf'; }
-			$text = json_encode( $value, JSON_PRESERVE_ZERO_FRACTION );
+			$serialize_precision = ini_get( 'serialize_precision' );
+			$restore_precision = '-1' !== $serialize_precision && false !== @ini_set( 'serialize_precision', '-1' );
+			try {
+				$text = json_encode( $value, JSON_PRESERVE_ZERO_FRACTION );
+			} finally {
+				if ( $restore_precision ) { @ini_set( 'serialize_precision', $serialize_precision ); }
+			}
 			if ( 0.0 !== $value && abs( $value ) >= 1.0e16 && false === stripos( $text, 'e' ) ) {
 				$digits = ltrim( preg_replace( '/\.0$/', '', $text ), '-' );
 				$text = ( $value < 0 ? '-' : '' ) . $digits[0] . '.' . substr( $digits, 1 ) . 'e+' . ( strlen( $digits ) - 1 );
