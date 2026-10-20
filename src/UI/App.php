@@ -6,7 +6,8 @@ defined( 'ABSPATH' ) || exit;
 final class App {
 	public function boot(): void {
 		add_action( 'admin_menu', function() {
-			add_menu_page( 'نقاط خدماتی تاپین', 'تاپین', 'manage_options', 'tapin-locator', array( $this, 'admin' ), 'dashicons-location-alt', 30 );
+			add_menu_page( 'تاپین', 'تاپین', 'manage_options', 'tapin-locator', array( $this, 'admin' ), 'dashicons-location-alt', 30 );
+			add_submenu_page( 'tapin-locator', 'نقشه', 'نقشه', 'manage_options', 'tapin-locator', array( $this, 'admin' ) );
 		} );
 		add_action( 'admin_enqueue_scripts', function( $hook ) { if ( 'toplevel_page_tapin-locator' === $hook ) { $this->assets( true ); } } );
 		add_action( 'wp_enqueue_scripts', function() {
