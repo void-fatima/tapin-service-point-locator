@@ -1427,6 +1427,7 @@ async function loadBulk() {
 // list of ACTIVE providers (from /api/bulk, already filtered server-side)
 // and each card deep-links to that provider's dedicated single form.
 let bulkAdvancedOpen = false;
+let bulkAdvancedFrame = 0;
 
 function bulkAdvancedProviders() {
   const fromBulk = bulkSchema && Array.isArray(bulkSchema.providers) ? bulkSchema.providers : [];
@@ -1434,18 +1435,31 @@ function bulkAdvancedProviders() {
 }
 
 function setBulkAdvancedOpen(open) {
-  bulkAdvancedOpen = open;
   const toggle = document.getElementById('bulk-advanced-toggle');
   const panel = document.getElementById('bulk-advanced-panel');
   if (!toggle || !panel) return;
+  if (bulkAdvancedFrame) cancelAnimationFrame(bulkAdvancedFrame);
+  bulkAdvancedFrame = 0;
+  bulkAdvancedOpen = Boolean(open);
   toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
   toggle.classList.toggle('is-open', open);
   if (open) {
     panel.hidden = false;
-    requestAnimationFrame(() => panel.classList.add('open'));
+    panel.inert = true;
+    bulkAdvancedFrame = requestAnimationFrame(() => {
+      bulkAdvancedFrame = 0;
+      if (bulkAdvancedOpen && panel.isConnected) {
+        panel.classList.add('open');
+        panel.inert = false;
+      }
+    });
   } else {
+    panel.inert = true;
+    const wasOpen = panel.classList.contains('open');
     panel.classList.remove('open');
-    window.setTimeout(() => { if (!bulkAdvancedOpen) panel.hidden = true; }, 220);
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const duration = parseFloat(getComputedStyle(panel).transitionDuration) || 0;
+    if (motion || duration === 0 || !wasOpen) panel.hidden = true;
   }
 }
 
@@ -1458,6 +1472,12 @@ function paintBulkAdvancedShortcut() {
   if (!toggle || !panel || !grid) return;
   if (!toggle.dataset.bound) {
     toggle.dataset.bound = '1';
+    panel.inert = true;
+    panel.addEventListener('transitionend', (event) => {
+      if (event.target === panel && event.propertyName === 'opacity' && !bulkAdvancedOpen) {
+        panel.hidden = true;
+      }
+    });
     toggle.addEventListener('click', (event) => {
       event.stopPropagation();
       setBulkAdvancedOpen(!bulkAdvancedOpen);

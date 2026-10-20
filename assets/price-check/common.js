@@ -1,5 +1,6 @@
 import { request } from './wordpress.js';
 // Shared helpers for the static frontend. No framework, no build step.
+let searchableSelectSequence = 0;
 
 export async function api(path, { method = 'GET', body } = {}) {
   const headers = {};
@@ -299,12 +300,13 @@ export function searchableSelect(select, { placeholder = 'جستجو…' } = {})
   // choice, the opened panel starts with a focused search box, and picking
   // an option writes straight back to the native select (so population,
   // change listeners, tests and form submission keep working untouched).
-  const face = h('button', { type: 'button', class: 'combo-face' },
+  const panelId = `price-check-select-${++searchableSelectSequence}`;
+  const face = h('button', { type: 'button', class: 'combo-face', 'aria-haspopup': 'listbox', 'aria-expanded': 'false', 'aria-controls': panelId },
     h('span', { class: 'combo-label', text: '' }),
     h('span', { class: 'combo-chevron' }));
   const search = h('input', { type: 'text', class: 'combo-search', placeholder, autocomplete: 'off' });
   const list = h('div', { class: 'combo-list', role: 'listbox' });
-  const panel = h('div', { class: 'combo-panel' }, search, list);
+  const panel = h('div', { class: 'combo-panel', id: panelId, inert: true }, search, list);
   const wrap = h('div', { class: 'search-select combo' }, face, select, panel);
   select.classList.add('combo-native');
 
@@ -329,6 +331,8 @@ export function searchableSelect(select, { placeholder = 'جستجو…' } = {})
   };
   const close = (refocus = false) => {
     wrap.classList.remove('open');
+    face.setAttribute('aria-expanded', 'false');
+    panel.inert = true;
     if (refocus) face.focus();
   };
   const choose = (value) => {
@@ -358,6 +362,8 @@ export function searchableSelect(select, { placeholder = 'جستجو…' } = {})
     search.value = '';
     filterList();
     wrap.classList.add('open');
+    face.setAttribute('aria-expanded', 'true');
+    panel.inert = false;
     search.focus();
   };
   face.addEventListener('click', () => {

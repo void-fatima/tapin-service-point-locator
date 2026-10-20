@@ -14,6 +14,9 @@
 :root {
   /* TAPIN brand palette: navy #2d2b74 for trust, orange #faa627 for energy,
      used ~30/20 against light surfaces per the brand book. */
+  --tapin-motion-feedback: 150ms;
+  --tapin-motion-panel: 280ms;
+  --tapin-motion-ease: cubic-bezier(.22, 1, .36, 1);
   --paper: #f8f8ff;
   --card: #ffffff;
   --ink: #1b1d29;
@@ -196,7 +199,7 @@ p.lead { color: var(--muted); font-weight: 300; margin: 0 0 20px; font-size: 13.
 }
 
 /* selectable provider tiles */
-.tile { transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease; cursor: default; }
+.tile { transition: transform var(--tapin-motion-feedback) var(--tapin-motion-ease), border-color var(--tapin-motion-feedback) ease; cursor: default; }
 .tile:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: #f2cf93; }
 .tile .btn { margin-top: 2px; flex: none; }
 
@@ -294,7 +297,12 @@ select {
   background-position: center;
 }
 .combo-panel {
-  display: none;
+  display: block;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-5px) scale(.99);
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 240ms var(--tapin-motion-ease), visibility 0s linear 240ms;
   position: absolute;
   top: calc(100% + 4px);
   inset-inline: 0;
@@ -305,7 +313,7 @@ select {
   box-shadow: var(--shadow);
   padding: 6px;
 }
-.combo.open .combo-panel { display: block; }
+.combo.open .combo-panel { visibility: visible; opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; transition-delay: 0s; }
 .combo-search {
   width: 100%;
   min-height: 0;
@@ -482,7 +490,7 @@ select {
   background: var(--navy); color: #fff;
   min-height: 42px; padding: 9px 22px; border-radius: var(--radius-md); font: inherit; font-size: 13.5px; font-weight: 700; text-decoration: none;
   box-shadow: var(--shadow-sm);
-  transition: background .14s ease, transform .14s ease, box-shadow .14s ease;
+  transition: background-color var(--tapin-motion-feedback) ease, transform var(--tapin-motion-feedback) var(--tapin-motion-ease);
 }
 .btn:hover { background: var(--navy-deep); transform: translateY(-1px); box-shadow: var(--shadow); }
 .btn:active { transform: translateY(0); }
@@ -577,7 +585,7 @@ details { border: 1px dashed var(--line); border-radius: var(--radius-md); paddi
   border-inline-start: 4px solid var(--danger);
   padding: 11px 16px; border-radius: 12px; max-width: 420px; max-width: calc(100vw - 32px); font-size: 13px; font-weight: 500;
   box-shadow: var(--shadow); white-space: pre-line;
-  opacity: 0; transform: translateY(8px); transition: opacity .2s, transform .2s;
+  opacity: 0; transform: translateY(8px); transition: opacity 180ms ease, transform 220ms var(--tapin-motion-ease);
 }
 .toast.ok { color: var(--ok); border-color: var(--ok-line); border-inline-start-color: var(--ok); }
 .toast.in { opacity: 1; transform: translateY(0); }
@@ -652,7 +660,7 @@ details { border: 1px dashed var(--line); border-radius: var(--radius-md); paddi
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  :not(.leaflet-container):not(.leaflet-container *), :not(.leaflet-container):not(.leaflet-container *)::before, :not(.leaflet-container):not(.leaflet-container *)::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   .tile:hover, .btn:hover { transform: none; }
 }
 
@@ -1446,7 +1454,7 @@ details.add-field > summary { font-weight: 700; font-size: 13px; color: var(--na
   padding: 10px 14px 10px 12px; border-radius: 15px;
   background: linear-gradient(135deg, var(--navy) 0%, #3d3a9e 55%, var(--royal) 100%);
   box-shadow: 0 10px 24px -10px rgba(45, 43, 116, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+  transition: transform var(--tapin-motion-feedback) var(--tapin-motion-ease), filter var(--tapin-motion-feedback) ease;
 }
 .adv-cta:hover { transform: translateY(-2px); filter: saturate(1.06); box-shadow: 0 16px 30px -12px rgba(45, 43, 116, 0.6), 0 6px 18px -8px rgba(250, 166, 39, 0.55); }
 .adv-cta:active { transform: translateY(0); }
@@ -1479,7 +1487,7 @@ details.add-field > summary { font-weight: 700; font-size: 13px; color: var(--na
   transform: translateY(-10px) scale(0.98);
   transform-origin: top left;
   pointer-events: none;
-  transition: opacity .2s ease, transform .22s ease;
+  transition: opacity 220ms ease, transform var(--tapin-motion-panel) var(--tapin-motion-ease);
 }
 .adv-menu.open { opacity: 1; transform: none; pointer-events: auto; }
 .adv-menu::before {
@@ -1505,8 +1513,8 @@ details.add-field > summary { font-weight: 700; font-size: 13px; color: var(--na
   padding: 10px 12px; cursor: pointer; text-align: right;
   font: inherit;
   box-shadow: var(--shadow-sm);
-  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-  animation: adv-in .35s ease both;
+  transition: transform var(--tapin-motion-feedback) var(--tapin-motion-ease), border-color var(--tapin-motion-feedback) ease;
+  animation: adv-in 240ms var(--tapin-motion-ease) both;
 }
 @keyframes adv-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
 .adv-card:hover { transform: translateY(-2px); border-color: #f2cf93; box-shadow: var(--shadow); }
@@ -1523,7 +1531,7 @@ details.add-field > summary { font-weight: 700; font-size: 13px; color: var(--na
 }
 @media (prefers-reduced-motion: reduce) {
   .adv-card { animation: none; }
-  .adv-cta, .adv-card, .adv-menu { transition: none; }
+  .adv-cta, .adv-card, .adv-menu, .combo-panel { transition-duration: .01ms !important; }
   .form-actions.glow-beam::before, .form-actions.glow-beam::after { animation: none; }
 }
 

@@ -1056,15 +1056,17 @@ function rulesEditor(record, refreshTabCounts) {
   // Dropdown multiselect for the `in` operator on select params: a face
   // button with a popup checkbox list (plus search), instead of a tall
   // inline box. The rule value stays a comma-joined string in option order.
+  let comboSequence = 0;
   const multiSelectDropdown = (options, getSelected, onToggle) => {
     const faceLabel = h('span', { class: 'combo-label', text: 'انتخاب کنید…' });
-    const face = h('button', { type: 'button', class: 'combo-face' },
+    const comboId = `price-check-combo-${++comboSequence}`;
+    const face = h('button', { type: 'button', class: 'combo-face', 'aria-haspopup': 'listbox', 'aria-expanded': 'false', 'aria-controls': comboId },
       faceLabel, h('span', { class: 'combo-chevron' }));
     const search = h('input', {
       type: 'text', class: 'combo-search', placeholder: 'جستجو…', autocomplete: 'off',
     });
     const list = h('div', { class: 'combo-list', role: 'listbox' });
-    const panel = h('div', { class: 'combo-panel' }, search, list);
+    const panel = h('div', { class: 'combo-panel', id: comboId, inert: true }, search, list);
     const wrap = h('div', { class: 'search-select combo multi-combo' }, face, panel);
     const paintFace = () => {
       const picked = getSelected();
@@ -1114,15 +1116,26 @@ function rulesEditor(record, refreshTabCounts) {
         row.hidden = !(query === '' || row.textContent.includes(query));
       });
     };
-    const close = () => wrap.classList.remove('open');
+    const close = () => {
+      wrap.classList.remove('open');
+      face.setAttribute('aria-expanded', 'false');
+      panel.inert = true;
+    };
     const open = () => {
       document.querySelectorAll('.search-select.combo.open').forEach((other) => {
-        if (other !== wrap) other.classList.remove('open');
+        if (other !== wrap) {
+          other.classList.remove('open');
+          other.querySelector('.combo-face')?.setAttribute('aria-expanded', 'false');
+          const otherPanel = other.querySelector('.combo-panel');
+          if (otherPanel) otherPanel.inert = true;
+        }
       });
       buildList();
       search.value = '';
       filterList();
       wrap.classList.add('open');
+      face.setAttribute('aria-expanded', 'true');
+      panel.inert = false;
     };
     face.addEventListener('click', (event) => {
       event.stopPropagation();
