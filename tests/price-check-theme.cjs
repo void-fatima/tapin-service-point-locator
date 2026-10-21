@@ -181,7 +181,7 @@ const output = {}; let framesChecked = 0;
         await capture('preview-' + kind + '-' + width);
       }
       await page.goto(base + '/single/?standalone=1');
-      await expect(frame().locator('.topbar')).toBeVisible(); await capture('public-standalone-' + width);
+      await expect(frame().locator('.topbar,.footer')).toHaveCount(0); await capture('public-standalone-' + width);
       const originalParams = fixtures.locationSchema.params;
       fixtures.locationSchema.params = [...originalParams, {name:'coordinates',label:'Coordinates',input:'map',type:'object',required:false,visible:true}];
       await page.goto(base + '/single/'); await frame().locator('#provider-list .tile button').click();

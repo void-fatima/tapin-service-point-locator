@@ -10,13 +10,13 @@
   <link rel="apple-touch-icon" href="/static/tapin-mark.png">
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<?php if ( $embedded ) : ?>
+<?php if ( ! $admin ) : ?>
   <link rel="stylesheet" href="/static/embedded.css">
 <?php endif; ?>
 </head>
 <body>
   <a class="skip-link" href="#main">پرش به محتوای اصلی</a>
-<?php if ( ! $embedded ) : ?>
+<?php if ( $admin ) : ?>
   <header class="topbar">
     <div class="wrap wrap-pro">
       <span class="brand"><img class="brand-mark" src="/static/tapin-mark.png" alt="تاپین"><span class="brand-word">تاپین</span><span class="brand-page">استعلام قیمت ارسال</span></span>
@@ -100,14 +100,14 @@
     </section>
   </main>
 
-<?php if ( ! $embedded ) : ?>
+<?php if ( $admin ) : ?>
   <footer class="footer wrap"><strong>تاپین</strong> • استعلام و استعلام پیشرفته قیمت ارسال</footer>
 <?php endif; ?>
 
   <div id="toast" role="status" aria-live="polite" hidden></div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script type="module" src="/static/index.js"></script>
-<?php if ( $embedded ) : ?>
+<?php if ( ! $admin ) : ?>
   <script type="module" src="/static/embedded.js"></script>
 <?php endif; ?>
 </body>

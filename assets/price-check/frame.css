@@ -11,3 +11,11 @@ html.tapin-price-admin-host,
 /* Public embeds stay within the theme's content column; the child fits its content. */
 .tapin-price-embedded { min-width: 0; }
 .tapin-price-embedded > .tapin-price-frame { height: 620px; min-height: 0; max-width: 100%; }
+/* A dedicated quotation bypasses the theme's constrained content template. */
+html.tapin-price-public-page,
+.tapin-price-dedicated-page { background-color: var(--paper); }
+body.tapin-price-dedicated-page { --pc-toolbar-height: 0px; margin: 0; padding: 0; width: 100%; max-width: none; min-height: calc(100dvh - var(--pc-toolbar-height)); }
+.tapin-price-dedicated-page.admin-bar { --pc-toolbar-height: 32px; }
+.tapin-price-dedicated { width: 100%; max-width: none; margin: 0; }
+.tapin-price-dedicated > .tapin-price-frame { height: calc(100dvh - var(--pc-toolbar-height, 0px)); min-height: calc(100dvh - var(--pc-toolbar-height, 0px)); }
+@media (max-width: 782px) { .tapin-price-dedicated-page.admin-bar { --pc-toolbar-height: 46px; } }

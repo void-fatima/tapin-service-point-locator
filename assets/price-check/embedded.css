@@ -1,5 +1,11 @@
-/* Loaded only inside the public embedded iframe, never into the theme document. */
+/* Public quotation documents only; fill the frame's assigned width in either layout. */
 html { height: auto; min-height: 0; }
 body { display: flow-root; min-height: 0; height: auto; }
 .quote-nav { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 16px; padding-bottom: 16px; }
-main.wrap { flex: none; }
+main.wrap { flex: none; max-width: none; width: 100%; }
+.pro-form-col { position: static; }
+.provider-grid { grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr)); }
+.provider-grid > .card:not(.tile) { grid-column: 1 / -1; }
+@media (min-width: 1025px) {
+  .pro-layout { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); }
+}
