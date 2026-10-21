@@ -17,7 +17,7 @@ foreach ( array( 'tapin_price_check' => 'single', 'tapin_bulk_quote' => 'bulk' )
 	ui_check( false === strpos( $interface_shortcodes[$tag]( array( 'layout' => 'standalone' ) ), 'tapin-price-embedded' ) );
 	$doc = InterfaceScreen::document( $mode ); ui_check( false === strpos( $doc, 'مدیریت داده' ) && false === strpos( $doc, 'href="/admin"' ) ); ui_check( false === strpos( $doc, '"nonce"' ) && false === strpos( $doc, 'adminUrls' ) );
 	ui_check( false !== strpos( $doc, 'style.css?v=' . hash_file( 'sha256', ABSPATH . 'assets/price-check/style.css' ) ) && false !== strpos( $embedded, 'style.css?v=' . hash_file( 'sha256', ABSPATH . 'assets/price-check/style.css' ) ) );
-	ui_check( false !== strpos( $doc, '<html lang="fa" dir="rtl">' ) && false !== strpos( $doc, 'id="price-form"' ) && false !== strpos( $doc, 'id="bulk-form"' ) );
+	ui_check( false !== strpos( $doc, '<html lang="fa" dir="rtl" class="tapin-price-document">' ) && false !== strpos( $doc, 'id="price-form"' ) && false !== strpos( $doc, 'id="bulk-form"' ) );
 	ui_check( false !== strpos( $doc, '/site/wp-json/tapin-price-check/v1/' ) && false !== strpos( $doc, '/site/plugin/assets/vendor/leaflet.js' ) );
 	ui_check( false !== strpos( $doc, '<header class="topbar">' ) && false !== strpos( $doc, '<footer class="footer wrap">' ) && false !== strpos( $doc, 'id="nav-bulk"' ) && false !== strpos( $doc, 'id="nav-advanced"' ) && false === strpos( $doc, '/embedded.js' ) );
 }

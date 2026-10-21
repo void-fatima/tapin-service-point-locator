@@ -37,7 +37,8 @@ final class InterfaceScreen {
 			$imports = array( $assets . 'wordpress.js' => $assets . 'wordpress.js?v=' . hash_file( 'sha256', TAPIN_PLUGIN_DIR . 'assets/price-check/wordpress.js' ) );
 			$html = str_replace( '</head>', '<script type="importmap">' . wp_json_encode( array( 'imports' => $imports ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES ) . '</script></head>', $html );
 		}
-		$html = str_replace( '<head>', '<head><base href="about:srcdoc">', $html );
+		// Shared map/Price Check controller runs before blocking CSS or body parsing.
+		$html = str_replace( '<head>', '<head><base href="about:srcdoc"><script>' . file_get_contents( TAPIN_PLUGIN_DIR . 'assets/theme.js' ) . '</script>', $html );
 		if ( $admin && ! $preview ) { $html = str_replace( '{{public-url}}', esc_url( $config['publicUrls']['bulk'] ?: ( $config['publicUrls']['single'] ?: home_url( '/' ) ) ), $html ); foreach ( array( 'providers', 'shops' ) as $resource ) { $html = str_replace( '/api/admin/' . $resource . '</span>', esc_url( rest_url( RestApi::NAMESPACE . '/admin/' . $resource ) ) . '</span>', $html ); } }
 		$html = str_replace( 'https://unpkg.com/leaflet@1.9.4/dist/', esc_url( TAPIN_PLUGIN_URL . 'assets/vendor/' ), $html );
 		$html = preg_replace_callback( '~(src=")([^"<>]+/(?:index|admin)\.js)(")~', static fn( $m ) => $m[1] . $m[2] . '?v=' . filemtime( TAPIN_PLUGIN_DIR . 'assets/price-check/' . basename( $m[2] ) ) . $m[3], $html );
@@ -49,6 +50,6 @@ final class InterfaceScreen {
 		ob_start(); if ( ! wp_style_is( 'tapin-price-frame', 'done' ) ) { wp_print_styles( array( 'tapin-price-frame' ) ); } $styles = ob_get_clean();
 		$title = $admin ? 'مدیریت استعلام قیمت تاپین' : ( 'single' === $mode ? 'استعلام پیشرفته قیمت ارسال' : 'استعلام قیمت ارسال' );
 		$layout_class = $embedded ? ' tapin-price-embedded' : ' alignwide';
-		return $styles . '<div class="tapin-price-public' . $layout_class . '" data-quote-mode="' . esc_attr( $mode ) . '"><iframe class="tapin-price-frame" title="' . esc_attr( $title ) . '" srcdoc="' . esc_attr( $html ) . '"></iframe><noscript>برای استفاده از استعلام قیمت، جاوااسکریپت مرورگر را فعال کنید.</noscript></div>';
+		return '<script>' . file_get_contents( TAPIN_PLUGIN_DIR . 'assets/theme.js' ) . '</script>' . $styles . '<div class="tapin-price-public' . $layout_class . '" data-tapin-theme-frame data-quote-mode="' . esc_attr( $mode ) . '"><iframe class="tapin-price-frame" title="' . esc_attr( $title ) . '" srcdoc="' . esc_attr( $html ) . '"></iframe><noscript>برای استفاده از استعلام قیمت، جاوااسکریپت مرورگر را فعال کنید.</noscript></div>';
 	}
 }

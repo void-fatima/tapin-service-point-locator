@@ -1,4 +1,5 @@
 .tapin-price-frame { display: block; width: 100%; height: max(620px, calc(100vh - 64px)); height: max(620px, calc(100dvh - 64px)); border: 0; background: #f8f8ff; }
+[data-tapin-theme-frame][data-theme-mode="dark"] > .tapin-price-frame { background: #0b0e19; }
 .tapin-price-page { margin: 0; }
 .tapin-price-page .tapin-price-frame { height: 100vh; height: 100dvh; }
 .tapin-price-page.admin-bar .tapin-price-frame { height: calc(100vh - 32px); height: calc(100dvh - 32px); }

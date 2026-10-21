@@ -41,11 +41,13 @@ const server = http.createServer((req, res) => {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const browser = await chromium.launch();
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  await context.addInitScript(() => localStorage.setItem('tapin-color-scheme', 'light'));
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-  page.on('requestfailed', request => errors.push(request.url() + ': ' + request.failure().errorText));
+  // Chromium cancels pending font requests when this test deliberately reloads.
+  page.on('requestfailed', request => { if (request.failure().errorText !== 'net::ERR_ABORTED') errors.push(request.url() + ': ' + request.failure().errorText); });
   const base = `http://127.0.0.1:${server.address().port}`;
   const frame = () => page.frameLocator('iframe');
   const toggle = frame().locator('.pc-sidebar-toggle');
@@ -163,6 +165,7 @@ const server = http.createServer((req, res) => {
     await expect(blockedToggle).toHaveAttribute('aria-expanded', 'false');
     await blockedToggle.click();
     await expect(blockedToggle).toHaveAttribute('aria-expanded', 'true');
+    await blocked.frames()[1].evaluate(() => document.fonts.ready);
     await blocked.close();
     assert.deepEqual(errors, []);
     console.log('PASS sidebar: 1440/800/700/390/320px, all seven hover/focus tooltips in iframe bounds, icons/names/active styling, pointer/Enter/Space, rapid clicks, persisted reload, blocked storage, reduced motion and content resizing; no console errors or horizontal overflow.');

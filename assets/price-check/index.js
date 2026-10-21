@@ -1974,7 +1974,7 @@ function bulkLoadingCard(text) {
   return h(
     'div',
     { class: 'card skel-card' },
-    h('div', { class: 'loading-note' }, h('span', { class: 'btn-spin', style: 'border-color:rgba(43,42,114,.2);border-top-color:var(--navy)' }), h('span', { text })),
+    h('div', { class: 'loading-note' }, h('span', { class: 'btn-spin', style: 'border-color:var(--pc-spinner-track);border-top-color:var(--pc-spinner-ink)' }), h('span', { text })),
     h('div', { class: 'skeleton' }, h('div', { class: 'skeleton-bar' }), h('div', { class: 'skeleton-bar' }))
   );
 }

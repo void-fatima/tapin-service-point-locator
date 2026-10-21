@@ -1,6 +1,6 @@
 <?php defined( 'ABSPATH' ) || exit; ?>
 <!doctype html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" class="tapin-price-document">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,6 +22,7 @@
         <button class="btn btn-ghost" type="button" data-tab="cache" data-tooltip="کش" aria-label="کش"><svg class="menu-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></svg><span class="pc-menu-label">کش</span></button>
         <button class="btn btn-ghost" type="button" data-tab="security" data-tooltip="امنیت" aria-label="امنیت"><svg class="menu-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6l7-3z"/><path d="M9.5 12l2 2 3.5-4"/></svg><span class="pc-menu-label">امنیت</span></button>
       </nav>
+      <?php include __DIR__ . '/theme-choice.php'; ?>
       <a class="btn btn-ghost pc-sidebar-public-link" href="{{public-url}}" target="_parent" data-tooltip="صفحه عمومی" aria-label="صفحه عمومی"><svg class="menu-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.3 3.8 5.2 3.8 8.5s-1.3 6.2-3.8 8.5c-2.5-2.3-3.8-5.2-3.8-8.5s1.3-6.2 3.8-8.5z"/></svg><span class="pc-menu-label">صفحه عمومی</span></a>
     </aside>
     <div id="pc-sidebar-tooltip" class="pc-sidebar-tooltip" role="tooltip" hidden></div>

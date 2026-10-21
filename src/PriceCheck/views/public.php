@@ -1,6 +1,6 @@
 <?php defined( 'ABSPATH' ) || exit; ?>
 <!doctype html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" class="tapin-price-document">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -29,6 +29,7 @@
 <?php endif; ?>
 
   <main class="wrap wrap-pro" id="main">
+    <?php include __DIR__ . '/theme-choice.php'; ?>
     <section id="bulk-view" aria-label="استعلام">
       <div class="hero pro-hero pro-hero-bulk">
         <div class="pro-hero-text">

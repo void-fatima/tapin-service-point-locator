@@ -69,6 +69,7 @@ const output = {};
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  await page.addInitScript(() => localStorage.setItem('tapin-color-scheme', 'light'));
   // Compare layout at rest; the existing hover/entry animations otherwise
   // contribute fractional transformed positions unrelated to border geometry.
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -154,13 +155,14 @@ const output = {};
       await frame().locator('#bulk-advanced-toggle').click(); await expect(frame().locator('#bulk-advanced-panel')).toBeVisible(); await capture(`public-advanced-${width}`);
       await frame().locator('[name="bulk:weight"]').fill('2'); await frame().locator('#bulk-form button[type="submit"]').click();
       await expect(frame().locator('#bulk-result')).toContainText('۱۲٬۵۰۰'); await capture(`public-result-${width}`);
-      // Price Check has no dark theme; OS preference must not darken its light surfaces.
+      // Explicit Light remains independent of OS preference.
       const light = await frame().locator('body').evaluate(n => getComputedStyle(n).backgroundColor);
       await page.emulateMedia({ colorScheme: 'dark' });
       assert.equal(await frame().locator('body').evaluate(n => getComputedStyle(n).backgroundColor), light);
       await capture(`public-dark-preference-${width}`); await page.emulateMedia({ colorScheme: 'light' });
     }
-    if (!baseline && existsSync(path.join(artifacts, 'before.json'))) {
+    // Historical border captures predate the theme control; compare only an explicit matching baseline.
+    if (!baseline && process.env.TAPIN_BORDER_COMPARE === '1' && existsSync(path.join(artifacts, 'before.json'))) {
       const before = JSON.parse(readFileSync(path.join(artifacts, 'before.json'), 'utf8'));
       for (const [name, nodes] of Object.entries(output)) {
         assert.equal(nodes.length, before[name].length, 'Changed DOM inventory: ' + name);
@@ -182,6 +184,6 @@ const output = {};
     }
     writeFileSync(path.join(artifacts, (baseline ? 'before' : 'after') + '.json'), JSON.stringify(output, null, 2));
     assert.deepEqual(errors, []);
-    console.log(baseline ? 'CAPTURE baseline:' : 'PASS boundary audit:', Object.keys(output).length, 'screens/states;', focusChecks, 'hover/focus checks; admin/public, 1440/390px, OS dark preference and theme isolation.', baseline ? '' : 'Neutral cards >=3:1; compared previous geometry/status colors: ' + existsSync(path.join(artifacts, 'before.json')));
+    console.log(baseline ? 'CAPTURE baseline:' : 'PASS boundary audit:', Object.keys(output).length, 'screens/states;', focusChecks, 'hover/focus checks; admin/public, 1440/390px, OS dark preference and theme isolation.', baseline ? '' : 'Neutral cards >=3:1; compared previous geometry/status colors: ' + (process.env.TAPIN_BORDER_COMPARE === '1' && existsSync(path.join(artifacts, 'before.json'))));
   } finally { await browser.close(); server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
