@@ -5,7 +5,12 @@ defined( 'ABSPATH' ) || exit;
 /** Original document isolated from theme/locator CSS and duplicate document-wide controls. */
 final class InterfaceScreen {
 	public static function enqueue(): void {
-		wp_enqueue_style( 'tapin-price-frame', TAPIN_PLUGIN_URL . 'assets/price-check/frame.css', array(), (string) filemtime( TAPIN_PLUGIN_DIR . 'assets/price-check/frame.css' ) );
+		wp_enqueue_style( 'tapin-price-surfaces', TAPIN_PLUGIN_URL . 'assets/price-check/surfaces.css', array(), hash_file( 'sha256', TAPIN_PLUGIN_DIR . 'assets/price-check/surfaces.css' ) );
+		wp_enqueue_style( 'tapin-price-frame', TAPIN_PLUGIN_URL . 'assets/price-check/frame.css', array( 'tapin-price-surfaces' ), (string) filemtime( TAPIN_PLUGIN_DIR . 'assets/price-check/frame.css' ) );
+	}
+	public static function admin_head(): void {
+		// Resolve the host canvas before body parsing, even when the frame is slow.
+		echo '<script>document.documentElement.classList.add("tapin-price-admin-host");' . file_get_contents( TAPIN_PLUGIN_DIR . 'assets/theme.js' ) . '</script>';
 	}
 	public static function page_urls(): array {
 		$urls = array( 'single' => '', 'bulk' => '' );
@@ -38,7 +43,7 @@ final class InterfaceScreen {
 			$html = str_replace( '</head>', '<script type="importmap">' . wp_json_encode( array( 'imports' => $imports ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES ) . '</script></head>', $html );
 		}
 		// Shared map/Price Check controller runs before blocking CSS or body parsing.
-		$html = str_replace( '<head>', '<head><base href="about:srcdoc"><script>' . file_get_contents( TAPIN_PLUGIN_DIR . 'assets/theme.js' ) . '</script>', $html );
+		$html = str_replace( '<head>', '<head><base href="about:srcdoc"><script>' . file_get_contents( TAPIN_PLUGIN_DIR . 'assets/theme.js' ) . '</script><link rel="stylesheet" href="' . esc_url( $assets ) . 'surfaces.css?v=' . hash_file( 'sha256', TAPIN_PLUGIN_DIR . 'assets/price-check/surfaces.css' ) . '">', $html );
 		if ( $admin && ! $preview ) { $html = str_replace( '{{public-url}}', esc_url( $config['publicUrls']['bulk'] ?: ( $config['publicUrls']['single'] ?: home_url( '/' ) ) ), $html ); foreach ( array( 'providers', 'shops' ) as $resource ) { $html = str_replace( '/api/admin/' . $resource . '</span>', esc_url( rest_url( RestApi::NAMESPACE . '/admin/' . $resource ) ) . '</span>', $html ); } }
 		$html = str_replace( 'https://unpkg.com/leaflet@1.9.4/dist/', esc_url( TAPIN_PLUGIN_URL . 'assets/vendor/' ), $html );
 		$html = preg_replace_callback( '~(src=")([^"<>]+/(?:index|admin)\.js)(")~', static fn( $m ) => $m[1] . $m[2] . '?v=' . filemtime( TAPIN_PLUGIN_DIR . 'assets/price-check/' . basename( $m[2] ) ) . $m[3], $html );
@@ -47,7 +52,7 @@ final class InterfaceScreen {
 	public static function frame( string $mode, bool $admin = false, array $query = array(), bool $embedded = false ): string {
 		$embedded = $embedded && ! $admin;
 		$html = self::document( $mode, $admin, $query, $embedded ); self::enqueue();
-		ob_start(); if ( ! wp_style_is( 'tapin-price-frame', 'done' ) ) { wp_print_styles( array( 'tapin-price-frame' ) ); } $styles = ob_get_clean();
+		ob_start(); if ( ! wp_style_is( 'tapin-price-frame', 'done' ) ) { wp_print_styles( array( 'tapin-price-surfaces', 'tapin-price-frame' ) ); } $styles = ob_get_clean();
 		$title = $admin ? 'مدیریت استعلام قیمت تاپین' : ( 'single' === $mode ? 'استعلام پیشرفته قیمت ارسال' : 'استعلام قیمت ارسال' );
 		$layout_class = $embedded ? ' tapin-price-embedded' : ' alignwide';
 		return '<script>' . file_get_contents( TAPIN_PLUGIN_DIR . 'assets/theme.js' ) . '</script>' . $styles . '<div class="tapin-price-public' . $layout_class . '" data-tapin-theme-frame data-quote-mode="' . esc_attr( $mode ) . '"><iframe class="tapin-price-frame" title="' . esc_attr( $title ) . '" srcdoc="' . esc_attr( $html ) . '"></iframe><noscript>برای استفاده از استعلام قیمت، جاوااسکریپت مرورگر را فعال کنید.</noscript></div>';

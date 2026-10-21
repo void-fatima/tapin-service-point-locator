@@ -8,7 +8,7 @@
   const allowed = new Set(['dark', 'light', 'system']);
   const system = window.matchMedia('(prefers-color-scheme: light)');
   let preference = 'dark';
-  const roots = '.tapin-app, .tapin-price-document, [data-tapin-theme-frame]';
+  const roots = '.tapin-app, .tapin-price-document, .tapin-price-admin-host, [data-tapin-theme-frame]';
   // Inherit session state for new same-origin frames/previews when storage is blocked.
   try {
     for (const context of [window.parent, window.opener, ...Array.from(window.parent.frames)]) {

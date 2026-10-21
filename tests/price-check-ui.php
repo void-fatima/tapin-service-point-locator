@@ -21,7 +21,7 @@ foreach ( array( 'tapin_price_check' => 'single', 'tapin_bulk_quote' => 'bulk' )
 	ui_check( false !== strpos( $doc, '/site/wp-json/tapin-price-check/v1/' ) && false !== strpos( $doc, '/site/plugin/assets/vendor/leaflet.js' ) );
 	ui_check( false !== strpos( $doc, '<header class="topbar">' ) && false !== strpos( $doc, '<footer class="footer wrap">' ) && false !== strpos( $doc, 'id="nav-bulk"' ) && false !== strpos( $doc, 'id="nav-advanced"' ) && false === strpos( $doc, '/embedded.js' ) );
 }
-ui_check( array_keys( $interface_styles ) === array( 'tapin-price-frame' ) );
+ui_check( array_keys( $interface_styles ) === array( 'tapin-price-surfaces', 'tapin-price-frame' ) );
 $interface_styles = array(); $post = new WP_Post( 20, 'ordinary content' ); foreach ( $interface_actions['wp_enqueue_scripts'] as $action ) { $action(); } ui_check( array() === $interface_styles );
 $post->post_content = '[tapin_price_check]'; foreach ( $interface_actions['wp_enqueue_scripts'] as $action ) { $action(); } ui_check( isset( $interface_styles['tapin-price-frame'] ) ); ui_check( 'theme.php' === $pages->page_template( 'theme.php' ) );
 foreach ( array( '[tapin_bulk_quote]', '[tapin_bulk_quote layout="embedded"]', '[tapin_price_check layout="unknown"]' ) as $content ) { $post->post_content = $content; ui_check( 'theme.php' === $pages->page_template( 'theme.php' ) ); }

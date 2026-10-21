@@ -1,5 +1,9 @@
-.tapin-price-frame { display: block; width: 100%; height: max(620px, calc(100vh - 64px)); height: max(620px, calc(100dvh - 64px)); border: 0; background: #f8f8ff; }
-[data-tapin-theme-frame][data-theme-mode="dark"] > .tapin-price-frame { background: #0b0e19; }
+.tapin-price-frame { display: block; width: 100%; height: max(620px, calc(100vh - 64px)); height: max(620px, calc(100dvh - 64px)); border: 0; background: var(--paper); }
+[data-tapin-theme-frame] { background-color: var(--paper); }
+/* WordPress margins/padding expose the host canvas around the admin iframe.
+   The marker is installed in admin_head only for authorized Price Check hooks. */
+html.tapin-price-admin-host,
+.tapin-price-admin-host :is(body, #wpwrap, #wpcontent, #wpbody, #wpbody-content, .tapin-price-admin) { background-color: var(--paper); }
 .tapin-price-page { margin: 0; }
 .tapin-price-page .tapin-price-frame { height: 100vh; height: 100dvh; }
 .tapin-price-page.admin-bar .tapin-price-frame { height: calc(100vh - 32px); height: calc(100dvh - 32px); }

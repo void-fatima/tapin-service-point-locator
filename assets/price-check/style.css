@@ -17,7 +17,6 @@
   --tapin-motion-feedback: 150ms;
   --tapin-motion-panel: 280ms;
   --tapin-motion-ease: cubic-bezier(.22, 1, .36, 1);
-  --paper: #f8f8ff;
   --card: #ffffff;
   --ink: #1b1d29;
   --navy: #2d2b74;
@@ -114,7 +113,6 @@
 .tapin-price-document { color-scheme: light; background: var(--paper); }
 .tapin-price-document[data-theme-mode="dark"] {
   color-scheme: dark;
-  --paper: #0b0e19;
   --card: #111522;
   --ink: #f0eff8;
   --muted: #b5b6cf;

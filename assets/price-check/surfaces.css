@@ -1,0 +1,7 @@
+/* One canvas token for the isolated app, its frame and scoped admin host. */
+:is(.tapin-price-document, .tapin-price-admin-host, [data-tapin-theme-frame]) {
+  --paper: #f8f8ff;
+}
+:is(.tapin-price-document, .tapin-price-admin-host, [data-tapin-theme-frame])[data-theme-mode="dark"] {
+  --paper: #0b0e19;
+}

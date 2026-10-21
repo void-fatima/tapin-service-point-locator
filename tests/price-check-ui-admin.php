@@ -22,7 +22,7 @@ foreach ( $price_menus as $slug => $menu ) {
 }
 foreach ( array( 'provider', 'bulk' ) as $kind ) { $_GET = array( 'tapin_price_preview' => $kind ); ob_start(); $menus['tapin-price-providers']['callback'](); $html = html_entity_decode( ob_get_clean(), ENT_QUOTES, 'UTF-8' ); ui_admin_check( false !== strpos( $html, '/preview/' . $kind ) && false !== strpos( $html, 'index.js' ) && false !== strpos( $html, 'test-rest-nonce' ) ); }
 $_GET = array(); $price_enqueue = end( $actions['admin_enqueue_scripts'] ); $interface_styles = array(); $price_enqueue( 'toplevel_page_tapin-locator' ); ui_admin_check( array() === $interface_styles );
-$price_enqueue( 'admin_page_tapin-price-shops' ); ui_admin_check( array_keys( $interface_styles ) === array( 'tapin-price-frame' ) );
+$price_enqueue( 'admin_page_tapin-price-shops' ); ui_admin_check( array_keys( $interface_styles ) === array( 'tapin-price-surfaces', 'tapin-price-frame' ) );
 $identity = array( true, false ); $interface_styles = array(); $price_enqueue( 'admin_page_tapin-price-shops' ); ui_admin_check( array() === $interface_styles );
 $template = file_get_contents( ABSPATH . 'src/PriceCheck/views/admin.php' ); foreach ( array( 'providers', 'shops', 'bulk', 'logs', 'cache', 'security' ) as $screen ) { ui_admin_check( false !== strpos( $template, 'data-tab="' . $screen . '"' ) ); }
 $identity = array( true, true );
@@ -34,4 +34,15 @@ ui_admin_check( false !== strpos( $document, '<script type="importmap">' ) && fa
 $preview_document = \Tapin\ServicePointLocator\PriceCheck\InterfaceScreen::document( 'providers', true, array( 'tapin_price_preview' => 'provider' ) );
 ui_admin_check( false !== strpos( $preview_document, 'style.css?v=' . hash_file( 'sha256', ABSPATH . 'assets/price-check/style.css' ) ) && false === strpos( $preview_document, 'pc-sidebar-tooltip' ) );
 ui_admin_check( false === strpos( $preview_document, 'type="importmap"' ) );
+$head_count = count( $actions['admin_head'] );
+$price_enqueue( 'toplevel_page_tapin-locator' );
+ui_admin_check( $head_count === count( $actions['admin_head'] ) );
+$identity = array( true, false ); $price_enqueue( 'admin_page_tapin-price-cache' );
+ui_admin_check( $head_count === count( $actions['admin_head'] ) );
+$identity = array( true, true );
+ob_start(); call_user_func( end( $actions['admin_head'] ) ); $head = ob_get_clean();
+ui_admin_check( false !== strpos( $head, 'document.documentElement.classList.add("tapin-price-admin-host")' ) );
+ui_admin_check( false !== strpos( $head, 'tapin-color-scheme' ) );
+ui_admin_check( false !== strpos( $document, 'surfaces.css?v=' . hash_file( 'sha256', ABSPATH . 'assets/price-check/surfaces.css' ) ) );
+ui_admin_check( strpos( $document, 'surfaces.css?v=' ) < strpos( $document, 'style.css?v=' ) );
 echo "Protected admin interface: {$checks} assertions passed (capability/preview/enqueue doubles).\n";

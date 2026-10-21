@@ -17,7 +17,12 @@ final class Admin {
 			} );
 			if ( is_string( $hook ) ) { $this->hooks[] = $hook; }
 		}
-		add_action( 'admin_enqueue_scripts', function( $hook ) { if ( in_array( $hook, $this->hooks, true ) && Access::can_manage() ) { InterfaceScreen::enqueue(); } } );
+		add_action( 'admin_enqueue_scripts', function( $hook ) {
+			if ( in_array( $hook, $this->hooks, true ) && Access::can_manage() ) {
+				InterfaceScreen::enqueue();
+				add_action( 'admin_head', array( InterfaceScreen::class, 'admin_head' ) );
+			}
+		} );
 	}
 
 	/** Provider list/editor and protected draft preview share the providers entry. */
