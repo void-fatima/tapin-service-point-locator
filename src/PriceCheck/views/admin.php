@@ -24,6 +24,7 @@
       </nav>
       <a class="btn btn-ghost pc-sidebar-public-link" href="{{public-url}}" target="_parent" data-tooltip="صفحه عمومی" aria-label="صفحه عمومی"><svg class="menu-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.3 3.8 5.2 3.8 8.5s-1.3 6.2-3.8 8.5c-2.5-2.3-3.8-5.2-3.8-8.5s1.3-6.2 3.8-8.5z"/></svg><span class="pc-menu-label">صفحه عمومی</span></a>
     </aside>
+    <div id="pc-sidebar-tooltip" class="pc-sidebar-tooltip" role="tooltip" hidden></div>
 
     <div class="content">
       <main class="wrap" id="main">

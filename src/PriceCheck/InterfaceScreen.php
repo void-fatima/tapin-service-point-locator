@@ -29,6 +29,11 @@ final class InterfaceScreen {
 		ob_start(); include __DIR__ . '/views/' . ( $admin && ! $preview ? 'admin' : 'public' ) . '.php'; $html = ob_get_clean();
 		$assets = TAPIN_PLUGIN_URL . 'assets/price-check/';
 		$html = str_replace( '/static/', esc_url( $assets ), $html );
+		// Admin markup and collapse rules must update together. The unversioned URL
+		// can retain pre-sidebar CSS for a week on an already visited installation.
+		if ( $admin && ! $preview ) {
+			$html = str_replace( esc_url( $assets ) . 'style.css"', esc_url( $assets ) . 'style.css?v=' . hash_file( 'sha256', TAPIN_PLUGIN_DIR . 'assets/price-check/style.css' ) . '"', $html );
+		}
 		$html = str_replace( '<head>', '<head><base href="about:srcdoc">', $html );
 		if ( $admin && ! $preview ) { $html = str_replace( '{{public-url}}', esc_url( $config['publicUrls']['bulk'] ?: ( $config['publicUrls']['single'] ?: home_url( '/' ) ) ), $html ); foreach ( array( 'providers', 'shops' ) as $resource ) { $html = str_replace( '/api/admin/' . $resource . '</span>', esc_url( rest_url( RestApi::NAMESPACE . '/admin/' . $resource ) ) . '</span>', $html ); } }
 		$html = str_replace( 'https://unpkg.com/leaflet@1.9.4/dist/', esc_url( TAPIN_PLUGIN_URL . 'assets/vendor/' ), $html );

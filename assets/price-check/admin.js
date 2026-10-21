@@ -32,10 +32,39 @@ const cacheHost = document.getElementById('cache-rows');
 const tabs = [...document.querySelectorAll('.tabs button')];
 const adminShell = document.querySelector('.pc-admin-shell');
 const sidebarToggle = adminShell?.querySelector('.pc-sidebar-toggle');
+const sidebarTooltip = adminShell?.querySelector('#pc-sidebar-tooltip');
 const SIDEBAR_STORAGE_KEY = 'tapin.price-check.admin-sidebar-collapsed';
+let sidebarTooltipTarget = null;
+
+function hideSidebarTooltip() {
+  if (sidebarTooltipTarget) sidebarTooltipTarget.removeAttribute('aria-describedby');
+  sidebarTooltipTarget = null;
+  if (sidebarTooltip) sidebarTooltip.hidden = true;
+}
+
+function showSidebarTooltip(target) {
+  hideSidebarTooltip();
+  if (!sidebarTooltip || !adminShell.classList.contains('pc-sidebar-collapsed')) return;
+  sidebarTooltipTarget = target;
+  sidebarTooltip.textContent = target.dataset.tooltip;
+  sidebarTooltip.hidden = false;
+  sidebarTooltip.style.left = '0px';
+  sidebarTooltip.style.top = '0px';
+  target.setAttribute('aria-describedby', sidebarTooltip.id);
+  // Fixed coordinates avoid sidebar overflow clipping. Clamp to the iframe's
+  // viewport, including the public link at the bottom and mobile edge items.
+  const anchor = target.getBoundingClientRect();
+  const tip = sidebarTooltip.getBoundingClientRect();
+  const mobile = window.matchMedia('(max-width: 700px)').matches;
+  const left = mobile ? anchor.left + (anchor.width - tip.width) / 2 : anchor.left - tip.width - 8;
+  const top = mobile ? anchor.bottom + 8 : anchor.top + (anchor.height - tip.height) / 2;
+  sidebarTooltip.style.left = `${Math.max(8, Math.min(left, document.documentElement.clientWidth - tip.width - 8))}px`;
+  sidebarTooltip.style.top = `${Math.max(8, Math.min(top, window.innerHeight - tip.height - 8))}px`;
+}
 
 function setSidebarCollapsed(collapsed, persist = true) {
   if (!adminShell || !sidebarToggle) return;
+  hideSidebarTooltip();
   adminShell.classList.toggle('pc-sidebar-collapsed', collapsed);
   sidebarToggle.setAttribute('aria-expanded', String(!collapsed));
   const label = collapsed ? 'نمایش منوی مدیریت' : 'جمع کردن منوی مدیریت';
@@ -51,6 +80,20 @@ if (adminShell && sidebarToggle) {
   catch (_) { setSidebarCollapsed(false, false); }
   sidebarToggle.addEventListener('click', () => {
     setSidebarCollapsed(!adminShell.classList.contains('pc-sidebar-collapsed'));
+  });
+  adminShell.querySelectorAll('.sidebar [data-tooltip]').forEach(item => {
+    item.addEventListener('mouseenter', () => showSidebarTooltip(item));
+    item.addEventListener('mouseleave', () => {
+      if (document.activeElement === item) showSidebarTooltip(item);
+      else hideSidebarTooltip();
+    });
+    item.addEventListener('focus', () => showSidebarTooltip(item));
+    item.addEventListener('blur', hideSidebarTooltip);
+  });
+  window.addEventListener('resize', hideSidebarTooltip);
+  window.addEventListener('scroll', hideSidebarTooltip, true);
+  adminShell.addEventListener('keydown', event => {
+    if (event.key === 'Escape') hideSidebarTooltip();
   });
 }
 

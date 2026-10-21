@@ -1909,45 +1909,44 @@ tr.log-detail .card:last-child { margin-bottom: 0; }
   -webkit-appearance: none;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
   width: 100%;
-  min-height: 76px;
-  padding: 12px 10px;
-  gap: 9px;
+  min-height: 44px;
+  padding: 0;
+  margin: 0;
+  gap: 10px;
   border: 0;
   border-radius: 10px;
   background: transparent;
+  box-shadow: none;
   color: inherit;
   font: inherit;
+  font-size: 17px;
+  font-weight: 800;
+  text-align: start;
   cursor: pointer;
   transition: background-color var(--tapin-motion-feedback) var(--tapin-motion-ease);
 }
 .pc-admin-shell .pc-sidebar-toggle:hover { background: rgba(255,255,255,.06); }
 .pc-admin-shell .pc-sidebar-toggle:focus-visible { outline: 2px solid #e6c174; outline-offset: -4px; }
-.pc-admin-shell .pc-sidebar-toggle .brand-mark { width: 36px; height: 36px; }
+.pc-admin-shell .pc-sidebar-toggle .brand-mark { width: 30px; height: 30px; }
 .pc-admin-shell .pc-sidebar-toggle .brand-page { border-inline-start: 1px solid rgba(255,255,255,.22); padding-inline-start: 8px; }
 .pc-admin-shell .tabs.menu { min-width: 0; overflow: visible; }
 .pc-admin-shell .tabs.menu .btn { position: relative; overflow: visible; transition: color var(--tapin-motion-feedback) var(--tapin-motion-ease), background-color var(--tapin-motion-feedback) var(--tapin-motion-ease), border-color var(--tapin-motion-feedback) var(--tapin-motion-ease), flex-basis var(--tapin-motion-panel) var(--tapin-motion-ease); }
 .pc-admin-shell .tabs.menu .pc-menu-label { min-width: 0; white-space: nowrap; opacity: 1; transform: translateX(0); transition: opacity var(--tapin-motion-feedback) var(--tapin-motion-ease), transform var(--tapin-motion-feedback) var(--tapin-motion-ease); }
 .pc-admin-shell.pc-sidebar-collapsed .sidebar { width: 72px; flex-basis: 72px; padding-inline: 8px; }
-.pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-toggle { min-height: 76px; padding: 10px 4px; }
-.pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-toggle .brand-mark { width: 42px; height: 42px; }
+.pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-toggle { justify-content: center; }
 .pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-toggle .brand-word,
 .pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-toggle .brand-page { display: none; }
 .pc-admin-shell.pc-sidebar-collapsed .tabs.menu .btn { min-width: 0; min-height: 44px; padding: 8px 0; justify-content: center; gap: 0; }
 .pc-admin-shell.pc-sidebar-collapsed .tabs.menu .pc-menu-label { display: none; }
-.pc-admin-shell.pc-sidebar-collapsed .tabs.menu .btn::after { content: attr(data-tooltip); position: absolute; z-index: 10000; top: 50%; right: calc(100% + 8px); transform: translate(4px,-50%); opacity: 0; pointer-events: none; white-space: nowrap; padding: 5px 10px; border: 1px solid #465574; border-radius: 6px; background: #111b2c; color: #f2f5fc; font-family: inherit; font-size: 12px; font-weight: 500; line-height: 1.6; box-shadow: 0 5px 16px #0008; transition: opacity 120ms ease, transform 120ms ease; }
-.pc-admin-shell.pc-sidebar-collapsed .tabs.menu .btn:hover::after,
-.pc-admin-shell.pc-sidebar-collapsed .tabs.menu .btn:focus-visible::after { opacity: 1; transform: translate(0,-50%); }
 .pc-admin-shell.pc-sidebar-collapsed .tabs.menu .btn[aria-current="page"] { border-inline-start: 3px solid var(--accent); }
 .pc-admin-shell.pc-sidebar-collapsed .tabs.menu .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; z-index: 2; }
 .pc-admin-shell .pc-sidebar-public-link { position: relative; overflow: visible; }
 .pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-public-link { min-height: 44px; padding: 8px 0; justify-content: center; gap: 0; }
 .pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-public-link .pc-menu-label { display: none; }
-.pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-public-link::after { content: attr(data-tooltip); position: absolute; z-index: 10000; top: 50%; right: calc(100% + 8px); transform: translate(4px,-50%); opacity: 0; pointer-events: none; white-space: nowrap; padding: 5px 10px; border: 1px solid #465574; border-radius: 6px; background: #111b2c; color: #f2f5fc; font-family: inherit; font-size: 12px; font-weight: 500; line-height: 1.6; box-shadow: 0 5px 16px #0008; transition: opacity 120ms ease, transform 120ms ease; }
-.pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-public-link:hover::after,
-.pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-public-link:focus-visible::after { opacity: 1; transform: translate(0,-50%); }
+.pc-admin-shell .pc-sidebar-tooltip { position: fixed; z-index: 10000; pointer-events: none; max-width: calc(100vw - 16px); padding: 5px 10px; border: 1px solid #465574; border-radius: 6px; background: #111b2c; color: #f2f5fc; font-family: inherit; font-size: 12px; font-weight: 500; line-height: 1.6; overflow-wrap: anywhere; box-shadow: 0 5px 16px #0008; }
 
 @media (max-width: 960px) {
   .pc-admin-shell.layout { display: flex; flex-direction: row; }
@@ -1961,9 +1960,6 @@ tr.log-detail .card:last-child { margin-bottom: 0; }
   .pc-admin-shell .tabs.menu .pc-menu-label { font-size: 10px; }
   .pc-admin-shell.pc-sidebar-collapsed .sidebar { width: 72px; flex-basis: 72px; padding-inline: 8px; }
   .pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-toggle { min-height: 96px; }
-  .pc-admin-shell.pc-sidebar-collapsed .tabs.menu .btn::after { top: 50%; right: calc(100% + 8px); bottom: auto; transform: translate(4px,-50%); }
-  .pc-admin-shell.pc-sidebar-collapsed .tabs.menu .btn:hover::after,
-  .pc-admin-shell.pc-sidebar-collapsed .tabs.menu .btn:focus-visible::after { transform: translate(0,-50%); }
   .pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-public-link { width: auto; align-self: center; padding: 8px 10px; }
 }
 @media (max-width: 700px) {
@@ -1982,12 +1978,6 @@ tr.log-detail .card:last-child { margin-bottom: 0; }
   .pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-toggle .brand-page { display: none; }
   .pc-admin-shell.pc-sidebar-collapsed .tabs.menu { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); flex: none; overflow: visible; }
   .pc-admin-shell.pc-sidebar-collapsed .tabs.menu .btn { min-width: 0; min-height: 44px; padding: 8px 0; }
-  .pc-admin-shell.pc-sidebar-collapsed .tabs.menu .btn::after { top: auto; right: 50%; bottom: calc(100% + 8px); transform: translate(50%,4px); }
-  .pc-admin-shell.pc-sidebar-collapsed .tabs.menu .btn:hover::after,
-  .pc-admin-shell.pc-sidebar-collapsed .tabs.menu .btn:focus-visible::after { transform: translate(50%,0); }
-  .pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-public-link::after { top: auto; right: 50%; bottom: calc(100% + 8px); transform: translate(50%,4px); }
-  .pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-public-link:hover::after,
-  .pc-admin-shell.pc-sidebar-collapsed .pc-sidebar-public-link:focus-visible::after { transform: translate(50%,0); }
 }
 @media (max-width: 420px) {
   .pc-admin-shell.pc-sidebar-collapsed .tabs.menu { grid-template-columns: repeat(3,minmax(0,1fr)); }
@@ -1996,7 +1986,5 @@ tr.log-detail .card:last-child { margin-bottom: 0; }
   .pc-admin-shell .sidebar,
   .pc-admin-shell .pc-sidebar-toggle,
   .pc-admin-shell .tabs.menu .btn,
-  .pc-admin-shell .tabs.menu .pc-menu-label,
-  .pc-admin-shell .pc-sidebar-public-link::after,
-  .pc-admin-shell .tabs.menu .btn::after { transition: none !important; }
+  .pc-admin-shell .tabs.menu .pc-menu-label { transition: none !important; }
 }

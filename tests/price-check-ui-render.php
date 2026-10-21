@@ -1,6 +1,6 @@
 <?php
 /** CLI rendering adapter, also used by the localhost Playwright fixture server. */
-define( 'ABSPATH', dirname( __DIR__ ) . '/' ); define( 'TAPIN_PLUGIN_DIR', ABSPATH );
+define( 'ABSPATH', rtrim( getenv( 'TAPIN_PACKAGE_ROOT' ) ?: dirname( __DIR__ ), '/\\' ) . '/' ); define( 'TAPIN_PLUGIN_DIR', ABSPATH );
 $input = json_decode( stream_get_contents( STDIN ), true, 512, JSON_THROW_ON_ERROR );
 $interface_site = $input['site'] ?? 'https://wp.example/site'; define( 'TAPIN_PLUGIN_URL', $interface_site . '/plugin/' );
 require ABSPATH . 'src/Autoloader.php'; \Tapin\ServicePointLocator\Autoloader::register(); require __DIR__ . '/support/PriceCheckInterface.php';

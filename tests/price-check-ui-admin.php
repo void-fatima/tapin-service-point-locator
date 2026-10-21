@@ -25,4 +25,11 @@ $_GET = array(); $price_enqueue = end( $actions['admin_enqueue_scripts'] ); $int
 $price_enqueue( 'admin_page_tapin-price-shops' ); ui_admin_check( array_keys( $interface_styles ) === array( 'tapin-price-frame' ) );
 $identity = array( true, false ); $interface_styles = array(); $price_enqueue( 'admin_page_tapin-price-shops' ); ui_admin_check( array() === $interface_styles );
 $template = file_get_contents( ABSPATH . 'src/PriceCheck/views/admin.php' ); foreach ( array( 'providers', 'shops', 'bulk', 'logs', 'cache', 'security' ) as $screen ) { ui_admin_check( false !== strpos( $template, 'data-tab="' . $screen . '"' ) ); }
+$identity = array( true, true );
+$document = \Tapin\ServicePointLocator\PriceCheck\InterfaceScreen::document( 'providers', true );
+ui_admin_check( false !== strpos( $document, 'style.css?v=' . hash_file( 'sha256', ABSPATH . 'assets/price-check/style.css' ) . '"' ) );
+ui_admin_check( false !== strpos( $document, 'id="pc-sidebar-tooltip"' ) );
+// Public quotation/preview assets and chrome remain on their existing rendering path.
+$preview_document = \Tapin\ServicePointLocator\PriceCheck\InterfaceScreen::document( 'providers', true, array( 'tapin_price_preview' => 'provider' ) );
+ui_admin_check( false === strpos( $preview_document, 'style.css?v=' ) && false === strpos( $preview_document, 'pc-sidebar-tooltip' ) );
 echo "Protected admin interface: {$checks} assertions passed (capability/preview/enqueue doubles).\n";
