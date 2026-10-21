@@ -3972,7 +3972,7 @@ function renderBulk() {
           inactive ? h('span', { class: 'pill pill-dim', style: 'margin-right:6px', text: 'غیرفعال' }) : null)
       );
     })
-    : [h('p', { class: 'empty', text: 'هنوز شرکتی ثبت نشده است.' })];
+    : [];
 
   const fieldLabel = h('input', { type: 'text', placeholder: 'وزن' });
   const fieldInput = h(
@@ -4173,10 +4173,14 @@ function renderBulk() {
   const companiesPane = h('div', { hidden: bulkStep !== 'companies' },
     h(
       'div',
-      { class: 'card' },
+      { class: 'card bulk-companies-card' },
       h('h2', {}, 'شرکت‌های حاضر در استعلام گروهی'),
       guideBox([['استان و شهر مبدا', 'این دو فیلد همیشه در فرم گروهی هستند و برای هر شرکت با همان منطق استعلام تکی به شعبه تبدیل می‌شوند؛ نیازی به تعریف یا نگاشت ندارند.']]),
-      h('div', { class: 'grid' }, providerCards)
+      bulkProviders.length
+        ? h('div', { class: 'grid' }, providerCards)
+        : h('div', { class: 'empty' },
+          h('div', { class: 'empty-illust', 'aria-hidden': 'true' }, icon('building')),
+          h('p', { style: 'margin:0', text: 'هنوز شرکتی ثبت نشده است.' }))
     ));
 
   const destFieldNames = bulkDraft.fields.filter((f) => f && f.name).map((f) => f.name);

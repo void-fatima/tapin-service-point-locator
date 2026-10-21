@@ -1549,6 +1549,7 @@ details.add-field > summary { font-weight: 700; font-size: 13px; color: var(--pc
   color: var(--muted);
 }
 .guide-box .guide-title { font-weight: 800; font-size: 12.5px; color: var(--pc-brand-ink); }
+#bulk-view .bulk-companies-card > h2 { margin-block-end: 8px; }
 .guide-box ul { margin: 6px 0 0; padding-inline-start: 18px; }
 .guide-box li { margin: 3px 0; line-height: 1.7; }
 .guide-box li b { color: var(--ink); }
