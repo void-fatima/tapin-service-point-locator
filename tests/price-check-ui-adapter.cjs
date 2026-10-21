@@ -1,7 +1,7 @@
 /* Pure URL/header boundary tests; fetch captures calls and never uses the network. */
 const assert=require('node:assert/strict');const path=require('node:path');const {readFileSync}=require('node:fs');
 const config={restUrl:'https://wp.example/sub/wp-json/tapin-price-check/v1/',route:'/advanced',publicUrls:{single:'https://wp.example/sub/?page_id=11',bulk:'https://wp.example/sub/?page_id=12'},admin:false};
-const location={href:'https://wp.example/sub/?page_id=11',assign(url){this.href=url;}};
+let documentNavigations=0;const location={href:'https://wp.example/sub/?page_id=11',assign(url){documentNavigations++;this.href=url;}};
 global.window={TapinPriceUI:config,parent:{location,history:{pushState(a,b,url){location.href=url;},replaceState(a,b,url){location.href=url;}},addEventListener(){}},dispatchEvent(){}};
 const calls=[];global.fetch=async(url,options)=>{calls.push({url,options});return{ok:true};};
 (async()=>{const {restURL,request,pageURL,navigate,routeLocation}=await import('data:text/javascript;base64,'+readFileSync(path.resolve(__dirname,'../assets/price-check/wordpress.js')).toString('base64'));
@@ -18,5 +18,9 @@ for(const [method,suffix]of[['GET','shops'],['POST','shops/import'],['GET','shop
 const original=config.restUrl;config.restUrl='https://external.invalid/wp-json/tapin-price-check/v1/';assert.throws(()=>request('/api/admin/shops'));config.restUrl=original;
 assert.equal(pageURL('/preview/provider'),'https://wp.example/sub/wp-admin/admin.php?page=tapin-price-providers&tapin_price_preview=provider');
 navigate('/admin/providers/7');assert.deepEqual(routeLocation(),{pathname:'/admin/providers/7',search:''});navigate('/admin/security?sub=events');assert.deepEqual(routeLocation(),{pathname:'/admin/security',search:'?sub=events'});
+const before=documentNavigations;navigate('/admin/shops');assert.equal(documentNavigations,before);assert.deepEqual(routeLocation(),{pathname:'/admin/shops',search:''});
+location.href=config.adminUrls.security;assert.deepEqual(routeLocation(),{pathname:'/admin/security',search:''});
+location.href='https://wp.example/sub/wp-admin/admin.php?page=tapin-locator';navigate('/admin/shops');assert.equal(documentNavigations,before+1);
+config.route='/preview/provider';location.href=config.adminUrls.providers+'&tapin_price_preview=provider';navigate('/admin/security');assert.equal(documentNavigations,before+2);
 console.log('Interface adapter: subdirectory/plain REST URLs, public/admin headers, navigation and preview authorization passed; no network.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

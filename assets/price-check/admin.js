@@ -3,7 +3,7 @@ import { request, routeLocation, navigate, pageURL } from './wordpress.js';
 // /api/admin/providers/{id}, so the record shape stays the single source of
 // truth all the way down to MySQL.
 
-import { api, h, clear, show, hide, fieldWrapper, pretty, toFaDigits, toast, spinner, skeleton, isLogoImage, readFileAsDataURL, icon, captureScroll, preserveScroll, preserveScrollAsync } from './common.js';
+import { api, h, clear, show, hide, fieldWrapper, pretty, toFaDigits, toast, spinner, skeleton as loadingCard, isLogoImage, readFileAsDataURL, icon, captureScroll as captureDocumentScroll, preserveScroll } from './common.js';
 
 const INPUT_KINDS = ['text', 'number', 'select', 'list', 'dict', 'map'];
 const INPUT_LABELS = { text: 'متنی', number: 'عددی', select: 'لیست انتخابی', list: 'لیست چند ردیفی', dict: 'شیء تودرتو', map: 'نقشه' };
@@ -98,6 +98,68 @@ if (adminShell && sidebarToggle) {
 }
 
 function auth() { return {}; }
+
+let navigationGeneration = 0;
+let activeAdminView = null;
+let contentAnimation = null;
+const viewLoads = new WeakMap();
+const adminViews = [listView, editorView, shopsView, bulkView, logsView, cacheView, securityView];
+
+function skeleton(bars) {
+  const card = loadingCard(bars);
+  card.removeAttribute('aria-hidden');
+  card.setAttribute('role', 'status');
+  card.setAttribute('aria-label', 'در حال بارگذاری');
+  card.firstElementChild.setAttribute('aria-hidden', 'true');
+  return card;
+}
+
+function captureScroll() {
+  const generation = navigationGeneration;
+  const restore = captureDocumentScroll();
+  return () => { if (generation === navigationGeneration) restore(); };
+}
+
+function preserveScrollAsync(work) {
+  const restore = captureScroll();
+  const result = work();
+  restore();
+  return Promise.resolve(result).finally(restore);
+}
+
+function beginViewLoad(host) {
+  const generation = navigationGeneration;
+  const ticket = {};
+  viewLoads.set(host, ticket);
+  return () => generation === navigationGeneration && viewLoads.get(host) === ticket && host.isConnected;
+}
+
+function focusAdminView() {
+  activeAdminView.tabIndex = -1;
+  activeAdminView.focus({ preventScroll: true });
+}
+
+function selectAdminView(view, tab) {
+  if (activeAdminView === view) return false;
+  const changingSection = activeAdminView !== null;
+  const outgoingFocus = activeAdminView?.contains(document.activeElement);
+  navigationGeneration++;
+  contentAnimation?.cancel();
+  hideSidebarTooltip();
+  adminViews.forEach(section => { section.hidden = section !== view; });
+  activeAdminView = view;
+  markTab(tab);
+  // Only content changes. The same sidebar, shell and iframe stay mounted.
+  // Do not leave focus on a now-hidden form when history changes the section.
+  if (outgoingFocus) {
+    focusAdminView();
+  }
+  if (changingSection) window.scrollTo({ top: 0, behavior: 'instant' });
+  if (changingSection && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    contentAnimation = view.animate([{ opacity: 0.94 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
+  }
+  return true;
+}
 
 // ---- live preview sync ----
 // The preview window (a public page in preview mode) renders the UNSAVED
@@ -318,21 +380,15 @@ function guideBox(items) {
 
 
 function showList() {
+  if (!selectAdminView(listView, 'providers')) return;
   previewProviderBuilder = null;
   stopPreviewSync();
-  hide(editorView);
-  hide(shopsView);
-  hide(bulkView);
-  hide(logsView);
-  hide(securityView);
-  if (typeof cacheView !== 'undefined' && cacheView) hide(cacheView);
-  show(listView);
-  markTab('providers');
   goAdmin('/admin/providers');
   loadList();
 }
 
 async function loadList() {
+  const current = beginViewLoad(rowsHost);
   const restoreScroll = captureScroll();
   clear(rowsHost).append(skeleton(2));
   restoreScroll();
@@ -340,11 +396,12 @@ async function loadList() {
   try {
     ({ providers } = await api('/api/admin/providers', auth()));
   } catch (error) {
+    if (!current()) return;
     clear(rowsHost).append(h('div', { class: 'card' }, h('p', { class: 'error-text', text: error.message })));
     restoreScroll();
     return;
   }
-
+  if (!current()) return;
   const searchInput = h('input', { type: 'text', placeholder: 'جستجوی شرکت با نام نمایشی یا فنی…', autocomplete: 'off' });
   const countNote = h('p', { class: 'muted', style: 'margin:6px 0 0' });
   clear(rowsHost).append(
@@ -464,20 +521,25 @@ async function remove(id) {
 
 
 async function openEditor(id) {
+  selectAdminView(editorView, 'providers');
+  previewProviderBuilder = null;
+  stopPreviewSync();
+  const current = beginViewLoad(editorView);
+  clear(editorView).append(skeleton(3));
+  goAdmin(`/admin/providers/${id === null ? 'new' : encodeURIComponent(id)}`);
   let provider = blankProvider();
   if (id !== null) {
     try {
       provider = await api(`/api/admin/providers/${encodeURIComponent(id)}`, auth());
     } catch (error) {
+      if (!current()) return;
+      clear(editorView).append(h('div', { class: 'card' }, h('p', { class: 'error-text', text: error.message })));
       toast(error.message);
       return;
     }
   }
+  if (!current()) return;
   renderEditor(provider);
-  hide(listView);
-  show(editorView);
-  markTab('providers');
-  goAdmin(`/admin/providers/${id === null ? 'new' : encodeURIComponent(id)}`);
   window.scrollTo({ top: 0 });
 }
 
@@ -3131,8 +3193,10 @@ function parseShopLines(text) {
 }
 
 async function startShopEdit(shop) {
+  const generation = navigationGeneration;
   try {
     const response = await api(`/api/admin/shops/${encodeURIComponent(shop.id)}`, auth());
+    if (generation !== navigationGeneration) return;
     const full = response.shop || shop;
     editingShopId = String(full.id);
     shopDraft.id = String(full.id);
@@ -3142,7 +3206,7 @@ async function startShopEdit(shop) {
     shopDraft.token = full.token || '';
     // The edit form lives at the top of the view: reload first, then jump to
     // it. (Plain loadShops() keeps the scroll; only editing jumps.)
-    const goTop = () => window.scrollTo({ top: 0 });
+    const goTop = () => { if (generation === navigationGeneration) window.scrollTo({ top: 0 }); };
     loadShops().then(goTop, goTop);
   } catch (error) {
     toast(error.message);
@@ -3160,21 +3224,15 @@ function cancelShopEdit() {
 }
 
 function showShops() {
+  if (!selectAdminView(shopsView, 'shops')) return;
   previewProviderBuilder = null;
   stopPreviewSync();
-  hide(listView);
-  hide(editorView);
-  hide(bulkView);
-  hide(logsView);
-  hide(securityView);
-  if (typeof cacheView !== 'undefined' && cacheView) hide(cacheView);
-  show(shopsView);
-  markTab('shops');
   goAdmin('/admin/shops');
   loadShops();
 }
 
 async function loadShops() {
+  const current = beginViewLoad(shopsHost);
   const restoreScroll = captureScroll();
   clear(shopsHost).append(skeleton(2));
   restoreScroll();
@@ -3182,11 +3240,12 @@ async function loadShops() {
   try {
     ({ shops } = await api('/api/admin/shops', auth()));
   } catch (error) {
+    if (!current()) return;
     clear(shopsHost).append(h('div', { class: 'card' }, h('p', { class: 'error-text', text: error.message })));
     restoreScroll();
     return;
   }
-
+  if (!current()) return;
   const form = h(
     'form',
     {
@@ -3639,6 +3698,7 @@ function serialise(record) {
 }
 
 async function save(record, errorHost) {
+  const generation = navigationGeneration;
   clear(errorHost);
   const body = serialise(record);
   try {
@@ -3648,7 +3708,7 @@ async function save(record, errorHost) {
       await api('/api/admin/providers', { method: 'POST', body, ...auth() });
     }
     toast('ذخیره شد.', 'ok');
-    showList();
+    if (generation === navigationGeneration) showList();
   } catch (error) {
     const details = (error.errors || []).map((item) => `${item.field}: ${item.message}`).join('\n');
     toast(details ? `${error.message}\n${details}` : error.message);
@@ -3692,16 +3752,9 @@ let bulkStep = 'companies';
 let bulkMapPid = null;
 
 function showBulk() {
+  if (!selectAdminView(bulkView, 'bulk')) return;
   previewProviderBuilder = null;
   stopPreviewSync();
-  hide(listView);
-  hide(editorView);
-  hide(shopsView);
-  hide(logsView);
-  hide(securityView);
-  if (typeof cacheView !== 'undefined' && cacheView) hide(cacheView);
-  show(bulkView);
-  markTab('bulk');
   goAdmin('/admin/bulk');
   loadBulk();
   // Live preview follows the unsaved bulk draft (saved providers stay saved).
@@ -3709,14 +3762,17 @@ function showBulk() {
 }
 
 async function loadBulk() {
+  const current = beginViewLoad(bulkView);
   clear(bulkView).append(skeleton(3));
   let data;
   try {
     data = await api('/api/admin/bulk', auth());
   } catch (error) {
+    if (!current()) return;
     clear(bulkView).append(h('div', { class: 'card' }, h('p', { class: 'error-text', text: error.message })));
     return;
   }
+  if (!current()) return;
   bulkProviders = data.providers || [];
   const config = data.config || {};
   bulkDraft.providers = [...(config.providers || [])];
@@ -4924,16 +4980,9 @@ function jalaliDateField(gregorian) {
 }
 
 function showLogs() {
+  if (!selectAdminView(logsView, 'logs')) return;
   previewProviderBuilder = null;
   stopPreviewSync();
-  hide(listView);
-  hide(editorView);
-  hide(shopsView);
-  hide(bulkView);
-  hide(securityView);
-  if (typeof cacheView !== 'undefined' && cacheView) hide(cacheView);
-  show(logsView);
-  markTab('logs');
   goAdmin('/admin/logs');
   loadLogs();
 }
@@ -4999,6 +5048,7 @@ let lastLogs = [];
 const logSearch = { text: '' };
 
 async function loadLogs() {
+  const current = beginViewLoad(logsHost);
   const restoreScroll = captureScroll();
   closeJalaliCalendar();
   clear(logsHost).append(skeleton(2));
@@ -5009,6 +5059,7 @@ async function loadLogs() {
   } catch (error) {
     providers = [];
   }
+  if (!current()) return;
   let data;
   const query = new URLSearchParams();
   if (logFilter.provider) query.set('provider', logFilter.provider);
@@ -5018,10 +5069,12 @@ async function loadLogs() {
   try {
     data = await api(`/api/admin/logs?${query.toString()}`);
   } catch (error) {
+    if (!current()) return;
     clear(logsHost).append(h('div', { class: 'card' }, h('p', { class: 'error-text', text: error.message })));
     restoreScroll();
     return;
   }
+  if (!current()) return;
   lastLogProviders = providers || [];
   lastLogs = data.logs || [];
   if (logFilter.provider || logFilter.from || logFilter.to) logFilterOpen = true;
@@ -5278,16 +5331,12 @@ const BLOCK_TYPE_LABELS = { ip: 'آی‌پی', client_id: 'شناسه کاربر
 const securityFilter = { q: '', type: '', active: '1' };
 
 function showSecurity() {
+  if (!selectAdminView(securityView, 'security')) {
+    showSecuritySub(SECURITY_SUBTABS.some(([sub]) => sub === pendingSecuritySub) ? pendingSecuritySub : 'routes');
+    return;
+  }
   previewProviderBuilder = null;
   stopPreviewSync();
-  hide(listView);
-  hide(editorView);
-  hide(shopsView);
-  hide(bulkView);
-  hide(logsView);
-  if (typeof cacheView !== 'undefined' && cacheView) hide(cacheView);
-  show(securityView);
-  markTab('security');
   goAdmin('/admin/security' + (pendingSecuritySub && pendingSecuritySub !== 'routes' ? `?sub=${encodeURIComponent(pendingSecuritySub)}` : ''));
   loadSecurity();
 }
@@ -5511,6 +5560,7 @@ function loadRouteLimits() {
   const host = securityHost.querySelector('#security-routes');
   const adminHost = securityHost.querySelector('#security-routes-admin');
   if (!host) return;
+  const current = beginViewLoad(host);
   clear(host).append(skeleton(1));
   if (adminHost) clear(adminHost);
   let routes = [];
@@ -5520,9 +5570,11 @@ function loadRouteLimits() {
     routes = (data && data.routes) || [];
     adminGroups = (data && data.admin_groups) || [];
   } catch (error) {
+    if (!current()) return;
     clear(host).append(h('p', { class: 'error-text', text: error.message }));
     return;
   }
+  if (!current()) return;
   clear(host);
   const customCount = routes.filter((item) => item.custom && !item.unlimited).length;
   const offCount = routes.filter((item) => item.unlimited).length;
@@ -5605,6 +5657,7 @@ function loadAllowlist() {
   return preserveScrollAsync(async () => {
   const host = securityHost.querySelector('#security-allowlist');
   if (!host) return;
+  const current = beginViewLoad(host);
   clear(host).append(skeleton(1));
   let entries = [];
   try {
@@ -5614,9 +5667,11 @@ function loadAllowlist() {
     const data = await api(`/api/admin/security/allowlist?${params.toString()}`);
     entries = data.allowlist || [];
   } catch (error) {
+    if (!current()) return;
     clear(host).append(h('p', { class: 'error-text', text: error.message }));
     return;
   }
+  if (!current()) return;
   clear(host);
   if (!entries.length) {
     host.append(h('p', { class: 'empty', text: 'لیست سفید خالی است.' }));
@@ -5682,6 +5737,7 @@ function loadDenials() {
   return preserveScrollAsync(async () => {
   const host = securityHost.querySelector('#security-denials');
   if (!host) return;
+  const current = beginViewLoad(host);
   clear(host).append(skeleton(1));
   const params = new URLSearchParams();
   if (securityLimitSearch.q.trim()) params.set('q', securityLimitSearch.q.trim());
@@ -5695,9 +5751,11 @@ function loadDenials() {
       windowText = `${data.max_requests} درخواست در هر ${windowLabel(data.window_seconds)}`;
     }
   } catch (error) {
+    if (!current()) return;
     clear(host).append(h('p', { class: 'error-text', text: error.message }));
     return;
   }
+  if (!current()) return;
   clear(host);
   host.append(h('p', { class: 'muted', style: 'margin:0 0 10px' },
     limits.length ? `${limits.length} محدودیت فعال (${windowText})` : 'محدودیتی فعال نیست.'));
@@ -5804,6 +5862,7 @@ function loadOffenders() {
   return preserveScrollAsync(async () => {
   const host = securityHost.querySelector('#security-offenders');
   if (!host) return;
+  const current = beginViewLoad(host);
   clear(host).append(skeleton(1));
   const params = new URLSearchParams();
   params.set('min', String(securityOffenderFilter.min));
@@ -5814,9 +5873,11 @@ function loadOffenders() {
     const data = await api(`/api/admin/security/repeat-offenders?${params.toString()}`);
     offenders = data.offenders || [];
   } catch (error) {
+    if (!current()) return;
     clear(host).append(h('p', { class: 'error-text', text: error.message }));
     return;
   }
+  if (!current()) return;
   clear(host);
   if (!offenders.length) {
     host.append(h('p', { class: 'empty', text: 'متخلف تکراری یافت نشد.' }));
@@ -5901,6 +5962,7 @@ function loadSecEvents() {
   return preserveScrollAsync(async () => {
   const host = securityHost.querySelector('#security-events');
   if (!host) return;
+  const current = beginViewLoad(host);
   clear(host).append(skeleton(1));
   let events = [];
   try {
@@ -5911,9 +5973,11 @@ function loadSecEvents() {
     const data = await api(`/api/admin/security/events?${params.toString()}`);
     events = data.events || [];
   } catch (error) {
+    if (!current()) return;
     clear(host).append(h('p', { class: 'error-text', text: error.message }));
     return;
   }
+  if (!current()) return;
   clear(host);
   host.append(h('p', { class: 'muted', style: 'margin:0 0 10px' },
     events.length ? `${events.length} رویداد اخیر` : 'رویدادی با این فیلتر نیست.'));
@@ -6012,6 +6076,7 @@ function loadBlocks() {
   return preserveScrollAsync(async () => {
   const host = securityHost.querySelector('#security-blocks');
   if (!host) return;
+  const current = beginViewLoad(host);
   clear(host).append(skeleton(1));
   const params = new URLSearchParams();
   if (securityFilter.q) params.set('q', securityFilter.q);
@@ -6022,9 +6087,11 @@ function loadBlocks() {
     const data = await api(`/api/admin/security/blocks?${params.toString()}`);
     blocks = data.blocks || [];
   } catch (error) {
+    if (!current()) return;
     clear(host).append(h('p', { class: 'error-text', text: error.message }));
     return;
   }
+  if (!current()) return;
   clear(host);
   const now = Date.now();
   const isLive = (entry) => entry.is_active
@@ -6144,16 +6211,9 @@ async function loadBlockRequests(value, box) {
 // --------------------------------------------------------------------------- cache
 
 function showCache() {
+  if (!selectAdminView(cacheView, 'cache')) return;
   previewProviderBuilder = null;
   stopPreviewSync();
-  hide(listView);
-  hide(editorView);
-  hide(shopsView);
-  hide(bulkView);
-  hide(logsView);
-  hide(securityView);
-  if (typeof cacheView !== 'undefined' && cacheView) show(cacheView);
-  markTab('cache');
   goAdmin('/admin/cache');
   loadCache();
 }
@@ -6169,6 +6229,7 @@ function formatCacheDuration(totalSeconds) {
 function loadCache() {
   return preserveScrollAsync(async () => {
     if (!cacheHost) return;
+    const current = beginViewLoad(cacheHost);
     clear(cacheHost).append(skeleton(3));
     const defaults = { price: 86400, price_retention: 864000, locations: 21600, quote_logs: 604800, security_events: 2592000 };
     let settings = { ...defaults };
@@ -6183,9 +6244,11 @@ function loadCache() {
         if (data.locations) locState = data.locations;
       }
     } catch (error) {
+      if (!current()) return;
       clear(cacheHost).append(h('div', { class: 'card' }, h('p', { class: 'error-text', text: error.message })));
       return;
     }
+    if (!current()) return;
 
     const inputs = {
       price: h('input', { type: 'number', min: 1, step: 1, inputmode: 'numeric', value: settings.price }),
@@ -6355,11 +6418,12 @@ function goAdmin(url) {
   }
 }
 
-function routeAdmin() {
+function routeAdmin(event) {
   const parts = routeLocation().pathname.replace(/\/+$/, '').split('/').filter(Boolean);
   const rest = parts[0] === 'admin' ? parts.slice(1) : [];
   if (rest[0] === 'providers' && rest[1]) {
     openEditor(rest[1] === 'new' ? null : decodeURIComponent(rest[1]));
+    if (event?.type === 'popstate') focusAdminView();
     return;
   }
   const view = ADMIN_TAB_URL[rest[0]] ? rest[0] : 'providers';
@@ -6372,6 +6436,7 @@ function routeAdmin() {
   else if (view === 'cache') showCache();
   else if (view === 'security') showSecurity();
   else showList();
+  if (event?.type === 'popstate') focusAdminView();
 }
 
 window.addEventListener('popstate', routeAdmin);

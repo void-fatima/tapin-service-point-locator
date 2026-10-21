@@ -33,6 +33,9 @@ final class InterfaceScreen {
 		// can retain pre-sidebar CSS for a week on an already visited installation.
 		if ( $admin && ! $preview ) {
 			$html = str_replace( esc_url( $assets ) . 'style.css"', esc_url( $assets ) . 'style.css?v=' . hash_file( 'sha256', TAPIN_PLUGIN_DIR . 'assets/price-check/style.css' ) . '"', $html );
+			// Both admin.js and common.js must resolve the same fresh adapter module.
+			$imports = array( $assets . 'wordpress.js' => $assets . 'wordpress.js?v=' . hash_file( 'sha256', TAPIN_PLUGIN_DIR . 'assets/price-check/wordpress.js' ) );
+			$html = str_replace( '</head>', '<script type="importmap">' . wp_json_encode( array( 'imports' => $imports ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES ) . '</script></head>', $html );
 		}
 		$html = str_replace( '<head>', '<head><base href="about:srcdoc">', $html );
 		if ( $admin && ! $preview ) { $html = str_replace( '{{public-url}}', esc_url( $config['publicUrls']['bulk'] ?: ( $config['publicUrls']['single'] ?: home_url( '/' ) ) ), $html ); foreach ( array( 'providers', 'shops' ) as $resource ) { $html = str_replace( '/api/admin/' . $resource . '</span>', esc_url( rest_url( RestApi::NAMESPACE . '/admin/' . $resource ) ) . '</span>', $html ); } }

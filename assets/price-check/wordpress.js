@@ -2,6 +2,14 @@
 const config = () => window.TapinPriceUI;
 const host = () => window.parent;
 
+function adminScreen(url, settings = config()) {
+  return Object.keys(settings.adminUrls || {}).find(screen => {
+    const target = new URL(settings.adminUrls[screen]);
+    return target.origin === url.origin && target.pathname === url.pathname
+      && target.searchParams.get('page') === url.searchParams.get('page');
+  });
+}
+
 export function restURL(path, settings = config()) {
   if (!path.startsWith('/api/')) throw new Error('Unsupported price-check API path.');
   const source = new URL(path, 'https://price.invalid');
@@ -27,7 +35,7 @@ export function request(path, options = {}) {
 export function routeLocation() {
   const url = new URL(host().location.href);
   const route = config().route.startsWith('/preview/') ? config().route
-    : config().admin ? url.searchParams.get('tapin_price_route') || config().route
+    : config().admin ? url.searchParams.get('tapin_price_route') || (adminScreen(url) ? '/admin/' + adminScreen(url) : config().route)
       : url.searchParams.get('tapin_price_mode') === 'bulk' ? '/bulk'
         : url.searchParams.get('tapin_price_mode') === 'single' ? '/advanced' : config().route;
   const virtual = new URL(route, 'https://price.invalid');
@@ -60,8 +68,12 @@ export function pageURL(route) {
 export function navigate(route, replace = false) {
   const url = new URL(pageURL(route));
   const current = new URL(host().location.href);
-  // Separate WordPress pages really navigate; provider editors/deep links retain source SPA history.
-  if (url.pathname !== current.pathname || url.searchParams.get('page') !== current.searchParams.get('page') || url.searchParams.get('page_id') !== current.searchParams.get('page_id')) {
+  // Only the six authorized Price Check screens share this existing shell.
+  // Public pages, previews and other WordPress modules still navigate normally.
+  const internalAdmin = config().admin && config().route.startsWith('/admin/')
+    && !current.searchParams.has('tapin_price_preview') && !url.searchParams.has('tapin_price_preview')
+    && adminScreen(current) && adminScreen(url);
+  if (!internalAdmin && (url.pathname !== current.pathname || url.searchParams.get('page') !== current.searchParams.get('page') || url.searchParams.get('page_id') !== current.searchParams.get('page_id'))) {
     host().location.assign(url.href); return;
   }
   if (url.href !== current.href) host().history[replace ? 'replaceState' : 'pushState']({}, '', url.href);
