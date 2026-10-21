@@ -29,10 +29,10 @@ final class InterfaceScreen {
 		ob_start(); include __DIR__ . '/views/' . ( $admin && ! $preview ? 'admin' : 'public' ) . '.php'; $html = ob_get_clean();
 		$assets = TAPIN_PLUGIN_URL . 'assets/price-check/';
 		$html = str_replace( '/static/', esc_url( $assets ), $html );
-		// Admin markup and collapse rules must update together. The unversioned URL
-		// can retain pre-sidebar CSS for a week on an already visited installation.
+		// Every Price Check document must receive its current visual tokens,
+		// including public embeds/previews with a previously cached stylesheet.
+		$html = str_replace( esc_url( $assets ) . 'style.css"', esc_url( $assets ) . 'style.css?v=' . hash_file( 'sha256', TAPIN_PLUGIN_DIR . 'assets/price-check/style.css' ) . '"', $html );
 		if ( $admin && ! $preview ) {
-			$html = str_replace( esc_url( $assets ) . 'style.css"', esc_url( $assets ) . 'style.css?v=' . hash_file( 'sha256', TAPIN_PLUGIN_DIR . 'assets/price-check/style.css' ) . '"', $html );
 			// Both admin.js and common.js must resolve the same fresh adapter module.
 			$imports = array( $assets . 'wordpress.js' => $assets . 'wordpress.js?v=' . hash_file( 'sha256', TAPIN_PLUGIN_DIR . 'assets/price-check/wordpress.js' ) );
 			$html = str_replace( '</head>', '<script type="importmap">' . wp_json_encode( array( 'imports' => $imports ), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES ) . '</script></head>', $html );

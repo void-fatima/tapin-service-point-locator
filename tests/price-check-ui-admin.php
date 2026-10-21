@@ -30,8 +30,8 @@ $document = \Tapin\ServicePointLocator\PriceCheck\InterfaceScreen::document( 'pr
 ui_admin_check( false !== strpos( $document, 'style.css?v=' . hash_file( 'sha256', ABSPATH . 'assets/price-check/style.css' ) . '"' ) );
 ui_admin_check( false !== strpos( $document, 'id="pc-sidebar-tooltip"' ) );
 ui_admin_check( false !== strpos( $document, '<script type="importmap">' ) && false !== strpos( $document, 'wordpress.js?v=' . hash_file( 'sha256', ABSPATH . 'assets/price-check/wordpress.js' ) ) );
-// Public quotation/preview assets and chrome remain on their existing rendering path.
+// Previews receive fresh CSS without admin navigation markup or adapter imports.
 $preview_document = \Tapin\ServicePointLocator\PriceCheck\InterfaceScreen::document( 'providers', true, array( 'tapin_price_preview' => 'provider' ) );
-ui_admin_check( false === strpos( $preview_document, 'style.css?v=' ) && false === strpos( $preview_document, 'pc-sidebar-tooltip' ) );
+ui_admin_check( false !== strpos( $preview_document, 'style.css?v=' . hash_file( 'sha256', ABSPATH . 'assets/price-check/style.css' ) ) && false === strpos( $preview_document, 'pc-sidebar-tooltip' ) );
 ui_admin_check( false === strpos( $preview_document, 'type="importmap"' ) );
 echo "Protected admin interface: {$checks} assertions passed (capability/preview/enqueue doubles).\n";
