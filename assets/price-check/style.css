@@ -731,6 +731,7 @@ details { border: 1px dashed var(--pc-control-border); border-radius: var(--radi
 .skip-link { position: absolute; inset-inline-start: 12px; top: -48px; z-index: 30; background: var(--navy); color: var(--pc-on-brand); padding: 8px 16px; border-radius: 10px; transition: top .15s; }
 .skip-link:focus-visible { top: 12px; color: var(--pc-on-brand); }
 .actions-sticky { position: sticky; bottom: 0; background: rgba(var(--pc-surface-rgb), 0.92); backdrop-filter: blur(8px); padding: 12px 0; border-top: 1px solid var(--line); z-index: 5; }
+.pc-admin-shell #bulk-view > .actions-sticky { padding-inline: 16px; }
 .footer { text-align: center; color: var(--faint); font-size: 12px; padding: 20px 0 28px; position: relative; }
 .footer::before {
   content: "";
