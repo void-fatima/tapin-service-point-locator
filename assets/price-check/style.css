@@ -1536,7 +1536,11 @@ details.add-field > summary { font-weight: 700; font-size: 13px; color: var(--pc
 #editor-view th, #editor-view td { padding: 6px 10px; }
 #editor-view .checkline { padding: 7px 10px; font-size: 12.5px; }
 #editor-view .tabs.subtabs .btn { min-height: 30px; padding: 4px 14px; font-size: 12px; }
-#editor-view .actions-sticky { padding: 8px 0; }
+#editor-view > form > .actions-sticky {
+  border: 1px solid var(--pc-border);
+  padding-block: 10px;
+  padding-inline: 16px;
+}
 #editor-view .fields-toolbar { margin-bottom: 10px; }
 #editor-view .logo-preview img { max-height: 56px; }
 
