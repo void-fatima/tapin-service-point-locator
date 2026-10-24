@@ -92,4 +92,25 @@ bulk_store_check( true === $success['results'][0]['ok'] && ! bulk_cache_rows(), 
 $transport->replies['post'] = new ProviderHttpResponse( 200, '{"other":1}' ); $log_count = count( ( new QuoteLogStorage( $clock ) )->list_rows() ); $wpdb->failure = array( 'kind' => 'INSERT', 'table' => 'quote_logs' ); $failure = $service->execute( '{}' );
 bulk_store_check( false === $failure['results'][0]['ok'] && $log_count === count( ( new QuoteLogStorage( $clock ) )->list_rows() ), 'Failed log write replaced public error/reported persistence.' );
 bulk_store_check( 'locator-preserved' === $wpdb->pdo->query( 'SELECT sentinel FROM wp_tapin_providers' )->fetchColumn(), 'Locator table changed.' );
+// A full public catalog must not expand the independently configured bulk subset.
+$wpdb = new PriceCheckDatabase();
+foreach ( array( 1, 2, 3, 4 ) as $id ) {
+	$provider = json_decode( json_encode( $fixtures->providers[1] ) );
+	$provider->id = $id; $provider->name = 'catalog-' . $id; $provider->active = 4 !== $id;
+	$provider->check_price_url = 'https://example.test/catalog-' . $id; $provider->shop_id = 'catalog-shop';
+	$provider->location_config = (object) array( 'origin' => (object) array( 'enabled' => false ), 'destination' => (object) array( 'enabled' => false ) );
+	ProviderStorage::save( $provider );
+}
+ShopStorage::save( array( (object) array( 'id' => 'catalog-shop', 'title' => 'Fixture', 'token' => 'inert-test-marker' ) ) );
+BulkStorage::save( (object) array( 'providers' => array( 1 ), 'fields' => array(), 'mappings' => new stdClass() ) );
+$public = new \Tapin\ServicePointLocator\PriceCheck\PublicApiService( null, null, static fn() => null );
+$input = new \Tapin\ServicePointLocator\PriceCheck\RestInput();
+bulk_store_check( array( 1, 2, 3 ) === array_column( $public->call( 'list_providers', $input )->body['providers'], 'id' ), 'Public catalog lost active providers or exposed an inactive provider.' );
+bulk_store_check( array( 1 ) === array_column( $public->call( 'bulk_schema', $input )->body['providers'], 'id' ), 'The full public catalog expanded the bulk schema.' );
+$transport = new BulkStoreTransport();
+$service = new BulkQuoteService( static fn() => null, $transport, new WordPressBulkQuoteStore( $clock ) );
+$result = $service->execute( '{}' );
+bulk_store_check( array( 'catalog-1' ) === array_column( $transport->requests, 'name' ), 'Bulk HTTP contacted a provider outside its configured subset.' );
+bulk_store_check( 1 === count( $result['results'] ) && 1 === $result['results'][0]['provider']->id && true === $result['results'][0]['ok'], 'Bulk results expanded beyond the configured provider.' );
+
 echo "PASS bulk with module stores: {$passed} assertions; SQLite wpdb double and mocked HTTP, not WordPress/MySQL integration.\n";

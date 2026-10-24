@@ -16,6 +16,7 @@ const backBtn = document.getElementById('back-to-list');
 
 let currentProvider = null;
 let allProviders = [];
+let providersState = 'idle';
 let fieldSeqLocal = 1000;
 
 /* ---------------- generic pro helpers ---------------- */
@@ -138,19 +139,26 @@ function scrollToResults(node) {
 /* ---------------- single-provider: choose ---------------- */
 
 async function loadProviders() {
+  providersState = 'loading';
   clear(listHost).append(skeleton(3));
+  paintBulkAdvancedShortcut();
   try {
     const { providers } = await api('/api/providers');
-    allProviders = providers || [];
+    if (!Array.isArray(providers)) throw new Error('پاسخ فهرست شرکت‌ها معتبر نیست.');
+    allProviders = providers.filter((provider) => provider && provider.active !== false);
+    providersState = 'loaded';
     paintProviderGrid('');
+    paintBulkAdvancedShortcut();
   } catch (error) {
+    providersState = 'error';
     clear(listHost).append(h('div', { class: 'card' }, h('p', { class: 'error-text', text: error.message })));
+    paintBulkAdvancedShortcut();
     throw error;
   }
 }
 
-// Lazy: the providers list is fetched only when the user actually opens
-// the single-inquiry tab, so the bulk page never calls /api/providers.
+// Share the full public list between the single view and bulk's advanced shortcut.
+// Cache successful empty lists too; only a failed request can be retried.
 let providersPromise = null;
 function ensureProviders() {
   if (!providersPromise) {
@@ -1409,6 +1417,7 @@ window.addEventListener('popstate', routePublic);
 async function loadBulk() {
   clear(bulkFormHost).append(skeleton(3));
   clear(bulkResultHost).append(bulkIntroCard());
+  ensureProviders();
   paintBulkAdvancedShortcut();
   try {
     bulkSchema = await api('/api/bulk');
@@ -1424,14 +1433,13 @@ async function loadBulk() {
 
 /* ---------------- bulk hero: advanced (single) shortcut ---------------- */
 // Attractive entry point inside the group hero: one tap expands the live
-// list of ACTIVE providers (from /api/bulk, already filtered server-side)
+// list of ACTIVE providers (from /api/providers, independent of bulk selection)
 // and each card deep-links to that provider's dedicated single form.
 let bulkAdvancedOpen = false;
 let bulkAdvancedFrame = 0;
 
 function bulkAdvancedProviders() {
-  const fromBulk = bulkSchema && Array.isArray(bulkSchema.providers) ? bulkSchema.providers : [];
-  return fromBulk.filter((p) => p && p.active !== false);
+  return providersState === 'loaded' ? allProviders : [];
 }
 
 function setBulkAdvancedOpen(open) {
@@ -1492,6 +1500,7 @@ function paintBulkAdvancedShortcut() {
     });
   }
   const providers = bulkAdvancedProviders();
+  grid.setAttribute('aria-busy', providersState === 'loading' ? 'true' : 'false');
   if (count) {
     if (providers.length) {
       count.hidden = false;
@@ -1501,9 +1510,16 @@ function paintBulkAdvancedShortcut() {
     }
   }
   clear(grid);
-  if (!bulkSchema) {
+  if (providersState === 'idle' || providersState === 'loading') {
     if (sub) sub.textContent = 'در حال بارگذاری…';
     grid.append(h('p', { class: 'adv-empty', text: 'لیست شرکت‌ها در حال بارگذاری است…' }));
+    return;
+  }
+  if (providersState === 'error') {
+    if (sub) sub.textContent = 'بارگذاری فهرست شرکت‌ها ناموفق بود.';
+    grid.append(h('div', { class: 'adv-empty' },
+      h('p', { class: 'error-text', text: 'فهرست شرکت‌ها بارگذاری نشد.' }),
+      h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onClick: () => ensureProviders() }, 'تلاش مجدد')));
     return;
   }
   if (!providers.length) {

@@ -1654,11 +1654,11 @@ details.add-field > summary { font-weight: 700; font-size: 13px; color: var(--pc
     radial-gradient(360px 180px at 95% 100%, rgba(49, 66, 221, 0.12), transparent 70%),
     linear-gradient(135deg, var(--card) 0%, var(--pc-warm-surface) 100%);
   overflow: visible;
-  /* No z-index here: the sticky topbar (z-index 10) must always stay on
-     top while scrolling. The dropdown menu keeps its own z-index 40, so it
-     still overlays everything when open. */
+  /* Keep the hero below the sticky topbar (z-index 10). Raise it above
+     the bulk form only while the advanced menu is open. */
 }
 .pro-hero-bulk::after { display: none; }
+.pro-hero-bulk:has(#bulk-advanced-panel.open) { z-index: 7; }
 .hero-cta-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 14px; position: relative; z-index: 1; }
 .hero-cta-text { margin: 0; font-size: 12.5px; color: var(--muted); }
 .adv-cta {
