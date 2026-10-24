@@ -17,12 +17,16 @@ final class ConfigurationDatabase {
 		return '`' . str_replace( '`', '``', $name ) . '`';
 	}
 
-	private static function run( string $operation, callable $callback ) {
+	private static function run( string $operation, callable $callback, ?string $suffix = null ) {
 		global $wpdb;
 		$previous = $wpdb->suppress_errors( true );
 		try {
 			$result = $callback( $wpdb );
-			if ( false === $result || '' !== (string) $wpdb->last_error ) { throw new StorageError( $operation ); }
+			if ( false === $result || '' !== (string) $wpdb->last_error ) {
+				// Keep only the known index identity, never database text or submitted values.
+				$name_conflict = 'providers' === $suffix && 1 === preg_match( "/^Duplicate entry .+ for key ['`](?:[^'`]+[.])?provider_name['`]$/isD", trim( (string) $wpdb->last_error ) );
+				throw new StorageError( $operation, $name_conflict ? 'provider_name' : null );
+			}
 			return $result;
 		} finally { $wpdb->suppress_errors( $previous ); }
 	}
@@ -79,7 +83,7 @@ final class ConfigurationDatabase {
 	public static function insert( string $suffix, array $data ): void {
 		$data = self::values( $data );
 		self::table( $suffix ); $table = Schema::tables()[$suffix];
-		$result = self::run( 'insert', static fn( $db ) => $db->insert( $table, $data, self::formats( $data ) ) );
+		$result = self::run( 'insert', static fn( $db ) => $db->insert( $table, $data, self::formats( $data ) ), $suffix );
 		if ( 1 !== (int) $result ) { throw new StorageError( 'insert' ); }
 	}
 
@@ -93,7 +97,7 @@ final class ConfigurationDatabase {
 	public static function update( string $suffix, array $data, array $where ): int {
 		$data = self::values( $data ); $where = self::values( $where );
 		self::table( $suffix ); $table = Schema::tables()[$suffix];
-		return (int) self::run( 'update', static fn( $db ) => $db->update( $table, $data, $where, self::formats( $data ), self::formats( $where ) ) );
+		return (int) self::run( 'update', static fn( $db ) => $db->update( $table, $data, $where, self::formats( $data ), self::formats( $where ) ), $suffix );
 	}
 
 	public static function delete( string $suffix, array $where ): int {

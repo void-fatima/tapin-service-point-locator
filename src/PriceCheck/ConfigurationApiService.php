@@ -8,6 +8,13 @@ final class ConfigurationApiService {
 	private PublicApiService $schemas;
 	private LocationAdminService $locations;
 	public function __construct( ?PublicApiService $schemas = null, ?LocationAdminService $locations = null ) { $this->schemas = $schemas ?? new PublicApiService(); $this->locations = $locations ?? new LocationAdminService(); }
+	private static function check_provider_name( string $name, ?int $current_id ): void {
+		$owner = ProviderStorage::id_by_name( $name );
+		if ( null !== $owner && $owner !== $current_id ) {
+			$detail = 'نام فنی واردشده قبلاً برای شرکت دیگری با شناسه ' . $owner . ' ثبت شده است.';
+			throw new QuoteError( 409, $detail, array( array( 'field' => 'name', 'message' => $detail ) ) );
+		}
+	}
 	private function bulk_editor(): array {
 		$providers = array(); foreach ( ProviderStorage::all() as $provider ) { $params = array(); foreach ( ProviderDefinition::params( $provider ) as $param ) {
 			$row = array(); foreach ( array( 'id', 'name', 'label', 'input', 'type', 'visible', 'kind', 'default' ) as $key ) { $row[$key] = V::get( $param, $key ); } $row['options'] = ProviderSchema::options( $param ); $row['fields'] = array();
@@ -25,7 +32,18 @@ final class ConfigurationApiService {
 		if ( 'admin_create_provider' === $operation || 'admin_update_provider' === $operation ) {
 			try { $record = ProviderConfig::normalise( $input->body() ); $this->locations->validate_manual( $record ); } catch ( RecordError $error ) { throw new QuoteError( 422, 'اطلاعات ارسالی معتبر نیست.', $error->errors ); }
 			if ( isset( $provider ) ) { $record->id = $provider->id; }
-			try { $id = ProviderStorage::save( $record, isset( $provider ) ); } catch ( \InvalidArgumentException $error ) { throw new QuoteError( 422, $error->getMessage() ); } catch ( StorageError $error ) { throw new QuoteError( 409, 'ذخیره در پایگاه داده ناموفق بود.' ); }
+			$current_id = isset( $provider ) ? $provider->id : null;
+			try {
+				self::check_provider_name( $record->name, $current_id );
+				$id = ProviderStorage::save( $record, isset( $provider ) );
+			} catch ( \InvalidArgumentException $error ) { throw new QuoteError( 422, $error->getMessage() ); }
+			catch ( StorageError $error ) {
+				if ( 'provider_name' === $error->unique_constraint ) {
+					// A concurrent writer can acquire the name after the initial check.
+					try { self::check_provider_name( $record->name, $current_id ); } catch ( StorageError $lookup_error ) { /* Keep the original sanitized save failure. */ }
+				}
+				throw new QuoteError( 409, 'ذخیره در پایگاه داده ناموفق بود.' );
+			}
 			return new RestResult( array( 'id' => $id, 'detail' => 'ذخیره شد.' ), 'admin_create_provider' === $operation ? 201 : 200 );
 		}
 		if ( 'admin_list_shops' === $operation ) { $rows = ShopStorage::list_rows( $input->query['province'] ?? null, $input->query['city'] ?? null ); return new RestResult( array( 'shops' => $rows, 'count' => count( $rows ) ) ); }
