@@ -25,7 +25,7 @@ final class ConfigurationApiService {
 		if ( 'admin_create_provider' === $operation || 'admin_update_provider' === $operation ) {
 			try { $record = ProviderConfig::normalise( $input->body() ); $this->locations->validate_manual( $record ); } catch ( RecordError $error ) { throw new QuoteError( 422, 'اطلاعات ارسالی معتبر نیست.', $error->errors ); }
 			if ( isset( $provider ) ) { $record->id = $provider->id; }
-			try { $id = ProviderStorage::save( $record ); } catch ( \InvalidArgumentException $error ) { throw new QuoteError( 422, $error->getMessage() ); } catch ( StorageError $error ) { throw new QuoteError( 409, 'ذخیره در پایگاه داده ناموفق بود.' ); }
+			try { $id = ProviderStorage::save( $record, isset( $provider ) ); } catch ( \InvalidArgumentException $error ) { throw new QuoteError( 422, $error->getMessage() ); } catch ( StorageError $error ) { throw new QuoteError( 409, 'ذخیره در پایگاه داده ناموفق بود.' ); }
 			return new RestResult( array( 'id' => $id, 'detail' => 'ذخیره شد.' ), 'admin_create_provider' === $operation ? 201 : 200 );
 		}
 		if ( 'admin_list_shops' === $operation ) { $rows = ShopStorage::list_rows( $input->query['province'] ?? null, $input->query['city'] ?? null ); return new RestResult( array( 'shops' => $rows, 'count' => count( $rows ) ) ); }

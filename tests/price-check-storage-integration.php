@@ -50,8 +50,7 @@ try {
 	$loaded->name = 'renamed'; $loaded->params[0]->name = 'renamed_items'; $loaded->params[0]->fields[0]->name = 'renamed_count';
 	ProviderStorage::save( $loaded ); $again = ProviderStorage::load( $id );
 	storage_integration_check( $pid === $again->params[0]->id && $fid === $again->params[0]->fields[0]->id, 'Stable owned IDs changed.' );
-	try { ProviderStorage::save( $again ); throw new RuntimeException( 'Source unchanged-update failure was not preserved.' ); }
-	catch ( StorageError $expected ) { $passed++; }
+	storage_integration_check( $id === ProviderStorage::save( $again, true ) && 1 === count( ProviderStorage::list_rows() ), 'Unchanged provider save failed or duplicated the row.' );
 	ProviderStorage::delete( $id );
 	storage_integration_check( null === ProviderStorage::load( $id ) && array() === ProviderStorage::field_rows( array( $pid ) ), 'Delete cascade failed.' );
 	$shop = (object) array( 'id' => '01', 'title' => "fixture'shop", 'province' => '0', 'city' => null, 'token' => 'inert-test-text' );

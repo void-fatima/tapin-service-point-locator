@@ -44,6 +44,15 @@ storage_check( JSON_ERROR_NONE === json_last_error(), 'Invalid fixture JSON.' );
 $operations = 0;
 foreach ( $fixtures->scenarios as $case ) {
 	$wpdb = new PriceCheckDatabase();
+	if ( 'unchanged provider update is a source failure' === $case->name ) {
+		// Intentional correction of the archived Python bug; other fixtures retain source parity.
+		$id = ProviderStorage::save( $case->actions[0]->args[0] );
+		$record = ProviderStorage::load( $id );
+		storage_check( $id === ProviderStorage::save( $record, true ), 'Unchanged provider save failed.' );
+		storage_check( json_encode( $record ) === json_encode( ProviderStorage::load( $id ) ), 'Unchanged provider settings or IDs changed.' );
+		storage_check( 1 === count( ProviderStorage::list_rows() ), 'Unchanged provider save duplicated the row.' );
+		continue;
+	}
 	if ( isset( $case->initial_bulk_json ) ) { $wpdb->pdo->prepare( 'INSERT INTO wp_tapin_price_bulk_config(id, data_json) VALUES(1, ?)' )->execute( array( $case->initial_bulk_json ) ); }
 	foreach ( $case->actions as $index => $item ) {
 		$wpdb->failure = isset( $item->failure ) ? (array) $item->failure : null;

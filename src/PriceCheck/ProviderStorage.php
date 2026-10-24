@@ -50,7 +50,8 @@ final class ProviderStorage {
 
 	private static function default_text( $value ): ?string { return null === $value || '' === $value ? null : V::string( $value ); }
 
-	public static function save( $record ): int {
+	/** Retain supplied-ID creation for source callers; REST edits require an existing row. */
+	public static function save( $record, bool $require_existing = false ): int {
 		if ( ! V::mapping( $record ) ) { throw new \InvalidArgumentException( 'Provider must be a mapping.' ); }
 		$name = self::text( V::get( $record, 'name' ) );
 		if ( '' === $name ) { throw new \InvalidArgumentException( 'نام فنی شرکت الزامی است.' ); }
@@ -77,11 +78,15 @@ final class ProviderStorage {
 		);
 		$id = V::get( $record, 'id' );
 		if ( null === $id || '' === $id ) {
+			if ( $require_existing ) { throw new StorageError( 'update' ); }
 			$id = self::next_id(); ConfigurationDatabase::insert( 'providers', array( 'id' => $id ) + $data );
 		} else {
 			$id = V::integer( $id );
-			// Preserve the source rowcount fallback, including its unchanged-update duplicate-key failure.
-			if ( 0 === ConfigurationDatabase::update( 'providers', $data, array( 'id' => $id ) ) ) { ConfigurationDatabase::insert( 'providers', array( 'id' => $id ) + $data ); }
+			// Zero changed rows can mean an unchanged row; it is not a failed UPDATE.
+			if ( 0 === ConfigurationDatabase::update( 'providers', $data, array( 'id' => $id ) ) && null === self::get_row( $id ) ) {
+				if ( $require_existing ) { throw new StorageError( 'update' ); }
+				ConfigurationDatabase::insert( 'providers', array( 'id' => $id ) + $data );
+			}
 		}
 		$owned = array_column( self::param_rows( $id ), 'id' ); $owners = array();
 		foreach ( self::field_rows( $owned ) as $field ) { $owners[$field['id']] = $field['param_id']; }
