@@ -699,46 +699,71 @@ function renderEditor(provider) {
     }
   };
 
-  const logoPreview = h('div', { class: 'logo-preview' });
-  const logoInput = h('input', { type: 'file', accept: 'image/*' });
-  const logoError = h('div');
+  const logoPreview = h('div', { class: 'logo-preview provider-logo-upload__preview' });
+  const logoInput = h('input', {
+    id: 'provider-logo-file', class: 'provider-logo-upload__input', type: 'file', accept: 'image/*',
+    'aria-describedby': 'provider-logo-filename provider-logo-hint provider-logo-error',
+  });
+  const logoChoose = h('label', { class: 'btn btn-sm btn-ghost provider-logo-upload__choose', for: logoInput.id }, icon('plus'), 'انتخاب تصویر');
+  const logoFilename = h('span', { id: 'provider-logo-filename', class: 'provider-logo-upload__filename', dir: 'auto', 'aria-live': 'polite' });
+  const logoHint = h('span', { id: 'provider-logo-hint', class: 'provider-logo-upload__hint', text: 'حداکثر حجم تصویر: ۱ مگابایت' });
+  const logoError = h('div', { id: 'provider-logo-error', class: 'provider-logo-upload__error', role: 'alert' });
+  let logoFilenameText = '';
+  const clearLogoError = () => { clear(logoError); logoInput.removeAttribute('aria-invalid'); };
+  const logoRemove = h('button', {
+    class: 'btn btn-sm btn-remove provider-logo-upload__remove', type: 'button',
+    onClick: () => {
+      record.logo = ''; logoFilenameText = ''; logoInput.value = '';
+      clearLogoError(); paintLogo(); logoInput.focus();
+    },
+  }, icon('trash'), 'حذف لوگو');
+  const logoActions = h('div', { class: 'provider-logo-upload__actions' }, logoRemove);
   if (!isLogoImage(record.logo)) record.logo = '';
   const paintLogo = () => {
+    const hasLogo = isLogoImage(record.logo);
     clear(logoPreview).append(
-      isLogoImage(record.logo)
+      hasLogo
         ? h('img', { src: record.logo, alt: record.display_name || record.name || '' })
-        : h('p', { class: 'empty', text: 'لوگویی انتخاب نشده است؛ در صورت خالی بودن، حرف اول نام نمایش داده می‌شود.' }),
-      isLogoImage(record.logo)
-        ? h('button', {
-          class: 'btn btn-sm btn-remove', type: 'button', style: 'margin-top:8px',
-          onClick: () => { record.logo = ''; logoInput.value = ''; paintLogo(); },
-        }, 'حذف لوگو')
-        : null
+        : h('span', { class: 'provider-logo-upload__placeholder', role: 'img', 'aria-label': 'بدون لوگو' }, icon('building'))
     );
+    logoFilename.textContent = hasLogo ? (logoFilenameText || 'لوگوی فعلی') : 'تصویری انتخاب نشده است';
+    logoFilename.title = logoFilename.textContent;
+    logoRemove.hidden = logoActions.hidden = !hasLogo;
   };
   paintLogo();
   logoInput.addEventListener('change', async () => {
-    clear(logoError);
+    clearLogoError();
     const file = logoInput.files && logoInput.files[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
       logoError.append(h('p', { class: 'error-text', text: 'فقط فایل تصویری انتخاب کنید.' }));
+      logoInput.setAttribute('aria-invalid', 'true');
       logoInput.value = '';
       return;
     }
     if (file.size > 1024 * 1024) {
       logoError.append(h('p', { class: 'error-text', text: 'حجم لوگو نباید بیشتر از ۱ مگابایت باشد.' }));
+      logoInput.setAttribute('aria-invalid', 'true');
       logoInput.value = '';
       return;
     }
     try {
       record.logo = await readFileAsDataURL(file);
+      logoFilenameText = file.name;
       paintLogo();
     } catch (error) {
       logoError.append(h('p', { class: 'error-text', text: 'خواندن فایل ناموفق بود.' }));
+      logoInput.setAttribute('aria-invalid', 'true');
       logoInput.value = '';
     }
   });
+  const logoUpload = h('div', { class: 'provider-logo-upload', dir: 'rtl' },
+    logoPreview,
+    h('div', { class: 'provider-logo-upload__controls' }, logoInput, logoChoose, logoFilename, logoHint),
+    logoActions, logoError);
+  const logoField = fieldWrapper('لوگو - انتخاب فایل تصویری', logoUpload);
+  logoField.classList.add('provider-logo-field');
+  logoField.querySelector('label').htmlFor = logoInput.id;
 
   const settingsCard = h(
     'div',
@@ -780,7 +805,7 @@ function renderEditor(provider) {
         'مهلت پاسخ‌گویی سرویس (ثانیه)',
         h('input', { type: 'number', min: 1, max: 300, value: provider.timeout ?? '', onInput: (e) => { record.timeout = e.target.value; } })
       ),
-      fieldWrapper('لوگو - انتخاب فایل تصویری', h('div', {}, logoPreview, logoInput, logoError))
+      logoField
     )
   );
 
